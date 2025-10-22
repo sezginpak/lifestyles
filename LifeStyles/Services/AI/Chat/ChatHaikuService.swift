@@ -52,6 +52,13 @@ struct ChatContext: Codable {
     // Shared memories/notes
     let notes: String?
     let sharedInterests: String?
+
+    // Life data (goals, habits, mood, location)
+    let activeGoals: [GoalSnapshot]?
+    let habits: [HabitSnapshot]?
+    let currentMood: MoodSnapshot?
+    let moodTrend: MoodTrend?
+    let locationPattern: LocationPattern?
 }
 
 // MARK: - Chat Haiku Service
@@ -139,13 +146,17 @@ class ChatHaikuService {
 
     private func trackDataUsage(context: ChatContext) {
         let friendsCount = (context.allFriends?.count ?? 0) + (context.overdueFriends?.count ?? 0) + (context.friend != nil ? 1 : 0)
+        let goalsCount = context.activeGoals?.count ?? 0
+        let habitsCount = context.habits?.count ?? 0
+        let hasMood = context.currentMood != nil || context.moodTrend != nil
+        let hasLocation = context.locationPattern != nil
 
         let dataCount = DataUsageCount(
             friendsCount: friendsCount,
-            goalsCount: 0,  // Chat doesn't use goals/habits yet
-            habitsCount: 0,
-            hasMoodData: false,
-            hasLocationData: false,
+            goalsCount: goalsCount,
+            habitsCount: habitsCount,
+            hasMoodData: hasMood,
+            hasLocationData: hasLocation,
             timestamp: Date()
         )
 
@@ -161,6 +172,27 @@ class ChatHaikuService {
     ) async -> ChatContext {
         // Privacy settings
         let privacySettings = AIPrivacySettings.shared
+
+        // Load life data based on privacy settings (for all chat modes)
+        let goals: [GoalSnapshot]? = privacySettings.shareGoalsAndHabits
+            ? await GoalContextBuilder.buildActive(modelContext: modelContext)
+            : nil
+
+        let habits: [HabitSnapshot]? = privacySettings.shareGoalsAndHabits
+            ? await HabitContextBuilder.buildAll(modelContext: modelContext)
+            : nil
+
+        let mood: MoodSnapshot? = privacySettings.shareMoodData
+            ? await MoodContextBuilder.buildCurrent(modelContext: modelContext)
+            : nil
+
+        let trend: MoodTrend? = privacySettings.shareMoodData
+            ? await MoodContextBuilder.buildTrend(modelContext: modelContext, days: 7)
+            : nil
+
+        let location: LocationPattern? = privacySettings.shareLocationData
+            ? await LocationContextBuilder.buildPattern(modelContext: modelContext)
+            : nil
 
         // Friend yoksa genel mod - intent'e göre arkadaş bilgisi yükle
         guard let friend = friend else {
@@ -193,7 +225,12 @@ class ChatHaikuService {
                 lastContactDays: nil,
                 totalContacts: nil,
                 notes: nil,
-                sharedInterests: nil
+                sharedInterests: nil,
+                activeGoals: goals,
+                habits: habits,
+                currentMood: mood,
+                moodTrend: trend,
+                locationPattern: location
             )
         }
 
@@ -220,7 +257,12 @@ class ChatHaikuService {
             lastContactDays: friendSnapshot.daysSinceLastContact,
             totalContacts: totalContacts,
             notes: friend.notes,
-            sharedInterests: friend.sharedInterests
+            sharedInterests: friend.sharedInterests,
+            activeGoals: goals,
+            habits: habits,
+            currentMood: mood,
+            moodTrend: trend,
+            locationPattern: location
         )
     }
 
@@ -247,7 +289,7 @@ class ChatHaikuService {
             // Smart Context: Intent'e göre farklı bilgi
             if let allFriends = context.allFriends, !allFriends.isEmpty {
                 // friendsList intent - TÜM arkadaşlar
-                contextInfo += "\n\nKullanıcının arkadaşları (\(allFriends.count) kişi):\n"
+                contextInfo += "\n\n📱 Arkadaşlar (\(allFriends.count) kişi):\n"
                 for friend in allFriends.prefix(10) { // İlk 10 arkadaş
                     contextInfo += "• \(friend.name) (\(friend.relationshipType))"
                     if friend.isOverdue {
@@ -260,16 +302,63 @@ class ChatHaikuService {
                 }
             } else if let overdueFriends = context.overdueFriends, !overdueFriends.isEmpty {
                 // contactAdvice intent - SADECE overdue arkadaşlar
-                contextInfo += "\n\nİletişim kurulması gereken arkadaşlar (\(overdueFriends.count) kişi):\n"
+                contextInfo += "\n\n⚠️ İletişim kurulması gereken arkadaşlar (\(overdueFriends.count) kişi):\n"
                 for friend in overdueFriends.prefix(10) {
-                    contextInfo += "• \(friend.name) (\(friend.relationshipType)) - ⚠️ \(friend.daysSinceLastContact) gündür iletişim yok\n"
+                    contextInfo += "• \(friend.name) (\(friend.relationshipType)) - \(friend.daysSinceLastContact) gündür iletişim yok\n"
                 }
                 if overdueFriends.count > 10 {
                     contextInfo += "...ve \(overdueFriends.count - 10) kişi daha\n"
                 }
-            } else {
-                // general intent - minimal context (token tasarrufu)
-                contextInfo += "\n\n(Arkadaş bilgisi yüklenmedi - genel soru modu)"
+            }
+
+            // Goals
+            if let goals = context.activeGoals, !goals.isEmpty {
+                contextInfo += "\n\n🎯 Aktif Hedefler (\(goals.count)):\n"
+                for goal in goals.prefix(5) {
+                    let progressPercent = Int(goal.progress * 100)
+                    contextInfo += "• \(goal.title) - %\(progressPercent)"
+                    if goal.isOverdue {
+                        contextInfo += " ⚠️ Süre geçti"
+                    }
+                    contextInfo += "\n"
+                }
+            }
+
+            // Habits
+            if let habits = context.habits, !habits.isEmpty {
+                contextInfo += "\n\n✓ Alışkanlıklar (\(habits.count)):\n"
+                for habit in habits.prefix(5) {
+                    contextInfo += "• \(habit.name) - Streak: \(habit.currentStreak)"
+                    let rate = Int(habit.weeklyCompletionRate * 100)
+                    contextInfo += " (%\(rate) haftalık)\n"
+                }
+            }
+
+            // Mood
+            if let mood = context.currentMood {
+                contextInfo += "\n\n😊 Ruh Hali: \(mood.type) (\(mood.intensity)/5)"
+                if let note = mood.note {
+                    contextInfo += " - \(note)"
+                }
+                contextInfo += "\n"
+            }
+
+            if let trend = context.moodTrend {
+                contextInfo += "   7 günlük ortalama: \(String(format: "%.1f", trend.averageIntensity))/5\n"
+            }
+
+            // Location
+            if let location = context.locationPattern {
+                contextInfo += "\n\n📍 Konum: Bugün \(String(format: "%.1f", location.hoursAtHomeToday)) saat evde"
+                if let lastOut = location.lastOutdoorActivity {
+                    let days = Calendar.current.dateComponents([.day], from: lastOut, to: Date()).day ?? 0
+                    if days == 0 {
+                        contextInfo += ", Bugün dışarı çıktı"
+                    } else if days > 0 {
+                        contextInfo += ", \(days) gündür dışarı çıkmadı"
+                    }
+                }
+                contextInfo += "\n"
             }
 
             systemPrompt = """
@@ -283,10 +372,11 @@ class ChatHaikuService {
             - Emoji kullan (abartma, 1-2 emoji yeterli)
             - Yapıcı ve motive edici ol
             - Kullanıcının sorularını anlamaya çalış
-            - Arkadaş bilgisi varsa spesifik önerilerde bulun
+            - Context bilgilerini kullanarak kişiselleştirilmiş önerilerde bulun
+            - Hedef/alışkanlık/mood verilerini analiz ederek tavsiye ver
             - Gerekirse soru sor, daha fazla detay iste
 
-            Tarzın: Arkadaş canlısı, destekleyici, anlayışlı
+            Tarzın: Arkadaş canlısı, destekleyici, anlayışlı, motive edici
             """
         } else {
             // Friend modu - kişiselleştirilmiş asistan
@@ -315,12 +405,25 @@ class ChatHaikuService {
                 contextInfo += "\n- Ortak ilgi alanları: \(interests)"
             }
 
+            // User's life context (if available)
+            var lifeContext = ""
+
+            if let goals = context.activeGoals, !goals.isEmpty {
+                lifeContext += "\n\nKullanıcının hedefleri: "
+                lifeContext += goals.prefix(3).map { $0.title }.joined(separator: ", ")
+            }
+
+            if let mood = context.currentMood {
+                lifeContext += "\nMevcut ruh hali: \(mood.type) (\(mood.intensity)/5)"
+            }
+
             systemPrompt = """
             Sen LifeStyles uygulamasının kişisel asistanısın. Adın Claude.
 
             Şu anda kullanıcı \(friendName) hakkında konuşuyor.
             İlişki türü: \(relationship)
             \(contextInfo)
+            \(lifeContext)
 
             Görevin: Kullanıcıya \(friendName) ile ilişkisini güçlendirmede yardımcı olmak.
 
@@ -331,6 +434,7 @@ class ChatHaikuService {
             - Yapıcı öneriler sun
             - Kullanıcının context bilgisini kullan ama tekrar etme
             - İlişkiyi güçlendirici fikirler ver
+            - Kullanıcının ruh hali ve hedeflerini dikkate al
 
             Konuşabileceğin konular:
             - Mesaj önerileri ("\(friendName)'a ne mesaj atsam?")

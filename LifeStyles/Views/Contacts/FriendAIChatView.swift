@@ -99,7 +99,7 @@ struct FriendAIChatView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "chevron.left")
                                 .font(.caption)
-                            Text("Geri")
+                            Text(String(localized: "common.back", comment: "Back"))
                                 .font(.subheadline)
                         }
                     }
@@ -110,13 +110,13 @@ struct FriendAIChatView: View {
                         Button {
                             clearChat()
                         } label: {
-                            Label("Sohbeti Temizle", systemImage: "trash")
+                            Label(String(localized: "ai.chat.clear", comment: "Clear Chat"), systemImage: "trash")
                         }
 
                         Button {
                             shareChat()
                         } label: {
-                            Label("Sohbeti Paylaş", systemImage: "square.and.arrow.up")
+                            Label(String(localized: "ai.chat.share", comment: "Share Chat"), systemImage: "square.and.arrow.up")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -134,6 +134,15 @@ struct FriendAIChatView: View {
             }
             .sheet(isPresented: $showDataUsageInfo) {
                 DataUsageInfoSheet()
+            }
+            .alert(String(localized: "ai.features.disabled", comment: "AI Features Disabled"), isPresented: $showAIDisabledAlert) {
+                Button(String(localized: "common.go.to.settings", comment: "Go to Settings")) {
+                    // Navigate to settings - NOT IMPLEMENTED YET
+                    // For now just dismiss
+                }
+                Button(String(localized: "common.ok", comment: "OK"), role: .cancel) {}
+            } message: {
+                Text(String(localized: "ai.chat.enable.instruction", comment: "Instructions to enable AI chat from settings"))
             }
         }
     }
@@ -167,13 +176,13 @@ struct FriendAIChatView: View {
             }
 
             VStack(spacing: 8) {
-                Text("AI Asistan")
+                Text(String(localized: "ai.chat.assistant", comment: "AI Assistant"))
                     .font(.title2)
                     .fontWeight(.bold)
 
                 Text(isGeneralMode
-                    ? "Hayatınızı iyileştirmenize yardımcı olabilirim. Arkadaşlarınız, hedefleriniz veya aktiviteler hakkında soru sorabilirsiniz."
-                    : "\(friend!.name) hakkında soru sorabilir veya mesaj taslağı isteyebilirsiniz.")
+                    ? String(localized: "ai.chat.general.description", comment: "General AI chat description")
+                    : String(format: NSLocalizedString("ai.chat.friend.description.format", comment: "Friend AI chat description with name"), friend!.name))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -209,7 +218,7 @@ struct FriendAIChatView: View {
         HStack(spacing: 12) {
             // Text Input
             HStack(spacing: 8) {
-                TextField("Bir soru sorun...", text: $userInput, axis: .vertical)
+                TextField(String(localized: "ai.chat.input.placeholder", comment: "Ask a question..."), text: $userInput, axis: .vertical)
                     .font(.subheadline)
                     .lineLimit(1...4)
                     .disabled(isGeneratingAI)
@@ -259,6 +268,13 @@ struct FriendAIChatView: View {
 
     private func sendMessage() {
         guard !userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+
+        // CHECK AI FEATURES ENABLED
+        if !privacySettings.hasGivenAIConsent || !privacySettings.aiChatEnabled {
+            HapticFeedback.warning()
+            showAIDisabledAlert = true
             return
         }
 
@@ -315,12 +331,20 @@ struct FriendAIChatView: View {
                 HapticFeedback.success()
                 isGeneratingAI = false
             }
+        } catch ChatError.aiDisabled {
+            print("❌ AI disabled")
+
+            await MainActor.run {
+                showAIDisabledAlert = true
+                isGeneratingAI = false
+                HapticFeedback.warning()
+            }
         } catch {
             print("❌ Chat error: \(error)")
 
             // Fallback response
             await MainActor.run {
-                let fallbackMessage = "Üzgünüm, şu anda yanıt veremiyorum. Lütfen tekrar dene. 😔"
+                let fallbackMessage = String(localized: "ai.chat.error.fallback", comment: "Sorry, I cannot respond right now. Please try again.")
                 let aiMessage = ChatMessage(content: fallbackMessage, isUser: false)
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     chatMessages.append(aiMessage)
@@ -367,7 +391,7 @@ struct FriendAIChatView: View {
 
     private func shareChat() {
         let chatText = chatMessages.map { message in
-            "\(message.isUser ? "Ben" : "AI"): \(message.content)"
+            "\(message.isUser ? String(localized: "ai.chat.me", comment: "Me") : "AI"): \(message.content)"
         }.joined(separator: "\n\n")
 
         let activityVC = UIActivityViewController(
@@ -639,7 +663,7 @@ struct ModernChatBubble: View {
                         UIPasteboard.general.string = message.content
                         HapticFeedback.success()
                     } label: {
-                        Label("Kopyala", systemImage: "doc.on.doc")
+                        Label(String(localized: "common.copy", comment: "Copy"), systemImage: "doc.on.doc")
                     }
                 }
 
@@ -818,11 +842,11 @@ struct DataUsageInfoSheet: View {
                             HStack {
                                 Image(systemName: "checkmark.shield.fill")
                                     .foregroundStyle(.green)
-                                Text("Son AI İsteği")
+                                Text(String(localized: "ai.data.last.request", comment: "Last AI Request"))
                                     .font(.headline)
                             }
 
-                            Text("Bu yanıt için kullanılan veriler:")
+                            Text(String(localized: "ai.data.used.for.response", comment: "Data used for this response:"))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
 
@@ -831,7 +855,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "person.2.fill")
                                         .foregroundStyle(.blue)
                                         .frame(width: 24)
-                                    Text("\(dataCount.friendsCount) arkadaş bilgisi")
+                                    Text(String(format: NSLocalizedString("ai.data.friends.count.format", comment: "Friend information count"), dataCount.friendsCount))
                                         .font(.callout)
                                 }
                             }
@@ -841,7 +865,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "target")
                                         .foregroundStyle(.green)
                                         .frame(width: 24)
-                                    Text("\(dataCount.goalsCount) hedef bilgisi")
+                                    Text(String(format: NSLocalizedString("ai.data.goals.count.format", comment: "Goals information count"), dataCount.goalsCount))
                                         .font(.callout)
                                 }
                             }
@@ -851,7 +875,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "checkmark.circle")
                                         .foregroundStyle(.purple)
                                         .frame(width: 24)
-                                    Text("\(dataCount.habitsCount) alışkanlık bilgisi")
+                                    Text(String(format: NSLocalizedString("ai.data.habits.count.format", comment: "Habits information count"), dataCount.habitsCount))
                                         .font(.callout)
                                 }
                             }
@@ -861,7 +885,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "face.smiling")
                                         .foregroundStyle(.orange)
                                         .frame(width: 24)
-                                    Text("Ruh hali verisi")
+                                    Text(String(localized: "ai.data.mood", comment: "Mood data"))
                                         .font(.callout)
                                 }
                             }
@@ -871,7 +895,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "location.fill")
                                         .foregroundStyle(.purple)
                                         .frame(width: 24)
-                                    Text("Konum verisi")
+                                    Text(String(localized: "ai.data.location", comment: "Location data"))
                                         .font(.callout)
                                 }
                             }
@@ -881,7 +905,7 @@ struct DataUsageInfoSheet: View {
                                     Image(systemName: "exclamationmark.circle")
                                         .foregroundStyle(.orange)
                                         .frame(width: 24)
-                                    Text("Veri paylaşılmadı")
+                                    Text(String(localized: "ai.data.not.shared", comment: "No data shared"))
                                         .font(.callout)
                                         .foregroundStyle(.secondary)
                                 }
@@ -902,11 +926,11 @@ struct DataUsageInfoSheet: View {
                         HStack {
                             Image(systemName: "gearshape.fill")
                                 .foregroundStyle(.purple)
-                            Text("Gizlilik Ayarlarını Yönet")
+                            Text(String(localized: "ai.privacy.manage.settings", comment: "Manage Privacy Settings"))
                         }
                     }
                 } header: {
-                    Text("Ayarlar")
+                    Text(String(localized: "common.settings", comment: "Settings"))
                 }
 
                 Section {
@@ -915,7 +939,7 @@ struct DataUsageInfoSheet: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
                                 .font(.caption)
-                            Text("Verileriniz sadece AI yanıtları oluşturmak için kullanılır")
+                            Text(String(localized: "ai.privacy.note.1", comment: "Your data is only used to generate AI responses"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -924,7 +948,7 @@ struct DataUsageInfoSheet: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
                                 .font(.caption)
-                            Text("Anthropic verilerinizi eğitim için kullanmaz")
+                            Text(String(localized: "ai.privacy.note.2", comment: "Anthropic does not use your data for training"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -933,20 +957,20 @@ struct DataUsageInfoSheet: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
                                 .font(.caption)
-                            Text("Her veri türünü ayrı ayrı kontrol edebilirsiniz")
+                            Text(String(localized: "ai.privacy.note.3", comment: "You can control each data type separately"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 } header: {
-                    Text("Gizlilik Notları")
+                    Text(String(localized: "ai.privacy.notes", comment: "Privacy Notes"))
                 }
             }
-            .navigationTitle("Veri Kullanımı")
+            .navigationTitle(String(localized: "ai.data.usage", comment: "Data Usage"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "common.ok", comment: "OK")) {
                         dismiss()
                     }
                 }

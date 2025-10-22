@@ -239,6 +239,21 @@ class HabitContextBuilder {
     }
 }
 
+// MARK: - User Profile Context Builder
+
+class ProfileContextBuilder {
+    static func build(modelContext: ModelContext) async -> UserProfileSnapshot? {
+        let descriptor = FetchDescriptor<UserProfile>()
+
+        guard let profiles = try? modelContext.fetch(descriptor),
+              let profile = profiles.first else {
+            return nil
+        }
+
+        return UserProfileSnapshot(from: profile)
+    }
+}
+
 // MARK: - Location Context Builder
 
 class LocationContextBuilder {

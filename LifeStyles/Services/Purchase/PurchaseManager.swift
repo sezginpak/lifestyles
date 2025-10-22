@@ -20,7 +20,9 @@ class PurchaseManager {
     private(set) var subscriptionStatus: SubscriptionStatus = .free
 
     var isPremium: Bool {
-        subscriptionStatus == .premium
+        // TODO: GEÇICI - TEST İÇİN PREMIUM AKTİF
+        return true
+        // subscriptionStatus == .premium
     }
 
     // Transaction update task

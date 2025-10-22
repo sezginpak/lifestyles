@@ -403,6 +403,10 @@ struct JournalEditorView: View {
             .onAppear {
                 setupEditor()
             }
+            .onDisappear {
+                // Clean up when view disappears
+                cleanup()
+            }
         }
     }
 
@@ -526,27 +530,29 @@ struct JournalEditorView: View {
 
     private var stepTagsView: some View {
         ScrollView {
-            VStack(spacing: Spacing.large) {
+            VStack(spacing: Spacing.medium) {
                 // Compact Header
-                HStack(spacing: Spacing.medium) {
-                    Image(systemName: "tag")
-                        .font(.title)
-                        .foregroundStyle(selectedType.color)
+                VStack(spacing: Spacing.small) {
+                    Image(systemName: "tag.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [selectedType.color, selectedType.color.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Etiketler ekle")
-                            .font(.headline)
-                            .fontWeight(.bold)
+                    Text("Etiketler ekle")
+                        .font(.title3)
+                        .fontWeight(.bold)
 
-                        Text("Journal'ını kategorilere ayır")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
+                    Text("Journal'ını kategorilere ayır")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, Spacing.large)
                 .padding(.top, Spacing.medium)
+                .frame(maxWidth: .infinity)
 
                 // Tag Picker
                 TagPickerView(
@@ -554,10 +560,11 @@ struct JournalEditorView: View {
                     suggestions: viewModel.tagSuggestions,
                     allEntries: viewModel.journalEntries
                 )
-                .padding(.horizontal, Spacing.large)
+                .padding(.horizontal, Spacing.medium)
+                .padding(.top, Spacing.small)
 
                 // Bottom padding for keyboard
-                Color.clear.frame(height: 100)
+                Color.clear.frame(height: 120)
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -936,6 +943,14 @@ struct JournalEditorView: View {
 
     private func cleanup() {
         viewModel.editingJournalEntry = nil
+        // Reset all state
+        currentStep = .type
+        selectedType = .general
+        title = ""
+        content = ""
+        selectedTags = []
+        linkToMood = false
+        isSaving = false
     }
 }
 
