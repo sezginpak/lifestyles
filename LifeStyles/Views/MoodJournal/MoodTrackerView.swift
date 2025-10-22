@@ -20,130 +20,129 @@ struct MoodTrackerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                // Today's Mood Card
+            VStack(spacing: Spacing.large) {
+                // Today's Mood Card (Compact)
                 if let todaysMood = viewModel.todaysMood {
-                    existingMoodCard(todaysMood)
+                    compactExistingMoodCard(todaysMood)
                 } else {
-                    newMoodCard
+                    compactNewMoodCard
                 }
 
-                // Streak Display
-                if viewModel.streakData.currentStreak > 0 {
-                    streakCard
-                }
+                // Stats Section (3 Column)
+                statsSection
 
-                // Recent Moods
+                // Recent Moods (Grid 2-column)
                 if !viewModel.moodEntries.isEmpty {
-                    recentMoodsSection
+                    compactRecentMoodsSection
                 }
             }
-            .padding()
+            .padding(Spacing.large)
         }
         .sheet(isPresented: $showingMoodPicker) {
             moodPickerSheet
         }
     }
 
-    // MARK: - Today's Mood (New)
+    // MARK: - Today's Mood (New) - COMPACT
 
-    private var newMoodCard: some View {
-        VStack(spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "mood.how.are.you.today", comment: "How are you today?"))
-                        .font(.title2)
-                        .fontWeight(.bold)
+    private var compactNewMoodCard: some View {
+        HStack(spacing: Spacing.medium) {
+            // Emoji (smaller)
+            Text("😊")
+                .font(.system(size: 40))
 
-                    Text(String(localized: "mood.record.your.mood", comment: "Record your mood"))
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
+            VStack(alignment: .leading, spacing: Spacing.micro) {
+                Text(String(localized: "mood.how.are.you.today", comment: "How are you today?"))
+                    .font(.headline)
+                    .fontWeight(.bold)
 
-                Spacer()
-
-                Text("😊")
-                    .font(.system(size: 50))
+                Text(String(localized: "mood.record.your.mood", comment: "Record your mood"))
+                    .secondaryText()
             }
 
+            Spacer()
+
+            // Record button (compact)
             Button {
                 HapticFeedback.medium()
                 showingMoodPicker = true
             } label: {
-                HStack {
-                    Image(systemName: "face.smiling")
-                    Text(String(localized: "mood.record.button", comment: "Record mood"))
-                }
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    LinearGradient(
-                        colors: [.purple, .pink],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                Image(systemName: "plus.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.purple, .pink],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .buttonStyle(.plain)
+            .scaleEffect(showingMoodPicker ? 0.95 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.75), value: showingMoodPicker)
         }
-        .padding()
+        .padding(Spacing.large)
+        .frame(height: 88)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: CornerRadius.relaxed)
                 .fill(Color(.secondarySystemBackground))
         )
     }
 
-    // MARK: - Today's Mood (Existing)
+    // MARK: - Today's Mood (Existing) - COMPACT
 
-    private func existingMoodCard(_ mood: MoodEntry) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
+    private func compactExistingMoodCard(_ mood: MoodEntry) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.small) {
+            HStack(spacing: Spacing.medium) {
+                // Emoji (40pt)
+                Text(mood.moodType.emoji)
+                    .font(.system(size: 40))
+
+                VStack(alignment: .leading, spacing: Spacing.micro) {
                     Text(String(localized: "mood.todays.mood", comment: "Today's mood"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .metadataText()
 
                     Text(mood.moodType.displayName)
-                        .font(.title3)
+                        .font(.headline)
                         .fontWeight(.semibold)
                 }
 
                 Spacer()
 
-                Text(mood.moodType.emoji)
-                    .font(.system(size: 60))
+                // Intensity dots inline
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 2) {
+                        ForEach(1...mood.intensity, id: \.self) { _ in
+                            Circle()
+                                .fill(mood.moodType.color)
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                    Text("\(mood.intensity)/5")
+                        .smallMetadataText()
+                }
             }
 
-            // Intensity bars
-            HStack(spacing: 4) {
-                ForEach(1...5, id: \.self) { level in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(level <= mood.intensity ? mood.moodType.color : Color(.tertiarySystemFill))
-                        .frame(height: 4)
-                }
+            // Streak inline
+            if viewModel.streakData.currentStreak > 0 {
+                InlineMoodStreak(
+                    currentStreak: viewModel.streakData.currentStreak,
+                    isActive: viewModel.streakData.isActive
+                )
             }
 
             if let note = mood.note, !note.isEmpty {
                 Text(note)
-                    .font(.callout)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.tertiarySystemBackground))
-                    )
+                    .lineLimit(2)
+                    .padding(.top, Spacing.micro)
             }
-
-            Text(String(format: NSLocalizedString("mood.recorded.at.format", comment: "Recorded today at X"), mood.date.formatted(date: .omitted, time: .shortened)))
-                .font(.caption2)
-                .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(Spacing.large)
+        .frame(height: 88)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: CornerRadius.relaxed)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -156,96 +155,65 @@ struct MoodTrackerView: View {
                 )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(mood.moodType.color.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: CornerRadius.relaxed)
+                .strokeBorder(mood.moodType.color.opacity(0.4), lineWidth: 1)
         )
     }
 
-    // MARK: - Streak Card
+    // MARK: - Stats Section (3-column Grid)
 
-    private var streakCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "flame.fill")
-                    .foregroundStyle(.orange)
-                Text(String(localized: "mood.streak", comment: "Streak"))
-                    .font(.headline)
+    private var statsSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
+            Text("İstatistikler")
+                .cardTitle()
 
-                Spacer()
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: Spacing.medium) {
+                MiniStatCard(
+                    title: "Toplam",
+                    value: "\(viewModel.moodEntries.count)",
+                    icon: "chart.bar.fill",
+                    color: .brandPrimary
+                )
+
+                MiniStatCard(
+                    title: "Ortalama",
+                    value: String(format: "%.1f", viewModel.moodStats.averageMood),
+                    icon: "star.fill",
+                    color: .orange
+                )
+
+                MiniStatCard(
+                    title: "Bu Hafta",
+                    value: "\(viewModel.moodCountThisWeek)",
+                    icon: "calendar",
+                    color: .blue
+                )
             }
-
-            CompactStreakDisplay(
-                currentStreak: viewModel.streakData.currentStreak,
-                isActive: viewModel.streakData.isActive
-            )
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemBackground))
-        )
     }
 
-    // MARK: - Recent Moods
+    // MARK: - Recent Moods (Compact Grid 2-column)
 
-    private var recentMoodsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var compactRecentMoodsSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
             Text(String(localized: "mood.recent.entries", comment: "Recent entries"))
-                .font(.headline)
+                .cardTitle()
 
-            ForEach(Array(viewModel.moodEntries.prefix(7).enumerated()), id: \.element.id) { index, mood in
-                if index != 0 || !mood.isToday { // Bugünkü zaten yukarıda gösteriliyor
-                    moodRowCard(mood)
-                }
-            }
-        }
-    }
-
-    private func moodRowCard(_ mood: MoodEntry) -> some View {
-        HStack(spacing: 12) {
-            // Emoji
-            Text(mood.moodType.emoji)
-                .font(.system(size: 40))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(mood.moodType.displayName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-
-                Text(mood.formattedDate)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                if let note = mood.note, !note.isEmpty {
-                    Text(note)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-
-            Spacer()
-
-            // Intensity
-            VStack(alignment: .trailing, spacing: 2) {
-                HStack(spacing: 2) {
-                    ForEach(1...mood.intensity, id: \.self) { _ in
-                        Circle()
-                            .fill(mood.moodType.color)
-                            .frame(width: 6, height: 6)
+            LazyVGrid(columns: [
+                GridItem(.flexible(), spacing: Spacing.medium),
+                GridItem(.flexible(), spacing: Spacing.medium)
+            ], spacing: Spacing.medium) {
+                ForEach(Array(viewModel.moodEntries.prefix(6).enumerated()), id: \.element.id) { index, mood in
+                    if index != 0 || !mood.isToday { // Bugünkü zaten yukarıda gösteriliyor
+                        CompactMoodCard(mood: mood)
                     }
                 }
-
-                Text("\(mood.intensity)/5")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemBackground))
-        )
     }
 
     // MARK: - Mood Picker Sheet
@@ -253,11 +221,13 @@ struct MoodTrackerView: View {
     private var moodPickerSheet: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                // DS: Updated spacing from 24 to Spacing.xxlarge (keeping 24 for major sections)
+                VStack(spacing: Spacing.xxlarge) {
                     // Emoji Picker
-                    VStack(alignment: .leading, spacing: 12) {
+                    // DS: Updated spacing from 12 to Spacing.medium
+                    VStack(alignment: .leading, spacing: Spacing.medium) {
                         Text(String(localized: "mood.how.feeling", comment: "How are you feeling?"))
-                            .font(.headline)
+                            .cardTitle() // DS: Using typography helper
 
                         MoodEmojiPicker(selectedMood: $selectedMood)
                     }
@@ -266,7 +236,8 @@ struct MoodTrackerView: View {
                     MoodIntensitySlider(intensity: $intensity, selectedMood: selectedMood)
 
                     // Note
-                    VStack(alignment: .leading, spacing: 8) {
+                    // DS: Updated spacing from 8 to Spacing.small
+                    VStack(alignment: .leading, spacing: Spacing.small) {
                         Text(String(localized: "mood.note.optional", comment: "Note (Optional)"))
                             .font(.subheadline)
                             .fontWeight(.medium)
@@ -276,12 +247,14 @@ struct MoodTrackerView: View {
                             .lineLimit(3...5)
                             .padding()
                             .background(
-                                RoundedRectangle(cornerRadius: 12)
+                                // DS: Updated cornerRadius to CornerRadius.normal
+                                RoundedRectangle(cornerRadius: CornerRadius.normal)
                                     .fill(Color(.tertiarySystemBackground))
                             )
                     }
                 }
-                .padding()
+                // DS: Updated padding to Spacing.large
+                .padding(Spacing.large)
             }
             .navigationTitle(String(localized: "mood.record.title", comment: "Record Mood"))
             .navigationBarTitleDisplayMode(.inline)

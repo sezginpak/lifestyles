@@ -96,6 +96,9 @@ class ChatHaikuService {
             modelContext: modelContext
         )
 
+        // Track data usage for transparency
+        trackDataUsage(context: context)
+
         // Generate prompts
         let (systemPrompt, userMessage) = generateChatPrompt(
             context: context,
@@ -113,6 +116,23 @@ class ChatHaikuService {
         return response
     }
 
+    // MARK: - Data Usage Tracking
+
+    private func trackDataUsage(context: ChatContext) {
+        let friendsCount = (context.allFriends?.count ?? 0) + (context.overdueFriends?.count ?? 0) + (context.friend != nil ? 1 : 0)
+
+        let dataCount = DataUsageCount(
+            friendsCount: friendsCount,
+            goalsCount: 0,  // Chat doesn't use goals/habits yet
+            habitsCount: 0,
+            hasMoodData: false,
+            hasLocationData: false,
+            timestamp: Date()
+        )
+
+        AIPrivacySettings.shared.lastRequestDataCount = dataCount
+    }
+
     // MARK: - Context Building
 
     private func buildChatContext(
@@ -120,24 +140,30 @@ class ChatHaikuService {
         intent: ChatIntent,
         modelContext: ModelContext
     ) async -> ChatContext {
+        // Privacy settings
+        let privacySettings = AIPrivacySettings.shared
+
         // Friend yoksa genel mod - intent'e göre arkadaş bilgisi yükle
         guard let friend = friend else {
-            // Smart Context Loading based on intent
+            // Smart Context Loading based on intent AND privacy settings
             var allFriends: [FriendSnapshot]? = nil
             var overdueFriends: [FriendSnapshot]? = nil
 
-            switch intent {
-            case .friendsList:
-                // Kullanıcı arkadaş listesini soruyor - TÜM arkadaşları yükle
-                allFriends = await FriendContextBuilder.buildAll(modelContext: modelContext)
+            // Only load if user consented to share friends data
+            if privacySettings.shareFriendsData {
+                switch intent {
+                case .friendsList:
+                    // Kullanıcı arkadaş listesini soruyor - TÜM arkadaşları yükle
+                    allFriends = await FriendContextBuilder.buildAll(modelContext: modelContext)
 
-            case .contactAdvice:
-                // Kullanıcı kiminle konuşmalı diye soruyor - SADECE overdue arkadaşları yükle
-                overdueFriends = await FriendContextBuilder.buildOverdue(modelContext: modelContext)
+                case .contactAdvice:
+                    // Kullanıcı kiminle konuşmalı diye soruyor - SADECE overdue arkadaşları yükle
+                    overdueFriends = await FriendContextBuilder.buildOverdue(modelContext: modelContext)
 
-            case .general:
-                // Genel soru - arkadaş bilgisi YÜKLEME (token tasarrufu)
-                break
+                case .general:
+                    // Genel soru - arkadaş bilgisi YÜKLEME (token tasarrufu)
+                    break
+                }
             }
 
             return ChatContext(

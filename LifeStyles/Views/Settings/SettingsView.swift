@@ -296,6 +296,19 @@ struct SettingsView: View {
                                 }
                             }
 
+                            // AI & Privacy
+                            SettingsSection(title: "AI & Gizlilik") {
+                                NavigationLink {
+                                    AIPrivacySettingsView()
+                                } label: {
+                                    SettingsRow(
+                                        icon: "brain.head.profile",
+                                        title: "AI Ayarları & Gizlilik",
+                                        color: .purple
+                                    )
+                                }
+                            }
+
                             // Veri Yönetimi
                             SettingsSection(title: String(localized: "settings.data.management.title", comment: "Data Management")) {
                                 ShareLink(item: exportDataURL ?? URL(string: "about:blank")!) {

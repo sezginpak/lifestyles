@@ -39,7 +39,7 @@ struct PremiumPaywallView: View {
                             .font(.largeTitle.bold())
                             .foregroundStyle(.white)
 
-                        Text("Daha fazla özellik, sınırsız kullanım")
+                        Text(String(localized: "premium.subtitle", comment: "More features, unlimited usage"))
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
@@ -76,7 +76,7 @@ struct PremiumPaywallView: View {
                                     .tint(.white)
                             } else {
                                 Image(systemName: "crown.fill")
-                                Text("Premium'a Geç")
+                                Text(String(localized: "premium.upgrade", comment: "Upgrade to Premium"))
                                     .font(.headline)
                             }
                         }
@@ -101,7 +101,7 @@ struct PremiumPaywallView: View {
                         HapticFeedback.light()
                         restorePurchases()
                     } label: {
-                        Text("Satın Alımları Geri Yükle")
+                        Text(String(localized: "premium.restore.purchases", comment: "Restore Purchases"))
                             .font(.footnote)
                             .foregroundStyle(.white.opacity(0.8))
                             .underline()
@@ -236,11 +236,11 @@ struct SubscriptionCard: View {
         VStack(spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Aylık Abonelik")
+                    Text(String(localized: "premium.monthly.subscription", comment: "Monthly Subscription"))
                         .font(.headline)
                         .foregroundStyle(.white)
 
-                    Text("İstediğin zaman iptal edebilirsin")
+                    Text(String(localized: "premium.cancel.anytime", comment: "Cancel anytime"))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }
@@ -252,7 +252,7 @@ struct SubscriptionCard: View {
                         .font(.title.bold())
                         .foregroundStyle(.white)
 
-                    Text("/ay")
+                    Text(String(localized: "premium.per.month", comment: "/month"))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }
@@ -277,11 +277,11 @@ struct SubscriptionPlaceholderCard: View {
         VStack(spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Aylık Abonelik")
+                    Text(String(localized: "premium.monthly.subscription", comment: "Monthly Subscription"))
                         .font(.headline)
                         .foregroundStyle(.white)
 
-                    Text("İstediğin zaman iptal edebilirsin")
+                    Text(String(localized: "premium.cancel.anytime", comment: "Cancel anytime"))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }

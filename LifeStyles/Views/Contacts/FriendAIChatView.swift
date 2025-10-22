@@ -21,9 +21,11 @@ struct FriendAIChatView: View {
     @State private var chatService = ChatHaikuService.shared
     @State private var usageManager = AIUsageManager.shared
     @State private var purchaseManager = PurchaseManager.shared
+    @State private var privacySettings = AIPrivacySettings.shared
 
     // UI State
     @State private var showPaywall = false
+    @State private var showDataUsageInfo = false
     @FocusState private var isInputFocused: Bool
 
     // Genel mod mu?
@@ -45,9 +47,18 @@ struct FriendAIChatView: View {
                             } else {
                                 // Messages
                                 ForEach(chatMessages) { message in
-                                    ModernChatBubble(message: message)
-                                        .id(message.id)
-                                        .transition(.scale.combined(with: .opacity))
+                                    VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
+                                        ModernChatBubble(message: message)
+                                            .id(message.id)
+                                            .transition(.scale.combined(with: .opacity))
+
+                                        // Transparency badge (only for AI messages)
+                                        if !message.isUser, let lastUsage = privacySettings.lastRequestDataCount {
+                                            DataTransparencyBadge(dataCount: lastUsage) {
+                                                showDataUsageInfo = true
+                                            }
+                                        }
+                                    }
                                 }
 
                                 // Typing Indicator
@@ -119,6 +130,9 @@ struct FriendAIChatView: View {
             }
             .sheet(isPresented: $showPaywall) {
                 PremiumPaywallView()
+            }
+            .sheet(isPresented: $showDataUsageInfo) {
+                DataUsageInfoSheet()
             }
         }
     }
@@ -760,6 +774,182 @@ struct ModernQuickQuestionButton: View {
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(Color(.separator).opacity(0.3), lineWidth: 1)
             )
+        }
+    }
+}
+
+// MARK: - Data Transparency Badge
+
+struct DataTransparencyBadge: View {
+    let dataCount: DataUsageCount
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: "info.circle.fill")
+                    .font(.caption2)
+                Text(dataCount.summary)
+                    .font(.caption2)
+            }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color(.tertiarySystemBackground))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Data Usage Info Sheet
+
+struct DataUsageInfoSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var privacySettings = AIPrivacySettings.shared
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if let dataCount = privacySettings.lastRequestDataCount {
+                    Section {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "checkmark.shield.fill")
+                                    .foregroundStyle(.green)
+                                Text("Son AI İsteği")
+                                    .font(.headline)
+                            }
+
+                            Text("Bu yanıt için kullanılan veriler:")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            if dataCount.friendsCount > 0 {
+                                HStack {
+                                    Image(systemName: "person.2.fill")
+                                        .foregroundStyle(.blue)
+                                        .frame(width: 24)
+                                    Text("\(dataCount.friendsCount) arkadaş bilgisi")
+                                        .font(.callout)
+                                }
+                            }
+
+                            if dataCount.goalsCount > 0 {
+                                HStack {
+                                    Image(systemName: "target")
+                                        .foregroundStyle(.green)
+                                        .frame(width: 24)
+                                    Text("\(dataCount.goalsCount) hedef bilgisi")
+                                        .font(.callout)
+                                }
+                            }
+
+                            if dataCount.habitsCount > 0 {
+                                HStack {
+                                    Image(systemName: "checkmark.circle")
+                                        .foregroundStyle(.purple)
+                                        .frame(width: 24)
+                                    Text("\(dataCount.habitsCount) alışkanlık bilgisi")
+                                        .font(.callout)
+                                }
+                            }
+
+                            if dataCount.hasMoodData {
+                                HStack {
+                                    Image(systemName: "face.smiling")
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 24)
+                                    Text("Ruh hali verisi")
+                                        .font(.callout)
+                                }
+                            }
+
+                            if dataCount.hasLocationData {
+                                HStack {
+                                    Image(systemName: "location.fill")
+                                        .foregroundStyle(.purple)
+                                        .frame(width: 24)
+                                    Text("Konum verisi")
+                                        .font(.callout)
+                                }
+                            }
+
+                            if dataCount.totalItems == 0 && !dataCount.hasMoodData && !dataCount.hasLocationData {
+                                HStack {
+                                    Image(systemName: "exclamationmark.circle")
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 24)
+                                    Text("Veri paylaşılmadı")
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            Text(dataCount.timestamp.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                                .padding(.top, 4)
+                        }
+                    }
+                }
+
+                Section {
+                    NavigationLink {
+                        AIPrivacySettingsView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "gearshape.fill")
+                                .foregroundStyle(.purple)
+                            Text("Gizlilik Ayarlarını Yönet")
+                        }
+                    }
+                } header: {
+                    Text("Ayarlar")
+                }
+
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption)
+                            Text("Verileriniz sadece AI yanıtları oluşturmak için kullanılır")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption)
+                            Text("Anthropic verilerinizi eğitim için kullanmaz")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.caption)
+                            Text("Her veri türünü ayrı ayrı kontrol edebilirsiniz")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Gizlilik Notları")
+                }
+            }
+            .navigationTitle("Veri Kullanımı")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Tamam") {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }

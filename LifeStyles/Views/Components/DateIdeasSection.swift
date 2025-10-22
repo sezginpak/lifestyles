@@ -125,42 +125,42 @@ enum DateCategory: String, CaseIterable, Identifiable {
         switch self {
         case .romantic:
             return [
-                DateIdea(title: "Gün Batımı İzle", description: "Güzel bir manzara bulun ve birlikte gün batımını izleyin", icon: "sunset.fill"),
-                DateIdea(title: "Piknik Yap", description: "Park'ta romantik bir piknik organize edin", icon: "basket.fill"),
-                DateIdea(title: "Yıldızlara Bak", description: "Şehir dışına çıkıp yıldızları izleyin", icon: "sparkles"),
-                DateIdea(title: "Evde Yemek Pişir", description: "Birlikte yemek yapın ve romantik bir akşam geçirin", icon: "fork.knife"),
-                DateIdea(title: "Plaj Yürüyüşü", description: "Sahilde el ele yürüyüş yapın", icon: "figure.walk"),
-                DateIdea(title: "Mumlar Eşliğinde Akşam Yemeği", description: "Evde veya restoranda romantik bir akşam yemeği", icon: "flame.fill")
+                DateIdea(title: String(localized: "date.idea.romantic.sunset.title", comment: "Watch Sunset"), description: String(localized: "date.idea.romantic.sunset.description", comment: "Find a beautiful view and watch the sunset together"), icon: "sunset.fill"),
+                DateIdea(title: String(localized: "date.idea.romantic.picnic.title", comment: "Picnic"), description: String(localized: "date.idea.romantic.picnic.description", comment: "Organize a romantic picnic in the park"), icon: "basket.fill"),
+                DateIdea(title: String(localized: "date.idea.romantic.stargazing.title", comment: "Stargazing"), description: String(localized: "date.idea.romantic.stargazing.description", comment: "Go outside the city and watch the stars"), icon: "sparkles"),
+                DateIdea(title: String(localized: "date.idea.romantic.cooking.title", comment: "Cook at Home"), description: String(localized: "date.idea.romantic.cooking.description", comment: "Cook together and have a romantic evening"), icon: "fork.knife"),
+                DateIdea(title: String(localized: "date.idea.romantic.beach.title", comment: "Beach Walk"), description: String(localized: "date.idea.romantic.beach.description", comment: "Walk hand in hand on the beach"), icon: "figure.walk"),
+                DateIdea(title: String(localized: "date.idea.romantic.candlelight.title", comment: "Candlelight Dinner"), description: String(localized: "date.idea.romantic.candlelight.description", comment: "Have a romantic dinner at home or restaurant"), icon: "flame.fill")
             ]
 
         case .adventure:
             return [
-                DateIdea(title: "Hiking", description: "Doğa yürüyüşü yapın, yeni rotalar keşfedin", icon: "figure.hiking"),
-                DateIdea(title: "Escape Room", description: "Birlikte bir escape room deneyimi yaşayın", icon: "key.fill"),
-                DateIdea(title: "Bisiklet Turu", description: "Şehirde veya doğada bisiklet sürün", icon: "bicycle"),
-                DateIdea(title: "Kaya Tırmanışı", description: "Tırmanış duvarında yeteneklerinizi test edin", icon: "figure.climbing"),
-                DateIdea(title: "Su Sporları", description: "Kano, sörf veya jet ski deneyin", icon: "figure.surfing"),
-                DateIdea(title: "Kamp", description: "Doğada bir gece kamp yapın", icon: "tent.fill")
+                DateIdea(title: String(localized: "date.idea.adventure.hiking.title", comment: "Hiking"), description: String(localized: "date.idea.adventure.hiking.description", comment: "Go hiking and discover new routes"), icon: "figure.hiking"),
+                DateIdea(title: String(localized: "date.idea.adventure.escaperoom.title", comment: "Escape Room"), description: String(localized: "date.idea.adventure.escaperoom.description", comment: "Experience an escape room together"), icon: "key.fill"),
+                DateIdea(title: String(localized: "date.idea.adventure.biking.title", comment: "Bike Tour"), description: String(localized: "date.idea.adventure.biking.description", comment: "Ride bikes in the city or nature"), icon: "bicycle"),
+                DateIdea(title: String(localized: "date.idea.adventure.climbing.title", comment: "Rock Climbing"), description: String(localized: "date.idea.adventure.climbing.description", comment: "Test your skills at the climbing wall"), icon: "figure.climbing"),
+                DateIdea(title: String(localized: "date.idea.adventure.watersports.title", comment: "Water Sports"), description: String(localized: "date.idea.adventure.watersports.description", comment: "Try kayaking, surfing or jet ski"), icon: "figure.surfing"),
+                DateIdea(title: String(localized: "date.idea.adventure.camping.title", comment: "Camping"), description: String(localized: "date.idea.adventure.camping.description", comment: "Camp for a night in nature"), icon: "tent.fill")
             ]
 
         case .relaxed:
             return [
-                DateIdea(title: "Kahve İçmeye Git", description: "Sevdiğiniz kafe'de sohbet edin", icon: "cup.and.saucer.fill"),
-                DateIdea(title: "Film İzle", description: "Evde veya sinemada film izleyin", icon: "film.fill"),
-                DateIdea(title: "Kitap Kafe", description: "Kitap kafe'de birlikte kitap okuyun", icon: "book.fill"),
-                DateIdea(title: "Spa Günü", description: "Birlikte spa'ya gidin, rahatlayın", icon: "sparkles"),
-                DateIdea(title: "Oyun Oyna", description: "Evde masa oyunları veya video oyunları oynayın", icon: "gamecontroller.fill"),
-                DateIdea(title: "Brunch", description: "Hafta sonu keyifli bir brunch yapın", icon: "cup.and.saucer.fill")
+                DateIdea(title: String(localized: "date.idea.relaxed.coffee.title", comment: "Coffee Date"), description: String(localized: "date.idea.relaxed.coffee.description", comment: "Chat at your favorite cafe"), icon: "cup.and.saucer.fill"),
+                DateIdea(title: String(localized: "date.idea.relaxed.movie.title", comment: "Watch Movie"), description: String(localized: "date.idea.relaxed.movie.description", comment: "Watch a movie at home or cinema"), icon: "film.fill"),
+                DateIdea(title: String(localized: "date.idea.relaxed.bookcafe.title", comment: "Book Cafe"), description: String(localized: "date.idea.relaxed.bookcafe.description", comment: "Read books together at a book cafe"), icon: "book.fill"),
+                DateIdea(title: String(localized: "date.idea.relaxed.spa.title", comment: "Spa Day"), description: String(localized: "date.idea.relaxed.spa.description", comment: "Go to spa together and relax"), icon: "sparkles"),
+                DateIdea(title: String(localized: "date.idea.relaxed.gaming.title", comment: "Play Games"), description: String(localized: "date.idea.relaxed.gaming.description", comment: "Play board games or video games at home"), icon: "gamecontroller.fill"),
+                DateIdea(title: String(localized: "date.idea.relaxed.brunch.title", comment: "Brunch"), description: String(localized: "date.idea.relaxed.brunch.description", comment: "Enjoy a nice brunch on the weekend"), icon: "cup.and.saucer.fill")
             ]
 
         case .cultural:
             return [
-                DateIdea(title: "Müze Ziyareti", description: "İlginizi çeken bir müzeyi gezin", icon: "building.columns.fill"),
-                DateIdea(title: "Sergi", description: "Sanat sergisi veya fotoğraf sergisi ziyaret edin", icon: "photo.on.rectangle.angled"),
-                DateIdea(title: "Konser", description: "Canlı müzik dinleyin, konser'e gidin", icon: "music.note"),
-                DateIdea(title: "Tiyatro", description: "Tiyatro oyunu izleyin", icon: "theatermasks.fill"),
-                DateIdea(title: "Tarihi Mekan", description: "Şehrinizin tarihi mekanlarını keşfedin", icon: "location.fill"),
-                DateIdea(title: "Kitap Fuarı", description: "Kitap fuarını birlikte gezin", icon: "books.vertical.fill")
+                DateIdea(title: String(localized: "date.idea.cultural.museum.title", comment: "Museum Visit"), description: String(localized: "date.idea.cultural.museum.description", comment: "Visit a museum you're interested in"), icon: "building.columns.fill"),
+                DateIdea(title: String(localized: "date.idea.cultural.exhibition.title", comment: "Exhibition"), description: String(localized: "date.idea.cultural.exhibition.description", comment: "Visit an art or photography exhibition"), icon: "photo.on.rectangle.angled"),
+                DateIdea(title: String(localized: "date.idea.cultural.concert.title", comment: "Concert"), description: String(localized: "date.idea.cultural.concert.description", comment: "Listen to live music, go to a concert"), icon: "music.note"),
+                DateIdea(title: String(localized: "date.idea.cultural.theater.title", comment: "Theater"), description: String(localized: "date.idea.cultural.theater.description", comment: "Watch a theater play"), icon: "theatermasks.fill"),
+                DateIdea(title: String(localized: "date.idea.cultural.historical.title", comment: "Historical Place"), description: String(localized: "date.idea.cultural.historical.description", comment: "Discover historical places in your city"), icon: "location.fill"),
+                DateIdea(title: String(localized: "date.idea.cultural.bookfair.title", comment: "Book Fair"), description: String(localized: "date.idea.cultural.bookfair.description", comment: "Visit the book fair together"), icon: "books.vertical.fill")
             ]
         }
     }

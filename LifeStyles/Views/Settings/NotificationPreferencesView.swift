@@ -16,7 +16,7 @@ struct NotificationPreferencesView: View {
         List {
             // Hatırlatma Sıklığı
             Section {
-                Picker("Hatırlatma Sıklığı", selection: $viewModel.reminderFrequency) {
+                Picker(String(localized: "settings.notifications.reminder.frequency", comment: "Reminder Frequency"), selection: $viewModel.reminderFrequency) {
                     ForEach(SettingsViewModel.ReminderFrequency.allCases) { frequency in
                         VStack(alignment: .leading) {
                             Text(frequency.rawValue)
@@ -83,8 +83,8 @@ struct NotificationPreferencesView: View {
             Section {
                 NotificationToggleRow(
                     icon: "person.2.fill",
-                    title: "Arkadaş Hatırlatmaları",
-                    description: "İletişim kurmanız gereken arkadaşlarınız için",
+                    title: String(localized: "settings.notifications.friend.reminders", comment: "Friend Reminders"),
+                    description: String(localized: "settings.notifications.friend.reminders.description", comment: "For friends you need to contact"),
                     color: .blue,
                     isEnabled: $viewModel.friendRemindersEnabled
                 )
@@ -94,8 +94,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "target",
-                    title: "Hedef Hatırlatmaları",
-                    description: "Hedefleriniz için son tarih yaklaşınca",
+                    title: String(localized: "settings.notifications.goal.reminders", comment: "Goal Reminders"),
+                    description: String(localized: "settings.notifications.goal.reminders.description", comment: "When your goal deadlines approach"),
                     color: .orange,
                     isEnabled: $viewModel.goalRemindersEnabled
                 )
@@ -105,8 +105,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "star.fill",
-                    title: "Alışkanlık Hatırlatmaları",
-                    description: "Günlük alışkanlıklarınız için",
+                    title: String(localized: "settings.notifications.habit.reminders", comment: "Habit Reminders"),
+                    description: String(localized: "settings.notifications.habit.reminders.description", comment: "For your daily habits"),
                     color: .purple,
                     isEnabled: $viewModel.habitRemindersEnabled
                 )
@@ -116,8 +116,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "location.fill",
-                    title: "Konum Önerileri",
-                    description: "Dışarı çıkma ve aktivite önerileri",
+                    title: String(localized: "settings.notifications.location.suggestions", comment: "Location Suggestions"),
+                    description: String(localized: "settings.notifications.location.suggestions.description", comment: "Go out and activity suggestions"),
                     color: .green,
                     isEnabled: $viewModel.locationSuggestionsEnabled
                 )
@@ -127,8 +127,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "sparkles",
-                    title: "Motivasyon Mesajları",
-                    description: "Günlük motivasyon ve ilham",
+                    title: String(localized: "settings.notifications.motivation.messages", comment: "Motivation Messages"),
+                    description: String(localized: "settings.notifications.motivation.messages.description", comment: "Daily motivation and inspiration"),
                     color: .yellow,
                     isEnabled: $viewModel.motivationMessagesEnabled
                 )
@@ -138,8 +138,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "figure.run",
-                    title: "Aktivite Hatırlatmaları",
-                    description: "Günlük aktivite önerileri",
+                    title: String(localized: "settings.notifications.activity.reminders", comment: "Activity Reminders"),
+                    description: String(localized: "settings.notifications.activity.reminders.description", comment: "Daily activity suggestions"),
                     color: .indigo,
                     isEnabled: $viewModel.activityRemindersEnabled
                 )
@@ -149,8 +149,8 @@ struct NotificationPreferencesView: View {
 
                 NotificationToggleRow(
                     icon: "flame.fill",
-                    title: "Streak Uyarıları",
-                    description: "Streak'inizin kopma riski varsa uyarı",
+                    title: String(localized: "settings.notifications.streak.warnings", comment: "Streak Warnings"),
+                    description: String(localized: "settings.notifications.streak.warnings.description", comment: "Warning if your streak is at risk"),
                     color: .red,
                     isEnabled: $viewModel.streakWarningsEnabled
                 )
@@ -163,7 +163,7 @@ struct NotificationPreferencesView: View {
                 Text(String(localized: "settings.notifications.types.description", comment: "You can enable or disable notification types."))
             }
         }
-        .navigationTitle("Bildirim Tercihleri")
+        .navigationTitle(String(localized: "settings.notifications.title", comment: "Notification Preferences"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

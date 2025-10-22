@@ -10,6 +10,7 @@ import SwiftUI
 struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
     @Binding var isOnboardingComplete: Bool
+    @State private var showAIConsentSheet = false
 
     var body: some View {
         ZStack {
@@ -79,7 +80,7 @@ struct OnboardingView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: "info.circle.fill")
                                         .foregroundStyle(Color.brandPrimary)
-                                    Text("Lütfen \"Her Zaman\" seçeneğini işaretleyin")
+                                    Text(String(localized: "onboarding.location.always.hint", comment: "Please select Always option"))
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.primary)
@@ -118,9 +119,9 @@ struct OnboardingView: View {
                                             viewModel.nextPage()
                                         }
                                     } else {
-                                        // Son sayfadaysa tamamla
-                                        viewModel.completeOnboarding()
-                                        isOnboardingComplete = true
+                                        // Son sayfadaysa AI Consent göster
+                                        try? await Task.sleep(nanoseconds: 300_000_000)
+                                        showAIConsentSheet = true
                                     }
                                 }
                             }
@@ -160,7 +161,7 @@ struct OnboardingView: View {
                             }
                         } label: {
                             HStack {
-                                Text("Başlayalım")
+                                Text(String(localized: "onboarding.lets.start", comment: "Let's Start"))
                                 Image(systemName: "arrow.right")
                             }
                             .frame(maxWidth: .infinity)
@@ -178,22 +179,23 @@ struct OnboardingView: View {
                 PermissionManager.shared.openAppSettings()
                 // Onboarding'i tamamla veya devam et
                 if viewModel.isLastPage {
-                    viewModel.completeOnboarding()
-                    isOnboardingComplete = true
+                    showAIConsentSheet = true
                 } else {
                     viewModel.nextPage()
                 }
             }
             Button("Daha Sonra", role: .cancel) {
                 if viewModel.isLastPage {
-                    viewModel.completeOnboarding()
-                    isOnboardingComplete = true
+                    showAIConsentSheet = true
                 } else {
                     viewModel.nextPage()
                 }
             }
         } message: {
-            Text("LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bunun arka planda da çalışabilmesi için:\n\nAyarlar → LifeStyles → Konum → \"Her Zaman\" seçeneğini işaretleyin")
+            Text(String(localized: "onboarding.location.always.instruction", comment: "Instructions for always location permission"))
+        }
+        .sheet(isPresented: $showAIConsentSheet) {
+            OnboardingAIConsentSheet(isOnboardingComplete: $isOnboardingComplete, viewModel: viewModel)
         }
     }
 
@@ -244,6 +246,125 @@ struct OnboardingPageView: View {
             }
         }
         .padding()
+    }
+}
+
+// MARK: - Onboarding AI Consent Sheet
+
+struct OnboardingAIConsentSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var isOnboardingComplete: Bool
+    let viewModel: OnboardingViewModel
+    @State private var privacySettings = AIPrivacySettings.shared
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    VStack(spacing: 12) {
+                        Image(systemName: "brain.head.profile")
+                            .font(.system(size: 60))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.purple, .blue],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+
+                        Text(String(localized: "onboarding.ai.one.more.thing", comment: "One More Thing..."))
+                            .font(.title2)
+                            .fontWeight(.bold)
+
+                        Text(String(localized: "onboarding.ai.improve.life", comment: "We can improve your life even more with our AI assistant Claude"))
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top)
+
+                    // Features
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(String(localized: "settings.ai.features", comment: "AI Features"))
+                            .font(.headline)
+
+                        FeatureRow(
+                            icon: "sunrise.fill",
+                            color: .orange,
+                            title: "Morning Insight",
+                            description: String(localized: "onboarding.ai.morning.insight.description", comment: "Personalized daily suggestions every morning")
+                        )
+
+                        FeatureRow(
+                            icon: "message.fill",
+                            color: .blue,
+                            title: "AI Chat",
+                            description: String(localized: "onboarding.ai.chat.description", comment: "Smart chat about your friends and goals")
+                        )
+                    }
+
+                    Divider()
+
+                    // Privacy
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("🔒 Gizlilik")
+                            .font(.headline)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            PrivacyNote(text: "Verileriniz sadece AI yanıtları için kullanılır")
+                            PrivacyNote(text: "Anthropic verilerinizi eğitim için kullanmaz")
+                            PrivacyNote(text: "İstediğiniz zaman kapatabilirsiniz")
+                        }
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle(String(localized: "settings.ai.features", comment: "AI Features"))
+            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 12) {
+                    Button {
+                        privacySettings.giveConsent()
+                        privacySettings.morningInsightEnabled = true
+                        privacySettings.aiChatEnabled = true
+                        HapticFeedback.success()
+                        viewModel.completeOnboarding()
+                        isOnboardingComplete = true
+                        dismiss()
+                    } label: {
+                        Text(String(localized: "onboarding.ai.enable", comment: "Enable"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+
+                    Button {
+                        // AI özellikleri kapalı, onboarding tamamla
+                        viewModel.completeOnboarding()
+                        isOnboardingComplete = true
+                        dismiss()
+                    } label: {
+                        Text(String(localized: "onboarding.ai.not.now", comment: "Not Now"))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+            }
+        }
+        .interactiveDismissDisabled() // Swipe ile kapatmayı engelle
     }
 }
 

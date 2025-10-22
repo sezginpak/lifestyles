@@ -40,16 +40,39 @@ class MorningInsightProvider: ContextProvider {
         formatter.dateFormat = "EEEE"
         let dayOfWeek = formatter.string(from: now)
 
-        // Build all contexts in parallel
-        async let friends = FriendContextBuilder.buildAll(modelContext: modelContext)
-        async let overdue = FriendContextBuilder.buildOverdue(modelContext: modelContext)
-        async let mood = MoodContextBuilder.buildCurrent(modelContext: modelContext)
-        async let trend = MoodContextBuilder.buildTrend(modelContext: modelContext, days: 7)
-        async let goals = GoalContextBuilder.buildActive(modelContext: modelContext)
-        async let habits = HabitContextBuilder.buildAll(modelContext: modelContext)
-        async let location = LocationContextBuilder.buildPattern(modelContext: modelContext)
+        // Privacy settings
+        let privacySettings = AIPrivacySettings.shared
 
-        return await MorningContext(
+        // Build contexts based on privacy settings
+        let friends: [FriendSnapshot] = privacySettings.shareFriendsData
+            ? await FriendContextBuilder.buildAll(modelContext: modelContext)
+            : []
+
+        let overdue: [FriendSnapshot] = privacySettings.shareFriendsData
+            ? await FriendContextBuilder.buildOverdue(modelContext: modelContext)
+            : []
+
+        let mood: MoodSnapshot? = privacySettings.shareMoodData
+            ? await MoodContextBuilder.buildCurrent(modelContext: modelContext)
+            : nil
+
+        let trend: MoodTrend? = privacySettings.shareMoodData
+            ? await MoodContextBuilder.buildTrend(modelContext: modelContext, days: 7)
+            : nil
+
+        let goals: [GoalSnapshot] = privacySettings.shareGoalsAndHabits
+            ? await GoalContextBuilder.buildActive(modelContext: modelContext)
+            : []
+
+        let habits: [HabitSnapshot] = privacySettings.shareGoalsAndHabits
+            ? await HabitContextBuilder.buildAll(modelContext: modelContext)
+            : []
+
+        let location: LocationPattern = privacySettings.shareLocationData
+            ? await LocationContextBuilder.buildPattern(modelContext: modelContext)
+            : LocationPattern(hoursAtHomeToday: 0, hoursAtHomeThisWeek: 0, lastOutdoorActivity: nil, mostVisitedPlaces: [])
+
+        return MorningContext(
             date: dateString,
             dayOfWeek: dayOfWeek,
             friends: friends,

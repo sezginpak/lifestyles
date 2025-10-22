@@ -69,7 +69,7 @@ struct JournalListView: View {
                 )
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: Spacing.medium) {
                         ForEach(Array(viewModel.filteredJournalEntries.enumerated()), id: \.element.id) { index, entry in
                             modernJournalCard(entry)
                                 .transition(.scale.combined(with: .opacity))
@@ -115,7 +115,8 @@ struct JournalListView: View {
                                 }
                         }
                     }
-                    .padding()
+                    // DS: Updated padding to Spacing.large
+                    .padding(Spacing.large)
                 }
             }
         }
@@ -135,6 +136,8 @@ struct JournalListView: View {
                             )
                         )
                 }
+                .scaleEffect(viewModel.showingJournalEditor ? 0.95 : 1.0)
+                .animation(.spring(response: 0.25, dampingFraction: 0.75), value: viewModel.showingJournalEditor)
             }
         }
         .sheet(isPresented: $viewModel.showingJournalEditor) {
@@ -142,66 +145,87 @@ struct JournalListView: View {
         }
     }
 
-    // MARK: - Modern Card
+    // MARK: - Modern Card (COMPACT)
+
+    @State private var pressedCardId: UUID?
 
     private func modernJournalCard(_ entry: JournalEntry) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            journalCardHeader(entry)
-
-            // Title
-            if let title = entry.title {
-                Text(title)
-                    .font(.headline)
-                    .fontWeight(.semibold)
+        VStack(alignment: .leading, spacing: Spacing.small) {
+            // Header - Compact
+            HStack(spacing: Spacing.small) {
+                CompactJournalTypePill(type: entry.journalType, compact: true, showIcon: false)
+                Spacer()
+                if entry.isFavorite {
+                    Image(systemName: "star.fill").font(.caption2).foregroundStyle(.yellow)
+                }
+                Text("\(entry.wordCount)").font(.caption2).monospacedDigit().foregroundStyle(.secondary)
             }
 
-            // Preview
-            Text(entry.preview)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
+            // Title (if exists)
+            if let title = entry.title {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+            }
 
-            // Tags
+            // Preview (2 lines)
+            Text(entry.preview)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+
+            // Tags (inline - max 3)
             if !entry.tags.isEmpty {
-                journalTags(entry.tags)
+                compactJournalTags(entry.tags)
             }
 
             // Footer
-            journalCardFooter(entry)
-        }
-        .padding(16)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(.ultraThinMaterial))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(entry.journalType.color.opacity(0.2), lineWidth: 1))
-        .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-    }
-
-    private func journalCardHeader(_ entry: JournalEntry) -> some View {
-        HStack {
-            JournalTypePill(journalType: entry.journalType, showIcon: true)
-            Spacer()
-            if entry.isFavorite {
-                Image(systemName: "star.fill").font(.caption).foregroundStyle(.yellow)
+            HStack(spacing: Spacing.small) {
+                Text(entry.formattedDate).font(.caption2).foregroundStyle(.tertiary)
+                Text("•").font(.caption2).foregroundStyle(.tertiary)
+                Text(String(format: NSLocalizedString("journal.reading.time.format", comment: "X minutes reading time"), entry.estimatedReadingTime)).font(.caption2).foregroundStyle(.tertiary)
             }
-            Text("\(entry.wordCount)").font(.caption).monospacedDigit().foregroundStyle(.secondary)
         }
-    }
-
-    private func journalTags(_ tags: [String]) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(tags.prefix(3), id: \.self) { tag in
-                    Text("#\(tag)").font(.caption2).padding(.horizontal, 8).padding(.vertical, 4).background(Capsule().fill(Color.brandPrimary.opacity(0.1)))
+        .padding(14)
+        .frame(height: 122)
+        .glassmorphismCard(
+            cornerRadius: CornerRadius.normal,
+            borderColor: entry.journalType.color.opacity(0.3)
+        )
+        .scaleEffect(pressedCardId == entry.id ? 0.98 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: pressedCardId)
+        .onTapGesture {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                pressedCardId = entry.id
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                    pressedCardId = nil
                 }
             }
+            HapticFeedback.light()
+            viewModel.startEditingJournal(entry)
         }
     }
 
-    private func journalCardFooter(_ entry: JournalEntry) -> some View {
-        HStack {
-            Text(entry.formattedDate).font(.caption2).foregroundStyle(.tertiary)
-            Spacer()
-            Text(String(format: NSLocalizedString("journal.reading.time.format", comment: "X minutes reading time"), entry.estimatedReadingTime)).font(.caption2).foregroundStyle(.tertiary)
+    // MARK: - Compact Tags Helper
+
+    private func compactJournalTags(_ tags: [String]) -> some View {
+        HStack(spacing: Spacing.micro) {
+            ForEach(tags.prefix(3), id: \.self) { tag in
+                Text("#\(tag)")
+                    .font(.caption2)
+                    .padding(.horizontal, Spacing.small)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.brandPrimary.opacity(0.1)))
+            }
+
+            if tags.count > 3 {
+                Text("...")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
         }
     }
 
@@ -210,7 +234,7 @@ struct JournalListView: View {
     private func deleteWithFeedback(_ entry: JournalEntry) {
         HapticFeedback.warning()
 
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             viewModel.deleteJournalEntry(entry, context: modelContext)
         }
 
@@ -224,7 +248,7 @@ struct JournalListView: View {
     private func toggleFavoriteWithFeedback(_ entry: JournalEntry) {
         let wasFavorite = entry.isFavorite
 
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
             viewModel.toggleFavorite(entry, context: modelContext)
         }
 
@@ -238,7 +262,76 @@ struct JournalListView: View {
     }
 }
 
-// MARK: - Journal Editor (Modern) ✨
+// MARK: - Journal Step Enum
+
+enum JournalStep: Int, CaseIterable {
+    case type = 0
+    case title = 1
+    case content = 2
+    case tags = 3
+    case review = 4
+
+    var title: String {
+        switch self {
+        case .type: return String(localized: "journal.step.type", defaultValue: "Journal Tipi", comment: "Step: Journal Type")
+        case .title: return String(localized: "journal.step.title", defaultValue: "Başlık", comment: "Step: Title")
+        case .content: return String(localized: "journal.step.content", defaultValue: "İçerik", comment: "Step: Content")
+        case .tags: return String(localized: "journal.step.tags", defaultValue: "Etiketler", comment: "Step: Tags")
+        case .review: return String(localized: "journal.step.review", defaultValue: "Önizleme", comment: "Step: Review")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .type: return "doc.text"
+        case .title: return "text.cursor"
+        case .content: return "pencil.line"
+        case .tags: return "tag"
+        case .review: return "checkmark.circle"
+        }
+    }
+
+    var canSkip: Bool {
+        switch self {
+        case .title, .tags: return true
+        default: return false
+        }
+    }
+}
+
+// MARK: - Step Progress Bar
+
+struct StepProgressBar: View {
+    let currentStep: JournalStep
+    let totalSteps: Int
+
+    var body: some View {
+        VStack(spacing: Spacing.small) {
+            // Progress dots
+            HStack(spacing: 8) {
+                ForEach(JournalStep.allCases, id: \.self) { step in
+                    Circle()
+                        .fill(step.rawValue <= currentStep.rawValue ? Color.brandPrimary : Color.gray.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                        .scaleEffect(step == currentStep ? 1.2 : 1.0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStep)
+                }
+            }
+
+            // Current step title
+            Text(currentStep.title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+                .animation(.none, value: currentStep)
+        }
+        .padding(.vertical, Spacing.medium)
+        .frame(maxWidth: .infinity)
+        .background(.ultraThinMaterial)
+    }
+}
+
+// MARK: - Journal Editor (Compact Step-by-Step) ✨
 
 struct JournalEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -246,6 +339,7 @@ struct JournalEditorView: View {
     @Environment(\.toastManager) private var toastManager
     @Bindable var viewModel: MoodJournalViewModel
 
+    @State private var currentStep: JournalStep = .type
     @State private var selectedType: JournalType = .general
     @State private var title: String = ""
     @State private var content: String = ""
@@ -258,81 +352,38 @@ struct JournalEditorView: View {
         viewModel.editingJournalEntry != nil
     }
 
-    private var isValid: Bool {
-        !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    // Step validation
+    private var canProceed: Bool {
+        switch currentStep {
+        case .type: return true
+        case .title: return true // Optional
+        case .content: return !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        case .tags: return true // Optional
+        case .review: return !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Journal Type Selector (Compact Dropdown)
-                    journalTypeDropdown
-                        .onChange(of: selectedType) { _, newType in
-                            viewModel.loadTagSuggestions(for: newType, existingTags: selectedTags)
-                            HapticFeedback.light()
-                        }
+            VStack(spacing: 0) {
+                // Progress Bar
+                StepProgressBar(currentStep: currentStep, totalSteps: JournalStep.allCases.count)
 
-                    // Title (Optional) - Glassmorphism
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(String(localized: "journal.title.label", comment: "Title"))
-                            .font(.title3)
-                            .fontWeight(.bold)
-
-                        TextField(String(localized: "journal.title.placeholder", comment: "Add title (optional)"), text: $title)
-                            .textFieldStyle(.plain)
-                            .font(.body)
-                            .padding(16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(.ultraThinMaterial)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.gray.opacity(0.2),
-                                                Color.gray.opacity(0.1)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1
-                                    )
-                            )
-                    }
-
-                    // Content - Modern Text Editor
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(String(localized: "journal.content.label", comment: "Content"))
-                            .font(.title3)
-                            .fontWeight(.bold)
-
-                        ModernTextEditor(
-                            text: $content,
-                            placeholder: selectedType.aiPrompt,
-                            minHeight: 250,
-                            showCounter: true,
-                            maxCharacters: 5000
-                        )
-                    }
-
-                    // Tag Picker (Modern Pills)
-                    TagPickerView(
-                        selectedTags: $selectedTags,
-                        suggestions: viewModel.tagSuggestions,
-                        allEntries: viewModel.journalEntries
-                    )
-
-                    // Link to today's mood (Modern Toggle)
-                    if viewModel.todaysMood != nil && !isEditMode {
-                        moodLinkSection
-                    }
-
-                    Spacer(minLength: 40)
+                // Step Content with TabView for smooth sliding
+                TabView(selection: $currentStep) {
+                    stepTypeView.tag(JournalStep.type)
+                    stepTitleView.tag(JournalStep.title)
+                    stepContentView.tag(JournalStep.content)
+                    stepTagsView.tag(JournalStep.tags)
+                    stepReviewView.tag(JournalStep.review)
                 }
-                .padding()
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: currentStep)
+
+                // Navigation Buttons
+                navigationButtons
+                    .padding(Spacing.large)
+                    .background(.ultraThinMaterial)
             }
             .navigationTitle(isEditMode ? String(localized: "journal.edit.title", comment: "Edit Journal") : String(localized: "journal.write.title", comment: "Write Journal"))
             .navigationBarTitleDisplayMode(.inline)
@@ -343,13 +394,10 @@ struct JournalEditorView: View {
                         cleanup()
                         dismiss()
                     } label: {
-                        Text(String(localized: "common.cancel", comment: "Cancel"))
+                        Image(systemName: "xmark")
+                            .font(.subheadline)
                             .fontWeight(.medium)
                     }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    saveButton
                 }
             }
             .onAppear {
@@ -358,178 +406,448 @@ struct JournalEditorView: View {
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Step Views
 
-    private var journalTypeDropdown: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(String(localized: "journal.type.label", comment: "Journal Type"))
-                .font(.title3)
-                .fontWeight(.bold)
+    private var stepTypeView: some View {
+        ScrollView {
+            VStack(spacing: Spacing.large) {
+                // Header
+                VStack(spacing: Spacing.small) {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 48))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.brandPrimary, .purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
 
-            Menu {
-                ForEach(JournalType.allCases, id: \.self) { type in
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            selectedType = type
+                    Text("Hangi tür journal yazmak istersin?")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+
+                    Text("Journal tipini seçerek başla")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, Spacing.xlarge)
+
+                // Journal Type Cards (Compact)
+                VStack(spacing: Spacing.medium) {
+                    ForEach(JournalType.allCases, id: \.self) { type in
+                        compactTypeCard(type)
+                    }
+                }
+            }
+            .padding(Spacing.large)
+        }
+    }
+
+    private var stepTitleView: some View {
+        ScrollView {
+            VStack(spacing: Spacing.xlarge) {
+                // Header
+                VStack(spacing: Spacing.small) {
+                    Image(systemName: "text.cursor")
+                        .font(.system(size: 48))
+                        .foregroundStyle(selectedType.color)
+
+                    Text("Başlık ekle")
+                        .font(.title3)
+                        .fontWeight(.bold)
+
+                    Text("İsteğe bağlı - geçebilirsin")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, Spacing.xlarge)
+
+                // Title Input
+                TextField("Başlık (opsiyonel)", text: $title)
+                    .textFieldStyle(.plain)
+                    .font(.title3)
+                    .fontWeight(.medium)
+                    .padding(Spacing.large)
+                    .glassmorphismCard(
+                        cornerRadius: CornerRadius.medium,
+                        borderColor: title.isEmpty ? Color.gray.opacity(0.2) : selectedType.color.opacity(0.5)
+                    )
+
+                Spacer()
+            }
+            .padding(Spacing.large)
+        }
+    }
+
+    private var stepContentView: some View {
+        VStack(spacing: Spacing.medium) {
+            // Compact Header
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("İçeriğini yaz")
+                        .font(.headline)
+                        .fontWeight(.bold)
+
+                    Text(selectedType.aiPrompt)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text(selectedType.emoji)
+                    .font(.title2)
+            }
+            .padding(.horizontal, Spacing.large)
+            .padding(.top, Spacing.medium)
+
+            // Modern Text Editor (Full height)
+            ModernTextEditor(
+                text: $content,
+                placeholder: selectedType.aiPrompt,
+                minHeight: 300,
+                showCounter: true,
+                maxCharacters: 5000
+            )
+            .padding(.horizontal, Spacing.large)
+            .padding(.bottom, Spacing.medium)
+        }
+    }
+
+    private var stepTagsView: some View {
+        ScrollView {
+            VStack(spacing: Spacing.xlarge) {
+                // Header
+                VStack(spacing: Spacing.small) {
+                    Image(systemName: "tag")
+                        .font(.system(size: 48))
+                        .foregroundStyle(selectedType.color)
+
+                    Text("Etiketler ekle")
+                        .font(.title3)
+                        .fontWeight(.bold)
+
+                    Text("Journal'ını kategorilere ayır")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, Spacing.xlarge)
+
+                // Tag Picker
+                TagPickerView(
+                    selectedTags: $selectedTags,
+                    suggestions: viewModel.tagSuggestions,
+                    allEntries: viewModel.journalEntries
+                )
+
+                Spacer()
+            }
+            .padding(Spacing.large)
+        }
+    }
+
+    private var stepReviewView: some View {
+        ScrollView {
+            VStack(spacing: Spacing.large) {
+                // Header
+                VStack(spacing: Spacing.small) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 48))
+                        .foregroundStyle(Color.success)
+
+                    Text("Önizleme ve Kaydet")
+                        .font(.title3)
+                        .fontWeight(.bold)
+
+                    Text("Journal'ını kontrol et")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, Spacing.xlarge)
+
+                // Review Card
+                VStack(alignment: .leading, spacing: Spacing.large) {
+                    // Type
+                    reviewRow(
+                        icon: selectedType.icon,
+                        label: "Tip",
+                        value: "\(selectedType.emoji) \(selectedType.displayName)",
+                        color: selectedType.color
+                    )
+
+                    Divider()
+
+                    // Title
+                    if !title.isEmpty {
+                        reviewRow(
+                            icon: "text.cursor",
+                            label: "Başlık",
+                            value: title,
+                            color: .secondary
+                        )
+
+                        Divider()
+                    }
+
+                    // Content Preview
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        HStack {
+                            Image(systemName: "doc.text")
+                                .foregroundStyle(Color.secondary)
+                            Text("İçerik")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.secondary)
+
+                            Spacer()
+
+                            Text("\(content.count) karakter")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
                         }
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("\(type.emoji) \(type.displayName)")
-                                    .fontWeight(.medium)
-                                Text(type.aiPrompt)
+
+                        Text(content.prefix(150) + (content.count > 150 ? "..." : ""))
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .lineLimit(4)
+                    }
+
+                    // Tags
+                    if !selectedTags.isEmpty {
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: Spacing.small) {
+                            HStack {
+                                Image(systemName: "tag")
+                                    .foregroundStyle(Color.secondary)
+                                Text("Etiketler")
                                     .font(.caption)
+                                    .fontWeight(.semibold)
                                     .foregroundStyle(.secondary)
                             }
-                        } icon: {
-                            if selectedType == type {
-                                Image(systemName: "checkmark.circle.fill")
-                            } else {
-                                Image(systemName: type.icon)
+
+                            FlowLayout(spacing: 6) {
+                                ForEach(selectedTags, id: \.self) { tag in
+                                    Text("#\(tag)")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(selectedType.color)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            Capsule()
+                                                .fill(selectedType.color.opacity(0.15))
+                                        )
+                                }
                             }
                         }
+                    }
+
+                    // Mood Link
+                    if viewModel.todaysMood != nil && !isEditMode {
+                        Divider()
+
+                        Toggle(isOn: $linkToMood) {
+                            HStack(spacing: Spacing.small) {
+                                Text(viewModel.todaysMood?.moodType.emoji ?? "😊")
+                                    .font(.title3)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Bugünkü mood'a bağla")
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+
+                                    if let mood = viewModel.todaysMood {
+                                        Text(mood.moodType.displayName)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .tint(.brandPrimary)
+                    }
+                }
+                .padding(Spacing.large)
+                .glassmorphismCard(
+                    cornerRadius: CornerRadius.medium,
+                    borderColor: selectedType.color.opacity(0.3)
+                )
+            }
+            .padding(Spacing.large)
+        }
+    }
+
+    // MARK: - Helper Views
+
+    private func compactTypeCard(_ type: JournalType) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                selectedType = type
+            }
+            HapticFeedback.light()
+        } label: {
+            HStack(spacing: Spacing.medium) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [type.color.opacity(0.9), type.color.opacity(0.6)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: type.icon)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                }
+
+                // Info
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(type.emoji)
+                        Text(type.displayName)
+                            .fontWeight(.semibold)
+                    }
+                    .font(.subheadline)
+
+                    Text(type.aiPrompt)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+
+                Spacer()
+
+                // Checkmark
+                if selectedType == type {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(type.color)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .padding(Spacing.large)
+            .glassmorphismCard(
+                cornerRadius: CornerRadius.medium,
+                borderColor: selectedType == type ? type.color.opacity(0.5) : Color.gray.opacity(0.2)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func reviewRow(icon: String, label: String, value: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.small) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                Text(label)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+        }
+    }
+
+    private var navigationButtons: some View {
+        HStack(spacing: Spacing.medium) {
+            // Back Button
+            if currentStep != .type {
+                Button {
+                    withAnimation {
+                        currentStep = JournalStep(rawValue: currentStep.rawValue - 1) ?? .type
+                    }
+                    HapticFeedback.light()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left")
+                        Text("Geri")
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
+                            .fill(Color.gray.opacity(0.1))
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Next / Skip / Save Button
+            Button {
+                if currentStep == .review {
+                    saveJournal()
+                } else {
+                    withAnimation {
+                        currentStep = JournalStep(rawValue: currentStep.rawValue + 1) ?? .review
+                    }
+                    HapticFeedback.medium()
+
+                    // Load tag suggestions when moving to tags step
+                    if currentStep == .tags {
+                        viewModel.loadTagSuggestions(for: selectedType, existingTags: selectedTags)
                     }
                 }
             } label: {
-                HStack(spacing: 12) {
-                    // Icon Circle
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        selectedType.color.opacity(0.9),
-                                        selectedType.color.opacity(0.7)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: selectedType.icon)
-                            .font(.body)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white)
-                    }
-
-                    // Selected Type Info
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Text(selectedType.emoji)
-                                .font(.body)
-                            Text(selectedType.displayName)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                HStack(spacing: 6) {
+                    if currentStep == .review {
+                        if isSaving {
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(0.8)
+                        } else {
+                            Image(systemName: isEditMode ? "checkmark" : "arrow.down.doc")
                         }
-                        .foregroundStyle(.primary)
-
-                        Text(selectedType.aiPrompt)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                        Text(isEditMode ? "Güncelle" : "Kaydet")
+                    } else {
+                        Text(currentStep.canSkip && !canProceed ? "Geç" : "İleri")
+                        Image(systemName: "chevron.right")
                     }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
                 }
-                .padding(16)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(
-                            selectedType.color.opacity(0.3),
-                            lineWidth: 1
+                    RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: (currentStep == .review && canProceed && !isSaving) || (currentStep != .review && (canProceed || currentStep.canSkip)) ? [
+                                    Color.brandPrimary,
+                                    Color.purple
+                                ] : [
+                                    Color.gray.opacity(0.5),
+                                    Color.gray.opacity(0.3)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
                         )
                 )
+                .shadow(
+                    color: canProceed ? Color.brandPrimary.opacity(0.3) : .clear,
+                    radius: 8,
+                    y: 2
+                )
             }
+            .disabled(currentStep == .review ? !canProceed || isSaving : false)
+            .buttonStyle(.plain)
         }
-    }
-
-    private var moodLinkSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Toggle(isOn: $linkToMood) {
-                HStack(spacing: 12) {
-                    Text(viewModel.todaysMood?.moodType.emoji ?? "😊")
-                        .font(.title2)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "journal.link.to.mood", comment: "Link to today's mood"))
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-
-                        if let mood = viewModel.todaysMood {
-                            Text(mood.moodType.displayName)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            }
-            .tint(.brandPrimary)
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(.ultraThinMaterial)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(Color.brandPrimary.opacity(0.3), lineWidth: 1)
-            )
-        }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: linkToMood)
-    }
-
-    private var saveButton: some View {
-        Button {
-            saveJournal()
-        } label: {
-            HStack(spacing: 6) {
-                if isSaving {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                        .tint(.white)
-                } else {
-                    Image(systemName: isEditMode ? "checkmark" : "plus")
-                }
-
-                Text(isEditMode ? String(localized: "common.update", comment: "Update") : String(localized: "common.save", comment: "Save"))
-            }
-            .font(.subheadline)
-            .fontWeight(.semibold)
-            .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: isValid && !isSaving ? [
-                                Color.brandPrimary,
-                                Color.purple
-                            ] : [
-                                Color.gray.opacity(0.5),
-                                Color.gray.opacity(0.3)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-            )
-            .shadow(
-                color: isValid ? Color.brandPrimary.opacity(0.3) : .clear,
-                radius: 8,
-                y: 2
-            )
-        }
-        .disabled(!isValid || isSaving)
-        .buttonStyle(.plain)
     }
 
     // MARK: - Helper Methods
@@ -615,22 +933,14 @@ struct MoodAnalyticsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
-                // Streak Widget
-                if viewModel.streakData.currentStreak > 0 {
-                    MoodStreakWidget(streakData: viewModel.streakData)
-                }
-
-                // Stats Cards
+            VStack(spacing: Spacing.large) {
+                // Stats Cards (3-column)
                 statsSection
 
-                // Full Heatmap Calendar
-                MoodHeatmapCalendar(
-                    heatmapData: viewModel.heatmapData,
-                    month: Date()
-                )
+                // Compact 7-day Calendar Heatmap
+                compactWeekHeatmap
 
-                // Correlations
+                // Correlations (compact)
                 MoodCorrelationsView(
                     goalCorrelations: viewModel.moodCorrelation.goalCorrelations,
                     friendCorrelations: viewModel.moodCorrelation.friendCorrelations,
@@ -639,84 +949,119 @@ struct MoodAnalyticsView: View {
 
                 // AI Insight (iOS 26+)
                 if #available(iOS 26.0, *) {
-                    aiInsightSection
+                    compactAIInsightSection
                 }
             }
-            .padding()
+            .padding(Spacing.large)
         }
     }
 
     private var statsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
             Text("İstatistikler")
-                .font(.headline)
+                .cardTitle()
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                MoodStatCard(
-                    title: "Ortalama Mood",
+            // 3-column grid with MiniStatCard
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: Spacing.medium) {
+                MiniStatCard(
+                    title: "Streak",
+                    value: "\(viewModel.streakData.currentStreak)",
+                    icon: "flame.fill",
+                    color: .orange
+                )
+
+                MiniStatCard(
+                    title: "Ortalama",
                     value: String(format: "%.1f", viewModel.moodStats.averageMood),
-                    icon: "chart.line.uptrend.xyaxis",
-                    color: .purple,
-                    trend: viewModel.moodStats.moodTrend.emoji
+                    icon: "star.fill",
+                    color: .purple
                 )
 
-                MoodStatCard(
-                    title: "Pozitif Günler",
-                    value: "\(viewModel.moodStats.positiveCount)",
-                    icon: "face.smiling",
-                    color: .green,
-                    trend: "\(Int(viewModel.moodStats.positivePercentage))%"
-                )
-
-                MoodStatCard(
+                MiniStatCard(
                     title: "Bu Hafta",
                     value: "\(viewModel.moodCountThisWeek)",
                     icon: "calendar",
-                    color: .blue,
-                    trend: nil
-                )
-
-                MoodStatCard(
-                    title: "Journal",
-                    value: "\(viewModel.journalCountThisMonth)",
-                    icon: "book.fill",
-                    color: .orange,
-                    trend: nil
+                    color: .blue
                 )
             }
         }
     }
 
+    // MARK: - Compact Week Heatmap (7-day horizontal)
+
+    private var compactWeekHeatmap: some View {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
+            Text("Son 7 Gün")
+                .cardTitle()
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Spacing.small) {
+                    ForEach(0..<7, id: \.self) { dayOffset in
+                        let date = Calendar.current.date(byAdding: .day, value: -dayOffset, to: Date()) ?? Date()
+                        let moodDayData = viewModel.heatmapData.first(where: {
+                            Calendar.current.isDate($0.date, inSameDayAs: date)
+                        })
+
+                        // MoodDayData'dan MoodEntry oluştur
+                        let moodEntry: MoodEntry? = {
+                            if let moodType = moodDayData?.moodType,
+                               let score = moodDayData?.averageScore {
+                                return MoodEntry(
+                                    moodType: moodType,
+                                    intensity: Int(score.rounded()),
+                                    note: nil
+                                )
+                            }
+                            return nil
+                        }()
+
+                        MoodGridItem(mood: moodEntry, date: date)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Compact AI Insight
+
     @available(iOS 26.0, *)
-    private var aiInsightSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("AI Analiz")
-                .font(.headline)
+    private var compactAIInsightSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.medium) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(.purple)
+                Text("AI Analiz")
+                    .cardTitle()
+            }
 
             if viewModel.isLoadingAI {
                 ProgressView()
                     .frame(maxWidth: .infinity)
                     .padding()
             } else if let insight = viewModel.aiInsight {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: Spacing.small) {
                     Text(insight.summary)
-                        .font(.callout)
+                        .font(.caption)
                         .fontWeight(.medium)
 
-                    ForEach(insight.suggestions, id: \.self) { suggestion in
-                        HStack(alignment: .top, spacing: 8) {
-                            Image(systemName: "lightbulb.fill")
-                                .font(.caption)
-                                .foregroundStyle(.yellow)
+                    ForEach(insight.suggestions.prefix(3), id: \.self) { suggestion in
+                        HStack(alignment: .top, spacing: Spacing.micro) {
+                            Text("💡")
+                                .font(.caption2)
 
                             Text(suggestion)
-                                .font(.caption)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
-                .padding()
+                .padding(Spacing.medium)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.normal)
                         .fill(Color.purple.opacity(0.1))
                 )
             } else {
@@ -725,6 +1070,7 @@ struct MoodAnalyticsView: View {
                         await viewModel.generateWeeklyAnalysis(context: modelContext)
                     }
                 }
+                .font(.caption)
             }
         }
     }

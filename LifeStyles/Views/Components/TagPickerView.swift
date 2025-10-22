@@ -19,7 +19,8 @@ struct TagPickerView: View {
     private let tagService = TagSuggestionService.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        // DS: Updated spacing from 16 to Spacing.large
+        VStack(alignment: .leading, spacing: Spacing.large) {
             // Header
             HStack {
                 Label("Tag'ler", systemImage: "tag.fill")
@@ -29,8 +30,7 @@ struct TagPickerView: View {
 
                 if !selectedTags.isEmpty {
                     Text("\(selectedTags.count) seçili")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .metadataText() // DS: Using typography helper
                 }
             }
 
@@ -52,9 +52,11 @@ struct TagPickerView: View {
                         addCustomTag()
                     }
             }
-            .padding()
+            // DS: Updated padding to Spacing.large
+            .padding(Spacing.large)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                // DS: Updated cornerRadius to CornerRadius.compact
+                RoundedRectangle(cornerRadius: CornerRadius.compact)
                     .fill(Color(.tertiarySystemBackground))
             )
 
@@ -74,7 +76,8 @@ struct TagPickerView: View {
 
     private var selectedTagsView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            // DS: Updated spacing from 8 to Spacing.small
+            HStack(spacing: Spacing.small) {
                 ForEach(selectedTags, id: \.self) { tag in
                     TagChip(
                         tag: tag,
@@ -91,12 +94,14 @@ struct TagPickerView: View {
     // MARK: - Suggestions Section
 
     private var suggestionsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        // DS: Updated spacing from 8 to Spacing.small
+        VStack(alignment: .leading, spacing: Spacing.small) {
             Text("Öneriler")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
 
-            FlowLayout(spacing: 8) {
+            // DS: Updated spacing from 8 to Spacing.small
+            FlowLayout(spacing: Spacing.small) {
                 ForEach(suggestions.filter { !selectedTags.contains($0) }, id: \.self) { tag in
                     TagChip(
                         tag: tag,
@@ -125,9 +130,11 @@ struct TagPickerView: View {
                     .font(.caption2)
             }
             .foregroundStyle(.blue)
-            .padding()
+            // DS: Updated padding to Spacing.large
+            .padding(Spacing.large)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                // DS: Updated cornerRadius to CornerRadius.compact
+                RoundedRectangle(cornerRadius: CornerRadius.compact)
                     .fill(Color.blue.opacity(0.1))
             )
         }
@@ -180,7 +187,8 @@ struct TagChip: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 4) {
+            // DS: Updated spacing from 4 to Spacing.micro
+            HStack(spacing: Spacing.micro) {
                 if isSelected {
                     Image(systemName: "xmark.circle.fill")
                         .font(.caption2)
@@ -193,7 +201,8 @@ struct TagChip: View {
                     .font(.caption.weight(.medium))
             }
             .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, 12)
+            // DS: Updated padding from 12 and 6 to Spacing.medium and 6
+            .padding(.horizontal, Spacing.medium)
             .padding(.vertical, 6)
             .background(
                 Capsule()
@@ -323,16 +332,17 @@ struct TagStatRow: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isSelected ? .blue : .secondary)
 
-                VStack(alignment: .leading, spacing: 4) {
+                // DS: Updated spacing from 4 to Spacing.micro
+                VStack(alignment: .leading, spacing: Spacing.micro) {
                     Text(stat.tag)
                         .font(.subheadline.weight(.medium))
 
-                    HStack(spacing: 12) {
+                    // DS: Updated spacing from 12 to Spacing.medium
+                    HStack(spacing: Spacing.medium) {
                         Label("\(stat.count) kez", systemImage: "number")
                         Label(stat.lastUsedText, systemImage: "clock")
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .metadataText() // DS: Using typography helper
                 }
 
                 Spacer()
