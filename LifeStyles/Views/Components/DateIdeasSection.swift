@@ -18,7 +18,7 @@ struct DateIdeasSection: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("Randevu Fikirleri")
+                Text(String(localized: "date.ideas.title", comment: "Date Ideas"))
                     .font(.headline)
                     .fontWeight(.semibold)
 
@@ -29,7 +29,7 @@ struct DateIdeasSection: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
-                        Text("Rastgele")
+                        Text(String(localized: "date.ideas.random", comment: "Random"))
                             .font(.caption)
                             .fontWeight(.semibold)
                     }
@@ -96,10 +96,10 @@ enum DateCategory: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .romantic: return "Romantik"
-        case .adventure: return "Macera"
-        case .relaxed: return "Rahat"
-        case .cultural: return "Kültürel"
+        case .romantic: return String(localized: "date.category.romantic", comment: "Romantic")
+        case .adventure: return String(localized: "date.category.adventure", comment: "Adventure")
+        case .relaxed: return String(localized: "date.category.relaxed", comment: "Relaxed")
+        case .cultural: return String(localized: "date.category.cultural", comment: "Cultural")
         }
     }
 
@@ -291,7 +291,7 @@ struct RandomIdeaView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Text("Kapat")
+                    Text(String(localized: "common.close", comment: "Close"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()

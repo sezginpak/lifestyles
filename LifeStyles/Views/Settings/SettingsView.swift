@@ -452,11 +452,11 @@ struct SettingsView: View {
             ) { result in
                 importData(result: result)
             }
-            .alert("Dil Değiştir / Change Language", isPresented: $showLanguageAlert) {
-                Button("İptal / Cancel", role: .cancel) {
+            .alert(String(localized: "settings.language.change.title", comment: "Change Language"), isPresented: $showLanguageAlert) {
+                Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {
                     pendingLanguage = nil
                 }
-                Button("Değiştir / Change", role: .none) {
+                Button(String(localized: "settings.language.change.button", comment: "Change"), role: .none) {
                     if let newLanguage = pendingLanguage {
                         LanguageManager.shared.changeLanguage(to: newLanguage)
                         alertMessage = "Dil ayarları kaydedildi! Değişikliklerin uygulanması için lütfen uygulamayı kapatıp tekrar açın.\n\nLanguage settings saved! Please close and reopen the app to apply changes."
