@@ -1,0 +1,16 @@
+/*
+  InfoPlist.strings - English
+  LifeStyles
+*/
+
+/* Contacts permission */
+"NSContactsUsageDescription" = "LifeStyles needs access to your contacts to help you maintain regular communication with important people. Your data is stored only on your device.";
+
+/* Location permission - when in use */
+"NSLocationWhenInUseUsageDescription" = "LifeStyles needs your location to provide you with location-based activity suggestions.";
+
+/* Location permission - always */
+"NSLocationAlwaysUsageDescription" = "LifeStyles records your location every 15 minutes to improve your quality of life. This feature works in the background and provides you with location-based activity suggestions.";
+
+/* Location permission - always and when in use */
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "LifeStyles records your location every 15 minutes to improve your quality of life. This feature works in the background and provides you with location-based activity suggestions.";

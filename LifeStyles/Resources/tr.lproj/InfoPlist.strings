@@ -1,0 +1,16 @@
+/*
+  InfoPlist.strings - Turkish
+  LifeStyles
+*/
+
+/* Contacts permission */
+"NSContactsUsageDescription" = "LifeStyles, önemli kişilerle düzenli iletişim kurmanıza yardımcı olmak için rehber erişimine ihtiyaç duyar. Verileriniz yalnızca cihazınızda saklanır.";
+
+/* Location permission - when in use */
+"NSLocationWhenInUseUsageDescription" = "LifeStyles, size konum bazlı aktivite önerileri sunmak için konumunuza ihtiyaç duyar.";
+
+/* Location permission - always */
+"NSLocationAlwaysUsageDescription" = "LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.";
+
+/* Location permission - always and when in use */
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.";
