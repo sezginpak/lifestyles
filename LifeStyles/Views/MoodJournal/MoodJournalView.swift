@@ -449,10 +449,10 @@ struct JournalEditorView: View {
     private var stepTitleView: some View {
         ScrollView {
             VStack(spacing: Spacing.xlarge) {
-                // Header
+                // Compact Header
                 VStack(spacing: Spacing.small) {
                     Image(systemName: "text.cursor")
-                        .font(.system(size: 48))
+                        .font(.system(size: 40))
                         .foregroundStyle(selectedType.color)
 
                     Text("Başlık ekle")
@@ -463,7 +463,7 @@ struct JournalEditorView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.top, Spacing.xlarge)
+                .padding(.top, Spacing.large)
 
                 // Title Input
                 TextField("Başlık (opsiyonel)", text: $title)
@@ -476,10 +476,12 @@ struct JournalEditorView: View {
                         borderColor: title.isEmpty ? Color.gray.opacity(0.2) : selectedType.color.opacity(0.5)
                     )
 
-                Spacer()
+                // Bottom padding for keyboard
+                Color.clear.frame(height: 80)
             }
             .padding(Spacing.large)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private var stepContentView: some View {
@@ -524,22 +526,27 @@ struct JournalEditorView: View {
 
     private var stepTagsView: some View {
         ScrollView {
-            VStack(spacing: Spacing.xlarge) {
-                // Header
-                VStack(spacing: Spacing.small) {
+            VStack(spacing: Spacing.large) {
+                // Compact Header
+                HStack(spacing: Spacing.medium) {
                     Image(systemName: "tag")
-                        .font(.system(size: 48))
+                        .font(.title)
                         .foregroundStyle(selectedType.color)
 
-                    Text("Etiketler ekle")
-                        .font(.title3)
-                        .fontWeight(.bold)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Etiketler ekle")
+                            .font(.headline)
+                            .fontWeight(.bold)
 
-                    Text("Journal'ını kategorilere ayır")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        Text("Journal'ını kategorilere ayır")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
                 }
-                .padding(.top, Spacing.xlarge)
+                .padding(.horizontal, Spacing.large)
+                .padding(.top, Spacing.medium)
 
                 // Tag Picker
                 TagPickerView(
@@ -547,11 +554,13 @@ struct JournalEditorView: View {
                     suggestions: viewModel.tagSuggestions,
                     allEntries: viewModel.journalEntries
                 )
+                .padding(.horizontal, Spacing.large)
 
-                Spacer()
+                // Bottom padding for keyboard
+                Color.clear.frame(height: 100)
             }
-            .padding(Spacing.large)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     private var stepReviewView: some View {

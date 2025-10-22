@@ -26,6 +26,7 @@ struct FriendAIChatView: View {
     // UI State
     @State private var showPaywall = false
     @State private var showDataUsageInfo = false
+    @State private var showAIDisabledAlert = false
     @FocusState private var isInputFocused: Bool
 
     // Genel mod mu?

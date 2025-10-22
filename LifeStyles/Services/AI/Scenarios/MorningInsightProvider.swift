@@ -9,6 +9,19 @@
 import Foundation
 import SwiftData
 
+// MARK: - Morning Insight Error
+
+enum MorningInsightError: LocalizedError {
+    case featureDisabled
+
+    var errorDescription: String? {
+        switch self {
+        case .featureDisabled:
+            return "Morning Insight özelliği kapalı. Ayarlar → AI & Gizlilik'ten aktif edebilirsiniz."
+        }
+    }
+}
+
 // MARK: - Morning Context
 
 struct MorningContext: Codable {
@@ -150,6 +163,12 @@ class MorningInsightService {
 
     /// Generate morning insight
     func generateInsight(modelContext: ModelContext) async throws -> String {
+        // Privacy check - Morning Insight enabled?
+        let privacySettings = AIPrivacySettings.shared
+        guard privacySettings.hasGivenAIConsent && privacySettings.morningInsightEnabled else {
+            throw MorningInsightError.featureDisabled
+        }
+
         print("🌅 Generating morning insight...")
 
         // Build context

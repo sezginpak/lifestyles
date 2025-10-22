@@ -17,6 +17,19 @@ enum ChatIntent {
     case general             // Diğer sorular
 }
 
+// MARK: - Chat Error
+
+enum ChatError: LocalizedError {
+    case aiDisabled
+
+    var errorDescription: String? {
+        switch self {
+        case .aiDisabled:
+            return "AI özellikleri kapalı. Lütfen Ayarlar → AI & Gizlilik'ten aktif edin."
+        }
+    }
+}
+
 // MARK: - Chat Context
 
 struct ChatContext: Codable {
@@ -85,6 +98,12 @@ class ChatHaikuService {
         chatHistory: [ChatMessage] = [],
         modelContext: ModelContext
     ) async throws -> String {
+
+        // Privacy check - AI Chat enabled?
+        let privacySettings = AIPrivacySettings.shared
+        guard privacySettings.hasGivenAIConsent && privacySettings.aiChatEnabled else {
+            throw ChatError.aiDisabled
+        }
 
         // Detect intent (only for general mode)
         let intent: ChatIntent = friend == nil ? detectIntent(question: question) : .general
