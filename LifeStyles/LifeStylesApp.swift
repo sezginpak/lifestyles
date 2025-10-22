@@ -124,6 +124,7 @@ extension LifeStylesApp {
 
 @main
 struct LifeStylesApp: App {
+    @State private var showSplashScreen = true
     @State private var isOnboardingComplete = OnboardingViewModel.hasCompletedOnboarding()
     @State private var deepLinkRouter = DeepLinkRouter()
 
@@ -193,19 +194,39 @@ struct LifeStylesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if isOnboardingComplete {
-                ContentView()
-                    .modelContainer(sharedModelContainer)
-                    .environment(deepLinkRouter)
-                    .onAppear {
-                        // Uygulama açıldığında otomatik konum takibini başlat
-                        initializeLocationTracking()
+            ZStack {
+                if showSplashScreen {
+                    // MARK: - Splash Screen
+                    SplashScreenView()
+                        .transition(.opacity)
+                        .zIndex(2)
+                } else {
+                    // MARK: - Main Content
+                    if isOnboardingComplete {
+                        ContentView()
+                            .modelContainer(sharedModelContainer)
+                            .environment(deepLinkRouter)
+                            .transition(.opacity)
+                            .onAppear {
+                                // Uygulama açıldığında otomatik konum takibini başlat
+                                initializeLocationTracking()
 
-                        // Notification sistemini başlat
-                        initializeNotificationSystem()
+                                // Notification sistemini başlat
+                                initializeNotificationSystem()
+                            }
+                    } else {
+                        OnboardingView(isOnboardingComplete: $isOnboardingComplete)
+                            .transition(.opacity)
                     }
-            } else {
-                OnboardingView(isOnboardingComplete: $isOnboardingComplete)
+                }
+            }
+            .onAppear {
+                // Splash screen 2.5 saniye sonra kaybolsun
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showSplashScreen = false
+                    }
+                }
             }
         }
     }

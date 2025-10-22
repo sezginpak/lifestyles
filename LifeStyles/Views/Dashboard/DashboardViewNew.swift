@@ -144,12 +144,12 @@ struct DashboardViewNew: View {
                 DashboardCompactStatCard(
                     data: CompactStatData(
                         icon: "target",
-                        title: "Hedefler",
+                        title: String(localized: "dashboard.stats.goals", comment: "Goals"),
                         color: "667EEA",
                         mainValue: "%\(Int(viewModel.goalCompletionRate * 100))",
-                        subValue: "Tamamlanma",
+                        subValue: String(localized: "dashboard.stats.completion", comment: "Completion"),
                         progressValue: viewModel.goalCompletionRate,
-                        badge: viewModel.overdueGoals > 0 ? "\(viewModel.overdueGoals) gecikmiş" : nil
+                        badge: viewModel.overdueGoals > 0 ? String(format: NSLocalizedString("dashboard.stats.overdue.format", comment: "X overdue"), viewModel.overdueGoals) : nil
                     )
                 )
 
@@ -157,10 +157,10 @@ struct DashboardViewNew: View {
                 DashboardCompactStatCard(
                     data: CompactStatData(
                         icon: "person.2.fill",
-                        title: "İletişim",
+                        title: String(localized: "dashboard.stats.communication", comment: "Communication"),
                         color: "3498DB",
                         mainValue: "\(viewModel.contactsThisWeek)",
-                        subValue: "Bu hafta",
+                        subValue: String(localized: "dashboard.stats.this.week", comment: "This week"),
                         progressValue: nil,
                         badge: viewModel.contactTrendPercentage != 0 ? "\(viewModel.contactTrendPercentage >= 0 ? "+" : "")\(Int(viewModel.contactTrendPercentage))%" : nil
                     )
@@ -170,12 +170,12 @@ struct DashboardViewNew: View {
                 DashboardCompactStatCard(
                     data: CompactStatData(
                         icon: "flame.fill",
-                        title: "Alışkanlıklar",
+                        title: String(localized: "dashboard.stats.habits", comment: "Habits"),
                         color: "E74C3C",
                         mainValue: "\(viewModel.completedHabitsToday)/\(viewModel.totalHabitsToday)",
-                        subValue: "Bugün",
+                        subValue: String(localized: "dashboard.stats.today", comment: "Today"),
                         progressValue: viewModel.totalHabitsToday > 0 ? Double(viewModel.completedHabitsToday) / Double(viewModel.totalHabitsToday) : 0,
-                        badge: "%\(Int(viewModel.weeklyHabitCompletionRate * 100)) haftalık"
+                        badge: String(format: NSLocalizedString("dashboard.stats.weekly.format", comment: "X% weekly"), Int(viewModel.weeklyHabitCompletionRate * 100))
                     )
                 )
 
@@ -183,12 +183,12 @@ struct DashboardViewNew: View {
                 DashboardCompactStatCard(
                     data: CompactStatData(
                         icon: "location.fill",
-                        title: "Mobilite",
+                        title: String(localized: "dashboard.stats.mobility", comment: "Mobility"),
                         color: "2ECC71",
                         mainValue: "\(viewModel.mobilityScore)",
-                        subValue: "Skor",
+                        subValue: String(localized: "dashboard.stats.score", comment: "Score"),
                         progressValue: Double(viewModel.mobilityScore) / 100.0,
-                        badge: "\(viewModel.uniqueLocationsThisWeek) lokasyon"
+                        badge: String(format: NSLocalizedString("dashboard.stats.locations.format", comment: "X locations"), viewModel.uniqueLocationsThisWeek)
                     )
                 )
             }
@@ -340,7 +340,7 @@ struct DashboardViewNew: View {
                         .scaleEffect(0.8)
                         .tint(.purple)
 
-                    Text("Claude seni düşünüyor...")
+                    Text(String(localized: "dashboard.morning.insight.loading", comment: "Claude is thinking about you..."))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -369,12 +369,12 @@ struct DashboardViewNew: View {
                             .font(.title3)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Sabah İçgörüsü")
+                            Text(String(localized: "dashboard.morning.insight", comment: "Morning Insight"))
                                 .font(.headline)
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
 
-                            Text("Claude Haiku ile kişiselleştirildi")
+                            Text(String(localized: "dashboard.morning.insight.personalized", comment: "Personalized with Claude Haiku"))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
@@ -405,7 +405,7 @@ struct DashboardViewNew: View {
                         .lineLimit(4)
 
                     // Long press hint
-                    Text("Tamamını görmek için basılı tut")
+                    Text(String(localized: "dashboard.morning.insight.long.press.hint", comment: "Long press to view full insight"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .italic()
@@ -449,7 +449,7 @@ struct DashboardViewNew: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
 
-                    Text("Insight oluşturulamadı: \(error)")
+                    Text(String(format: NSLocalizedString("dashboard.morning.insight.error.format", comment: "Could not create insight: %@"), error))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -672,11 +672,11 @@ struct FullMorningInsightSheet: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Sabah İçgörüsü")
+            .navigationTitle(String(localized: "dashboard.morning.insight", comment: "Morning Insight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Kapat") {
+                    Button(String(localized: "common.close", comment: "Close")) {
                         dismiss()
                     }
                 }
