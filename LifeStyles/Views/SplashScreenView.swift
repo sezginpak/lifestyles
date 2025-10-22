@@ -101,7 +101,7 @@ struct SplashScreenView: View {
                         )
                         .opacity(logoOpacity)
 
-                    Text("Hayatın Her Anında Yanında")
+                    Text(String(localized: "splash.tagline", comment: "With You at Every Moment of Life"))
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)

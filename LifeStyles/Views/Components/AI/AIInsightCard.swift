@@ -250,19 +250,19 @@ struct PriorityActionCard: View {
             isExpanded: .constant(true)
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Bugün harika bir gün! 3 hedefinde ilerleme kaydettiniz ve 2 alışkanlığınızı tamamladınız.")
+                Text(String(localized: "ai.insight.preview.text", comment: "Today is a great day! You made progress on 3 goals and completed 2 habits."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 Divider()
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Öneriler:")
+                    Text(String(localized: "ai.insight.suggestions", comment: "Suggestions:"))
                         .font(.caption.weight(.semibold))
 
-                    Text("• Bir arkadaşınla iletişim kur")
+                    Text(String(localized: "ai.insight.preview.suggestion.1", comment: "• Contact a friend"))
                         .font(.caption)
-                    Text("• Akşam yoga rutinini tamamla")
+                    Text(String(localized: "ai.insight.preview.suggestion.2", comment: "• Complete evening yoga routine"))
                         .font(.caption)
                 }
             }

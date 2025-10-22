@@ -79,6 +79,14 @@ struct FriendAIChatView: View {
                     .onChange(of: isGeneratingAI) { _, _ in
                         scrollToBottom(proxy: proxy)
                     }
+                    .onChange(of: isInputFocused) { _, newValue in
+                        if newValue {
+                            // Klavye açıldığında biraz bekleyip scroll et
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                scrollToBottom(proxy: proxy)
+                            }
+                        }
+                    }
                     .onTapGesture {
                         isInputFocused = false
                     }

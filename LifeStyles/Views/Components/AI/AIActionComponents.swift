@@ -264,7 +264,7 @@ struct AIErrorView: View {
                 .foregroundStyle(.orange)
 
             VStack(spacing: 8) {
-                Text("AI Hatası")
+                Text(String(localized: "ai.error", comment: "AI Error"))
                     .font(.headline)
                     .foregroundStyle(.primary)
 

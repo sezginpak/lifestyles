@@ -59,6 +59,13 @@ struct ChatContext: Codable {
     let currentMood: MoodSnapshot?
     let moodTrend: MoodTrend?
     let locationPattern: LocationPattern?
+
+    // Journal entries
+    let recentJournals: [JournalSnapshot]?
+    let todayJournal: JournalSnapshot?
+
+    // User profile
+    let userProfile: UserProfileSnapshot?
 }
 
 // MARK: - Chat Haiku Service
@@ -194,6 +201,18 @@ class ChatHaikuService {
             ? await LocationContextBuilder.buildPattern(modelContext: modelContext)
             : nil
 
+        // Load journal entries (privacy-aware - currently no specific privacy setting, uses general AI consent)
+        let recentJournals: [JournalSnapshot]? = privacySettings.hasGivenAIConsent
+            ? await JournalContextBuilder.buildRecent(modelContext: modelContext, days: 7)
+            : nil
+
+        let todayJournal: JournalSnapshot? = privacySettings.hasGivenAIConsent
+            ? await JournalContextBuilder.buildToday(modelContext: modelContext)
+            : nil
+
+        // Always load user profile (no privacy toggle - it's user's own data)
+        let userProfile = await ProfileContextBuilder.build(modelContext: modelContext)
+
         // Friend yoksa genel mod - intent'e göre arkadaş bilgisi yükle
         guard let friend = friend else {
             // Smart Context Loading based on intent AND privacy settings
@@ -230,7 +249,10 @@ class ChatHaikuService {
                 habits: habits,
                 currentMood: mood,
                 moodTrend: trend,
-                locationPattern: location
+                locationPattern: location,
+                recentJournals: recentJournals,
+                todayJournal: todayJournal,
+                userProfile: userProfile
             )
         }
 
@@ -262,7 +284,10 @@ class ChatHaikuService {
             habits: habits,
             currentMood: mood,
             moodTrend: trend,
-            locationPattern: location
+            locationPattern: location,
+            recentJournals: recentJournals,
+            todayJournal: todayJournal,
+            userProfile: userProfile
         )
     }
 
@@ -361,17 +386,76 @@ class ChatHaikuService {
                 contextInfo += "\n"
             }
 
+            // Journal context
+            if let todayJournal = context.todayJournal {
+                contextInfo += "\n\n📝 Bugünkü Günlük: \(todayJournal.type)"
+                if let title = todayJournal.title {
+                    contextInfo += " - \(title)"
+                }
+                contextInfo += "\n\(todayJournal.content)\n"
+            }
+
+            if let recentJournals = context.recentJournals, !recentJournals.isEmpty {
+                contextInfo += "\n\n📖 Son Günlük Kayıtları (\(recentJournals.count) adet):\n"
+                for (index, journal) in recentJournals.prefix(5).enumerated() {
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .medium
+                    formatter.timeStyle = .none
+                    formatter.locale = Locale(identifier: "tr_TR")
+                    let dateStr = formatter.string(from: journal.date)
+
+                    contextInfo += "• \(dateStr)"
+                    if let title = journal.title {
+                        contextInfo += " - \(title)"
+                    }
+                    contextInfo += " (\(journal.type))"
+                    if journal.isFavorite {
+                        contextInfo += " ⭐️"
+                    }
+                    contextInfo += "\n"
+                }
+                if recentJournals.count > 5 {
+                    contextInfo += "...ve \(recentJournals.count - 5) kayıt daha\n"
+                }
+            }
+
+            // User profile context
+            var profileInfo = ""
+            if let profile = context.userProfile, !profile.isEmpty {
+                profileInfo += "\n\n👤 Kullanıcı Profili:"
+                if let name = profile.name {
+                    profileInfo += "\n- İsim: \(name)"
+                }
+                if let age = profile.age {
+                    profileInfo += "\n- Yaş: \(age)"
+                }
+                if let occupation = profile.occupation {
+                    profileInfo += "\n- Meslek: \(occupation)"
+                }
+                if !profile.hobbies.isEmpty {
+                    profileInfo += "\n- Hobiler: \(profile.hobbies.joined(separator: ", "))"
+                }
+                if !profile.interests.isEmpty {
+                    profileInfo += "\n- İlgi Alanları: \(profile.interests.joined(separator: ", "))"
+                }
+                if let bio = profile.bio {
+                    profileInfo += "\n- Bio: \(bio)"
+                }
+            }
+
             systemPrompt = """
             Sen LifeStyles uygulamasının kişisel yaşam asistanısın. Adın Claude.
 
             Görevin: Kullanıcıya arkadaşlıkları, hedefleri, alışkanlıkları ve yaşam kalitesi hakkında yardımcı olmak.
+            \(profileInfo)
             \(contextInfo)
             Kurallar:
             - Türkçe yaz, samimi ve doğal ol
             - Kısa ve öz cevaplar ver (2-3 cümle ideal)
             - Emoji kullan (abartma, 1-2 emoji yeterli)
             - Yapıcı ve motive edici ol
-            - Kullanıcının sorularını anlamaya çalış
+            - Kullanıcının adını, yaşını, mesleğini kullanarak kişisel ol
+            - Hobiler ve ilgi alanlarına özel önerilerde bulun
             - Context bilgilerini kullanarak kişiselleştirilmiş önerilerde bulun
             - Hedef/alışkanlık/mood verilerini analiz ederek tavsiye ver
             - Gerekirse soru sor, daha fazla detay iste
@@ -417,11 +501,26 @@ class ChatHaikuService {
                 lifeContext += "\nMevcut ruh hali: \(mood.type) (\(mood.intensity)/5)"
             }
 
+            // User profile
+            var userInfo = ""
+            if let profile = context.userProfile {
+                if let name = profile.name {
+                    userInfo += "\nKullanıcının adı: \(name)"
+                }
+                if let age = profile.age {
+                    userInfo += ", \(age) yaşında"
+                }
+                if !profile.interests.isEmpty {
+                    userInfo += "\nİlgi alanları: \(profile.interests.joined(separator: ", "))"
+                }
+            }
+
             systemPrompt = """
             Sen LifeStyles uygulamasının kişisel asistanısın. Adın Claude.
 
             Şu anda kullanıcı \(friendName) hakkında konuşuyor.
             İlişki türü: \(relationship)
+            \(userInfo)
             \(contextInfo)
             \(lifeContext)
 

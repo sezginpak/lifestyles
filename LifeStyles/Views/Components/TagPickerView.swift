@@ -29,7 +29,7 @@ struct TagPickerView: View {
                 Spacer()
 
                 if !selectedTags.isEmpty {
-                    Text("\(selectedTags.count) seçili")
+                    Text(String(format: NSLocalizedString("tags.selected.count.format", comment: "Selected tags count"), selectedTags.count))
                         .metadataText() // DS: Using typography helper
                 }
             }
@@ -96,7 +96,7 @@ struct TagPickerView: View {
     private var suggestionsSection: some View {
         // DS: Updated spacing from 8 to Spacing.small
         VStack(alignment: .leading, spacing: Spacing.small) {
-            Text("Öneriler")
+            Text(String(localized: "tags.suggestions", comment: "Suggestions"))
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
 
@@ -123,7 +123,7 @@ struct TagPickerView: View {
         } label: {
             HStack {
                 Image(systemName: "sparkles")
-                Text("Sık Kullanılan Tag'ler")
+                Text(String(localized: "tags.frequently.used", comment: "Frequently Used Tags"))
                     .font(.caption.weight(.medium))
                 Spacer()
                 Image(systemName: "chevron.right")

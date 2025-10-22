@@ -30,7 +30,7 @@ struct StreamingTextView: View {
                     ProgressView()
                         .scaleEffect(0.8)
 
-                    Text("AI düşünüyor...")
+                    Text(String(localized: "ai.thinking", comment: "AI is thinking..."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

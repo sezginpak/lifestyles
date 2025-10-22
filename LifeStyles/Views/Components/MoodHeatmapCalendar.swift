@@ -27,7 +27,7 @@ struct MoodHeatmapCalendar: View {
 
                 Spacer()
 
-                Text("\(heatmapData.filter { $0.moodType != nil }.count) gün")
+                Text(String(format: NSLocalizedString("mood.heatmap.days.format", comment: "Day count in heatmap"), heatmapData.filter { $0.moodType != nil }.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -133,7 +133,7 @@ struct MoodHeatmapCalendar: View {
                     .frame(width: 16, height: 16)
             }
 
-            Text("Daha çok")
+            Text(String(localized: "mood.heatmap.more", comment: "More"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -249,7 +249,7 @@ struct MoodDayDetailPopup: View {
                         .font(.system(size: 48))
                         .foregroundStyle(.tertiary)
 
-                    Text("Bu gün mood kaydı yok")
+                    Text(String(localized: "mood.heatmap.no.record", comment: "No mood record for this day"))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }

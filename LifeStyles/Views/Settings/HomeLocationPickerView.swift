@@ -62,14 +62,14 @@ struct HomeLocationPickerView: View {
                         }
                     }
 
-                    Text("Harita üzerinde ev konumunuzu seçin veya mevcut konumunuzu kullanın")
+                    Text(String(localized: "location.home.instruction", comment: "Select your home location on the map or use your current location"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
                     // Yarıçap ayarı
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("Ev Yarıçapı")
+                            Text(String(localized: "location.home.radius", comment: "Home Radius"))
                                 .font(.subheadline)
                                 .foregroundStyle(.primary)
                             Spacer()
@@ -148,7 +148,7 @@ struct HomeLocationPickerView: View {
                                 span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                             ))
                         } label: {
-                            Text("Göster")
+                            Text(String(localized: "common.show", comment: "Show"))
                                 .font(.caption)
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color.brandPrimary)
@@ -183,7 +183,7 @@ struct HomeLocationPickerView: View {
                 saveHomeLocation()
             }
         } message: {
-            Text("Bu konum ev konumunuz olarak kaydedilecek. Konum bazlı öneriler bu konuma göre yapılacak.")
+            Text(String(localized: "location.home.save.confirmation", comment: "This location will be saved as your home location"))
         }
     }
 

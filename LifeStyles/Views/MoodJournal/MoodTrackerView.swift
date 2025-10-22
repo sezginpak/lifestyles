@@ -164,7 +164,7 @@ struct MoodTrackerView: View {
 
     private var statsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("İstatistikler")
+            Text(String(localized: "mood.stats", comment: "Statistics"))
                 .cardTitle()
 
             LazyVGrid(columns: [

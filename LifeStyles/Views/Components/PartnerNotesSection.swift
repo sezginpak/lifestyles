@@ -30,7 +30,7 @@ struct PartnerNotesSection: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("Partner Notları")
+                Text(String(localized: "partner.notes", comment: "Partner Notes"))
                     .font(.headline)
                     .fontWeight(.semibold)
 
@@ -275,7 +275,7 @@ struct AddPartnerNoteView: View {
                 } header: {
                     Text("Not")
                 } footer: {
-                    Text("Partneriniz hakkında hatırlamak istediğiniz bilgileri buraya yazın.")
+                    Text(String(localized: "partner.notes.placeholder", comment: "Write information you want to remember about your partner here"))
                 }
             }
             .navigationTitle("Not Ekle")

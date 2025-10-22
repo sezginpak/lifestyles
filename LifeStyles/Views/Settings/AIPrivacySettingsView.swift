@@ -246,11 +246,11 @@ struct AIConsentSheet: View {
                                 )
                             )
 
-                        Text("AI Özellikleri")
+                        Text(String(localized: "ai.consent.title", comment: "AI Features"))
                             .font(.title2)
                             .fontWeight(.bold)
 
-                        Text("LifeStyles, kişiselleştirilmiş öneriler sunmak için Claude AI kullanır")
+                        Text(String(localized: "ai.consent.description", comment: "LifeStyles uses Claude AI to provide personalized suggestions"))
                             .font(.callout)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -260,7 +260,7 @@ struct AIConsentSheet: View {
 
                     // Features
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Özellikler")
+                        Text(String(localized: "ai.consent.features.header", comment: "Features"))
                             .font(.headline)
 
                         FeatureRow(
@@ -289,10 +289,10 @@ struct AIConsentSheet: View {
 
                     // Data Sharing
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Paylaşılan Veriler")
+                        Text(String(localized: "ai.consent.shared.data", comment: "Shared Data"))
                             .font(.headline)
 
-                        Text("AI özelliklerini kullanmak için aşağıdaki verileriniz Claude AI ile paylaşılır:")
+                        Text(String(localized: "ai.consent.shared.data.description", comment: "To use AI features, the following data will be shared with Claude AI"))
                             .font(.callout)
                             .foregroundStyle(.secondary)
 
@@ -306,7 +306,7 @@ struct AIConsentSheet: View {
 
                     // Privacy Notes
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("🔒 Gizlilik Notları")
+                        Text(String(localized: "ai.consent.privacy.notes", comment: "🔒 Privacy Notes"))
                             .font(.headline)
 
                         VStack(alignment: .leading, spacing: 8) {
@@ -356,7 +356,7 @@ struct AIConsentSheet: View {
                     Button {
                         dismiss()
                     } label: {
-                        Text("Şimdi Değil")
+                        Text(String(localized: "ai.consent.not.now", comment: "Not Now"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

@@ -23,7 +23,7 @@ struct RelationshipTimelineWidget: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("İlişki Süresi")
+            Text(String(localized: "relationship.duration", comment: "Relationship Duration"))
                 .font(.headline)
                 .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,7 +46,7 @@ struct RelationshipTimelineWidget: View {
                                     Text("\(duration.years)")
                                         .font(.title2)
                                         .fontWeight(.bold)
-                                    Text("yıl")
+                                    Text(String(localized: "time.unit.year", comment: "year"))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -64,7 +64,7 @@ struct RelationshipTimelineWidget: View {
                                     Text("\(duration.days)")
                                         .font(.title2)
                                         .fontWeight(.bold)
-                                    Text("gün")
+                                    Text(String(localized: "time.unit.day", comment: "day"))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -87,7 +87,7 @@ struct RelationshipTimelineWidget: View {
                                     .fontWeight(.semibold)
                             }
 
-                            Text("\(daysToNextMilestone()) gün kaldı")
+                            Text(String(format: NSLocalizedString("relationship.days.left.format", comment: "Days left to milestone"), daysToNextMilestone()))
                                 .font(.caption2)
                                 .foregroundStyle(.pink)
                         }
@@ -154,7 +154,7 @@ struct RelationshipTimelineWidget: View {
                             )
                         )
 
-                    Text("gün")
+                    Text(String(localized: "time.unit.day", comment: "day"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

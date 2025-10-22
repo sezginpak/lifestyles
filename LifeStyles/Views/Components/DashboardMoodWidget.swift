@@ -16,7 +16,7 @@ struct DashboardMoodWidget: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Bugünün Mood'u")
+            Text(String(localized: "dashboard.todays.mood", comment: "Today's Mood"))
                 .font(.headline)
                 .padding(.horizontal)
 
@@ -103,7 +103,7 @@ struct DashboardMoodWidget: View {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Bugün nasılsın?")
+                    Text(String(localized: "mood.how.are.you.today", comment: "How are you today?"))
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
@@ -204,7 +204,7 @@ struct MoodPickerSheet: View {
                 VStack(spacing: 24) {
                     // Mood Emoji Picker
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Nasıl Hissediyorsun?")
+                        Text(String(localized: "mood.how.are.you.feeling", comment: "How are you feeling?"))
                             .font(.headline)
 
                         MoodEmojiPicker(selectedMood: $selectedMood)

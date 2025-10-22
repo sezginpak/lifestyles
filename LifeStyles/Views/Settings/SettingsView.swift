@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
     @Environment(\.themeManager) private var themeManager
@@ -22,6 +23,9 @@ struct SettingsView: View {
     @State private var purchaseManager = PurchaseManager.shared
     @State private var usageManager = AIUsageManager.shared
     @State private var showPaywall = false
+
+    // User Profile
+    @State private var userProfile: UserProfile?
 
     var body: some View {
         NavigationStack {
@@ -309,6 +313,69 @@ struct SettingsView: View {
                                 }
                             }
 
+                            // User Profile
+                            SettingsSection(title: "Profilim") {
+                                NavigationLink {
+                                    UserProfileEditView()
+                                } label: {
+                                    HStack(spacing: AppConstants.Spacing.medium) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.blue.opacity(0.15))
+                                                .frame(width: 40, height: 40)
+
+                                            Image(systemName: "person.text.rectangle.fill")
+                                                .font(.body)
+                                                .foregroundStyle(.blue)
+                                        }
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Profil Bilgileri")
+                                                .foregroundStyle(.primary)
+                                                .font(.body)
+
+                                            if let profile = userProfile {
+                                                Text(profile.name ?? "Profil doldur")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            } else {
+                                                Text("Profil doldur")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+
+                                        Spacer()
+
+                                        // Completion indicator
+                                        if let profile = userProfile {
+                                            ZStack {
+                                                Circle()
+                                                    .stroke(Color.gray.opacity(0.2), lineWidth: 2)
+                                                    .frame(width: 30, height: 30)
+
+                                                Circle()
+                                                    .trim(from: 0, to: profile.completionPercentage)
+                                                    .stroke(Color.brandPrimary, lineWidth: 2)
+                                                    .frame(width: 30, height: 30)
+                                                    .rotationEffect(.degrees(-90))
+
+                                                Text("\(Int(profile.completionPercentage * 100))%")
+                                                    .font(.system(size: 8))
+                                                    .fontWeight(.bold)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(.tertiary)
+                                    }
+                                    .padding(AppConstants.Spacing.medium)
+                                    .cardStyle()
+                                }
+                            }
+
                             // Veri Yönetimi
                             SettingsSection(title: String(localized: "settings.data.management.title", comment: "Data Management")) {
                                 ShareLink(item: exportDataURL ?? URL(string: "about:blank")!) {
@@ -445,6 +512,7 @@ struct SettingsView: View {
             .onAppear {
                 viewModel.checkPermissions()
                 viewModel.calculateStatistics(context: modelContext)
+                loadUserProfile()
             }
             .alert("Tüm Verileri Sil?", isPresented: $viewModel.showDeleteConfirmation) {
                 Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {}
@@ -536,6 +604,14 @@ struct SettingsView: View {
                 alertMessage = "Silme hatası: \(error.localizedDescription)"
                 showAlert = true
             }
+        }
+    }
+
+    private func loadUserProfile() {
+        let descriptor = FetchDescriptor<UserProfile>()
+        if let profiles = try? modelContext.fetch(descriptor),
+           let profile = profiles.first {
+            userProfile = profile
         }
     }
 }

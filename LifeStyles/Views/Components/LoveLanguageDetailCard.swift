@@ -54,7 +54,7 @@ struct LoveLanguageDetailCard: View {
                     HStack {
                         Image(systemName: "lightbulb.fill")
                             .foregroundStyle(.yellow)
-                        Text("Uygulama İpuçları")
+                        Text(String(localized: "love.language.tips", comment: "Application Tips"))
                             .font(.subheadline)
                             .fontWeight(.semibold)
                     }

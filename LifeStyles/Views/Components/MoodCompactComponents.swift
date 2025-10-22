@@ -194,7 +194,7 @@ struct InlineMoodStreak: View {
                 .font(.body)
                 .foregroundStyle(isActive ? .orange : .secondary)
 
-            Text("\(currentStreak) gün seri")
+            Text(String(format: NSLocalizedString("mood.streak.days.format", comment: "Day streak count"), currentStreak))
                 .font(.callout)
                 .fontWeight(.medium)
                 .foregroundStyle(isActive ? .primary : .secondary)

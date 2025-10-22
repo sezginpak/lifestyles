@@ -362,7 +362,7 @@ struct StreakAchievementCard: View {
                 HStack(spacing: 6) {
                     Text("🔥")
                         .font(.title3)
-                    Text("\(streakInfo.currentStreak) Gün")
+                    Text(String(format: NSLocalizedString("dashboard.streak.days.format", comment: "Day count for streak"), streakInfo.currentStreak))
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundStyle(
@@ -385,7 +385,7 @@ struct StreakAchievementCard: View {
                 )
 
                 if streakInfo.bestStreak > streakInfo.currentStreak {
-                    Text("En İyi: \(streakInfo.bestStreak)")
+                    Text(String(format: NSLocalizedString("dashboard.best.streak.format", comment: "Best streak count"), streakInfo.bestStreak))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .padding(.leading, 4)

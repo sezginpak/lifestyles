@@ -87,7 +87,7 @@ struct MoodIntensitySlider: View {
         // DS: Updated spacing from 8 to Spacing.small
         VStack(alignment: .leading, spacing: Spacing.small) {
             HStack {
-                Text("Yoğunluk")
+                Text(String(localized: "mood.intensity", comment: "Intensity"))
                     .font(.subheadline)
                     .fontWeight(.medium)
 

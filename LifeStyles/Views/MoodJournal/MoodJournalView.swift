@@ -427,12 +427,12 @@ struct JournalEditorView: View {
                             )
                         )
 
-                    Text("Hangi tür journal yazmak istersin?")
+                    Text(String(localized: "journal.type.question", comment: "What type of journal do you want to write?"))
                         .font(.title3)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
 
-                    Text("Journal tipini seçerek başla")
+                    Text(String(localized: "journal.type.instruction", comment: "Start by selecting journal type"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -459,11 +459,11 @@ struct JournalEditorView: View {
                         .font(.system(size: 40))
                         .foregroundStyle(selectedType.color)
 
-                    Text("Başlık ekle")
+                    Text(String(localized: "journal.add.title", comment: "Add title"))
                         .font(.title3)
                         .fontWeight(.bold)
 
-                    Text("İsteğe bağlı - geçebilirsin")
+                    Text(String(localized: "journal.title.optional", comment: "Optional - you can skip"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -495,7 +495,7 @@ struct JournalEditorView: View {
                     // Compact Header
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("İçeriğini yaz")
+                            Text(String(localized: "journal.write.content", comment: "Write your content"))
                                 .font(.headline)
                                 .fontWeight(.bold)
 
@@ -547,7 +547,7 @@ struct JournalEditorView: View {
                         .font(.title3)
                         .fontWeight(.bold)
 
-                    Text("Journal'ını kategorilere ayır")
+                    Text(String(localized: "journal.categorize", comment: "Categorize your journal"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -579,11 +579,11 @@ struct JournalEditorView: View {
                         .font(.system(size: 48))
                         .foregroundStyle(Color.success)
 
-                    Text("Önizleme ve Kaydet")
+                    Text(String(localized: "journal.preview.save", comment: "Preview and Save"))
                         .font(.title3)
                         .fontWeight(.bold)
 
-                    Text("Journal'ını kontrol et")
+                    Text(String(localized: "journal.check", comment: "Check your journal"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -618,7 +618,7 @@ struct JournalEditorView: View {
                         HStack {
                             Image(systemName: "doc.text")
                                 .foregroundStyle(Color.secondary)
-                            Text("İçerik")
+                            Text(String(localized: "journal.content", comment: "Content"))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.secondary)
@@ -677,7 +677,7 @@ struct JournalEditorView: View {
                                     .font(.title3)
 
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Bugünkü mood'a bağla")
+                                    Text(String(localized: "journal.link.to.mood", comment: "Link to today's mood"))
                                         .font(.caption)
                                         .fontWeight(.semibold)
 
@@ -987,7 +987,7 @@ struct MoodAnalyticsView: View {
 
     private var statsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("İstatistikler")
+            Text(String(localized: "journal.stats", comment: "Statistics"))
                 .cardTitle()
 
             // 3-column grid with MiniStatCard
@@ -1024,7 +1024,7 @@ struct MoodAnalyticsView: View {
 
     private var compactWeekHeatmap: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text("Son 7 Gün")
+            Text(String(localized: "journal.last.7.days", comment: "Last 7 Days"))
                 .cardTitle()
 
             ScrollView(.horizontal, showsIndicators: false) {

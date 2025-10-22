@@ -148,7 +148,8 @@ struct LifeStylesApp: App {
                     SpecialDate.self,
                     GoalMilestone.self,
                     MoodEntry.self,
-                    JournalEntry.self
+                    JournalEntry.self,
+                    UserProfile.self // NEW - User profile for personalized AI
             )
 
             // CloudKit sync'i aktif et
@@ -181,7 +182,8 @@ struct LifeStylesApp: App {
                         SpecialDate.self,
                         GoalMilestone.self,
                         MoodEntry.self, // NEW
-                        JournalEntry.self // NEW
+                        JournalEntry.self, // NEW
+                        UserProfile.self // NEW
                 )
             } catch {
                 fatalError("❌ Hiçbir ModelContainer oluşturulamadı: \(error)")

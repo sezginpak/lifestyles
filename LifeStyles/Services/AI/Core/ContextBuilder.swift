@@ -74,6 +74,17 @@ struct LocationPattern: Codable {
     let mostVisitedPlaces: [String]
 }
 
+/// Journal snapshot for AI context
+struct JournalSnapshot: Codable {
+    let date: Date
+    let title: String?
+    let content: String
+    let type: String
+    let tags: [String]
+    let wordCount: Int
+    let isFavorite: Bool
+}
+
 // MARK: - Friend Context Builder
 
 class FriendContextBuilder {
@@ -304,5 +315,64 @@ class LocationContextBuilder {
         let homeLogs = logs.filter { $0.locationType == .home }
         // Assuming 15 min intervals
         return Double(homeLogs.count) * 0.25
+    }
+}
+
+// MARK: - Journal Context Builder
+
+class JournalContextBuilder {
+    static func buildRecent(modelContext: ModelContext, days: Int = 7) async -> [JournalSnapshot] {
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+
+        let descriptor = FetchDescriptor<JournalEntry>(
+            predicate: #Predicate { entry in
+                entry.date >= startDate
+            },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+
+        guard let entries = try? modelContext.fetch(descriptor) else {
+            return []
+        }
+
+        return entries.map { entry in
+            JournalSnapshot(
+                date: entry.date,
+                title: entry.title,
+                content: entry.content,
+                type: entry.journalType.rawValue,
+                tags: entry.tags,
+                wordCount: entry.wordCount,
+                isFavorite: entry.isFavorite
+            )
+        }
+    }
+
+    static func buildToday(modelContext: ModelContext) async -> JournalSnapshot? {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+
+        let descriptor = FetchDescriptor<JournalEntry>(
+            predicate: #Predicate { entry in
+                entry.date >= startOfDay
+            },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+
+        guard let entries = try? modelContext.fetch(descriptor),
+              let latest = entries.first else {
+            return nil
+        }
+
+        return JournalSnapshot(
+            date: latest.date,
+            title: latest.title,
+            content: latest.content,
+            type: latest.journalType.rawValue,
+            tags: latest.tags,
+            wordCount: latest.wordCount,
+            isFavorite: latest.isFavorite
+        )
     }
 }
