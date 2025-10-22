@@ -91,13 +91,13 @@ struct FriendDetailView: View {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Label("Düzenle", systemImage: "pencil")
+                        Label(String(localized: "common.edit", comment: "Edit"), systemImage: "pencil")
                     }
 
                     Button {
                         showingAISuggestion.toggle()
                     } label: {
-                        Label("AI Öneri", systemImage: "sparkles")
+                        Label(String(localized: "friends.ai.suggestion", comment: "AI Suggestion"), systemImage: "sparkles")
                     }
 
                     Button(role: .destructive) {
@@ -130,7 +130,7 @@ struct FriendDetailView: View {
                 deleteFriend()
             }
         } message: {
-            Text("\(friend.name) adlı kişiyi silmek istediğinizden emin misiniz?")
+            Text(String(format: NSLocalizedString("friends.delete.confirmation.format", comment: "Are you sure you want to delete %@?"), friend.name))
         }
         .onAppear {
             noteText = friend.notes ?? ""
@@ -350,7 +350,7 @@ struct FriendDetailView: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(healthScoreColor)
 
-            Text("İlişki Sağlığı")
+            Text(String(localized: "friends.relationship.health", comment: "Relationship Health"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }

@@ -483,37 +483,42 @@ struct JournalEditorView: View {
     }
 
     private var stepContentView: some View {
-        VStack(spacing: Spacing.medium) {
-            // Compact Header
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("İçeriğini yaz")
-                        .font(.headline)
-                        .fontWeight(.bold)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: Spacing.medium) {
+                    // Compact Header
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("İçeriğini yaz")
+                                .font(.headline)
+                                .fontWeight(.bold)
 
-                    Text(selectedType.aiPrompt)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                            Text(selectedType.aiPrompt)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Text(selectedType.emoji)
+                            .font(.title2)
+                    }
+                    .padding(.horizontal, Spacing.large)
+                    .padding(.top, Spacing.small)
+
+                    // Modern Text Editor - Dynamic height
+                    ModernTextEditor(
+                        text: $content,
+                        placeholder: selectedType.aiPrompt,
+                        minHeight: max(200, geometry.size.height * 0.5),
+                        showCounter: true,
+                        maxCharacters: 5000
+                    )
+                    .frame(height: max(250, geometry.size.height * 0.65))
+                    .padding(.horizontal, Spacing.large)
                 }
-
-                Spacer()
-
-                Text(selectedType.emoji)
-                    .font(.title2)
             }
-            .padding(.horizontal, Spacing.large)
-            .padding(.top, Spacing.medium)
-
-            // Modern Text Editor (Full height)
-            ModernTextEditor(
-                text: $content,
-                placeholder: selectedType.aiPrompt,
-                minHeight: 300,
-                showCounter: true,
-                maxCharacters: 5000
-            )
-            .padding(.horizontal, Spacing.large)
-            .padding(.bottom, Spacing.medium)
+            .scrollDismissesKeyboard(.interactively)
         }
     }
 

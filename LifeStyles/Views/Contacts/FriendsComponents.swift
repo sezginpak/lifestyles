@@ -65,7 +65,7 @@ struct AddFriendView: View {
 
                     Section("Sevgi Dili") {
                         Picker("Sevgi Dili", selection: $selectedLoveLanguage) {
-                            Text("Seçilmedi").tag(nil as LoveLanguage?)
+                            Text(String(localized: "friends.not.selected", comment: "Not Selected")).tag(nil as LoveLanguage?)
                             ForEach(LoveLanguage.allCases, id: \.self) { language in
                                 HStack {
                                     Text(language.emoji)
@@ -86,9 +86,9 @@ struct AddFriendView: View {
                         TextEditor(text: $favoriteThings)
                             .frame(height: 80)
                     } header: {
-                        Text("Favori Şeyler")
+                        Text(String(localized: "friends.favorite.things", comment: "Favorite Things"))
                     } footer: {
-                        Text("Favori yemek, film, aktivite vb.")
+                        Text(String(localized: "friends.favorite.things.description", comment: "Favorite food, movies, activities etc."))
                     }
                 }
 
@@ -117,7 +117,7 @@ struct AddFriendView: View {
                 Section {
                     Toggle("Önemli Arkadaş", isOn: $isImportant)
                 } footer: {
-                    Text("Önemli arkadaşlar widget'ta öncelikli gösterilir")
+                    Text(String(localized: "friends.important.description", comment: "Important friends are shown prioritized in widgets"))
                 }
 
                 Section("Notlar (Opsiyonel)") {
@@ -129,13 +129,13 @@ struct AddFriendView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "common.cancel", comment: "Cancel")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button(String(localized: "common.save", comment: "Save")) {
                         viewModel.addFriend(
                             name: name,
                             phoneNumber: phoneNumber.isEmpty ? nil : phoneNumber,
