@@ -77,6 +77,9 @@ struct QuickActionCompactButton: View {
     let colors: [Color]
     let action: () -> Void
 
+    // Opsiyonel: Context menu için
+    var contextMenuItems: (() -> AnyView)? = nil
+
     @State private var isPressed = false
 
     var body: some View {
@@ -140,6 +143,11 @@ struct QuickActionCompactButton: View {
             )
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            if let contextMenuItems = contextMenuItems {
+                contextMenuItems()
+            }
+        }
     }
 }
 

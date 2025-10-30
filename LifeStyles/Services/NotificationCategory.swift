@@ -13,6 +13,7 @@ import UserNotifications
 
 enum NotificationCategory: String, CaseIterable {
     case contactReminder = "CONTACT_REMINDER"
+    case callReminder = "CALL_REMINDER"
     case goalReminder = "GOAL_REMINDER"
     case habitReminder = "HABIT_REMINDER"
     case activitySuggestion = "ACTIVITY_SUGGESTION"
@@ -34,6 +35,8 @@ enum NotificationCategory: String, CaseIterable {
         switch self {
         case .contactReminder:
             return [.open, .dismiss]
+        case .callReminder:
+            return [.callNow, .snooze10, .sendMessage, .dismiss]
         case .goalReminder, .habitReminder:
             return [.open, .dismiss]
         case .activitySuggestion:
@@ -60,7 +63,7 @@ enum NotificationCategory: String, CaseIterable {
     /// Kategori için deep link path
     var deepLinkPath: String {
         switch self {
-        case .contactReminder, .contactCompleted, .aiContactMessage:
+        case .contactReminder, .callReminder, .contactCompleted, .aiContactMessage:
             return "contacts"
         case .goalReminder, .aiGoalMotivation:
             return "goals"
@@ -82,6 +85,8 @@ enum NotificationCategory: String, CaseIterable {
         switch self {
         case .contactReminder, .contactCompleted, .aiContactMessage:
             return "thread-contacts"
+        case .callReminder:
+            return "thread-call-reminders"
         case .goalReminder, .aiGoalMotivation:
             return "thread-goals"
         case .habitReminder, .aiHabitSuggestion:
@@ -102,7 +107,7 @@ enum NotificationCategory: String, CaseIterable {
     /// Kategori önceliği
     var interruptionLevel: UNNotificationInterruptionLevel {
         switch self {
-        case .streakWarning, .contactReminder:
+        case .streakWarning, .contactReminder, .callReminder:
             return .timeSensitive // Önemli ve zaman hassas
         case .goOutside, .geofenceHome:
             return .active // Normal bildirim
@@ -119,6 +124,9 @@ enum NotificationCategory: String, CaseIterable {
 enum NotificationActionType: String, CaseIterable {
     case open = "ACTION_OPEN"
     case dismiss = "ACTION_DISMISS"
+    case callNow = "ACTION_CALL_NOW"
+    case snooze10 = "ACTION_SNOOZE_10"
+    case sendMessage = "ACTION_SEND_MESSAGE"
 
     /// Action'ın görünen adı
     var title: String {
@@ -127,6 +135,12 @@ enum NotificationActionType: String, CaseIterable {
             return "Aç"
         case .dismiss:
             return "Kapat"
+        case .callNow:
+            return "Şimdi Ara"
+        case .snooze10:
+            return "10dk Ertele"
+        case .sendMessage:
+            return "Mesaj Gönder"
         }
     }
 
@@ -143,6 +157,21 @@ enum NotificationActionType: String, CaseIterable {
                 return .init(systemImageName: "xmark.circle.fill")
             }
             return nil
+        case .callNow:
+            if #available(iOS 15.0, *) {
+                return .init(systemImageName: "phone.fill")
+            }
+            return nil
+        case .snooze10:
+            if #available(iOS 15.0, *) {
+                return .init(systemImageName: "clock.fill")
+            }
+            return nil
+        case .sendMessage:
+            if #available(iOS 15.0, *) {
+                return .init(systemImageName: "message.fill")
+            }
+            return nil
         }
     }
 
@@ -153,6 +182,12 @@ enum NotificationActionType: String, CaseIterable {
             return [.foreground] // Uygulamayı açar
         case .dismiss:
             return [.destructive] // Kırmızı renkte gösterir
+        case .callNow:
+            return [.foreground] // Uygulamayı açar ve arama yapar
+        case .snooze10:
+            return [] // Arka planda çalışır
+        case .sendMessage:
+            return [.foreground] // Uygulamayı açar ve mesaj atar
         }
     }
 

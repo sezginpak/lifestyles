@@ -35,15 +35,35 @@ struct GroupedLocation: Identifiable {
         formatter.dateFormat = "HH:mm"
         formatter.locale = Locale(identifier: "tr_TR")
         let start = formatter.string(from: startTime)
+
+        // Tek kayıt ise sadece saati göster
+        if logs.count == 1 || durationMinutes < 1 {
+            return start
+        }
+
         let end = formatter.string(from: endTime)
         return "\(start) - \(end)"
     }
 
     var durationText: String {
+        // Tek kayıt veya 1 dakikadan az
+        if logs.count == 1 {
+            return "Anlık"
+        }
+
+        if durationMinutes < 1 {
+            return "< 1dk"
+        }
+
         let hours = durationMinutes / 60
         let mins = durationMinutes % 60
+
         if hours > 0 {
-            return "\(hours)s \(mins)dk"
+            if mins > 0 {
+                return "\(hours)s \(mins)dk"
+            } else {
+                return "\(hours)s"
+            }
         } else {
             return "\(mins)dk"
         }

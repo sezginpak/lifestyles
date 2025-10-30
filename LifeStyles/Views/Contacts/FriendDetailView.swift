@@ -259,10 +259,99 @@ struct FriendDetailView: View {
                         QuickActionCompactButton(
                             icon: "phone.fill",
                             label: "Ara",
-                            colors: [.green, .green.opacity(0.8)]
-                        ) {
-                            callFriend()
-                        }
+                            colors: [.green, .green.opacity(0.8)],
+                            action: {
+                                callFriend()
+                            },
+                            contextMenuItems: {
+                                AnyView(
+                                    Group {
+                                        Button {
+                                            callFriend()
+                                        } label: {
+                                            Label("Şimdi Ara", systemImage: "phone.fill")
+                                        }
+
+                                        Divider()
+
+                                        Section("Live Activity (Dynamic Island)") {
+                                            if #available(iOS 16.1, *) {
+                                                Button {
+                                                    NotificationService.shared.startLiveActivityReminder(for: friend, after: 1)
+                                                    HapticFeedback.success()
+                                                } label: {
+                                                    Label("1 Dakika (Test)", systemImage: "circle.hexagongrid.fill")
+                                                }
+
+                                                Button {
+                                                    NotificationService.shared.startLiveActivityReminder(for: friend, after: 15)
+                                                    HapticFeedback.success()
+                                                } label: {
+                                                    Label("15 Dakika", systemImage: "circle.hexagongrid.fill")
+                                                }
+
+                                                Button {
+                                                    NotificationService.shared.startLiveActivityReminder(for: friend, after: 30)
+                                                    HapticFeedback.success()
+                                                } label: {
+                                                    Label("30 Dakika", systemImage: "circle.hexagongrid.fill")
+                                                }
+
+                                                Button {
+                                                    NotificationService.shared.startLiveActivityReminder(for: friend, after: 60)
+                                                    HapticFeedback.success()
+                                                } label: {
+                                                    Label("1 Saat", systemImage: "circle.hexagongrid.fill")
+                                                }
+                                            }
+                                        }
+
+                                        Divider()
+
+                                        Section("Normal Hatırlatma") {
+                                            Button {
+                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 15)
+                                                HapticFeedback.success()
+                                            } label: {
+                                                Label("15 Dakika Sonra", systemImage: "clock")
+                                            }
+
+                                            Button {
+                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 30)
+                                                HapticFeedback.success()
+                                            } label: {
+                                                Label("30 Dakika Sonra", systemImage: "clock.fill")
+                                            }
+
+                                            Button {
+                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 60)
+                                                HapticFeedback.success()
+                                            } label: {
+                                                Label("1 Saat Sonra", systemImage: "clock.badge")
+                                            }
+
+                                            Button {
+                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 120)
+                                                HapticFeedback.success()
+                                            } label: {
+                                                Label("2 Saat Sonra", systemImage: "clock.badge.checkmark")
+                                            }
+                                        }
+
+                                        Divider()
+
+                                        Section("Test") {
+                                            Button {
+                                                NotificationService.shared.sendTimeSensitiveCallReminder(for: friend)
+                                                HapticFeedback.success()
+                                            } label: {
+                                                Label("Time Sensitive Test", systemImage: "bell.badge.fill")
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        )
 
                         QuickActionCompactButton(
                             icon: "message.fill",

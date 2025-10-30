@@ -109,6 +109,8 @@ class NotificationAttachmentCreator {
         switch category {
         case .contactReminder:
             emoji = "👥"
+        case .callReminder:
+            emoji = "📞"
         case .goalReminder:
             emoji = "🎯"
         case .habitReminder:
