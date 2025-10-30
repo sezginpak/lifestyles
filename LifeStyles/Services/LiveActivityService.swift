@@ -35,9 +35,19 @@ class LiveActivityService {
         reminderTime: Date,
         duration: Int
     ) -> String? {
+        print("🚀 Live Activity başlatılıyor...")
+        print("📱 Friend: \(friend.name)")
+        print("⏰ Reminder Time: \(reminderTime)")
+        print("⏱️ Duration: \(duration) dakika")
+
         // ActivityKit desteği kontrolü
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            print("❌ Live Activities devre dışı")
+        let authInfo = ActivityAuthorizationInfo()
+        print("🔐 Activities Enabled: \(authInfo.areActivitiesEnabled)")
+        print("🔐 Frequent Updates Enabled: \(authInfo.frequentPushesEnabled)")
+
+        guard authInfo.areActivitiesEnabled else {
+            print("❌ Live Activities devre dışı!")
+            print("⚠️ Ayarlar → [Uygulamanız] → Live Activities açık olmalı")
             return nil
         }
 

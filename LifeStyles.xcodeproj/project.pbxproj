@@ -6,11 +6,51 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D000D24B2EB37D0800FF06DF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D000D24A2EB37D0800FF06DF /* WidgetKit.framework */; };
+		D000D24D2EB37D0800FF06DF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D000D24C2EB37D0800FF06DF /* SwiftUI.framework */; };
+		D000D25E2EB37D0900FF06DF /* CallReminderWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D000D2482EB37D0800FF06DF /* CallReminderWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D000D25C2EB37D0900FF06DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D0E15C112E9FCEE6008E81C0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D000D2472EB37D0800FF06DF;
+			remoteInfo = CallReminderWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D000D2632EB37D0900FF06DF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D000D25E2EB37D0900FF06DF /* CallReminderWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D000D2482EB37D0800FF06DF /* CallReminderWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CallReminderWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D000D24A2EB37D0800FF06DF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D000D24C2EB37D0800FF06DF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D0E15C192E9FCEE6008E81C0 /* LifeStyles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LifeStyles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D000D2622EB37D0900FF06DF /* Exceptions for "CallReminderWidget" folder in "CallReminderWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D000D2472EB37D0800FF06DF /* CallReminderWidgetExtension */;
+		};
 		D0E15C5C2E9FD42B008E81C0 /* Exceptions for "LifeStyles" folder in "LifeStyles" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -21,6 +61,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		D000D24E2EB37D0800FF06DF /* CallReminderWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D000D2622EB37D0900FF06DF /* Exceptions for "CallReminderWidget" folder in "CallReminderWidgetExtension" target */,
+			);
+			path = CallReminderWidget;
+			sourceTree = "<group>";
+		};
 		D0E15C1B2E9FCEE6008E81C0 /* LifeStyles */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -32,6 +80,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		D000D2452EB37D0800FF06DF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D000D24D2EB37D0800FF06DF /* SwiftUI.framework in Frameworks */,
+				D000D24B2EB37D0800FF06DF /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0E15C162E9FCEE6008E81C0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -42,10 +99,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D000D2492EB37D0800FF06DF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D000D24A2EB37D0800FF06DF /* WidgetKit.framework */,
+				D000D24C2EB37D0800FF06DF /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D0E15C102E9FCEE6008E81C0 = {
 			isa = PBXGroup;
 			children = (
 				D0E15C1B2E9FCEE6008E81C0 /* LifeStyles */,
+				D000D24E2EB37D0800FF06DF /* CallReminderWidget */,
+				D000D2492EB37D0800FF06DF /* Frameworks */,
 				D0E15C1A2E9FCEE6008E81C0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				D0E15C192E9FCEE6008E81C0 /* LifeStyles.app */,
+				D000D2482EB37D0800FF06DF /* CallReminderWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +130,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		D000D2472EB37D0800FF06DF /* CallReminderWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D000D25F2EB37D0900FF06DF /* Build configuration list for PBXNativeTarget "CallReminderWidgetExtension" */;
+			buildPhases = (
+				D000D2442EB37D0800FF06DF /* Sources */,
+				D000D2452EB37D0800FF06DF /* Frameworks */,
+				D000D2462EB37D0800FF06DF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D000D24E2EB37D0800FF06DF /* CallReminderWidget */,
+			);
+			name = CallReminderWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = CallReminderWidgetExtension;
+			productReference = D000D2482EB37D0800FF06DF /* CallReminderWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D0E15C182E9FCEE6008E81C0 /* LifeStyles */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D0E15C242E9FCEE7008E81C0 /* Build configuration list for PBXNativeTarget "LifeStyles" */;
@@ -68,10 +159,12 @@
 				D0E15C152E9FCEE6008E81C0 /* Sources */,
 				D0E15C162E9FCEE6008E81C0 /* Frameworks */,
 				D0E15C172E9FCEE6008E81C0 /* Resources */,
+				D000D2632EB37D0900FF06DF /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D000D25D2EB37D0900FF06DF /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D0E15C1B2E9FCEE6008E81C0 /* LifeStyles */,
@@ -90,9 +183,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					D000D2472EB37D0800FF06DF = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					D0E15C182E9FCEE6008E81C0 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -114,11 +210,19 @@
 			projectRoot = "";
 			targets = (
 				D0E15C182E9FCEE6008E81C0 /* LifeStyles */,
+				D000D2472EB37D0800FF06DF /* CallReminderWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		D000D2462EB37D0800FF06DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0E15C172E9FCEE6008E81C0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -129,6 +233,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		D000D2442EB37D0800FF06DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D0E15C152E9FCEE6008E81C0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -138,7 +249,77 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		D000D25D2EB37D0900FF06DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D000D2472EB37D0800FF06DF /* CallReminderWidgetExtension */;
+			targetProxy = D000D25C2EB37D0900FF06DF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		D000D2602EB37D0900FF06DF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5M7U3298D7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CallReminderWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CallReminderWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = sezginpak.LifeStyles.CallReminderWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D000D2612EB37D0900FF06DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5M7U3298D7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CallReminderWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CallReminderWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = sezginpak.LifeStyles.CallReminderWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		D0E15C222E9FCEE7008E81C0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -323,6 +504,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		D000D25F2EB37D0900FF06DF /* Build configuration list for PBXNativeTarget "CallReminderWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D000D2602EB37D0900FF06DF /* Debug */,
+				D000D2612EB37D0900FF06DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D0E15C142E9FCEE6008E81C0 /* Build configuration list for PBXProject "LifeStyles" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
