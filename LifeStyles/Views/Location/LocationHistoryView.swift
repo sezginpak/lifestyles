@@ -8,6 +8,47 @@
 
 import SwiftUI
 import SwiftData
+import CoreLocation
+import MapKit
+
+// MARK: - Gruplu Konum (Aynı yerde kalma süresi)
+
+struct GroupedLocation: Identifiable {
+    let id = UUID()
+    let logs: [LocationLog]
+    let startTime: Date
+    let endTime: Date
+    let coordinate: CLLocationCoordinate2D
+    let address: String?
+    let locationType: LocationType
+
+    var duration: TimeInterval {
+        endTime.timeIntervalSince(startTime)
+    }
+
+    var durationMinutes: Int {
+        Int(duration / 60)
+    }
+
+    var timeRange: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.locale = Locale(identifier: "tr_TR")
+        let start = formatter.string(from: startTime)
+        let end = formatter.string(from: endTime)
+        return "\(start) - \(end)"
+    }
+
+    var durationText: String {
+        let hours = durationMinutes / 60
+        let mins = durationMinutes % 60
+        if hours > 0 {
+            return "\(hours)s \(mins)dk"
+        } else {
+            return "\(mins)dk"
+        }
+    }
+}
 
 // MARK: - Konum Geçmişi View
 
@@ -15,10 +56,12 @@ struct LocationHistoryView: View {
     @Environment(\.dismiss) private var dismiss
     let viewModel: LocationViewModel
     @State private var selectedDate = Date()
-    @State private var groupedLogs: [Date: [LocationLog]] = [:]
+    @State private var groupedLocations: [GroupedLocation] = []
     @State private var showingMap = false
     @State private var selectedLog: LocationLog?
     @State private var isAnimating = false
+
+    private let distanceThreshold: CLLocationDistance = 40.0 // 40 metre eşik
 
     var body: some View {
         NavigationStack {
@@ -185,48 +228,25 @@ struct LocationHistoryView: View {
                         .padding()
                     } else {
                         if showingMap {
-                            // Harita Görünümü
-                            LocationMapView(
-                                locations: viewModel.locationHistory,
+                            // Harita Görünümü (Gruplu)
+                            GroupedLocationMapView(
+                                groupedLocations: groupedLocations,
                                 selectedLog: $selectedLog
                             )
                         } else {
                             // Modern Liste Görünümü
                             ScrollView {
                                 LazyVStack(spacing: 12) {
-                                    ForEach(sortedDateKeys, id: \.self) { date in
-                                        VStack(alignment: .leading, spacing: 12) {
-                                            // Section Header - Modern
-                                            HStack(spacing: 8) {
-                                                Image(systemName: "clock.fill")
-                                                    .font(.caption)
-                                                    .foregroundStyle(Color.brandPrimary)
-
-                                                Text(formatSectionDate(date))
-                                                    .font(.subheadline)
-                                                    .fontWeight(.bold)
-                                                    .foregroundStyle(.primary)
-
-                                                Rectangle()
-                                                    .fill(Color.secondary.opacity(0.2))
-                                                    .frame(height: 1)
-                                            }
+                                    ForEach(groupedLocations) { group in
+                                        GroupedLocationCard(group: group)
                                             .padding(.horizontal)
-                                            .padding(.top, 8)
-
-                                            // Konum Kartları
-                                            ForEach(groupedLogs[date] ?? []) { log in
-                                                ModernLocationCard(log: log)
-                                                    .padding(.horizontal)
-                                                    .onTapGesture {
-                                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                            selectedLog = log
-                                                            showingMap = true
-                                                            HapticFeedback.light()
-                                                        }
-                                                    }
+                                            .onTapGesture {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                    selectedLog = group.logs.first
+                                                    showingMap = true
+                                                    HapticFeedback.light()
+                                                }
                                             }
-                                        }
                                     }
                                 }
                                 .padding(.vertical)
@@ -258,28 +278,336 @@ struct LocationHistoryView: View {
         }
     }
 
-    private var sortedDateKeys: [Date] {
-        groupedLogs.keys.sorted(by: >)
-    }
-
     private func loadLocationsForDate(_ date: Date) {
         viewModel.fetchLocationHistory(for: date)
-        groupLocationsByHour()
+        groupLocationsByProximity()
     }
 
-    private func groupLocationsByHour() {
-        groupedLogs = Dictionary(grouping: viewModel.locationHistory) { log in
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.year, .month, .day, .hour], from: log.timestamp)
-            return calendar.date(from: components) ?? log.timestamp
+    private func groupLocationsByProximity() {
+        let logs = viewModel.locationHistory.sorted { $0.timestamp < $1.timestamp } // Eskiden yeniye sırala
+        var groups: [GroupedLocation] = []
+
+        guard !logs.isEmpty else {
+            groupedLocations = []
+            return
+        }
+
+        var currentGroup: [LocationLog] = [logs[0]]
+
+        for i in 1..<logs.count {
+            let currentLog = logs[i]
+
+            // Defensive: currentGroup her zaman en az 1 eleman içerir ama yine de kontrol et
+            guard let previousLog = currentGroup.last else {
+                currentGroup = [currentLog]
+                continue
+            }
+
+            let location1 = CLLocation(latitude: previousLog.latitude, longitude: previousLog.longitude)
+            let location2 = CLLocation(latitude: currentLog.latitude, longitude: currentLog.longitude)
+            let distance = location1.distance(from: location2)
+
+            // Aynı yerde mi? (40 metreden az hareket)
+            if distance < distanceThreshold {
+                currentGroup.append(currentLog)
+            } else {
+                // Yeni grup oluştur
+                if let firstLog = currentGroup.first, let lastLog = currentGroup.last {
+                    let group = GroupedLocation(
+                        logs: currentGroup,
+                        startTime: firstLog.timestamp,
+                        endTime: lastLog.timestamp,
+                        coordinate: firstLog.coordinate,
+                        address: firstLog.address,
+                        locationType: firstLog.locationType
+                    )
+                    groups.append(group)
+                }
+                currentGroup = [currentLog]
+            }
+        }
+
+        // Son grubu ekle
+        if let firstLog = currentGroup.first, let lastLog = currentGroup.last {
+            let group = GroupedLocation(
+                logs: currentGroup,
+                startTime: firstLog.timestamp,
+                endTime: lastLog.timestamp,
+                coordinate: firstLog.coordinate,
+                address: firstLog.address,
+                locationType: firstLog.locationType
+            )
+            groups.append(group)
+        }
+
+        // En yeniden eskiye sırala
+        groupedLocations = groups.sorted { $0.startTime > $1.startTime }
+    }
+}
+
+// MARK: - Grouped Location Card
+
+struct GroupedLocationCard: View {
+    let group: GroupedLocation
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Üst: Zaman aralığı ve süre
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "clock.fill")
+                        .font(.caption)
+                        .foregroundStyle(Color.brandPrimary)
+
+                    Text(group.timeRange)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                }
+
+                Spacer()
+
+                Text(group.durationText)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color.brandPrimary)
+                    )
+            }
+
+            // Orta: Adres
+            if let address = group.address {
+                HStack(spacing: 6) {
+                    Image(systemName: locationIcon(for: group.locationType))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text(address)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                }
+            }
+
+            // Alt: Koordinat ve kayıt sayısı
+            HStack {
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+
+                    Text(String(format: "%.4f, %.4f", group.coordinate.latitude, group.coordinate.longitude))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text(String(format: NSLocalizedString("location.records.count", comment: "Location records count"), group.logs.count))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        )
+    }
+
+    private func locationIcon(for type: LocationType) -> String {
+        switch type {
+        case .home: return "house.fill"
+        case .work: return "briefcase.fill"
+        case .other: return "mappin.circle.fill"
+        }
+    }
+}
+
+// MARK: - Grouped Location Map View
+
+struct GroupedLocationMapView: View {
+    let groupedLocations: [GroupedLocation]
+    @Binding var selectedLog: LocationLog?
+    @State private var region: MKCoordinateRegion = MKCoordinateRegion()
+    @State private var showRoute = true
+
+    var sortedGroups: [GroupedLocation] {
+        groupedLocations.sorted { $0.startTime < $1.startTime }
+    }
+
+    var totalDistance: Double {
+        var distance: Double = 0
+        for i in 0..<(sortedGroups.count - 1) {
+            let loc1 = CLLocation(latitude: sortedGroups[i].coordinate.latitude, longitude: sortedGroups[i].coordinate.longitude)
+            let loc2 = CLLocation(latitude: sortedGroups[i + 1].coordinate.latitude, longitude: sortedGroups[i + 1].coordinate.longitude)
+            distance += loc1.distance(from: loc2)
+        }
+        return distance
+    }
+
+    var body: some View {
+        Map(position: .constant(.region(region))) {
+            // Rota çizgisi (Gruplar arası)
+            if showRoute && sortedGroups.count > 1 {
+                MapPolyline(coordinates: sortedGroups.map { $0.coordinate })
+                    .stroke(Color.brandPrimary.gradient, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            }
+
+            // Grup marker'ları
+            ForEach(Array(sortedGroups.enumerated()), id: \.element.id) { index, group in
+                Annotation(group.timeRange, coordinate: group.coordinate) {
+                    VStack(spacing: 4) {
+                        // Konum ikonu
+                        ZStack {
+                            Circle()
+                                .fill(locationColor(for: group.locationType).gradient)
+                                .frame(width: index == 0 ? 50 : (index == sortedGroups.count - 1 ? 50 : 40),
+                                       height: index == 0 ? 50 : (index == sortedGroups.count - 1 ? 50 : 40))
+                                .shadow(color: .black.opacity(0.2), radius: index == 0 || index == sortedGroups.count - 1 ? 6 : 4, y: 2)
+                                .overlay {
+                                    if index == 0 || index == sortedGroups.count - 1 {
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 3)
+                                    }
+                                }
+
+                            Image(systemName: index == 0 ? "figure.walk.arrival" : (index == sortedGroups.count - 1 ? "flag.checkered" : locationIcon(for: group.locationType)))
+                                .font(.system(size: index == 0 || index == sortedGroups.count - 1 ? 22 : 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
+
+                        // Süre bilgisi
+                        Text(group.durationText)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(locationColor(for: group.locationType))
+                            )
+                    }
+                    .onTapGesture {
+                        selectedLog = group.logs.first
+                    }
+                }
+            }
+        }
+        .mapStyle(.standard(elevation: .realistic))
+        .mapControls {
+            MapUserLocationButton()
+            MapCompass()
+            MapScaleView()
+        }
+        .overlay(alignment: .topTrailing) {
+            // Rota Toggle
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    showRoute.toggle()
+                    HapticFeedback.light()
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: showRoute ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                        .font(.system(size: 16))
+                    Text(showRoute ? "Rota Açık" : "Rota Kapalı")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(showRoute ? Color.brandPrimary : Color.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+            }
+            .padding()
+        }
+        .overlay(alignment: .topLeading) {
+            // İstatistik Kartı
+            if sortedGroups.count > 1 {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "point.topleft.down.curvedto.point.bottomright.up")
+                            .font(.caption)
+                            .foregroundStyle(Color.brandPrimary)
+                        Text("Toplam Mesafe")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(formatDistance(totalDistance))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    Text("\(sortedGroups.count) konum")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(12)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: .black.opacity(0.1), radius: 5)
+                .padding()
+            }
+        }
+        .onAppear {
+            setCameraToShowAllLocations()
         }
     }
 
-    private func formatSectionDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:00"
-        formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: date)
+    private func setCameraToShowAllLocations() {
+        guard !groupedLocations.isEmpty else { return }
+
+        let coordinates = groupedLocations.map { $0.coordinate }
+        let latitudes = coordinates.map { $0.latitude }
+        let longitudes = coordinates.map { $0.longitude }
+
+        guard let minLat = latitudes.min(),
+              let maxLat = latitudes.max(),
+              let minLon = longitudes.min(),
+              let maxLon = longitudes.max() else { return }
+
+        let center = CLLocationCoordinate2D(
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLon + maxLon) / 2
+        )
+
+        let span = MKCoordinateSpan(
+            latitudeDelta: max(maxLat - minLat, 0.01) * 1.5,
+            longitudeDelta: max(maxLon - minLon, 0.01) * 1.5
+        )
+
+        region = MKCoordinateRegion(center: center, span: span)
+    }
+
+    private func formatDistance(_ distance: Double) -> String {
+        if distance < 1000 {
+            return String(format: "%.0f m", distance)
+        } else {
+            return String(format: "%.2f km", distance / 1000)
+        }
+    }
+
+    private func locationColor(for type: LocationType) -> Color {
+        switch type {
+        case .home: return .green
+        case .work: return .blue
+        case .other: return .orange
+        }
+    }
+
+    private func locationIcon(for type: LocationType) -> String {
+        switch type {
+        case .home: return "house.fill"
+        case .work: return "briefcase.fill"
+        case .other: return "mappin.circle.fill"
+        }
     }
 }
 

@@ -100,7 +100,15 @@ class NotificationScheduler {
         }
 
         // Eğer sessiz saat bitişi geçmişte ise, yarına ekle
-        let finalEndDate = quietHoursEnd < now ? calendar.date(byAdding: .day, value: 1, to: quietHoursEnd)! : quietHoursEnd
+        let finalEndDate: Date
+        if quietHoursEnd < now {
+            guard let nextDay = calendar.date(byAdding: .day, value: 1, to: quietHoursEnd) else {
+                return nil
+            }
+            finalEndDate = nextDay
+        } else {
+            finalEndDate = quietHoursEnd
+        }
 
         return finalEndDate.timeIntervalSince(now)
     }
@@ -187,17 +195,31 @@ class NotificationScheduler {
         let currentHour = calendar.component(.hour, from: now)
 
         // En yakın aktif saati bul
-        let nextHour = targetHours.first { $0 > currentHour } ?? targetHours.first!
+        guard let nextHour = targetHours.first(where: { $0 > currentHour }) ?? targetHours.first else {
+            // Fallback: 1 saat sonra
+            print("⚠️ targetHours boş, 1 saat sonrasına planlanıyor")
+            return calendar.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
+        }
 
         // Hedef tarihi oluştur
         var components = calendar.dateComponents([.year, .month, .day], from: now)
         components.hour = nextHour
         components.minute = 0
 
-        let targetDate = calendar.date(from: components)!
+        guard let targetDate = calendar.date(from: components) else {
+            print("❌ Geçersiz date components")
+            return calendar.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
+        }
 
         // Eğer geçmiş bir saat ise, yarına ekle
-        return targetDate < now ? calendar.date(byAdding: .day, value: 1, to: targetDate)! : targetDate
+        if targetDate < now {
+            guard let nextDay = calendar.date(byAdding: .day, value: 1, to: targetDate) else {
+                return calendar.date(byAdding: .hour, value: 1, to: now) ?? now.addingTimeInterval(3600)
+            }
+            return nextDay
+        }
+
+        return targetDate
     }
 
     /// Belirli bir zamana notification planla (sessiz saat kontrolü ile)

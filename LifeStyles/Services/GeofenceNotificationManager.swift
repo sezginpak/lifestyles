@@ -115,6 +115,16 @@ class GeofenceNotificationManager: NSObject {
 
     /// "Dışarı çık" hatırlatıcısı
     private func sendGoOutsideReminder(hoursAtHome: Int) {
+        // Cooldown kontrolü - Son 2 saat içinde gönderildiyse tekrar gönderme
+        let lastSentKey = "lastGoOutsideNotification"
+        if let lastSent = defaults.object(forKey: lastSentKey) as? Date {
+            let hoursSinceLastNotification = Date().timeIntervalSince(lastSent) / 3600
+            if hoursSinceLastNotification < 2 {
+                print("⏳ Go outside bildirimi cooldown'da (son \(Int(hoursSinceLastNotification * 60)) dakika önce gönderildi)")
+                return
+            }
+        }
+
         Task {
             let content = NotificationCategoryManager.createContent(
                 title: "Dışarı Çıkma Zamanı! 🌞",
@@ -127,11 +137,15 @@ class GeofenceNotificationManager: NSObject {
 
             do {
                 try await scheduler.sendImmediateNotification(
-                    identifier: "go-outside-\(UUID().uuidString)",
+                    identifier: "go-outside", // Sabit ID - tekrar oluşmayı engellemek için
                     content: content,
                     priority: .normal,
                     respectQuietHours: true
                 )
+
+                // Son gönderim zamanını kaydet
+                defaults.set(Date(), forKey: lastSentKey)
+                print("✅ Go outside bildirimi gönderildi (\(hoursAtHome) saat)")
             } catch {
                 print("❌ Go outside notification hatası: \(error)")
             }
@@ -140,6 +154,16 @@ class GeofenceNotificationManager: NSObject {
 
     /// Eve giriş bildirimi
     private func sendHomeEntryNotification() {
+        // Cooldown kontrolü - Son 30 dakika içinde gönderildiyse tekrar gönderme
+        let lastSentKey = "lastHomeEntryNotification"
+        if let lastSent = defaults.object(forKey: lastSentKey) as? Date {
+            let minutesSinceLastNotification = Date().timeIntervalSince(lastSent) / 60
+            if minutesSinceLastNotification < 30 {
+                print("⏳ Home entry bildirimi cooldown'da")
+                return
+            }
+        }
+
         Task {
             let content = NotificationCategoryManager.createContent(
                 title: "Hoş Geldiniz! 🏠",
@@ -151,11 +175,14 @@ class GeofenceNotificationManager: NSObject {
 
             do {
                 try await scheduler.sendImmediateNotification(
-                    identifier: "home-entry-\(UUID().uuidString)",
+                    identifier: "home-entry", // Sabit ID
                     content: content,
                     priority: .low,
                     respectQuietHours: true
                 )
+
+                defaults.set(Date(), forKey: lastSentKey)
+                print("✅ Home entry bildirimi gönderildi")
             } catch {
                 print("❌ Home entry notification hatası: \(error)")
             }
@@ -164,6 +191,16 @@ class GeofenceNotificationManager: NSObject {
 
     /// Evden çıkış bildirimi
     private func sendHomeExitNotification() {
+        // Cooldown kontrolü - Son 30 dakika içinde gönderildiyse tekrar gönderme
+        let lastSentKey = "lastHomeExitNotification"
+        if let lastSent = defaults.object(forKey: lastSentKey) as? Date {
+            let minutesSinceLastNotification = Date().timeIntervalSince(lastSent) / 60
+            if minutesSinceLastNotification < 30 {
+                print("⏳ Home exit bildirimi cooldown'da")
+                return
+            }
+        }
+
         Task {
             let content = NotificationCategoryManager.createContent(
                 title: "İyi Günler! 👋",
@@ -175,11 +212,14 @@ class GeofenceNotificationManager: NSObject {
 
             do {
                 try await scheduler.sendImmediateNotification(
-                    identifier: "home-exit-\(UUID().uuidString)",
+                    identifier: "home-exit", // Sabit ID
                     content: content,
                     priority: .low,
                     respectQuietHours: true
                 )
+
+                defaults.set(Date(), forKey: lastSentKey)
+                print("✅ Home exit bildirimi gönderildi")
             } catch {
                 print("❌ Home exit notification hatası: \(error)")
             }

@@ -272,7 +272,7 @@ struct FriendCard: View {
                     Image(systemName: "phone.fill")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("Son: \(formatDate(lastContact))")
+                    Text(String(format: NSLocalizedString("friends.last.label", comment: "Last:"), formatDate(lastContact)))
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -281,7 +281,7 @@ struct FriendCard: View {
                     Image(systemName: "calendar")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("Sonraki: \(formatDate(friend.nextContactDate))")
+                    Text(String(format: NSLocalizedString("friends.next.label", comment: "Next:"), formatDate(friend.nextContactDate)))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

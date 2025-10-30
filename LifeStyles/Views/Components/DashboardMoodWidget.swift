@@ -108,7 +108,7 @@ struct DashboardMoodWidget: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
 
-                    Text("Mood'unu kaydet")
+                    Text(String(localized: "mood.record.your.mood", comment: "Record your mood"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -215,7 +215,7 @@ struct MoodPickerSheet: View {
 
                     // Note
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Not (Opsiyonel)")
+                        Text(String(localized: "mood.note.optional", comment: "Note (Optional)"))
                             .font(.subheadline)
                             .fontWeight(.medium)
 

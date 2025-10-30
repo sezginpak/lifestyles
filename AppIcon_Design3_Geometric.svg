@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="33%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="230" fill="url(#bgGradient3)"/>
+
+  <!-- Outer Hexagon -->
+  <polygon points="512,154 768,333 768,691 512,870 256,691 256,333"
+           fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="41"/>
+
+  <!-- Middle Triangle -->
+  <polygon points="512,256 717,640 307,640"
+           fill="rgba(255,255,255,0.2)"/>
+
+  <!-- Inner Circle (White) -->
+  <circle cx="512" cy="512" r="205" fill="#FFFFFF"/>
+
+  <!-- Center Text "LS" -->
+  <text x="512" y="590" font-family="SF Pro Rounded, -apple-system, sans-serif" font-size="184" font-weight="900" text-anchor="middle" fill="url(#textGradient3)">LS</text>
+</svg>

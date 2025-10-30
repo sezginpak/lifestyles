@@ -34,7 +34,7 @@ struct LocationDetailCard: View {
                             .font(.headline)
 
                         if let index = indexInRoute {
-                            Text("#\(index + 1)")
+                            Text(String(format: NSLocalizedString("location.number.format", comment: "Number format with hash"), index + 1))
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)

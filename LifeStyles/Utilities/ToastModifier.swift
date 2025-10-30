@@ -54,7 +54,7 @@ extension EnvironmentValues {
 
         var body: some View {
             VStack(spacing: 20) {
-                Text("Toast Modifier Demo")
+                Text(String(localized: "toast.demo", comment: "Toast Modifier Demo"))
                     .font(.title)
                     .fontWeight(.bold)
 

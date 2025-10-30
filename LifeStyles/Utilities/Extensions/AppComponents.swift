@@ -311,7 +311,7 @@ struct ProgressCard: View {
 
                 // Percentage (opsiyonel)
                 if showPercentage {
-                    Text("\(Int(progress * 100))%")
+                    Text(String(format: NSLocalizedString("common.percentage", comment: "Percentage format"), Int(progress * 100)))
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundStyle(color)

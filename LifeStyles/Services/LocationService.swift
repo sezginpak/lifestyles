@@ -24,7 +24,8 @@ class LocationService: NSObject, CLLocationManagerDelegate {
 
     // Periyodik konum kayıt sistemi
     private var locationTimer: Timer?
-    private let locationTrackingInterval: TimeInterval = 15 * 60 // 15 dakika (PRODUCTION)
+    private let locationTrackingInterval: TimeInterval = 10 * 60 // 10 dakika (PRODUCTION)
+    private let locationDistanceThreshold: Double = 20 // 20 metre - Bu mesafe içindeyse aynı yer sayılır
     private var modelContext: ModelContext?
     private(set) var isPeriodicTrackingActive: Bool = false
     private(set) var lastRecordedLocation: Date?
@@ -37,6 +38,14 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
         loadTrackingState()
+    }
+
+    deinit {
+        // Timer'ı temizle
+        locationTimer?.invalidate()
+        locationTimer = nil
+        // Location updates'i durdur
+        locationManager.stopUpdatingLocation()
     }
 
     // İzin durumunu kontrol et
@@ -166,25 +175,35 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         // İlk kaydı hemen yap
         recordCurrentLocation()
 
-        // Timer'ı başlat
-        locationTimer = Timer.scheduledTimer(
-            withTimeInterval: locationTrackingInterval,
-            repeats: true
-        ) { [weak self] _ in
-            self?.recordCurrentLocation()
+        // Timer'ı main thread'de oluştur
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            // Timer'ı başlat
+            self.locationTimer = Timer.scheduledTimer(
+                withTimeInterval: self.locationTrackingInterval,
+                repeats: true
+            ) { [weak self] _ in
+                self?.recordCurrentLocation()
+            }
+
+            // Timer'ı RunLoop'a ekle (force unwrap yerine guard)
+            if let timer = self.locationTimer {
+                RunLoop.main.add(timer, forMode: .common)
+                print("✅ Periyodik konum takibi başlatıldı (10 dakikada bir)")
+            } else {
+                print("❌ Timer oluşturulamadı")
+            }
         }
-
-        // Timer'ın arka planda da çalışması için
-        RunLoop.current.add(locationTimer!, forMode: .common)
-
-        print("✅ Periyodik konum takibi başlatıldı (15 dakikada bir)")
     }
 
     // Periyodik takibi durdur
     func stopPeriodicTracking() {
-        // Timer'ı durdur
-        locationTimer?.invalidate()
-        locationTimer = nil
+        // Timer'ı main thread'de durdur
+        DispatchQueue.main.async { [weak self] in
+            self?.locationTimer?.invalidate()
+            self?.locationTimer = nil
+        }
 
         // Konum güncellemelerini durdur
         locationManager.stopUpdatingLocation()
@@ -194,7 +213,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         print("⏹️ Periyodik konum takibi durduruldu")
     }
 
-    // Mevcut konumu kaydet
+    // Mevcut konumu kaydet - Akıllı süre takibi ile
     private func recordCurrentLocation() {
         // Debug: Kontrolleri ayrı ayrı yap
         if modelContext == nil {
@@ -219,12 +238,40 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         // Konum tipini belirle
         let locationType: LocationType = isAtHome ? .home : .other
 
-        // Yeni kayıt oluştur
+        // Son kaydı kontrol et
+        if let lastLog = getLastLocationLog(context: context) {
+            // Mesafeyi hesapla
+            let lastLocation = CLLocation(latitude: lastLog.latitude, longitude: lastLog.longitude)
+            let distance = loc.distance(from: lastLocation)
+
+            // Eğer 20 metre içindeyse, mevcut kaydın süresini uzat
+            if distance <= locationDistanceThreshold {
+                let timeDiff = Date().timeIntervalSince(lastLog.timestamp)
+                let minutesDiff = Int(timeDiff / 60)
+
+                lastLog.durationInMinutes += minutesDiff
+
+                do {
+                    try context.save()
+                    lastRecordedLocation = Date()
+                    print("⏱️ Aynı konumdasınız. Süre güncellendi: +\(minutesDiff) dk (Toplam: \(lastLog.durationInMinutes) dk)")
+                    print("📍 Mesafe: \(Int(distance))m < \(Int(locationDistanceThreshold))m threshold")
+                    return
+                } catch {
+                    print("❌ Süre güncelleme hatası: \(error.localizedDescription)")
+                }
+            } else {
+                print("🚶 Yeni konuma geçildi (Mesafe: \(Int(distance))m > \(Int(locationDistanceThreshold))m)")
+            }
+        }
+
+        // Yeni kayıt oluştur (ya ilk kayıt ya da yeni konum)
         let log = LocationLog(
             timestamp: Date(),
             latitude: loc.coordinate.latitude,
             longitude: loc.coordinate.longitude,
             locationType: locationType,
+            durationInMinutes: 10, // İlk süre 10 dakika (tracking interval)
             accuracy: loc.horizontalAccuracy,
             altitude: loc.altitude
         )
@@ -236,7 +283,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             lastRecordedLocation = Date()
             totalLocationsRecorded += 1
             saveTrackingState()
-            print("✅ Konum kaydedildi: \(log.formattedDate) - \(locationType.rawValue)")
+            print("✅ Yeni konum kaydedildi: \(log.formattedDate) - \(locationType.rawValue)")
 
             // Arka planda reverse geocoding yap
             Task {
@@ -244,6 +291,21 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             }
         } catch {
             print("❌ Konum kaydetme hatası: \(error.localizedDescription)")
+        }
+    }
+
+    // Son LocationLog kaydını getir
+    private func getLastLocationLog(context: ModelContext) -> LocationLog? {
+        let descriptor = FetchDescriptor<LocationLog>(
+            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
+        )
+
+        do {
+            let logs = try context.fetch(descriptor)
+            return logs.first
+        } catch {
+            print("❌ Son konum getirme hatası: \(error)")
+            return nil
         }
     }
 

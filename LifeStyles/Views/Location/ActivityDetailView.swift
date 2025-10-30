@@ -186,13 +186,13 @@ struct ActivityDetailView: View {
                 .fontWeight(.bold)
 
             VStack(spacing: 10) {
-                InfoRow(icon: "star.fill", label: "Zorluk", value: activity.difficultyDisplayName, color: .orange)
-                InfoRow(icon: "clock.fill", label: "Süre", value: activity.formattedDuration, color: .blue)
-                InfoRow(icon: "star.circle.fill", label: "Puan", value: "\(activity.calculatedPoints) puan", color: .yellow)
-                InfoRow(icon: "eye.fill", label: "Görüntülenme", value: "\(activity.viewCount) kez", color: .purple)
+                ActivityInfoRow(icon: "star.fill", label: "Zorluk", value: activity.difficultyDisplayName, color: .orange)
+                ActivityInfoRow(icon: "clock.fill", label: "Süre", value: activity.formattedDuration, color: .blue)
+                ActivityInfoRow(icon: "star.circle.fill", label: "Puan", value: String(format: NSLocalizedString("location.points", comment: "Points"), activity.calculatedPoints), color: .yellow)
+                ActivityInfoRow(icon: "eye.fill", label: "Görüntülenme", value: String(format: NSLocalizedString("location.times.count", comment: "Times count"), activity.viewCount), color: .purple)
 
                 if let lastViewed = activity.lastViewedAt {
-                    InfoRow(
+                    ActivityInfoRow(
                         icon: "clock.arrow.circlepath",
                         label: "Son Görüldü",
                         value: formatRelativeDate(lastViewed),
@@ -263,7 +263,7 @@ struct ActivityDetailView: View {
                     .font(.headline)
                     .fontWeight(.bold)
                 Spacer()
-                Text("\(relatedCompletions.count) kez")
+                Text(String(format: NSLocalizedString("location.times.count", comment: "Times count"), relatedCompletions.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -396,7 +396,7 @@ struct ActivityDetailView: View {
 
 // MARK: - Info Row Component
 
-struct InfoRow: View {
+struct ActivityInfoRow: View {
     let icon: String
     let label: String
     let value: String

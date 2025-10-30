@@ -31,10 +31,10 @@ struct MoodJournalView: View {
                     MoodTrackerView(viewModel: viewModel)
                         .tag(MoodJournalViewModel.Tab.mood)
 
-                    JournalListView(viewModel: viewModel)
+                    JournalListViewNew(viewModel: viewModel)
                         .tag(MoodJournalViewModel.Tab.journal)
 
-                    MoodAnalyticsView(viewModel: viewModel)
+                    MoodAnalyticsViewNew(entries: viewModel.moodEntries)
                         .tag(MoodJournalViewModel.Tab.analytics)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -150,48 +150,157 @@ struct JournalListView: View {
     @State private var pressedCardId: UUID?
 
     private func modernJournalCard(_ entry: JournalEntry) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
-            // Header - Compact
-            HStack(spacing: Spacing.small) {
-                CompactJournalTypePill(type: entry.journalType, compact: true, showIcon: false)
-                Spacer()
-                if entry.isFavorite {
-                    Image(systemName: "star.fill").font(.caption2).foregroundStyle(.yellow)
+        ZStack(alignment: .topLeading) {
+            // Background Gradient (subtle)
+            LinearGradient(
+                colors: [
+                    entry.journalType.color.opacity(0.05),
+                    entry.journalType.color.opacity(0.02)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            VStack(alignment: .leading, spacing: Spacing.medium) {
+                // Header Row - Type Badge + Metadata
+                HStack(alignment: .center, spacing: Spacing.small) {
+                    // Type Badge with gradient
+                    HStack(spacing: 4) {
+                        Text(entry.journalType.emoji)
+                            .font(.caption)
+
+                        Text(entry.journalType.displayName)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(entry.journalType.color)
+                    }
+                    .padding(.horizontal, Spacing.small)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        entry.journalType.color.opacity(0.15),
+                                        entry.journalType.color.opacity(0.08)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                    )
+
+                    Spacer()
+
+                    // Favorite Star (if applicable)
+                    if entry.isFavorite {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.yellow, .orange],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+
+                    // Word Count Badge
+                    HStack(spacing: 2) {
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 9))
+                        Text("\(entry.wordCount)")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                    }
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(Color(.tertiarySystemFill))
+                    )
                 }
-                Text("\(entry.wordCount)").font(.caption2).monospacedDigit().foregroundStyle(.secondary)
-            }
 
-            // Title (if exists)
-            if let title = entry.title {
-                Text(title)
+                // Title (if exists) - Enhanced typography
+                if let title = entry.title {
+                    Text(title)
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.primary, .primary.opacity(0.8)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .lineLimit(1)
+                }
+
+                // Preview Text - Better readability
+                Text(entry.preview)
                     .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
-            }
+                    .foregroundStyle(.secondary)
+                    .lineLimit(entry.title == nil ? 3 : 2)
+                    .multilineTextAlignment(.leading)
 
-            // Preview (2 lines)
-            Text(entry.preview)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+                Spacer(minLength: 0)
 
-            // Tags (inline - max 3)
-            if !entry.tags.isEmpty {
-                compactJournalTags(entry.tags)
-            }
+                // Bottom Section - Tags + Footer
+                VStack(alignment: .leading, spacing: Spacing.small) {
+                    // Tags (if exists)
+                    if !entry.tags.isEmpty {
+                        compactJournalTags(entry.tags, typeColor: entry.journalType.color)
+                    }
 
-            // Footer
-            HStack(spacing: Spacing.small) {
-                Text(entry.formattedDate).font(.caption2).foregroundStyle(.tertiary)
-                Text("•").font(.caption2).foregroundStyle(.tertiary)
-                Text(String(format: NSLocalizedString("journal.reading.time.format", comment: "X minutes reading time"), entry.estimatedReadingTime)).font(.caption2).foregroundStyle(.tertiary)
+                    // Footer Metadata
+                    HStack(spacing: Spacing.small) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 9))
+
+                        Text(entry.formattedDate)
+                            .font(.caption2)
+
+                        Text("•")
+                            .font(.caption2)
+
+                        Image(systemName: "clock")
+                            .font(.system(size: 9))
+
+                        Text(String(format: NSLocalizedString("journal.reading.time.format", comment: "X minutes reading time"), entry.estimatedReadingTime))
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(.tertiary)
+                }
             }
+            .padding(Spacing.large)
         }
-        .padding(14)
-        .frame(height: 122)
-        .glassmorphismCard(
-            cornerRadius: CornerRadius.normal,
-            borderColor: entry.journalType.color.opacity(0.3)
+        .frame(height: 160)
+        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.large, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            entry.journalType.color.opacity(0.2),
+                            entry.journalType.color.opacity(0.05)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.large, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .shadow(
+            color: entry.journalType.color.opacity(pressedCardId == entry.id ? 0.15 : 0.08),
+            radius: pressedCardId == entry.id ? 12 : 8,
+            x: 0,
+            y: pressedCardId == entry.id ? 6 : 4
         )
         .scaleEffect(pressedCardId == entry.id ? 0.98 : 1.0)
         .animation(.spring(response: 0.25, dampingFraction: 0.75), value: pressedCardId)
@@ -211,20 +320,49 @@ struct JournalListView: View {
 
     // MARK: - Compact Tags Helper
 
-    private func compactJournalTags(_ tags: [String]) -> some View {
-        HStack(spacing: Spacing.micro) {
+    private func compactJournalTags(_ tags: [String], typeColor: Color) -> some View {
+        HStack(spacing: 4) {
             ForEach(tags.prefix(3), id: \.self) { tag in
-                Text("#\(tag)")
-                    .font(.caption2)
-                    .padding(.horizontal, Spacing.small)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.brandPrimary.opacity(0.1)))
+                HStack(spacing: 2) {
+                    Image(systemName: "tag.fill")
+                        .font(.system(size: 8))
+                    Text(tag)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(typeColor)
+                .padding(.horizontal, Spacing.small)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    typeColor.opacity(0.12),
+                                    typeColor.opacity(0.06)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(typeColor.opacity(0.2), lineWidth: 0.5)
+                )
             }
 
             if tags.count > 3 {
-                Text("...")
+                Text(String(format: NSLocalizedString("mood.more.tags", comment: "More tags count"), tags.count - 3))
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(typeColor.opacity(0.6))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(typeColor.opacity(0.08))
+                    )
             }
         }
     }
@@ -299,9 +437,9 @@ enum JournalStep: Int, CaseIterable {
     }
 }
 
-// MARK: - Step Progress Bar
+// MARK: - OLD Step Progress Bar (Kept for backward compatibility)
 
-struct StepProgressBar: View {
+struct OldStepProgressBar: View {
     let currentStep: JournalStep
     let totalSteps: Int
 
@@ -367,7 +505,7 @@ struct JournalEditorView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Progress Bar
-                StepProgressBar(currentStep: currentStep, totalSteps: JournalStep.allCases.count)
+                OldStepProgressBar(currentStep: currentStep, totalSteps: JournalStep.allCases.count)
 
                 // Step Content with TabView for smooth sliding
                 TabView(selection: $currentStep) {
@@ -476,8 +614,7 @@ struct JournalEditorView: View {
                     .fontWeight(.medium)
                     .padding(Spacing.large)
                     .glassmorphismCard(
-                        cornerRadius: CornerRadius.medium,
-                        borderColor: title.isEmpty ? Color.gray.opacity(0.2) : selectedType.color.opacity(0.5)
+                        cornerRadius: CornerRadius.medium
                     )
 
                 // Bottom padding for keyboard
@@ -543,7 +680,7 @@ struct JournalEditorView: View {
                             )
                         )
 
-                    Text("Etiketler ekle")
+                    Text(String(localized: "mood.add.tags", comment: "Add tags"))
                         .font(.title3)
                         .fontWeight(.bold)
 
@@ -644,7 +781,7 @@ struct JournalEditorView: View {
                             HStack {
                                 Image(systemName: "tag")
                                     .foregroundStyle(Color.secondary)
-                                Text("Etiketler")
+                                Text(String(localized: "mood.tags", comment: "Tags"))
                                     .font(.caption)
                                     .fontWeight(.semibold)
                                     .foregroundStyle(.secondary)
@@ -668,12 +805,12 @@ struct JournalEditorView: View {
                     }
 
                     // Mood Link
-                    if viewModel.todaysMood != nil && !isEditMode {
+                    if viewModel.currentMood != nil && !isEditMode {
                         Divider()
 
                         Toggle(isOn: $linkToMood) {
                             HStack(spacing: Spacing.small) {
-                                Text(viewModel.todaysMood?.moodType.emoji ?? "😊")
+                                Text(viewModel.currentMood?.moodType.emoji ?? "😊")
                                     .font(.title3)
 
                                 VStack(alignment: .leading, spacing: 2) {
@@ -681,7 +818,7 @@ struct JournalEditorView: View {
                                         .font(.caption)
                                         .fontWeight(.semibold)
 
-                                    if let mood = viewModel.todaysMood {
+                                    if let mood = viewModel.currentMood {
                                         Text(mood.moodType.displayName)
                                             .font(.caption2)
                                             .foregroundStyle(.secondary)
@@ -694,8 +831,7 @@ struct JournalEditorView: View {
                 }
                 .padding(Spacing.large)
                 .glassmorphismCard(
-                    cornerRadius: CornerRadius.medium,
-                    borderColor: selectedType.color.opacity(0.3)
+                    cornerRadius: CornerRadius.medium
                 )
             }
             .padding(Spacing.large)
@@ -757,8 +893,7 @@ struct JournalEditorView: View {
             }
             .padding(Spacing.large)
             .glassmorphismCard(
-                cornerRadius: CornerRadius.medium,
-                borderColor: selectedType == type ? type.color.opacity(0.5) : Color.gray.opacity(0.2)
+                cornerRadius: CornerRadius.medium
             )
         }
         .buttonStyle(.plain)
@@ -793,7 +928,7 @@ struct JournalEditorView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
-                        Text("Geri")
+                        Text(String(localized: "ai.back", comment: "Back"))
                     }
                     .font(.subheadline)
                     .fontWeight(.semibold)
@@ -1063,7 +1198,7 @@ struct MoodAnalyticsView: View {
             HStack {
                 Image(systemName: "sparkles")
                     .foregroundStyle(.purple)
-                Text("AI Analiz")
+                Text(String(localized: "ai.analysis", comment: "AI Analysis"))
                     .cardTitle()
             }
 

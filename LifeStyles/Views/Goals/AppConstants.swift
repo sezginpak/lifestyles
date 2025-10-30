@@ -12,20 +12,28 @@ struct AppConstants {
     
     // MARK: - Spacing
     struct Spacing {
+        static let micro: CGFloat = 2
         static let tiny: CGFloat = 4
         static let extraSmall: CGFloat = 4
         static let small: CGFloat = 8
         static let medium: CGFloat = 16
         static let large: CGFloat = 24
+        static let xlarge: CGFloat = 32 // Alias for extraLarge
         static let extraLarge: CGFloat = 32
+        static let xxlarge: CGFloat = 48 // Alias for huge
         static let huge: CGFloat = 48
     }
     
     // MARK: - Corner Radius
     struct CornerRadius {
+        static let tight: CGFloat = 6
+        static let compact: CGFloat = 8
         static let small: CGFloat = 8
+        static let normal: CGFloat = 12 // Alias for medium
         static let medium: CGFloat = 12
         static let large: CGFloat = 16
+        static let rounded: CGFloat = 16
+        static let relaxed: CGFloat = 18
         static let card: CGFloat = 20
         static let button: CGFloat = 24
     }
@@ -46,3 +54,7 @@ struct AppConstants {
         static let overlay: Double = 0.1
     }
 }
+
+// MARK: - Global Typealiases (for backward compatibility)
+typealias Spacing = AppConstants.Spacing
+typealias CornerRadius = AppConstants.CornerRadius

@@ -105,9 +105,27 @@ final class JournalEntry {
     var updatedAt: Date
     var isFavorite: Bool
 
+    // NEW: Image support
+    var imageData: Data?
+    var imageCaption: String?
+    var imageThumbnailData: Data? // Compressed thumbnail
+
+    // NEW: Markdown support
+    var markdownContent: String?
+    var hasMarkdown: Bool
+
+    // NEW: Template support
+    var templateId: UUID?
+
     // İlişkiler
     @Relationship
     var moodEntry: MoodEntry?
+
+    @Relationship(deleteRule: .nullify)
+    var template: JournalTemplate?
+
+    @Relationship(deleteRule: .nullify, inverse: \Memory.journalEntry)
+    var memory: Memory?
 
     init(
         id: UUID = UUID(),
@@ -119,7 +137,14 @@ final class JournalEntry {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         isFavorite: Bool = false,
-        moodEntry: MoodEntry? = nil
+        moodEntry: MoodEntry? = nil,
+        imageData: Data? = nil,
+        imageCaption: String? = nil,
+        imageThumbnailData: Data? = nil,
+        markdownContent: String? = nil,
+        hasMarkdown: Bool = false,
+        templateId: UUID? = nil,
+        template: JournalTemplate? = nil
     ) {
         self.id = id
         self.date = date
@@ -131,6 +156,13 @@ final class JournalEntry {
         self.updatedAt = updatedAt
         self.isFavorite = isFavorite
         self.moodEntry = moodEntry
+        self.imageData = imageData
+        self.imageCaption = imageCaption
+        self.imageThumbnailData = imageThumbnailData
+        self.markdownContent = markdownContent
+        self.hasMarkdown = hasMarkdown
+        self.templateId = templateId
+        self.template = template
     }
 
     var journalType: JournalType {
@@ -190,5 +222,20 @@ final class JournalEntry {
     /// Update timestamp
     func touch() {
         updatedAt = Date()
+    }
+
+    /// Has image?
+    var hasImage: Bool {
+        imageData != nil
+    }
+
+    /// Has template?
+    var hasTemplate: Bool {
+        template != nil
+    }
+
+    /// Content to render (markdown varsa onu, yoksa plain text)
+    var renderableContent: String {
+        hasMarkdown ? (markdownContent ?? content) : content
     }
 }

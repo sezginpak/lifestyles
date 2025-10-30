@@ -164,7 +164,7 @@ extension Badge {
                 title: "100 Aktivite",
                 badgeDescription: "100 aktivite tamamladınız!",
                 category: .completion,
-                iconName: "100.circle.fill",
+                iconName: "trophy.fill",
                 requirement: 100
             ),
 

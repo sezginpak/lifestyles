@@ -129,7 +129,7 @@ struct JournalTypeSelectorGrid: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Journal Tipi")
+            Text(String(localized: "journal.type", comment: "Journal Type"))
                 .font(.title3)
                 .fontWeight(.bold)
 
@@ -204,7 +204,7 @@ struct JournalTypePill: View {
 
             // Compact pills
             VStack(alignment: .leading, spacing: 12) {
-                Text("Compact Pills")
+                Text(String(localized: "compact.pills", comment: "Compact Pills"))
                     .font(.headline)
 
                 HStack {

@@ -19,23 +19,23 @@ extension FriendDetailView {
             if friend.isPartner && friend.relationshipStartDate != nil {
                 // Partner için genişletilmiş stats grid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", color: .blue)
-                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", color: .purple)
-                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", color: .orange)
+                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", gradient: [.blue, .cyan])
+                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", gradient: [.purple, .pink])
+                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", gradient: [.orange, .red])
 
                     // Partner için ilişki süresi
                     if let duration = friend.relationshipDuration {
                         let totalMonths = duration.years * 12 + duration.months
-                        CompactStatCard(icon: "heart.fill", value: "\(totalMonths)", label: "Ay Birlikte", color: .pink)
+                        CompactStatCard(icon: "heart.fill", value: "\(totalMonths)", label: "Ay Birlikte", gradient: [.pink, .red])
                     }
                 }
                 .padding(.horizontal)
             } else {
                 // Normal stats grid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", color: .blue)
-                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", color: .purple)
-                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", color: .orange)
+                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", gradient: [.blue, .cyan])
+                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", gradient: [.purple, .pink])
+                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", gradient: [.orange, .red])
                 }
                 .padding(.horizontal)
             }
@@ -82,6 +82,10 @@ extension FriendDetailView {
 
             // Ortak İlgi Alanları
             SharedInterestsView(friend: friend)
+                .padding(.horizontal)
+
+            // Borç/Alacak Section
+            transactionSection
                 .padding(.horizontal)
 
             // Quick Notes
@@ -357,6 +361,169 @@ extension FriendDetailView {
                 }
                 .padding(.horizontal)
             }
+        }
+    }
+
+    // MARK: - Transaction Section - REBUILT SAFELY
+
+    var transactionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                Label("Borç/Alacak", systemImage: "banknote")
+                    .font(.headline)
+
+                Spacer()
+
+                Button {
+                    showingAddTransaction = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.blue)
+                }
+            }
+
+            // Check if transactions exist
+            if let transactions = friend.transactions, !transactions.isEmpty {
+                VStack(spacing: 12) {
+                    // Balance Summary
+                    balanceSummaryView(transactions: transactions)
+
+                    // Transactions list
+                    ForEach(transactions.sorted(by: { $0.date > $1.date }), id: \.id) { transaction in
+                        HStack(alignment: .top, spacing: 12) {
+                            // Icon based on type
+                            Image(systemName: transaction.transactionType == .debt ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(transaction.transactionType == .debt ? .red : .green)
+
+                            // Info
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(transaction.transactionDescription)
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                Text(transaction.transactionType.rawValue)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+
+                                // Due Date Info
+                                if let dueDate = transaction.dueDate, !transaction.isPaid {
+                                    if let days = transaction.daysUntilDue {
+                                        if days < 0 {
+                                            // Overdue
+                                            Text(String(format: NSLocalizedString("transaction.overdue.days", comment: "Overdue by X days"), abs(days)))
+                                                .font(.caption2)
+                                                .foregroundStyle(.red)
+                                                .fontWeight(.semibold)
+                                        } else if days == 0 {
+                                            Text(String(localized: "transaction.due.today", comment: "Due today"))
+                                                .font(.caption2)
+                                                .foregroundStyle(.orange)
+                                                .fontWeight(.semibold)
+                                        } else if days <= 3 {
+                                            Text(String(format: NSLocalizedString("transaction.due.within.days", comment: "Due within X days"), days))
+                                                .font(.caption2)
+                                                .foregroundStyle(.orange)
+                                        } else {
+                                            Text(String(format: NSLocalizedString("transaction.due.days", comment: "Due in X days"), days))
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer()
+
+                            // Amount
+                            VStack(alignment: .trailing, spacing: 4) {
+                                Text("\(transaction.amount.description) \(transaction.currency)")
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(transaction.transactionType == .debt ? .red : .green)
+
+                                if !transaction.isPaid {
+                                    Text(String(localized: "transaction.unpaid", comment: "Unpaid"))
+                                        .font(.caption2)
+                                        .foregroundStyle(.orange)
+                                } else {
+                                    Text(String(localized: "transaction.paid", comment: "Paid"))
+                                        .font(.caption2)
+                                        .foregroundStyle(.green)
+                                }
+                            }
+                        }
+                        .padding(12)
+                        .background(transaction.isOverdue && !transaction.isPaid ? Color.red.opacity(0.1) : Color(.systemGray6))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(transaction.isOverdue && !transaction.isPaid ? Color.red.opacity(0.5) : Color.clear, lineWidth: 2)
+                        )
+                        .contextMenu {
+                            // Mark as Paid/Unpaid
+                            if !transaction.isPaid {
+                                Button {
+                                    markTransactionAsPaid(transaction)
+                                } label: {
+                                    Label("Ödendi Olarak İşaretle", systemImage: "checkmark.circle")
+                                }
+                            } else {
+                                Button {
+                                    markTransactionAsUnpaid(transaction)
+                                } label: {
+                                    Label("Ödenmedi Olarak İşaretle", systemImage: "xmark.circle")
+                                }
+                            }
+
+                            Divider()
+
+                            // Delete
+                            Button(role: .destructive) {
+                                deleteTransaction(transaction)
+                            } label: {
+                                Label("Sil", systemImage: "trash")
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Empty State
+                VStack(spacing: 12) {
+                    Image(systemName: "banknote")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary.opacity(0.5))
+
+                    Text(String(localized: "transaction.empty", comment: "No transaction records"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+
+                    Button {
+                        showingAddTransaction = true
+                    } label: {
+                        Text(String(localized: "transaction.add.first", comment: "Add first transaction"))
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.blue)
+                            .clipShape(Capsule())
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+        )
+        .sheet(isPresented: $showingAddTransaction) {
+            AddTransactionSheet(friend: friend)
         }
     }
 
@@ -756,15 +923,26 @@ extension FriendDetailView {
             "Bir süredir görüşmediniz. Nasıl olduklarını öğrenebilirsiniz."
         ]
 
+        // Defensive programming: Array bounds check
+        let defaultSuggestion = "İletişim zamanı! Bir mesaj gönderin."
+
+        let index: Int
         if friend.needsContact {
-            return suggestions[4]
+            index = 4
         } else if friend.daysRemaining <= 2 {
-            return suggestions[2]
+            index = 2
         } else if currentStreak > 5 {
-            return suggestions[3]
+            index = 3
         } else {
-            return suggestions[0]
+            index = 0
         }
+
+        guard index < suggestions.count else {
+            print("⚠️ Array index out of bounds: \(index)")
+            return defaultSuggestion
+        }
+
+        return suggestions[index]
     }
 
     // MARK: - AI Chat Actions
@@ -1023,5 +1201,132 @@ extension FriendDetailView {
         modelContext.delete(item)
         try? modelContext.save()
     }
+
+    func deleteTransaction(_ transaction: Transaction) {
+        modelContext.delete(transaction)
+
+        // Remove from friend's transactions array
+        if let index = friend.transactions?.firstIndex(where: { $0.id == transaction.id }) {
+            friend.transactions?.remove(at: index)
+        }
+
+        do {
+            try modelContext.save()
+            HapticFeedback.success()
+        } catch {
+            print("❌ Transaction silinemedi: \(error)")
+        }
+    }
+
+    func markTransactionAsPaid(_ transaction: Transaction) {
+        transaction.isPaid = true
+        transaction.paidDate = Date()
+        transaction.paidAmount = transaction.amount
+
+        do {
+            try modelContext.save()
+            HapticFeedback.success()
+        } catch {
+            print("❌ Transaction güncellenemedi: \(error)")
+        }
+    }
+
+    func markTransactionAsUnpaid(_ transaction: Transaction) {
+        transaction.isPaid = false
+        transaction.paidDate = nil
+        transaction.paidAmount = 0
+
+        do {
+            try modelContext.save()
+            HapticFeedback.success()
+        } catch {
+            print("❌ Transaction güncellenemedi: \(error)")
+        }
+    }
+
+    @ViewBuilder
+    func balanceSummaryView(transactions: [Transaction]) -> some View {
+        let unpaidTransactions = transactions.filter { !$0.isPaid }
+
+        if !unpaidTransactions.isEmpty {
+            let totalDebt = unpaidTransactions.filter { $0.transactionType == .debt }.reduce(Decimal(0)) { $0 + $1.amount }
+            let totalCredit = unpaidTransactions.filter { $0.transactionType == .credit }.reduce(Decimal(0)) { $0 + $1.amount }
+            let balance = totalCredit - totalDebt
+
+            HStack(spacing: 12) {
+                // Net Balance
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Net Durum")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if balance > 0 {
+                        Text("+ \(balance.description) TL")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.green)
+                    } else if balance < 0 {
+                        Text("- \(abs(balance).description) TL")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.red)
+                    } else {
+                        Text("Dengede")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.primary)
+                    }
+                }
+
+                Spacer()
+
+                // Badges
+                HStack(spacing: 8) {
+                    if totalDebt > 0 {
+                        VStack(spacing: 2) {
+                            Text(String(localized: "transaction.debt", comment: "Debt"))
+                                .font(.caption2)
+                            Text("\(totalDebt.description) TL")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.red)
+                        .cornerRadius(8)
+                    }
+
+                    if totalCredit > 0 {
+                        VStack(spacing: 2) {
+                            Text("Alacak")
+                                .font(.caption2)
+                            Text("\(totalCredit.description) TL")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.green)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+
+    func formatAmount(_ amount: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "TL"
+        formatter.locale = Locale(identifier: "tr_TR")
+        return formatter.string(from: amount as NSDecimalNumber) ?? "₺\(amount)"
+    }
 }
+
+// MARK: - Transaction Row Component - REMOVED FOR DEBUGGING
 

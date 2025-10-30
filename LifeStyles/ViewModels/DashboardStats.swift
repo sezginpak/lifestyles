@@ -177,6 +177,61 @@ struct CompactStatData {
     let subValue: String
     let progressValue: Double? // 0.0 - 1.0
     let badge: String? // "+25%" gibi trend badge
+
+    // İnteraktif özellikler (YENİ)
+    let trendData: [Double]? // Son 7 günün değerleri (sparkline için)
+    let destination: StatDestination? // Tıklandığında gidilecek ekran
+    let quickActions: [QuickAction]? // Hızlı aksiyon butonları
+
+    init(
+        icon: String,
+        title: String,
+        color: String,
+        mainValue: String,
+        subValue: String,
+        progressValue: Double? = nil,
+        badge: String? = nil,
+        trendData: [Double]? = nil,
+        destination: StatDestination? = nil,
+        quickActions: [QuickAction]? = nil
+    ) {
+        self.icon = icon
+        self.title = title
+        self.color = color
+        self.mainValue = mainValue
+        self.subValue = subValue
+        self.progressValue = progressValue
+        self.badge = badge
+        self.trendData = trendData
+        self.destination = destination
+        self.quickActions = quickActions
+    }
+}
+
+// MARK: - Stat Destination
+
+enum StatDestination {
+    case goals
+    case friends
+    case habits
+    case location
+}
+
+// MARK: - Quick Action
+
+struct QuickAction: Identifiable {
+    let id = UUID()
+    let icon: String
+    let color: String
+    let action: QuickActionType
+
+    enum QuickActionType {
+        case addGoal
+        case callPartner
+        case completeHabit
+        case logLocation
+        case custom(action: () -> Void)
+    }
 }
 
 // MARK: - Achievement (referans için - zaten var)

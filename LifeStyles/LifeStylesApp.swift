@@ -9,99 +9,18 @@ import SwiftUI
 import SwiftData
 
 // MARK: - Schema Versioning
+// NOTE: Migration plan disabled for development
+// Production'da migration gerektiğinde aktif edilebilir
 
+/*
+// Schema versioning examples - Currently disabled
 enum SchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
-
     static var models: [any PersistentModel.Type] {
         [Friend.self, ContactHistory.self, LocationLog.self, Goal.self, Habit.self, HabitCompletion.self, ActivitySuggestion.self]
     }
 }
-
-enum SchemaV2: VersionedSchema {
-    static var versionIdentifier = Schema.Version(2, 0, 0)
-
-    static var models: [any PersistentModel.Type] {
-        [
-            Friend.self,
-            ContactHistory.self,
-            LocationLog.self,
-            Goal.self,
-            Habit.self,
-            HabitCompletion.self,
-            ActivitySuggestion.self,
-            UserActivityState.self,
-            ActivityCompletion.self,
-            Badge.self,
-            ActivityStats.self,
-            SpecialDate.self
-        ]
-    }
-}
-
-enum SchemaV3: VersionedSchema {
-    static var versionIdentifier = Schema.Version(3, 0, 0)
-
-    static var models: [any PersistentModel.Type] {
-        [
-            Friend.self,
-            ContactHistory.self,
-            LocationLog.self,
-            Goal.self,
-            Habit.self,
-            HabitCompletion.self,
-            ActivitySuggestion.self,
-            UserActivityState.self,
-            ActivityCompletion.self,
-            Badge.self,
-            ActivityStats.self,
-            SpecialDate.self,
-            GoalMilestone.self // NEW - hedef milestone desteği
-        ]
-    }
-}
-
-enum SchemaV4: VersionedSchema {
-    static var versionIdentifier = Schema.Version(4, 0, 0)
-
-    static var models: [any PersistentModel.Type] {
-        [
-            Friend.self,
-            ContactHistory.self,
-            LocationLog.self,
-            Goal.self,
-            Habit.self,
-            HabitCompletion.self,
-            ActivitySuggestion.self,
-            UserActivityState.self,
-            ActivityCompletion.self,
-            Badge.self,
-            ActivityStats.self,
-            SpecialDate.self,
-            GoalMilestone.self,
-            MoodEntry.self, // NEW - mood tracking
-            JournalEntry.self // NEW - journal
-        ]
-    }
-}
-
-// MARK: - Migration Plan
-enum LifeStylesMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self]
-    }
-
-    static var stages: [MigrationStage] {
-        [
-            // V1 -> V2 migration: Yeni modeller eklenmiş, mevcut veriler korunmalı
-            MigrationStage.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
-            // V2 -> V3 migration: GoalMilestone eklendi
-            MigrationStage.lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self),
-            // V3 -> V4 migration: Mood & Journal modülleri eklendi
-            MigrationStage.lightweight(fromVersion: SchemaV3.self, toVersion: SchemaV4.self)
-        ]
-    }
-}
+*/
 
 // MARK: - Development Utilities
 
@@ -130,10 +49,69 @@ struct LifeStylesApp: App {
 
     // SwiftData ModelContainer'ı CloudKit ile kur
     var sharedModelContainer: ModelContainer = {
+        // NOT: DEBUG modda otomatik silme KAPATILDI
+        // CloudKit sync çalışması için veriler korunmalı
+
         do {
-            // Basit container (migration olmadan) - Development için
+            // Schema definition
+            let schema = Schema([
+                Friend.self,
+                ContactHistory.self,
+                LocationLog.self,
+                Goal.self,
+                Habit.self,
+                HabitCompletion.self,
+                ActivitySuggestion.self,
+                UserActivityState.self,
+                ActivityCompletion.self,
+                Badge.self,
+                ActivityStats.self,
+                SpecialDate.self,
+                GoalMilestone.self,
+                MoodEntry.self,
+                JournalEntry.self,
+                UserProfile.self,
+                ChatConversation.self,
+                ChatMessage.self,
+                JournalTemplate.self,
+                SavedPlace.self, // NEW - Saved places
+                PlaceVisit.self, // NEW - Place visits
+                Memory.self, // NEW - Memories & Photos
+                Transaction.self // NEW - Borç/Alacak
+            ])
+
+            // CloudKit configuration - Tekrar aktif
+            // NOT: Validation uyarıları olabilir ama veriler senkronize olacak
+            let modelConfiguration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .automatic // ✅ CloudKit açık - veriler geri gelecek
+            )
+
             let container = try ModelContainer(
-                for:
+                for: schema,
+                configurations: [modelConfiguration]
+            )
+
+            // CloudKit sync'i aktif et
+            container.mainContext.autosaveEnabled = true
+
+            print("✅ ModelContainer oluşturuldu (20 model) + CloudKit aktif")
+            print("🔄 CloudKit senkronizasyonu otomatik başlayacak...")
+            print("💡 İlk sync birkaç dakika sürebilir, lütfen bekleyin")
+
+            return container
+
+        } catch {
+            print("⚠️ ModelContainer oluşturma hatası: \(error)")
+            print("🔍 Hata detayı: \(error.localizedDescription)")
+
+            // Schema değişikliği nedeniyle migration gerekiyor
+            // Lokal storage ile devam et (veriler korunur)
+            print("🔄 CloudKit yerine lokal storage kullanılacak...")
+
+            do {
+                let schema = Schema([
                     Friend.self,
                     ContactHistory.self,
                     LocationLog.self,
@@ -149,25 +127,37 @@ struct LifeStylesApp: App {
                     GoalMilestone.self,
                     MoodEntry.self,
                     JournalEntry.self,
-                    UserProfile.self // NEW - User profile for personalized AI
-            )
+                    UserProfile.self,
+                    ChatConversation.self,
+                    ChatMessage.self,
+                    JournalTemplate.self,
+                    SavedPlace.self,
+                    PlaceVisit.self,
+                    Memory.self,
+                    Transaction.self
+                ])
 
-            // CloudKit sync'i aktif et
-            container.mainContext.autosaveEnabled = true
+                let modelConfiguration = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    cloudKitDatabase: .none
+                )
 
-            return container
-        } catch {
-            print("⚠️ ModelContainer oluşturma hatası: \(error)")
+                let container = try ModelContainer(
+                    for: schema,
+                    configurations: [modelConfiguration]
+                )
+                container.mainContext.autosaveEnabled = true
+                print("✅ Lokal storage ile başarıyla oluşturuldu")
+                print("💾 Verileriniz güvenli bir şekilde cihazınızda saklanacak")
+                return container
+            } catch let retryError {
+                print("❌ Lokal storage hatası: \(retryError)")
+                print("🆘 Emergency fallback: In-memory storage kullanılacak...")
 
-            #if DEBUG
-            // Development modunda detaylı hata göster ama VERİLERİ SİLME!
-            print("🔍 Hata detayı: \(error.localizedDescription)")
-            print("⚠️ Migration hatası - veriler korunuyor, basit container oluşturuluyor")
-
-            // Basit container oluştur (migration olmadan)
-            do {
-                return try ModelContainer(
-                    for:
+                // Son çare: In-memory storage (uygulama kapanınca veriler silinir)
+                do {
+                    let schema = Schema([
                         Friend.self,
                         ContactHistory.self,
                         LocationLog.self,
@@ -181,16 +171,40 @@ struct LifeStylesApp: App {
                         ActivityStats.self,
                         SpecialDate.self,
                         GoalMilestone.self,
-                        MoodEntry.self, // NEW
-                        JournalEntry.self, // NEW
-                        UserProfile.self // NEW
-                )
-            } catch {
-                fatalError("❌ Hiçbir ModelContainer oluşturulamadı: \(error)")
+                        MoodEntry.self,
+                        JournalEntry.self,
+                        UserProfile.self,
+                        ChatConversation.self,
+                        ChatMessage.self,
+                        JournalTemplate.self,
+                        SavedPlace.self,
+                        PlaceVisit.self,
+                        Memory.self,
+                        Transaction.self
+                    ])
+
+                    let modelConfiguration = ModelConfiguration(
+                        schema: schema,
+                        isStoredInMemoryOnly: true // ✅ RAM'de geçici çalışır
+                    )
+
+                    let container = try ModelContainer(
+                        for: schema,
+                        configurations: [modelConfiguration]
+                    )
+                    container.mainContext.autosaveEnabled = false // In-memory için gerek yok
+
+                    print("⚠️ EMERGENCY MODE: In-memory storage aktif")
+                    print("⚠️ UYARI: Verileriniz uygulama kapandığında silinecek!")
+                    print("⚠️ Lütfen uygulamayı yeniden yükleyin veya güncelleyin")
+
+                    return container
+                } catch let emergencyError {
+                    // Artık gerçekten hiçbir şey yapamayız
+                    print("💥 FATAL: Hiçbir storage oluşturulamadı: \(emergencyError)")
+                    fatalError("❌ Kritik hata: Hiçbir storage sistemi oluşturulamadı. Lütfen uygulamayı silin ve yeniden yükleyin.")
+                }
             }
-            #else
-            fatalError("❌ ModelContainer oluşturulamadı: \(error)")
-            #endif
         }
     }()
 
@@ -248,6 +262,14 @@ struct LifeStylesApp: App {
         let context = sharedModelContainer.mainContext
         service.setModelContext(context)
 
+        // Geçmiş LocationLog kayıtlarını migrate et
+        migrateLocationLogs(context: context)
+
+        // SavedPlacesService'i initialize et
+        let placesService = SavedPlacesService.shared
+        placesService.setModelContext(context)
+        placesService.startMonitoring()
+
         // Eğer takip durumu kaydedilmişse ve aktifse, yeniden başlat
         if service.isPeriodicTrackingActive {
             print("🔄 Uygulama açıldı, konum takibi devam ettiriliyor...")
@@ -294,5 +316,56 @@ struct LifeStylesApp: App {
 
         let needsContactCount = friends.filter { $0.needsContact }.count
         print("✅ \(friends.count) arkadaş için bildirimler zamanlandı (\(needsContactCount) kişi bekliyor)")
+    }
+
+    // Geçmiş LocationLog kayıtlarını migrate et
+    private func migrateLocationLogs(context: ModelContext) {
+        // Sadece bir kere çalışsın
+        let migrationKey = "locationLogMigrationCompleted_v1"
+        if UserDefaults.standard.bool(forKey: migrationKey) {
+            return
+        }
+
+        print("🔄 LocationLog migration başlatılıyor...")
+
+        // Async olarak çalıştır - UI'yı bloklama
+        Task.detached {
+            let descriptor = FetchDescriptor<LocationLog>()
+
+            do {
+                let logs = try context.fetch(descriptor)
+
+                // durationInMinutes 0 olanları düzelt
+                var fixedCount = 0
+                for log in logs {
+                    if log.durationInMinutes == 0 {
+                        log.durationInMinutes = 10 // Default 10 dakika
+                        fixedCount += 1
+                    }
+                }
+
+                if fixedCount > 0 {
+                    try context.save()
+                    print("✅ \(fixedCount) adet LocationLog kaydı güncellendi (durationInMinutes = 10)")
+                } else {
+                    print("✅ Tüm LocationLog kayıtları zaten güncel")
+                }
+
+                // Migration tamamlandı, bir daha çalıştırma
+                await MainActor.run {
+                    UserDefaults.standard.set(true, forKey: migrationKey)
+                }
+
+            } catch {
+                // SwiftData hatası - silent fail, kullanıcı deneyimini bozma
+                print("⚠️ LocationLog migration hatası: \(error.localizedDescription)")
+                print("ℹ️  Uygulama normal şekilde çalışmaya devam edecek")
+
+                // Yine de migration'ı tamamlanmış say ki tekrar deneme
+                await MainActor.run {
+                    UserDefaults.standard.set(true, forKey: migrationKey)
+                }
+            }
+        }
     }
 }

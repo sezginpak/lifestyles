@@ -188,7 +188,7 @@ struct EditFriendView: View {
                     } header: {
                         Text(String(localized: "friend.favorite.things", comment: "Favorite things"))
                     } footer: {
-                        Text("Favori yemek, film, aktivite vb.")
+                        Text(String(localized: "friends.favorite.placeholder", comment: "Favorite items placeholder"))
                     }
                 }
 
@@ -205,7 +205,7 @@ struct EditFriendView: View {
                     TextEditor(text: $favoriteActivities)
                         .frame(height: 80)
                 } header: {
-                    Text("Favori Aktiviteler")
+                    Text(String(localized: "friends.favorite.activities", comment: "Favorite Activities"))
                 } footer: {
                     Text(String(localized: "friend.activities.footer", comment: "Activities you do or want to do together (comma separated)"))
                 }

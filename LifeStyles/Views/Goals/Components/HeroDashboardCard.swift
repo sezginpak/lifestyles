@@ -56,7 +56,7 @@ struct HeroDashboardCard: View {
                             )
                         )
 
-                    Text("/ \(combinedStats.todayTotal)")
+                    Text(String(format: NSLocalizedString("goals.of.total", comment: "Of total goals"), combinedStats.todayTotal))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -87,7 +87,7 @@ struct HeroDashboardCard: View {
                     HStack(spacing: 4) {
                         Text("📊")
                             .font(.title3)
-                        Text("%\(combinedStats.weeklyCompletionPercentage)")
+                        Text(String(format: NSLocalizedString("goals.completion.rate", comment: "Completion rate percentage"), combinedStats.weeklyCompletionPercentage))
                             .font(.title3.bold())
                             .foregroundStyle(.primary)
                     }

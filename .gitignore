@@ -100,9 +100,14 @@ iOSInjectionProject/
 # Build logs
 build.log
 build_fresh.log
+build_*.log
 
 # Backup files
 *.backup
+
+# Temporary scripts
+AppIconGenerator.swift
+GenerateAppIcons.swift
 
 # Python
 __pycache__/

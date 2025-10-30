@@ -8,6 +8,19 @@
 import Foundation
 import FoundationModels
 
+// MARK: - Friend AI Error
+
+enum FriendAIError: LocalizedError {
+    case premiumOnly
+
+    var errorDescription: String? {
+        switch self {
+        case .premiumOnly:
+            return "Friend AI önerileri sadece Premium üyeler için kullanılabilir."
+        }
+    }
+}
+
 @available(iOS 26.0, *)
 @Observable
 class FriendAIService {
@@ -62,6 +75,12 @@ class FriendAIService {
 
     /// Arkadaş bilgilerine göre akıllı öneri oluşturur
     func generateSuggestion(for friend: Friend) async throws -> String {
+        // Premium-only check
+        let purchaseManager = PurchaseManager.shared
+        guard purchaseManager.isPremium else {
+            throw FriendAIError.premiumOnly
+        }
+
         let session = createSession()
 
         let prompt = buildPrompt(for: friend)
@@ -78,6 +97,12 @@ class FriendAIService {
 
     /// Mesaj taslağı oluşturur
     func generateMessageDraft(for friend: Friend, context: MessageContext = .general) async throws -> String {
+        // Premium-only check
+        let purchaseManager = PurchaseManager.shared
+        guard purchaseManager.isPremium else {
+            throw FriendAIError.premiumOnly
+        }
+
         let session = createSession()
 
         let prompt = buildMessagePrompt(for: friend, context: context)
@@ -95,6 +120,13 @@ class FriendAIService {
     func streamSuggestion(for friend: Friend) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             Task {
+                // Premium-only check
+                let purchaseManager = PurchaseManager.shared
+                guard purchaseManager.isPremium else {
+                    continuation.finish(throwing: FriendAIError.premiumOnly)
+                    return
+                }
+
                 let session = createSession()
                 let prompt = buildPrompt(for: friend)
 

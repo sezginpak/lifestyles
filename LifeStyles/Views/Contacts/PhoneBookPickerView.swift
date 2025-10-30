@@ -220,6 +220,9 @@ struct AddContactFromPhoneBookView: View {
     @State private var relationshipStartDate: Date = Date()
     @State private var anniversaryDate: Date = Date()
 
+    // Duplicate error
+    @State private var showDuplicateError: Bool = false
+
     var fullName: String {
         let name = "\(contact.givenName) \(contact.familyName)".trimmingCharacters(in: .whitespaces)
         return name.isEmpty ? "İsimsiz Kişi" : name
@@ -243,7 +246,7 @@ struct AddContactFromPhoneBookView: View {
 
                     if let phone = phoneNumber {
                         HStack {
-                            Text("Telefon")
+                            Text(String(localized: "common.phone", comment: "Phone"))
                                 .foregroundStyle(.secondary)
                             Spacer()
                             Text(phone)
@@ -271,7 +274,7 @@ struct AddContactFromPhoneBookView: View {
                         DatePicker("İlişki Başlangıcı", selection: $relationshipStartDate, displayedComponents: .date)
                         DatePicker("Yıldönümü Tarihi", selection: $anniversaryDate, displayedComponents: .date)
                     } header: {
-                        Text("Partner Bilgileri")
+                        Text(String(localized: "partner.info", comment: "Partner Information"))
                     } footer: {
                         Text(String(localized: "friend.partner.details.footer", comment: "You can add love language and other details later"))
                     }
@@ -307,7 +310,7 @@ struct AddContactFromPhoneBookView: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Ekle") {
-                        viewModel.addFriendFromPhoneBook(
+                        let success = viewModel.addFriendFromPhoneBook(
                             contact,
                             frequency: selectedFrequency,
                             isImportant: isImportant,
@@ -316,18 +319,28 @@ struct AddContactFromPhoneBookView: View {
                             anniversaryDate: relationshipType == .partner ? anniversaryDate : nil
                         )
 
-                        // Notları manuel ekle
-                        if !notes.isEmpty, let addedFriend = viewModel.friends.first(where: {
-                            $0.name == fullName
-                        }) {
-                            addedFriend.notes = notes
-                        }
+                        if success {
+                            // Notları manuel ekle
+                            if !notes.isEmpty, let addedFriend = viewModel.friends.first(where: {
+                                $0.name == fullName
+                            }) {
+                                addedFriend.notes = notes
+                            }
 
-                        HapticFeedback.success()
-                        onComplete()
+                            HapticFeedback.success()
+                            onComplete()
+                        } else {
+                            showDuplicateError = true
+                            HapticFeedback.error()
+                        }
                     }
                     .fontWeight(.semibold)
                 }
+            }
+            .alert("Duplicate Arkadaş", isPresented: $showDuplicateError) {
+                Button("Tamam", role: .cancel) { }
+            } message: {
+                Text(String(localized: "friends.already.exists", comment: "Friend already exists validation"))
             }
         }
     }

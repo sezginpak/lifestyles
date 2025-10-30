@@ -9,6 +9,19 @@ import Foundation
 import FoundationModels
 import CoreLocation
 
+// MARK: - Activity AI Error
+
+enum ActivityAIError: LocalizedError {
+    case limitReached
+
+    var errorDescription: String? {
+        switch self {
+        case .limitReached:
+            return "Günlük aktivite önerisi limitinize ulaştınız. Premium üyelikle sınırsız öneri alabilirsiniz."
+        }
+    }
+}
+
 @available(iOS 26.0, *)
 @Observable
 class ActivityAIService {
@@ -38,6 +51,15 @@ class ActivityAIService {
         userGoals: [Goal] = [],
         recentActivities: [ActivitySuggestion] = []
     ) async throws -> ActivityRecommendation {
+        // Premium & Usage check
+        let purchaseManager = PurchaseManager.shared
+        let usageManager = AIUsageManager.shared
+        let isPremium = purchaseManager.isPremium
+
+        guard usageManager.canGetActivitySuggestion(isPremium: isPremium) else {
+            throw ActivityAIError.limitReached
+        }
+
         let session = createSession()
         let prompt = buildActivityPrompt(
             location: location,
@@ -52,6 +74,10 @@ class ActivityAIService {
                 to: prompt,
                 generating: ActivityRecommendation.self
             )
+
+            // Track usage
+            usageManager.trackActivitySuggestion()
+
             return response.content
         } catch {
             print("❌ Aktivite AI hatası: \(error)")
@@ -61,12 +87,25 @@ class ActivityAIService {
 
     /// Spesifik aktivite tipi için öneri
     func suggestActivity(type: ActivityType, context: String = "") async throws -> String {
+        // Premium & Usage check
+        let purchaseManager = PurchaseManager.shared
+        let usageManager = AIUsageManager.shared
+        let isPremium = purchaseManager.isPremium
+
+        guard usageManager.canGetActivitySuggestion(isPremium: isPremium) else {
+            throw ActivityAIError.limitReached
+        }
+
         let session = createSession()
 
         let prompt = buildActivitySuggestionPrompt(type: type, context: context)
 
         do {
             let response = try await session.respond(to: prompt)
+
+            // Track usage
+            usageManager.trackActivitySuggestion()
+
             return response.content
         } catch {
             print("❌ Aktivite önerisi hatası: \(error)")

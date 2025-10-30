@@ -83,6 +83,8 @@ struct GlassCardModifier: ViewModifier {
     var opacity: Double = 0.2
     var blurRadius: CGFloat = 10
     var cornerRadius: CGFloat = 20
+    var borderColor: Color?
+    var borderWidth: CGFloat = 1
 
     func body(content: Content) -> some View {
         content
@@ -94,7 +96,7 @@ struct GlassCardModifier: ViewModifier {
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(tintColor.opacity(0.2), lineWidth: 1)
+                    .stroke(borderColor ?? tintColor.opacity(0.2), lineWidth: borderWidth)
             )
     }
 }
@@ -321,13 +323,17 @@ extension View {
         tintColor: Color = .white,
         opacity: Double = 0.2,
         blurRadius: CGFloat = 10,
-        cornerRadius: CGFloat = 20
+        cornerRadius: CGFloat = 20,
+        borderColor: Color? = nil,
+        borderWidth: CGFloat = 1
     ) -> some View {
         modifier(GlassCardModifier(
             tintColor: tintColor,
             opacity: opacity,
             blurRadius: blurRadius,
-            cornerRadius: cornerRadius
+            cornerRadius: cornerRadius,
+            borderColor: borderColor,
+            borderWidth: borderWidth
         ))
     }
 
@@ -352,6 +358,30 @@ extension View {
 
     func gradientText(gradient: LinearGradient = .primaryGradient) -> some View {
         modifier(GradientTextModifier(gradient: gradient))
+    }
+
+    func metadataText() -> some View {
+        self
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+    }
+
+    func cardTitle() -> some View {
+        self
+            .font(.headline)
+            .fontWeight(.bold)
+            .foregroundStyle(.primary)
+    }
+
+    func secondaryText() -> some View {
+        self
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+    }
+
+    func cardShadow(radius: CGFloat = 8, y: CGFloat = 4) -> some View {
+        self
+            .shadow(color: .black.opacity(0.1), radius: radius, x: 0, y: y)
     }
 
     // Input Styles
@@ -390,6 +420,25 @@ extension View {
             opacity: opacity,
             cornerRadius: cornerRadius
         ))
+    }
+
+    /// Glassmorphism card efekti - Alias for glassCard
+    func glassmorphismCard(
+        tintColor: Color = .white,
+        opacity: Double = 0.2,
+        blurRadius: CGFloat = 10,
+        cornerRadius: CGFloat = 20,
+        borderColor: Color? = nil,
+        borderWidth: CGFloat = 1
+    ) -> some View {
+        glassCard(
+            tintColor: tintColor,
+            opacity: opacity,
+            blurRadius: blurRadius,
+            cornerRadius: cornerRadius,
+            borderColor: borderColor,
+            borderWidth: borderWidth
+        )
     }
 
     /// Gelişmiş smooth animasyon

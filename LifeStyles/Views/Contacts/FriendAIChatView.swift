@@ -13,9 +13,15 @@ struct FriendAIChatView: View {
     @Environment(\.modelContext) private var modelContext
 
     let friend: Friend?  // Optional - nil ise genel mod
+    let existingConversation: ChatConversation?  // Existing conversation to load
+
     @Binding var chatMessages: [ChatMessage]
     @Binding var userInput: String
     @Binding var isGeneratingAI: Bool
+
+    // Conversation management
+    @State private var conversation: ChatConversation?
+    @State private var hasGeneratedTitle = false
 
     // AI Services
     @State private var chatService = ChatHaikuService.shared
@@ -27,11 +33,28 @@ struct FriendAIChatView: View {
     @State private var showPaywall = false
     @State private var showDataUsageInfo = false
     @State private var showAIDisabledAlert = false
+    @State private var showHistorySheet = false
     @FocusState private var isInputFocused: Bool
 
     // Genel mod mu?
     var isGeneralMode: Bool {
         friend == nil
+    }
+
+    // MARK: - Initializer
+
+    init(
+        friend: Friend? = nil,
+        existingConversation: ChatConversation? = nil,
+        chatMessages: Binding<[ChatMessage]> = .constant([]),
+        userInput: Binding<String> = .constant(""),
+        isGeneratingAI: Binding<Bool> = .constant(false)
+    ) {
+        self.friend = friend
+        self.existingConversation = existingConversation
+        self._chatMessages = chatMessages
+        self._userInput = userInput
+        self._isGeneratingAI = isGeneratingAI
     }
 
     var body: some View {
@@ -114,27 +137,47 @@ struct FriendAIChatView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
+                    HStack(spacing: 12) {
+                        // History button
                         Button {
-                            clearChat()
+                            showHistorySheet = true
                         } label: {
-                            Label(String(localized: "ai.chat.clear", comment: "Clear Chat"), systemImage: "trash")
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.body)
                         }
 
-                        Button {
-                            shareChat()
+                        // Menu
+                        Menu {
+                            Button {
+                                clearChat()
+                            } label: {
+                                Label(String(localized: "ai.chat.clear", comment: "Clear Chat"), systemImage: "trash")
+                            }
+
+                            Button {
+                                shareChat()
+                            } label: {
+                                Label(String(localized: "ai.chat.share", comment: "Share Chat"), systemImage: "square.and.arrow.up")
+                            }
                         } label: {
-                            Label(String(localized: "ai.chat.share", comment: "Share Chat"), systemImage: "square.and.arrow.up")
+                            Image(systemName: "ellipsis.circle")
                         }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
                     }
                 }
             }
             .onAppear {
+                // Load or create conversation
+                loadOrCreateConversation()
+
                 // Auto-focus input on appear
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     isInputFocused = true
+                }
+            }
+            .onDisappear {
+                // Generate title if needed
+                Task {
+                    await generateTitleIfNeeded()
                 }
             }
             .sheet(isPresented: $showPaywall) {
@@ -142,6 +185,9 @@ struct FriendAIChatView: View {
             }
             .sheet(isPresented: $showDataUsageInfo) {
                 DataUsageInfoSheet()
+            }
+            .sheet(isPresented: $showHistorySheet) {
+                ChatHistoryView()
             }
             .alert(String(localized: "ai.features.disabled", comment: "AI Features Disabled"), isPresented: $showAIDisabledAlert) {
                 Button(String(localized: "common.go.to.settings", comment: "Go to Settings")) {
@@ -305,6 +351,9 @@ struct FriendAIChatView: View {
             chatMessages.append(userMessage)
         }
 
+        // Save to conversation
+        saveMessageToConversation(userMessage)
+
         let question = userInput
         userInput = ""
         isGeneratingAI = true
@@ -336,6 +385,10 @@ struct FriendAIChatView: View {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     chatMessages.append(aiMessage)
                 }
+
+                // Save to conversation
+                saveMessageToConversation(aiMessage)
+
                 HapticFeedback.success()
                 isGeneratingAI = false
             }
@@ -567,6 +620,100 @@ struct FriendAIChatView: View {
         Önceki sohbet:
         \(contextLines.joined(separator: "\n"))
         """
+    }
+
+    // MARK: - Conversation Management
+
+    /// Load existing conversation (don't create until first message)
+    private func loadOrCreateConversation() {
+        if let existing = existingConversation {
+            // Load from existing conversation
+            conversation = existing
+
+            // Load messages from conversation
+            if let messages = existing.messages {
+                chatMessages = messages.sorted(by: { $0.timestamp < $1.timestamp })
+            }
+
+            print("✅ Loaded existing conversation: \(existing.title) with \(chatMessages.count) messages")
+        } else {
+            // Don't create conversation yet - wait for first message
+            print("ℹ️ No existing conversation - will create on first message")
+        }
+    }
+
+    /// Create conversation on first message
+    private func createConversationIfNeeded() {
+        guard conversation == nil else { return }
+
+        let newConversation = ChatConversation(
+            title: "Yeni Sohbet",
+            friendId: friend?.id,
+            friendName: friend?.name,
+            isGeneralMode: isGeneralMode,
+            isFavorite: false,
+            isPinned: false,
+            hasAITitle: false
+        )
+
+        modelContext.insert(newConversation)
+        conversation = newConversation
+
+        print("✅ Created new conversation on first message")
+    }
+
+    /// Save message to current conversation
+    private func saveMessageToConversation(_ message: ChatMessage) {
+        // Create conversation on first message
+        createConversationIfNeeded()
+
+        guard let conv = conversation else {
+            print("⚠️ Failed to create conversation")
+            return
+        }
+
+        // Set conversation relationship
+        message.conversation = conv
+
+        // Insert message to context
+        modelContext.insert(message)
+
+        // Add to conversation
+        conv.addMessage(message)
+
+        // Save context
+        try? modelContext.save()
+
+        print("💾 Saved message to conversation: \(conv.title)")
+    }
+
+    /// Generate AI title if conversation is new and has messages
+    private func generateTitleIfNeeded() async {
+        guard let conv = conversation else { return }
+
+        // Skip if already has AI-generated title
+        if conv.hasAITitle || hasGeneratedTitle {
+            return
+        }
+
+        // Skip if no messages
+        guard let messages = conv.messages, messages.count >= 2 else {
+            return
+        }
+
+        print("🤖 Generating AI title for conversation...")
+
+        // Generate title
+        let title = await ChatTitleGenerator.shared.generateTitle(from: conv)
+
+        // Update conversation
+        await MainActor.run {
+            conv.updateTitle(title, isAIGenerated: true)
+            try? modelContext.save()
+            hasGeneratedTitle = true
+
+            print("✅ AI title generated: \(title)")
+        }
     }
 }
 

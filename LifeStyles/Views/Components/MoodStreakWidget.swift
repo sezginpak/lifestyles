@@ -121,7 +121,7 @@ struct MoodStreakWidget: View {
     private func nextBadgeProgress(daysRemaining: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Sonraki rozet")
+                Text(String(localized: "mood.next.badge", comment: "Next badge"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
 

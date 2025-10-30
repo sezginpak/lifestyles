@@ -112,7 +112,7 @@ struct EnhancedActivityCard: View {
                         Image(systemName: "star.circle.fill")
                             .font(.caption2)
                             .foregroundStyle(.orange)
-                        Text("\(activity.calculatedPoints) puan")
+                        Text(String(format: NSLocalizedString("location.points", comment: "Points"), activity.calculatedPoints))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -172,79 +172,151 @@ struct EnhancedActivityCard: View {
     }
 }
 
-// MARK: - Activity Stats Card
+// MARK: - Activity Stats Card (Modern & Minimal)
 
 struct ActivityStatsCard: View {
     let stats: ActivityStats
+    @State private var animateGradient = false
 
     var body: some View {
-        VStack(spacing: 16) {
-            // Header
-            HStack {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(.brandPrimary)
-                Text(String(localized: "activity.my.stats", comment: "My statistics"))
-                    .font(.headline)
-                    .fontWeight(.bold)
-                Spacer()
+        VStack(spacing: 12) {
+            // Compact Stats Row
+            HStack(spacing: 10) {
+                // Streak
+                CompactStatCard(
+                    icon: "flame.fill",
+                    value: "\(stats.currentStreak)",
+                    label: "Streak",
+                    gradient: [.orange, .red]
+                )
+
+                // Points
+                CompactStatCard(
+                    icon: "star.fill",
+                    value: "\(stats.totalPoints)",
+                    label: "Puan",
+                    gradient: [.yellow, .orange]
+                )
+
+                // Level
+                CompactStatCard(
+                    icon: "arrow.up.circle.fill",
+                    value: "Lv\(stats.currentLevel)",
+                    label: "Seviye",
+                    gradient: [.purple, .pink]
+                )
             }
 
-            // Stats Grid
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                StatItem(icon: "flame.fill", value: "\(stats.currentStreak)", label: "Streak", color: .orange)
-                StatItem(icon: "star.fill", value: "\(stats.totalPoints)", label: "Puan", color: .yellow)
-                StatItem(icon: "arrow.up.circle.fill", value: "Lv\(stats.currentLevel)", label: "Seviye", color: .purple)
-            }
+            // Compact Level Progress
+            VStack(spacing: 6) {
+                HStack(spacing: 4) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.caption2)
+                        .foregroundStyle(.purple)
 
-            // Level Progress
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("Seviye \(stats.currentLevel)")
-                        .font(.caption)
-                        .fontWeight(.semibold)
+                    Text(String(format: NSLocalizedString("location.level.format", comment: "Level"), stats.currentLevel))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+
                     Spacer()
+
                     Text(String(format: NSLocalizedString("activity.points.remaining.format", comment: "X points remaining"), stats.pointsForNextLevel))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
+                // Minimal progress bar
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.purple.opacity(0.15))
-                            .frame(height: 8)
+                        Capsule()
+                            .fill(Color.purple.opacity(0.1))
+                            .frame(height: 6)
 
-                        RoundedRectangle(cornerRadius: 8)
+                        Capsule()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.purple, Color.pink],
+                                    colors: animateGradient ? [Color.purple, Color.pink] : [Color.pink, Color.purple],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
-                            .frame(width: max(0, min(1, stats.levelProgress)) * geometry.size.width, height: 8)
+                            .frame(width: max(0, min(1, stats.levelProgress)) * geometry.size.width, height: 6)
                     }
                 }
-                .frame(height: 8)
+                .frame(height: 6)
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
         }
-        .padding()
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(
                             LinearGradient(
-                                colors: [Color.purple.opacity(0.3), Color.pink.opacity(0.3)],
+                                colors: [Color.purple.opacity(0.2), Color.pink.opacity(0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
-                            lineWidth: 1.5
+                            lineWidth: 1
                         )
                 )
         )
-        .shadow(color: Color.purple.opacity(0.1), radius: 12, x: 0, y: 4)
+        .shadow(color: Color.purple.opacity(0.08), radius: 8, x: 0, y: 3)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                animateGradient = true
+            }
+        }
+    }
+}
+
+// MARK: - Compact Stat Card
+
+struct CompactStatCard: View {
+    let icon: String
+    let value: String
+    let label: String
+    let gradient: [Color]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: gradient,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Text(value)
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.primary)
+
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: gradient.map { $0.opacity(0.1) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
     }
 }
 
@@ -405,7 +477,7 @@ struct TimeFilterChips: View {
     }
 }
 
-// MARK: - Badge Showcase Card
+// MARK: - Badge Showcase Card (Compact & Modern)
 
 struct BadgeShowcaseCard: View {
     let badges: [Badge]
@@ -427,68 +499,155 @@ struct BadgeShowcaseCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Header
-            HStack {
+        VStack(spacing: 12) {
+            // Compact Header
+            HStack(spacing: 8) {
                 Image(systemName: "trophy.fill")
+                    .font(.callout)
                     .foregroundStyle(.yellow)
-                Text("Rozetler")
-                    .font(.headline)
-                    .fontWeight(.bold)
+
+                Text(String(localized: "location.badges", comment: "Badges"))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.primary)
+
                 Spacer()
-                Text("\(badges.filter { $0.isEarned }.count)/\(badges.count)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                Text(String(format: NSLocalizedString("location.badges.count", comment: "Badges count earned/total"), badges.filter { $0.isEarned }.count, badges.count))
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        LinearGradient(
+                            colors: [.yellow, .orange],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(Capsule())
             }
 
+            // Badges Row (Horizontal)
             if !recentBadges.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(String(localized: "activity.badges.recent", comment: "Recently earned badges"))
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-
-                    HStack(spacing: 12) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
                         ForEach(recentBadges) { badge in
-                            BadgeItem(badge: badge, size: .medium)
+                            CompactBadgeItem(badge: badge)
                         }
-                        Spacer()
                     }
                 }
             }
 
+            // Upcoming (Compact)
             if !upcomingBadges.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(String(localized: "activity.badges.upcoming", comment: "Upcoming badges"))
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-
-                    VStack(spacing: 8) {
-                        ForEach(upcomingBadges) { badge in
-                            UpcomingBadgeRow(badge: badge)
-                        }
+                VStack(spacing: 6) {
+                    ForEach(upcomingBadges) { badge in
+                        CompactUpcomingBadgeRow(badge: badge)
                     }
                 }
             }
         }
-        .padding()
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(
                             LinearGradient(
-                                colors: [Color.yellow.opacity(0.3), Color.orange.opacity(0.3)],
+                                colors: [Color.yellow.opacity(0.2), Color.orange.opacity(0.2)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
-                            lineWidth: 1.5
+                            lineWidth: 1
                         )
                 )
         )
-        .shadow(color: Color.yellow.opacity(0.1), radius: 12, x: 0, y: 4)
+        .shadow(color: Color.yellow.opacity(0.08), radius: 8, x: 0, y: 3)
+    }
+}
+
+// MARK: - Compact Badge Item
+
+struct CompactBadgeItem: View {
+    let badge: Badge
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: badge.isEarned ?
+                                [Color.yellow, Color.orange] :
+                                [Color.gray.opacity(0.3), Color.gray.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+
+                Image(systemName: badge.iconName)
+                    .font(.title3)
+                    .foregroundStyle(badge.isEarned ? .white : .gray)
+            }
+
+            Text(badge.title)
+                .font(.caption2)
+                .fontWeight(.medium)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .frame(width: 60)
+        }
+    }
+}
+
+// MARK: - Compact Upcoming Badge Row
+
+struct CompactUpcomingBadgeRow: View {
+    let badge: Badge
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 32, height: 32)
+
+                Image(systemName: badge.iconName)
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(badge.title)
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+
+                // Mini Progress bar
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 4)
+
+                        Capsule()
+                            .fill(Color.yellow)
+                            .frame(width: max(0, min(1, badge.progressPercentage)) * geometry.size.width, height: 4)
+                    }
+                }
+                .frame(height: 4)
+
+                Text(badge.progressText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(8)
+        .background(Color.gray.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -586,16 +745,15 @@ struct UpcomingBadgeRow: View {
     }
 }
 
-// MARK: - Streak Card
+// MARK: - Streak Card (Compact & Modern)
 
 struct StreakCard: View {
     let currentStreak: Int
-
     @State private var isAnimating = false
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Flame Icon
+        HStack(spacing: 12) {
+            // Compact Flame Icon
             ZStack {
                 Circle()
                     .fill(
@@ -605,43 +763,54 @@ struct StreakCard: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 60, height: 60)
-                    .glowEffect(color: .orange, radius: 10)
+                    .frame(width: 50, height: 50)
 
                 Text("🔥")
-                    .font(.largeTitle)
+                    .font(.title2)
                     .scaleEffect(isAnimating ? 1.1 : 1.0)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(String(format: NSLocalizedString("activity.streak.days.format", comment: "X Day Streak!"), currentStreak))
-                    .font(.title3)
-                    .fontWeight(.bold)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(String(format: NSLocalizedString("activity.streak.days.format", comment: "X Day Streak!"), currentStreak))
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.orange, .red],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                }
 
                 Text(streakMessage)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
         }
-        .padding()
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(
                             LinearGradient(
-                                colors: [Color.orange.opacity(0.4), Color.red.opacity(0.4)],
+                                colors: [Color.orange.opacity(0.3), Color.red.opacity(0.3)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
-                            lineWidth: 2
+                            lineWidth: 1
                         )
                 )
         )
-        .shadow(color: Color.orange.opacity(0.15), radius: 12, x: 0, y: 4)
+        .shadow(color: Color.orange.opacity(0.1), radius: 8, x: 0, y: 3)
         .onAppear {
             withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 isAnimating = true

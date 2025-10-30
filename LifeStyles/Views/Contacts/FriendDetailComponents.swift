@@ -407,7 +407,7 @@ struct LoveLanguageSummaryCard: View {
                 HStack {
                     Text(loveLanguage.emoji)
                         .font(.title2)
-                    Text("Sevgi Dili")
+                    Text(String(localized: "friends.love.language", comment: "Love Language"))
                         .font(.caption)
                         .fontWeight(.semibold)
                     Spacer()
@@ -515,7 +515,7 @@ struct SharedInterestsView: View {
                 // Activities
                 if !activities.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Favori Aktiviteler")
+                        Text(String(localized: "friends.favorite.activities", comment: "Favorite Activities"))
                             .font(.caption2)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)

@@ -204,25 +204,41 @@ class SettingsViewModel {
 
     // MARK: - İstatistikleri Hesapla
 
-    func calculateStatistics(context: ModelContext) {
+    @MainActor
+    func calculateStatistics(context: ModelContext) async {
+        // Async yapıp yield vererek UI'ı bloke etmeden hesapla
+        await Task.yield()
+
         // Arkadaşlar
         let friendsDescriptor = FetchDescriptor<Friend>()
-        totalFriends = (try? context.fetch(friendsDescriptor).count) ?? 0
+        let friendsCount = (try? context.fetch(friendsDescriptor).count) ?? 0
+
+        await Task.yield()
 
         // Konum kayıtları
         let logsDescriptor = FetchDescriptor<LocationLog>()
-        totalLocationLogs = (try? context.fetch(logsDescriptor).count) ?? 0
+        let logsCount = (try? context.fetch(logsDescriptor).count) ?? 0
+
+        await Task.yield()
 
         // Hedefler
         let goalsDescriptor = FetchDescriptor<Goal>()
-        totalGoals = (try? context.fetch(goalsDescriptor).count) ?? 0
+        let goalsCount = (try? context.fetch(goalsDescriptor).count) ?? 0
+
+        await Task.yield()
 
         // Alışkanlıklar
         let habitsDescriptor = FetchDescriptor<Habit>()
-        totalHabits = (try? context.fetch(habitsDescriptor).count) ?? 0
+        let habitsCount = (try? context.fetch(habitsDescriptor).count) ?? 0
+
+        // UI güncelle
+        totalFriends = friendsCount
+        totalLocationLogs = logsCount
+        totalGoals = goalsCount
+        totalHabits = habitsCount
 
         // Depolama hesapla (yaklaşık)
-        let totalItems = totalFriends + totalLocationLogs + totalGoals + totalHabits
+        let totalItems = friendsCount + logsCount + goalsCount + habitsCount
         let estimatedSize = Double(totalItems) * 0.5 // Yaklaşık 0.5 KB per item
         storageUsed = String(format: "%.1f MB", estimatedSize / 1024)
     }

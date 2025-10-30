@@ -37,7 +37,7 @@ struct OnboardingView: View {
                                 isOnboardingComplete = true
                             }
                         } label: {
-                            Text("Atla")
+                            Text(String(localized: "onboarding.skip", comment: "Skip"))
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.secondary)
@@ -148,7 +148,7 @@ struct OnboardingView: View {
                                     viewModel.nextPage()
                                 }
                             } label: {
-                                Text("Daha Sonra")
+                                Text(String(localized: "onboarding.later", comment: "Later"))
                             }
                             .buttonStyle(SecondaryButtonStyle())
                         }
@@ -309,7 +309,7 @@ struct OnboardingAIConsentSheet: View {
 
                     // Privacy
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("🔒 Gizlilik")
+                        Text(String(localized: "onboarding.privacy", comment: "Privacy"))
                             .font(.headline)
 
                         VStack(alignment: .leading, spacing: 8) {

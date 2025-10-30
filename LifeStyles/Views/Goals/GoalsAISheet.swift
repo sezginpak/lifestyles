@@ -178,7 +178,7 @@ struct HabitRow: View {
                     HStack(spacing: 2) {
                         Image(systemName: "chart.bar.fill")
                             .font(.caption2)
-                        Text("Bu hafta")
+                        Text(String(localized: "goals.this.week", comment: "This Week"))
                             .font(.caption)
                     }
                     .foregroundStyle(.secondary)

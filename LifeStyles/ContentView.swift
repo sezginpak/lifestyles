@@ -16,16 +16,18 @@ struct ContentView: View {
         case dashboard = 0
         case contacts = 1
         case moodJournal = 2
-        case location = 3
-        case goals = 4
-        case settings = 5
+        case memories = 3
+        case activities = 4
+        case goals = 5
+        case settings = 6
 
         var title: String {
             switch self {
             case .dashboard: return String(localized: "tab.dashboard", comment: "Dashboard tab title")
             case .contacts: return String(localized: "tab.contacts", comment: "Contacts/Friends tab title")
             case .moodJournal: return "Mood"
-            case .location: return String(localized: "tab.location", comment: "Location/Activity tab title")
+            case .memories: return "Anılar"
+            case .activities: return "Aktivite"
             case .goals: return String(localized: "tab.goals", comment: "Goals tab title")
             case .settings: return String(localized: "tab.settings", comment: "Settings tab title")
             }
@@ -36,7 +38,8 @@ struct ContentView: View {
             case .dashboard: return "house.fill"
             case .contacts: return "person.2.fill"
             case .moodJournal: return "face.smiling"
-            case .location: return "location.fill"
+            case .memories: return "photo.on.rectangle.angled"
+            case .activities: return "figure.walk"
             case .goals: return "target"
             case .settings: return "gearshape.fill"
             }
@@ -47,7 +50,8 @@ struct ContentView: View {
             case .dashboard: return .brandPrimary
             case .contacts: return .cardCommunication
             case .moodJournal: return .purple
-            case .location: return .cardActivity
+            case .memories: return .teal
+            case .activities: return .cardActivity
             case .goals: return .cardGoals
             case .settings: return .textSecondary
             }
@@ -74,10 +78,16 @@ struct ContentView: View {
                     Label(Tab.moodJournal.title, systemImage: Tab.moodJournal.icon)
                 }
 
-            LocationView()
-                .tag(Tab.location)
+            MemoriesView()
+                .tag(Tab.memories)
                 .tabItem {
-                    Label(Tab.location.title, systemImage: Tab.location.icon)
+                    Label(Tab.memories.title, systemImage: Tab.memories.icon)
+                }
+
+            LocationView()
+                .tag(Tab.activities)
+                .tabItem {
+                    Label(Tab.activities.title, systemImage: Tab.activities.icon)
                 }
 
             GoalsViewNew()

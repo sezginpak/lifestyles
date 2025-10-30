@@ -20,7 +20,7 @@ struct LoveLanguageDetailCard: View {
                 // Header
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Sevgi Dili")
+                        Text(String(localized: "friends.love.language", comment: "Love Language"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
 

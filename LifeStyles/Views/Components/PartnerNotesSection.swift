@@ -107,7 +107,7 @@ struct PartnerNotesSection: View {
                     Button {
                         showingAddNote = true
                     } label: {
-                        Text("Not Ekle")
+                        Text(String(localized: "notes.add", comment: "Add Note"))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .padding(.horizontal, 16)
@@ -273,7 +273,7 @@ struct AddPartnerNoteView: View {
                     TextEditor(text: $content)
                         .frame(height: 120)
                 } header: {
-                    Text("Not")
+                    Text(String(localized: "common.note", comment: "Note"))
                 } footer: {
                     Text(String(localized: "partner.notes.placeholder", comment: "Write information you want to remember about your partner here"))
                 }

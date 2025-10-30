@@ -10,6 +10,7 @@ import Foundation
 import SwiftData
 
 @Observable
+@MainActor
 class MoodJournalViewModel {
     // Services
     private let analyticsService = MoodAnalyticsService.shared
@@ -20,8 +21,9 @@ class MoodJournalViewModel {
 
     // State - Mood
     var moodEntries: [MoodEntry] = []
-    var todaysMood: MoodEntry?
+    var todaysMoods: [MoodEntry] = [] // Gün içindeki tüm mood'lar
     var selectedDate: Date = Date()
+    var editingMoodEntry: MoodEntry? // Düzenleme için
 
     // State - Journal
     var journalEntries: [JournalEntry] = []
@@ -50,6 +52,7 @@ class MoodJournalViewModel {
     var selectedTab: Tab = .mood
     var showingJournalEditor: Bool = false
     var editingJournalEntry: JournalEntry?
+    var selectedJournalForDetail: JournalEntry? // Detay görüntüleme için
 
     enum Tab: String, CaseIterable {
         case mood = "Mood"
@@ -72,7 +75,7 @@ class MoodJournalViewModel {
         loadMoodEntries(context: context)
         loadJournalEntries(context: context)
         loadAnalytics(context: context)
-        checkTodaysMood()
+        loadTodaysMoods()
     }
 
     /// Mood entry'leri yükle
@@ -137,14 +140,39 @@ class MoodJournalViewModel {
         print("✅ Analytics loaded (streak: \(streakData.currentStreak), locations: \(locationCorrelations.count))")
     }
 
-    /// Bugünün mood'u var mı kontrol et
-    private func checkTodaysMood() {
-        todaysMood = moodEntries.first(where: { $0.isToday })
+    /// Bugünün tüm mood'larını yükle
+    private func loadTodaysMoods() {
+        todaysMoods = moodEntries.filter { $0.isToday }
+            .sorted { $0.date > $1.date } // En yeni önce
+        print("✅ Loaded \(todaysMoods.count) moods for today")
+    }
+
+    /// En son kaydedilen mood (computed property)
+    var currentMood: MoodEntry? {
+        todaysMoods.first
+    }
+
+    /// Yeni mood eklenebilir mi? (günde max 5)
+    var canAddMood: Bool {
+        todaysMoods.count < 5
+    }
+
+    /// Bugünün ortalama mood skoru
+    var todaysMoodAverage: Double {
+        guard !todaysMoods.isEmpty else { return 0.0 }
+        let totalScore = todaysMoods.reduce(0.0) { $0 + $1.score }
+        return totalScore / Double(todaysMoods.count)
+    }
+
+    /// Bugünün mood emoji'si (en yaygın mood)
+    var todaysMoodEmoji: String {
+        guard let currentMood = currentMood else { return "😊" }
+        return currentMood.moodType.emoji
     }
 
     // MARK: - Mood Operations
 
-    /// Yeni mood kaydet
+    /// Yeni mood kaydet (günde max 5)
     func logMood(
         moodType: MoodType,
         intensity: Int,
@@ -152,6 +180,13 @@ class MoodJournalViewModel {
         relatedLocation: LocationLog? = nil,
         context: ModelContext
     ) {
+        // Günde max 5 kontrol
+        guard canAddMood else {
+            print("⚠️ Cannot add mood: Daily limit reached (5)")
+            HapticFeedback.warning()
+            return
+        }
+
         let entry = MoodEntry(
             moodType: moodType,
             intensity: intensity,
@@ -167,7 +202,7 @@ class MoodJournalViewModel {
 
             // State güncelle
             moodEntries.insert(entry, at: 0)
-            todaysMood = entry
+            loadTodaysMoods()
 
             // Analytics'i yeniden hesapla
             loadAnalytics(context: context)
@@ -176,6 +211,30 @@ class MoodJournalViewModel {
         } catch {
             print("❌ Failed to log mood: \(error)")
         }
+    }
+
+    /// Mood sil
+    func deleteMood(_ entry: MoodEntry, context: ModelContext) {
+        context.delete(entry)
+
+        do {
+            try context.save()
+            print("✅ Mood deleted")
+
+            // State güncelle
+            moodEntries.removeAll { $0.id == entry.id }
+            loadTodaysMoods()
+            loadAnalytics(context: context)
+
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to delete mood: \(error)")
+        }
+    }
+
+    /// Mood düzenleme modunu başlat
+    func startEditingMood(_ entry: MoodEntry) {
+        editingMoodEntry = entry
     }
 
     /// Mood güncelle
@@ -199,7 +258,9 @@ class MoodJournalViewModel {
         do {
             try context.save()
             print("✅ Mood updated")
+            loadTodaysMoods()
             loadAnalytics(context: context)
+            HapticFeedback.success()
         } catch {
             print("❌ Failed to update mood: \(error)")
         }
@@ -216,7 +277,7 @@ class MoodJournalViewModel {
         linkToTodaysMood: Bool = false,
         context: ModelContext
     ) {
-        let moodLink = linkToTodaysMood ? todaysMood : nil
+        let moodLink = linkToTodaysMood ? currentMood : nil
 
         journalService.createEntry(
             content: content,

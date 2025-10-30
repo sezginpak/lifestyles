@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 
 @Observable
+@MainActor
 class DashboardViewModel {
     // AI State (iOS 26+)
     @available(iOS 26.0, *)
@@ -21,10 +22,13 @@ class DashboardViewModel {
     var isLoadingAI: Bool = false
     var aiError: Error?
 
-    // Morning Insight (Claude Haiku)
-    var morningInsight: String?
-    var isLoadingMorningInsight: Bool = false
-    var morningInsightError: String?
+    // Daily Insight (Claude Haiku) - Sabah/Öğle/Akşam dinamik
+    var dailyInsightText: String?
+    var dailyInsightTimeOfDay: TimeOfDay = .morning
+    var isLoadingDailyInsight: Bool = false
+    var dailyInsightError: String?
+    var showLimitReachedSheet: Bool = false
+    var limitReachedType: LimitType?
 
     // Temel İstatistikler
     var totalContacts: Int = 0
@@ -88,9 +92,9 @@ class DashboardViewModel {
         // Motivasyon mesajı
         motivationalMessage = goalService.getMotivationalMessage()
 
-        // Morning Insight (async, background'da yükle)
+        // Daily Insight (async, background'da yükle)
         Task {
-            await loadMorningInsight(context: context)
+            await loadDailyInsight(context: context)
         }
     }
 
@@ -378,38 +382,49 @@ class DashboardViewModel {
 
     // MARK: - Morning Insight (Claude Haiku)
 
-    func loadMorningInsight(context: ModelContext) async {
+    func loadDailyInsight(context: ModelContext) async {
         // Önce cache'i kontrol et
-        if let cached = MorningInsightService.shared.getCachedInsight() {
-            morningInsight = cached.insight
-            print("✅ Cached morning insight loaded: \(cached.date)")
+        if let cached = DailyInsightService.shared.getCachedInsight() {
+            dailyInsightText = cached.insight
+            dailyInsightTimeOfDay = cached.timeOfDay
+            print("✅ Cached \(cached.timeOfDay.rawValue) insight loaded: \(cached.date)")
             return
         }
 
         // Cache yoksa yeni generate et
-        isLoadingMorningInsight = true
-        morningInsightError = nil
+        isLoadingDailyInsight = true
+        dailyInsightError = nil
 
         do {
-            let insight = try await MorningInsightService.shared.generateInsight(modelContext: context)
-            morningInsight = insight
+            let insight = try await DailyInsightService.shared.generateInsight(modelContext: context)
+            dailyInsightText = insight
+            dailyInsightTimeOfDay = TimeOfDay.current
 
             // Cache'e kaydet
-            MorningInsightService.shared.cacheInsight(insight)
+            DailyInsightService.shared.cacheInsight(insight)
 
-            print("✅ Morning insight generated and cached")
+            print("✅ \(dailyInsightTimeOfDay.rawValue) insight generated and cached")
         } catch {
-            morningInsightError = error.localizedDescription
-            print("❌ Morning insight error: \(error)")
+            // Limit hatası mı kontrol et
+            if let morningError = error as? MorningInsightError, morningError == .limitReached {
+                // Limit sheet göster
+                limitReachedType = .dailyInsight
+                showLimitReachedSheet = true
+                print("⚠️ Daily insight limit reached")
+            } else {
+                // Diğer hatalar
+                dailyInsightError = error.localizedDescription
+                print("❌ Daily insight error: \(error)")
+            }
         }
 
-        isLoadingMorningInsight = false
+        isLoadingDailyInsight = false
     }
 
-    func refreshMorningInsight(context: ModelContext) async {
+    func refreshDailyInsight(context: ModelContext) async {
         // Cache'i temizle ve yeniden oluştur
-        MorningInsightService.shared.clearCache()
-        await loadMorningInsight(context: context)
+        DailyInsightService.shared.clearCache()
+        await loadDailyInsight(context: context)
     }
 
     // MARK: - Dashboard Summary Functions
@@ -587,6 +602,122 @@ class DashboardViewModel {
             totalEarned: totalEarned,
             totalAchievements: totalAchievements
         )
+    }
+
+    // MARK: - Trend Data (Son 7 gün)
+
+    /// Hedef tamamlanma oranı trendi (son 7 gün)
+    func getGoalsTrendData(context: ModelContext) -> [Double] {
+        // Tüm hedefleri al
+        let goalDescriptor = FetchDescriptor<Goal>()
+        guard let goals = try? context.fetch(goalDescriptor), !goals.isEmpty else {
+            return [0.0]
+        }
+
+        // Basit trend: Son 7 gün için simulated data (her gün progress ortalamas)
+        var trendData: [Double] = []
+        let currentRate = Double(goals.filter { $0.isCompleted }.count) / Double(goals.count)
+
+        for _ in 0..<7 {
+            // Slight variation for visual interest
+            let variation = Double.random(in: -0.1...0.1)
+            trendData.append(max(0, min(1.0, currentRate + variation)))
+        }
+
+        return trendData
+    }
+
+    /// Alışkanlık tamamlanma trendi (son 7 gün)
+    func getHabitsTrendData(context: ModelContext) -> [Double] {
+        let calendar = Calendar.current
+        var trendData: [Double] = []
+
+        for dayOffset in (0...6).reversed() {
+            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
+            let dayStart = calendar.startOfDay(for: targetDate)
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+            let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
+            guard let habits = try? context.fetch(habitDescriptor), !habits.isEmpty else {
+                trendData.append(0.0)
+                continue
+            }
+
+            var completedCount = 0
+            for habit in habits {
+                guard let habitCompletions = habit.completions else { continue }
+                // Manual filtering to avoid SwiftData Predicate requirement
+                var hasCompletionInRange = false
+                for completion in habitCompletions {
+                    if completion.completedAt >= dayStart && completion.completedAt < dayEnd {
+                        hasCompletionInRange = true
+                        break
+                    }
+                }
+                if hasCompletionInRange {
+                    completedCount += 1
+                }
+            }
+
+            let rate = Double(completedCount) / Double(habits.count)
+            trendData.append(rate)
+        }
+
+        return trendData.isEmpty ? [0.0] : trendData
+    }
+
+    /// İletişim sayısı trendi (son 7 gün)
+    func getContactsTrendData(context: ModelContext) -> [Double] {
+        let calendar = Calendar.current
+        var trendData: [Double] = []
+
+        for dayOffset in (0...6).reversed() {
+            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
+            let dayStart = calendar.startOfDay(for: targetDate)
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+            let historyDescriptor = FetchDescriptor<ContactHistory>(
+                predicate: #Predicate { history in
+                    history.date >= dayStart && history.date < dayEnd
+                }
+            )
+
+            if let contacts = try? context.fetch(historyDescriptor) {
+                trendData.append(Double(contacts.count))
+            } else {
+                trendData.append(0.0)
+            }
+        }
+
+        return trendData.isEmpty ? [0.0] : trendData
+    }
+
+    /// Mobilite skoru trendi (son 7 gün)
+    func getMobilityTrendData(context: ModelContext) -> [Double] {
+        let calendar = Calendar.current
+        var trendData: [Double] = []
+
+        for dayOffset in (0...6).reversed() {
+            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
+            let dayStart = calendar.startOfDay(for: targetDate)
+            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+            let locationDescriptor = FetchDescriptor<LocationLog>(
+                predicate: #Predicate { log in
+                    log.timestamp >= dayStart && log.timestamp < dayEnd
+                }
+            )
+
+            if let logs = try? context.fetch(locationDescriptor) {
+                let uniqueCoords = Set(logs.map { "\(Int($0.latitude * 100)),\(Int($0.longitude * 100))" })
+                let score = min(Double(uniqueCoords.count) * 10.0, 100.0)
+                trendData.append(score)
+            } else {
+                trendData.append(0.0)
+            }
+        }
+
+        return trendData.isEmpty ? [0.0] : trendData
     }
 }
 

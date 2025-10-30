@@ -78,7 +78,7 @@ struct HabitStreakCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "chart.bar.fill")
                         .font(.caption2)
-                    Text("%\(Int(habit.weeklyCompletionRate * 100))")
+                    Text(String(format: NSLocalizedString("goals.completion.rate", comment: "Completion rate percentage"), Int(habit.weeklyCompletionRate * 100)))
                         .font(.caption)
                 }
                 .foregroundStyle(.secondary)
@@ -192,7 +192,7 @@ struct MonthlyProgressRing: View {
                     .frame(width: 80, height: 80)
                     .rotationEffect(.degrees(-90))
 
-                Text("%\(monthlyStats.completionPercentage)")
+                Text(String(format: NSLocalizedString("goals.completion.rate", comment: "Completion rate percentage"), monthlyStats.completionPercentage))
                     .font(.headline.bold())
             }
 
@@ -253,7 +253,7 @@ struct AchievementBadgeCard: View {
                     .tint(Color(hex: achievement.colorHex))
                     .scaleEffect(x: 1, y: 0.5)
 
-                Text("\(achievement.currentProgress)/\(achievement.requirement)")
+                Text(String(format: NSLocalizedString("goals.achievement.progress", comment: "Achievement progress current/total"), achievement.currentProgress, achievement.requirement))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

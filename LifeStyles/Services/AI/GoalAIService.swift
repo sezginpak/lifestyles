@@ -8,6 +8,19 @@
 import Foundation
 import FoundationModels
 
+// MARK: - Goal AI Error
+
+enum GoalAIError: LocalizedError {
+    case limitReached
+
+    var errorDescription: String? {
+        switch self {
+        case .limitReached:
+            return "Günlük hedef önerisi limitinize ulaştınız. Premium üyelikle sınırsız öneri alabilirsiniz."
+        }
+    }
+}
+
 @available(iOS 26.0, *)
 @Observable
 class GoalAIService {
@@ -41,6 +54,15 @@ class GoalAIService {
 
     /// Hedef önerisi oluşturur (kategori bazlı)
     func suggestGoal(category: GoalCategory, userContext: String = "") async throws -> String {
+        // Premium & Usage check
+        let purchaseManager = PurchaseManager.shared
+        let usageManager = AIUsageManager.shared
+        let isPremium = purchaseManager.isPremium
+
+        guard usageManager.canGetGoalSuggestion(isPremium: isPremium) else {
+            throw GoalAIError.limitReached
+        }
+
         let session = createSession()
 
         var prompt = """
@@ -60,6 +82,10 @@ class GoalAIService {
 
         do {
             let response = try await session.respond(to: prompt)
+
+            // Track usage
+            usageManager.trackGoalSuggestion()
+
             return response.content
         } catch {
             print("❌ Hedef önerisi hatası: \(error)")

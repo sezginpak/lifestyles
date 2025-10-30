@@ -13,11 +13,14 @@ import SwiftData
 
 enum MorningInsightError: LocalizedError {
     case featureDisabled
+    case limitReached
 
     var errorDescription: String? {
         switch self {
         case .featureDisabled:
             return "Morning Insight özelliği kapalı. Ayarlar → AI & Gizlilik'ten aktif edebilirsiniz."
+        case .limitReached:
+            return "Günlük Daily Insight limitinize ulaştınız. Premium üyelikle sınırsız insight alabilirsiniz."
         }
     }
 }
@@ -34,6 +37,9 @@ struct MorningContext: Codable {
     let activeGoals: [GoalSnapshot]
     let habits: [HabitSnapshot]
     let locationPattern: LocationPattern
+    let userProfile: UserProfileSnapshot?
+    let yesterdayJournal: JournalSnapshot?
+    let todayJournal: JournalSnapshot?
 }
 
 // MARK: - Morning Insight Provider
@@ -83,7 +89,19 @@ class MorningInsightProvider: ContextProvider {
 
         let location: LocationPattern = privacySettings.shareLocationData
             ? await LocationContextBuilder.buildPattern(modelContext: modelContext)
-            : LocationPattern(hoursAtHomeToday: 0, hoursAtHomeThisWeek: 0, lastOutdoorActivity: nil, mostVisitedPlaces: [])
+            : LocationPattern(hoursAtHomeToday: 0, hoursAtHomeThisWeek: 0, lastOutdoorActivity: nil, mostVisitedPlaces: [], savedPlaces: [])
+
+        // Always load user profile (no privacy toggle - it's user's own data)
+        let userProfile = await ProfileContextBuilder.build(modelContext: modelContext)
+
+        // Load journal entries (privacy-aware - uses general AI consent)
+        let yesterdayJournal: JournalSnapshot? = privacySettings.hasGivenAIConsent
+            ? await buildYesterdayJournal(modelContext: modelContext)
+            : nil
+
+        let todayJournal: JournalSnapshot? = privacySettings.hasGivenAIConsent
+            ? await JournalContextBuilder.buildToday(modelContext: modelContext)
+            : nil
 
         return MorningContext(
             date: dateString,
@@ -94,7 +112,43 @@ class MorningInsightProvider: ContextProvider {
             moodTrend: trend,
             activeGoals: goals,
             habits: habits,
-            locationPattern: location
+            locationPattern: location,
+            userProfile: userProfile,
+            yesterdayJournal: yesterdayJournal,
+            todayJournal: todayJournal
+        )
+    }
+
+    // MARK: - Helper Methods
+
+    private func buildYesterdayJournal(modelContext: ModelContext) async -> JournalSnapshot? {
+        let calendar = Calendar.current
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) else {
+            return nil
+        }
+        let startOfYesterday = calendar.startOfDay(for: yesterday)
+        let endOfYesterday = calendar.date(byAdding: .day, value: 1, to: startOfYesterday)!
+
+        let descriptor = FetchDescriptor<JournalEntry>(
+            predicate: #Predicate { entry in
+                entry.date >= startOfYesterday && entry.date < endOfYesterday
+            },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+
+        guard let entries = try? modelContext.fetch(descriptor),
+              let latest = entries.first else {
+            return nil
+        }
+
+        return JournalSnapshot(
+            date: latest.date,
+            title: latest.title,
+            content: latest.content,
+            type: latest.journalType.rawValue,
+            tags: latest.tags,
+            wordCount: latest.wordCount,
+            isFavorite: latest.isFavorite
         )
     }
 
@@ -130,6 +184,47 @@ class MorningInsightProvider: ContextProvider {
             return "Context encoding error"
         }
 
+        var additionalContext = ""
+
+        // User profile context
+        if let profile = context.userProfile, !profile.isEmpty {
+            additionalContext += "\n\n👤 Kullanıcı Hakkında:"
+            if let name = profile.name {
+                additionalContext += "\n- İsim: \(name)"
+            }
+            if let age = profile.age {
+                additionalContext += "\n- Yaş: \(age)"
+            }
+            if let occupation = profile.occupation {
+                additionalContext += "\n- Meslek: \(occupation)"
+            }
+            if !profile.hobbies.isEmpty {
+                additionalContext += "\n- Hobiler: \(profile.hobbies.joined(separator: ", "))"
+            }
+            if !profile.interests.isEmpty {
+                additionalContext += "\n- İlgi Alanları: \(profile.interests.joined(separator: ", "))"
+            }
+        }
+
+        // Yesterday's journal
+        if let yesterday = context.yesterdayJournal {
+            additionalContext += "\n\n📝 Dünkü Günlük:"
+            if let title = yesterday.title {
+                additionalContext += "\n- Başlık: \(title)"
+            }
+            additionalContext += "\n- Tip: \(yesterday.type)"
+            additionalContext += "\n- İçerik: \(yesterday.content)"
+        }
+
+        // Today's journal (if already written)
+        if let today = context.todayJournal {
+            additionalContext += "\n\n📝 Bugünkü Günlük (erken yazılmış):"
+            if let title = today.title {
+                additionalContext += "\n- Başlık: \(title)"
+            }
+            additionalContext += "\n- İçerik: \(today.content)"
+        }
+
         return """
         Bugün \(context.date), \(context.dayOfWeek).
 
@@ -138,15 +233,18 @@ class MorningInsightProvider: ContextProvider {
         ```json
         \(jsonString)
         ```
+        \(additionalContext)
 
         Öneriler:
-        1. Overdue arkadaşlar varsa öncelikle hatırlat
-        2. Mood trend'e göre motivasyon ver
-        3. Habit streak'leri kutla veya hatırlat
-        4. Goal progress'e göre teşvik et
-        5. Lokasyon pattern'e göre aktivite öner (çok evdeyse dışarı çıkma öner)
+        1. Kullanıcı profili varsa ismiyle hitap et ve hobilerine uygun öneriler ver
+        2. Dünkü günlük varsa ona göre bugün için motivasyon/öneri ver
+        3. Overdue arkadaşlar varsa öncelikle hatırlat
+        4. Mood trend'e göre motivasyon ver
+        5. Habit streak'leri kutla veya hatırlat
+        6. Goal progress'e göre teşvik et
+        7. Lokasyon pattern'e göre aktivite öner (çok evdeyse dışarı çıkma öner)
 
-        Şimdi samimi, motive edici bir sabah mesajı yaz (max 4 cümle):
+        Şimdi samimi, motive edici, KİŞİSELLEŞTİRİLMİŞ bir sabah mesajı yaz (max 4 cümle):
         """
     }
 }

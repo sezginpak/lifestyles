@@ -50,7 +50,7 @@ struct GoalsViewNew: View {
                     // 4. Active Goals
                     if !viewModel.activeGoals.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Aktif Hedefler (\(viewModel.activeGoals.count))")
+                            Text(String(format: NSLocalizedString("goals.active.count", comment: "Active Goals"), viewModel.activeGoals.count))
                                 .font(.headline)
                                 .padding(.horizontal)
 
@@ -88,7 +88,7 @@ struct GoalsViewNew: View {
 
                                 Spacer()
 
-                                Text("\(achievementService.earnedCount)/\(achievementService.totalCount)")
+                                Text(String(format: NSLocalizedString("goals.achievement.progress", comment: "Achievement progress current/total"), achievementService.earnedCount, achievementService.totalCount))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }

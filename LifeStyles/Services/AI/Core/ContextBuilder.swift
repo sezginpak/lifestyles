@@ -66,12 +66,24 @@ struct HabitSnapshot: Codable {
     let lastCompletedDate: Date?
 }
 
+/// Saved place snapshot for AI context
+struct SavedPlaceSnapshot: Codable {
+    let name: String
+    let emoji: String
+    let category: String
+    let address: String?
+    let visitCount: Int
+    let lastVisitedAt: Date?
+    let notes: String?
+}
+
 /// Location pattern
 struct LocationPattern: Codable {
     let hoursAtHomeToday: Double
     let hoursAtHomeThisWeek: Double
     let lastOutdoorActivity: Date?
     let mostVisitedPlaces: [String]
+    let savedPlaces: [SavedPlaceSnapshot] // Kayıtlı yerler (iş, ev, vs.)
 }
 
 /// Journal snapshot for AI context
@@ -303,11 +315,31 @@ class LocationContextBuilder {
         let places = weekLogs.compactMap { $0.address }.filter { !$0.isEmpty }
         let uniquePlaces = Array(Set(places)).prefix(3)
 
+        // Fetch saved places
+        let savedPlacesDescriptor = FetchDescriptor<SavedPlace>(
+            sortBy: [SortDescriptor(\.visitCount, order: .reverse)]
+        )
+        let allSavedPlaces = (try? modelContext.fetch(savedPlacesDescriptor)) ?? []
+
+        // Convert to snapshots (top 5 most visited)
+        let savedPlaceSnapshots = allSavedPlaces.prefix(5).map { place in
+            SavedPlaceSnapshot(
+                name: place.name,
+                emoji: place.emoji,
+                category: place.category.displayName,
+                address: place.address,
+                visitCount: place.visitCount,
+                lastVisitedAt: place.lastVisitedAt,
+                notes: place.notes
+            )
+        }
+
         return LocationPattern(
             hoursAtHomeToday: hoursToday,
             hoursAtHomeThisWeek: hoursWeek,
             lastOutdoorActivity: lastOutdoor,
-            mostVisitedPlaces: Array(uniquePlaces)
+            mostVisitedPlaces: Array(uniquePlaces),
+            savedPlaces: savedPlaceSnapshots
         )
     }
 

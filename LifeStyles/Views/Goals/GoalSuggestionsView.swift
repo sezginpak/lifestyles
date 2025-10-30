@@ -278,7 +278,7 @@ struct GoalSuggestionCard: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
-                        Text("Hedefe Ekle")
+                        Text(String(localized: "goals.add.to.goal", comment: "Add to Goal"))
                     }
                     .font(.subheadline)
                     .fontWeight(.semibold)

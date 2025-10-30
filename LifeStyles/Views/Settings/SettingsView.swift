@@ -9,23 +9,19 @@ import SwiftUI
 import SwiftData
 
 struct SettingsView: View {
-    @Environment(\.themeManager) private var themeManager
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SettingsViewModel()
     @State private var exportDataURL: URL?
     @State private var showImportPicker = false
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var showLanguageAlert = false
-    @State private var pendingLanguage: AppLanguage?
+    @State private var showAppearanceSettings = false
+    @State private var showLocationView = false
 
     // Premium
     @State private var purchaseManager = PurchaseManager.shared
     @State private var usageManager = AIUsageManager.shared
     @State private var showPaywall = false
-
-    // User Profile
-    @State private var userProfile: UserProfile?
 
     var body: some View {
         NavigationStack {
@@ -43,101 +39,20 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(spacing: AppConstants.Spacing.large) {
-                        // Profil bölümü (opsiyonel)
-                        VStack(spacing: AppConstants.Spacing.medium) {
-                            ZStack {
-                                Circle()
-                                    .fill(LinearGradient.primaryGradient)
-                                    .frame(width: 80, height: 80)
-
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(.white)
-                            }
-
-                            HStack(spacing: 8) {
-                                Text(String(localized: "settings.user.label", comment: "LifeStyles User"))
-                                    .font(.title3)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.primary)
-
-                                if purchaseManager.isPremium {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "crown.fill")
-                                            .font(.caption2)
-                                        Text(String(localized: "settings.premium.badge", comment: "Premium"))
-                                            .font(.caption)
-                                            .fontWeight(.semibold)
-                                    }
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [.yellow, .orange],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .cornerRadius(8)
-                                }
-                            }
-
-                            Text(purchaseManager.isPremium ? String(localized: "settings.premium.member", comment: "Premium Member") : String(localized: "settings.tagline", comment: "Your personal life coach"))
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, AppConstants.Spacing.large)
-
-                        // Tema seçimi
-                        VStack(alignment: .leading, spacing: AppConstants.Spacing.small) {
-                            Text(String(localized: "settings.appearance.title", comment: "Appearance"))
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                                .padding(.horizontal, AppConstants.Spacing.large)
-
-                            HStack(spacing: AppConstants.Spacing.medium) {
-                                ForEach(AppTheme.allCases) { theme in
-                                    ThemeButton(
-                                        theme: theme,
-                                        isSelected: themeManager.currentTheme == theme,
-                                        action: {
-                                            HapticFeedback.medium()
-                                            themeManager.setTheme(theme)
-                                        }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal, AppConstants.Spacing.large)
-                        }
-
-                        // Dil seçimi
-                        VStack(alignment: .leading, spacing: AppConstants.Spacing.small) {
-                            Text(String(localized: "settings.language.title", comment: "Language"))
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                                .padding(.horizontal, AppConstants.Spacing.large)
-
-                            HStack(spacing: AppConstants.Spacing.medium) {
-                                ForEach(AppLanguage.allCases) { language in
-                                    LanguageButton(
-                                        language: language,
-                                        isSelected: LanguageManager.shared.currentLanguage == language,
-                                        action: {
-                                            HapticFeedback.medium()
-                                            if language != LanguageManager.shared.currentLanguage {
-                                                pendingLanguage = language
-                                                showLanguageAlert = true
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal, AppConstants.Spacing.large)
-                        }
-
                         // Ayarlar bölümleri
                         VStack(spacing: AppConstants.Spacing.medium) {
+                            // Görünüm & Kişiselleştirme
+                            SettingsSection(title: "Kişiselleştirme") {
+                                Button {
+                                    showAppearanceSettings = true
+                                } label: {
+                                    SettingsRow(
+                                        icon: "paintbrush.fill",
+                                        title: "Görünüm & Profil",
+                                        color: Color.purple
+                                    )
+                                }
+                            }
                             // İzinler
                             SettingsSection(title: String(localized: "settings.permissions.title", comment: "Permissions")) {
                                 NavigationLink {
@@ -153,60 +68,39 @@ struct SettingsView: View {
 
                             // Bildirimler
                             SettingsSection(title: String(localized: "settings.notifications.title", comment: "Notifications")) {
-                                SettingsToggleRow(
-                                    icon: "bell.fill",
-                                    title: "Bildirimler Aktif",
-                                    color: Color.error,
-                                    isOn: Binding(
-                                        get: { viewModel.notificationsEnabled },
-                                        set: { newValue in
-                                            Task {
-                                                await viewModel.toggleNotifications(newValue)
-                                            }
-                                        }
-                                    )
-                                )
-
-                                SettingsToggleRow(
-                                    icon: "sparkles",
-                                    title: "Günlük Motivasyon",
-                                    color: Color.brandSecondary,
-                                    isOn: Binding(
-                                        get: { viewModel.dailyMotivationEnabled },
-                                        set: { viewModel.toggleDailyMotivation($0) }
-                                    )
-                                )
-
                                 NavigationLink {
-                                    NotificationPreferencesView()
+                                    NotificationSettingsView()
                                 } label: {
                                     SettingsRow(
-                                        icon: "slider.horizontal.3",
-                                        title: "Bildirim Tercihleri",
-                                        color: Color.info
+                                        icon: "bell.fill",
+                                        title: "Bildirim Ayarları",
+                                        color: Color.error
                                     )
                                 }
                             }
 
                             // Konum
                             SettingsSection(title: String(localized: "settings.location.title", comment: "Location")) {
-                                SettingsToggleRow(
-                                    icon: "location.fill",
-                                    title: "Konum Takibi",
-                                    color: Color.cardActivity,
-                                    isOn: Binding(
-                                        get: { viewModel.locationTrackingEnabled },
-                                        set: { viewModel.toggleLocationTracking($0, context: modelContext) }
-                                    )
-                                )
-
                                 NavigationLink {
-                                    HomeLocationPickerView()
+                                    LocationSettingsView()
                                 } label: {
                                     SettingsRow(
-                                        icon: "house.fill",
-                                        title: "Ev Konumu Ayarla",
-                                        color: Color.cardGoals
+                                        icon: "location.fill",
+                                        title: "Konum Ayarları",
+                                        color: Color.cardActivity
+                                    )
+                                }
+                            }
+
+                            // Aktivite & Öneriler
+                            SettingsSection(title: "Aktivite & Öneriler") {
+                                Button {
+                                    showLocationView = true
+                                } label: {
+                                    SettingsRow(
+                                        icon: "figure.walk",
+                                        title: "Aktivitelerim",
+                                        color: Color.cardActivity
                                     )
                                 }
                             }
@@ -313,69 +207,6 @@ struct SettingsView: View {
                                 }
                             }
 
-                            // User Profile
-                            SettingsSection(title: "Profilim") {
-                                NavigationLink {
-                                    UserProfileEditView()
-                                } label: {
-                                    HStack(spacing: AppConstants.Spacing.medium) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(Color.blue.opacity(0.15))
-                                                .frame(width: 40, height: 40)
-
-                                            Image(systemName: "person.text.rectangle.fill")
-                                                .font(.body)
-                                                .foregroundStyle(.blue)
-                                        }
-
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("Profil Bilgileri")
-                                                .foregroundStyle(.primary)
-                                                .font(.body)
-
-                                            if let profile = userProfile {
-                                                Text(profile.name ?? "Profil doldur")
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            } else {
-                                                Text("Profil doldur")
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                        }
-
-                                        Spacer()
-
-                                        // Completion indicator
-                                        if let profile = userProfile {
-                                            ZStack {
-                                                Circle()
-                                                    .stroke(Color.gray.opacity(0.2), lineWidth: 2)
-                                                    .frame(width: 30, height: 30)
-
-                                                Circle()
-                                                    .trim(from: 0, to: profile.completionPercentage)
-                                                    .stroke(Color.brandPrimary, lineWidth: 2)
-                                                    .frame(width: 30, height: 30)
-                                                    .rotationEffect(.degrees(-90))
-
-                                                Text("\(Int(profile.completionPercentage * 100))%")
-                                                    .font(.system(size: 8))
-                                                    .fontWeight(.bold)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                        }
-
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                            .foregroundStyle(.tertiary)
-                                    }
-                                    .padding(AppConstants.Spacing.medium)
-                                    .cardStyle()
-                                }
-                            }
-
                             // Veri Yönetimi
                             SettingsSection(title: String(localized: "settings.data.management.title", comment: "Data Management")) {
                                 ShareLink(item: exportDataURL ?? URL(string: "about:blank")!) {
@@ -452,7 +283,7 @@ struct SettingsView: View {
                                     HStack(spacing: AppConstants.Spacing.small) {
                                         Image(systemName: "info.circle.fill")
                                             .foregroundStyle(.secondary)
-                                        Text("Versiyon")
+                                        Text(String(localized: "settings.version", comment: "Version"))
                                             .foregroundStyle(.primary)
                                     }
 
@@ -509,10 +340,39 @@ struct SettingsView: View {
             }
             .navigationTitle(String(localized: "settings.title", comment: "Settings"))
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
+            .sheet(isPresented: $showAppearanceSettings) {
+                NavigationStack {
+                    AppearanceSettingsView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Kapat") {
+                                    showAppearanceSettings = false
+                                }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showLocationView) {
+                NavigationStack {
+                    LocationView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Kapat") {
+                                    showLocationView = false
+                                }
+                            }
+                        }
+                }
+            }
+            .task {
+                // İzin kontrolü
                 viewModel.checkPermissions()
-                viewModel.calculateStatistics(context: modelContext)
-                loadUserProfile()
+
+                // İstatistikleri async olarak hesapla (UI donmadan)
+                // NOT: Bu fonksiyon UI'yi dondurabiliyor - arka plana alındı
+                Task.detached {
+                    await viewModel.calculateStatistics(context: modelContext)
+                }
             }
             .alert("Tüm Verileri Sil?", isPresented: $viewModel.showDeleteConfirmation) {
                 Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {}
@@ -532,21 +392,6 @@ struct SettingsView: View {
                 allowedContentTypes: [.json]
             ) { result in
                 importData(result: result)
-            }
-            .alert(String(localized: "settings.language.change.title", comment: "Change Language"), isPresented: $showLanguageAlert) {
-                Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {
-                    pendingLanguage = nil
-                }
-                Button(String(localized: "settings.language.change.button", comment: "Change"), role: .none) {
-                    if let newLanguage = pendingLanguage {
-                        LanguageManager.shared.changeLanguage(to: newLanguage)
-                        alertMessage = "Dil ayarları kaydedildi! Değişikliklerin uygulanması için lütfen uygulamayı kapatıp tekrar açın.\n\nLanguage settings saved! Please close and reopen the app to apply changes."
-                        showAlert = true
-                        pendingLanguage = nil
-                    }
-                }
-            } message: {
-                Text(String(localized: "settings.language.restart.message", comment: "App needs to be reopened to apply language changes.\n\nDeğişikliklerin uygulanması için uygulama yeniden açılmalı."))
             }
             .sheet(isPresented: $showPaywall) {
                 PremiumPaywallView()
@@ -582,7 +427,7 @@ struct SettingsView: View {
                     showAlert = true
                 }
                 // İstatistikleri yeniden hesapla
-                viewModel.calculateStatistics(context: modelContext)
+                await viewModel.calculateStatistics(context: modelContext)
             } catch {
                 alertMessage = "İçe aktarma hatası: \(error.localizedDescription)"
                 showAlert = true
@@ -599,19 +444,11 @@ struct SettingsView: View {
                     showAlert = true
                 }
                 // İstatistikleri yeniden hesapla
-                viewModel.calculateStatistics(context: modelContext)
+                await viewModel.calculateStatistics(context: modelContext)
             } catch {
                 alertMessage = "Silme hatası: \(error.localizedDescription)"
                 showAlert = true
             }
-        }
-    }
-
-    private func loadUserProfile() {
-        let descriptor = FetchDescriptor<UserProfile>()
-        if let profiles = try? modelContext.fetch(descriptor),
-           let profile = profiles.first {
-            userProfile = profile
         }
     }
 }
@@ -816,71 +653,6 @@ struct SettingsToggleRow: View {
         }
         .padding(AppConstants.Spacing.medium)
         .cardStyle()
-    }
-}
-
-struct ThemeButton: View {
-    let theme: AppTheme
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: AppConstants.Spacing.small) {
-                ZStack {
-                    Circle()
-                        .fill(isSelected ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 56, height: 56)
-
-                    Image(systemName: theme.icon)
-                        .font(.title3)
-                        .foregroundStyle(isSelected ? .white : .secondary)
-                }
-                .overlay(
-                    Circle()
-                        .stroke(isSelected ? Color.brandPrimary : Color.clear, lineWidth: 3)
-                        .frame(width: 64, height: 64)
-                )
-
-                Text(theme.displayName)
-                    .font(.caption)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundStyle(isSelected ? Color.brandPrimary : .secondary)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct LanguageButton: View {
-    let language: AppLanguage
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: AppConstants.Spacing.small) {
-                ZStack {
-                    Circle()
-                        .fill(isSelected ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 56, height: 56)
-
-                    Text(language.flag)
-                        .font(.largeTitle)
-                }
-                .overlay(
-                    Circle()
-                        .stroke(isSelected ? Color.brandPrimary : Color.clear, lineWidth: 3)
-                        .frame(width: 64, height: 64)
-                )
-
-                Text(language.displayName)
-                    .font(.caption)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundStyle(isSelected ? Color.brandPrimary : .secondary)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
     }
 }
 

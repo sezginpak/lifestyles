@@ -22,10 +22,10 @@ final class LocationLog {
     var latitude: Double
     var longitude: Double
     var locationTypeRaw: String
-    var durationInMinutes: Int // Bu lokasyonda ne kadar kaldı
-    var accuracy: Double // Konum doğruluğu (metre)
-    var altitude: Double // Rakım
-    var address: String? // Reverse geocoding ile elde edilen adres
+    var durationInMinutes: Int = 10 // Bu lokasyonda ne kadar kaldı - DEFAULT 10 dakika
+    var accuracy: Double = 0 // Konum doğruluğu (metre)
+    var altitude: Double = 0 // Rakım
+    var address: String? = nil // Reverse geocoding ile elde edilen adres
 
     init(
         id: UUID = UUID(),

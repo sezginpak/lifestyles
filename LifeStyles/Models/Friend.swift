@@ -43,6 +43,12 @@ final class Friend {
     @Relationship(deleteRule: .cascade, inverse: \SpecialDate.friend)
     var specialDates: [SpecialDate]?
 
+    @Relationship(deleteRule: .nullify)
+    var memories: [Memory]?
+
+    @Relationship(deleteRule: .cascade, inverse: \Transaction.friend)
+    var transactions: [Transaction]?
+
     var frequency: ContactFrequency {
         get { ContactFrequency(rawValue: frequencyRaw) ?? .weekly }
         set { frequencyRaw = newValue.rawValue }
@@ -151,6 +157,72 @@ final class Friend {
     // Toplam iletişim sayısı
     var totalContactCount: Int {
         return (contactHistory?.count ?? 0) + (lastContactDate != nil ? 1 : 0)
+    }
+
+    // MARK: - Transaction Computed Properties
+
+    // Toplam borç (Ben onlara borçluyum)
+    var totalDebt: Decimal {
+        guard let transactions = transactions else { return 0 }
+        return transactions
+            .filter { $0.transactionType == .debt && !$0.isPaid }
+            .reduce(0) { $0 + $1.remainingAmount }
+    }
+
+    // Toplam alacak (Onlar bana borçlu)
+    var totalCredit: Decimal {
+        guard let transactions = transactions else { return 0 }
+        return transactions
+            .filter { $0.transactionType == .credit && !$0.isPaid }
+            .reduce(0) { $0 + $1.remainingAmount }
+    }
+
+    // Net durum (+ alacak, - borç)
+    var balance: Decimal {
+        return totalCredit - totalDebt
+    }
+
+    // Formatted balance
+    var formattedBalance: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "TL"
+        formatter.locale = Locale(identifier: "tr_TR")
+
+        if balance > 0 {
+            return "+ \(formatter.string(from: balance as NSDecimalNumber) ?? "₺\(balance)")"
+        } else if balance < 0 {
+            return "- \(formatter.string(from: abs(balance) as NSDecimalNumber) ?? "₺\(abs(balance))")"
+        } else {
+            return "Dengede"
+        }
+    }
+
+    // Ödenmemiş borç/alacak var mı?
+    var hasOutstandingTransactions: Bool {
+        guard let transactions = transactions, !transactions.isEmpty else { return false }
+        return totalDebt > 0 || totalCredit > 0
+    }
+
+    // Gecikmiş transaction'lar
+    var overdueTransactions: [Transaction] {
+        guard let transactions = transactions else { return [] }
+        return transactions.filter { $0.isOverdue }
+    }
+
+    // Yaklaşan vadeler (7 gün içinde)
+    var upcomingDueTransactions: [Transaction] {
+        guard let transactions = transactions else { return [] }
+        return transactions.filter { transaction in
+            guard let days = transaction.daysUntilDue, !transaction.isPaid else { return false }
+            return days >= 0 && days <= 7
+        }
+    }
+
+    // Son transaction'lar (son 5)
+    var recentTransactions: [Transaction] {
+        guard let transactions = transactions else { return [] }
+        return Array(transactions.sorted { $0.date > $1.date }.prefix(5))
     }
 
     init(

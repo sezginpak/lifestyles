@@ -38,112 +38,220 @@ class NotificationService {
 
     // Kişi hatırlatıcısı gönder
     func scheduleContactReminder(contactName: String, daysSince: Int) {
-        let content = UNMutableNotificationContent()
-        content.title = "İletişim Hatırlatması"
-        content.body = "\(contactName) ile \(daysSince) gündür konuşmadınız. Aramayı düşünür müsünüz?"
-        content.sound = .default
-        content.categoryIdentifier = "CONTACT_REMINDER"
+        Task {
+            // İzin kontrolü
+            guard await checkPermission() else {
+                print("⚠️ Bildirim izni yok - Hatırlatıcı gönderilemedi")
+                return
+            }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "contact-\(contactName)-\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
+            let content = UNMutableNotificationContent()
+            content.title = "İletişim Hatırlatması"
+            content.body = "\(contactName) ile \(daysSince) gündür konuşmadınız. Aramayı düşünür müsünüz?"
+            content.sound = .default
+            content.categoryIdentifier = "CONTACT_REMINDER"
 
-        center.add(request)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "contact-\(contactName)-\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+                print("✅ Hatırlatıcı eklendi: \(contactName)")
+            } catch {
+                print("❌ Hatırlatıcı eklenemedi: \(error)")
+            }
+        }
     }
 
     // Aktivite önerisi bildirimi
     func sendActivitySuggestion(title: String, description: String) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = description
-        content.sound = .default
-        content.categoryIdentifier = "ACTIVITY_SUGGESTION"
+        Task {
+            // İzin kontrolü
+            guard await checkPermission() else {
+                print("⚠️ Bildirim izni yok - Aktivite önerisi gönderilemedi")
+                return
+            }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "activity-\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
+            // Cooldown kontrolü - Saatte bir aktivite önerisi
+            let lastSentKey = "lastActivitySuggestionNotification"
+            if let lastSent = UserDefaults.standard.object(forKey: lastSentKey) as? Date {
+                let hoursSinceLastNotification = Date().timeIntervalSince(lastSent) / 3600
+                if hoursSinceLastNotification < 1 {
+                    print("⏳ Aktivite önerisi bildirimi cooldown'da")
+                    return
+                }
+            }
 
-        center.add(request)
+            // Önce mevcut bildirimi iptal et
+            center.removePendingNotificationRequests(withIdentifiers: ["activity-suggestion"])
+
+            let content = UNMutableNotificationContent()
+            content.title = title
+            content.body = description
+            content.sound = .default
+            content.categoryIdentifier = "ACTIVITY_SUGGESTION"
+
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "activity-suggestion", // Sabit ID
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+                // Son gönderim zamanını kaydet
+                UserDefaults.standard.set(Date(), forKey: lastSentKey)
+                print("✅ Aktivite önerisi bildirimi gönderildi: \(title)")
+            } catch {
+                print("❌ Aktivite önerisi gönderilemedi: \(error)")
+            }
+        }
     }
 
     // "Evden çık" bildirimi
     func sendGoOutsideReminder(hoursAtHome: Int) {
-        let content = UNMutableNotificationContent()
-        content.title = "Dışarı Çıkma Zamanı! 🌞"
-        content.body = "\(hoursAtHome) saattir evdesiniz. Biraz hava almaya ne dersiniz?"
-        content.sound = .default
-        content.categoryIdentifier = "GO_OUTSIDE"
+        Task {
+            // İzin kontrolü
+            guard await checkPermission() else {
+                print("⚠️ Bildirim izni yok - Evden çık hatırlatıcısı gönderilemedi")
+                return
+            }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "go-outside-\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
+            // Cooldown kontrolü - Son 2 saat içinde gönderildiyse tekrar gönderme
+            let lastSentKey = "lastGoOutsideNotification"
+            if let lastSent = UserDefaults.standard.object(forKey: lastSentKey) as? Date {
+                let hoursSinceLastNotification = Date().timeIntervalSince(lastSent) / 3600
+                if hoursSinceLastNotification < 2 {
+                    print("⏳ Go outside bildirimi cooldown'da (son \(Int(hoursSinceLastNotification * 60)) dakika önce gönderildi)")
+                    return
+                }
+            }
 
-        center.add(request)
+            // Önce mevcut bildirimi iptal et
+            center.removePendingNotificationRequests(withIdentifiers: ["go-outside"])
+
+            let content = UNMutableNotificationContent()
+            content.title = "Dışarı Çıkma Zamanı! 🌞"
+            content.body = "\(hoursAtHome) saattir evdesiniz. Biraz hava almaya ne dersiniz?"
+            content.sound = .default
+            content.categoryIdentifier = "GO_OUTSIDE"
+
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "go-outside", // Sabit ID - tekrar oluşmayı engellemek için
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+                // Son gönderim zamanını kaydet
+                UserDefaults.standard.set(Date(), forKey: lastSentKey)
+                print("✅ Go outside bildirimi gönderildi (\(hoursAtHome) saat)")
+            } catch {
+                print("❌ Go outside bildirimi gönderilemedi: \(error)")
+            }
+        }
     }
 
     // Hedef hatırlatıcısı
     func scheduleGoalReminder(goalTitle: String, daysLeft: Int) {
-        let content = UNMutableNotificationContent()
+        Task {
+            // İzin kontrolü
+            guard await checkPermission() else {
+                print("⚠️ Bildirim izni yok - Hedef hatırlatıcısı oluşturulamadı")
+                return
+            }
 
-        switch currentLanguage {
-        case .turkish:
-            content.title = "Hedef Hatırlatması 🎯"
-            content.body = "\(goalTitle) için \(daysLeft) gün kaldı!"
-        case .english:
-            content.title = "Goal Reminder 🎯"
-            content.body = "\(daysLeft) days left for \(goalTitle)!"
+            let content = UNMutableNotificationContent()
+
+            switch currentLanguage {
+            case .turkish:
+                content.title = "Hedef Hatırlatması 🎯"
+                content.body = "\(goalTitle) için \(daysLeft) gün kaldı!"
+            case .english:
+                content.title = "Goal Reminder 🎯"
+                content.body = "\(daysLeft) days left for \(goalTitle)!"
+            }
+
+            content.sound = .default
+            content.categoryIdentifier = "GOAL_REMINDER"
+
+            // Her gün saat 9:00'da
+            var dateComponents = DateComponents()
+            dateComponents.hour = 9
+            dateComponents.minute = 0
+
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+            let request = UNNotificationRequest(
+                identifier: "goal-\(goalTitle)-\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+                print("✅ Hedef hatırlatıcısı oluşturuldu: \(goalTitle)")
+            } catch {
+                print("❌ Hedef hatırlatıcısı oluşturulamadı: \(error)")
+            }
         }
-
-        content.sound = .default
-        content.categoryIdentifier = "GOAL_REMINDER"
-
-        // Her gün saat 9:00'da
-        var dateComponents = DateComponents()
-        dateComponents.hour = 9
-        dateComponents.minute = 0
-
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(
-            identifier: "goal-\(goalTitle)-\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
-
-        center.add(request)
     }
 
     // Alışkanlık hatırlatıcısı
     func scheduleHabitReminder(habitName: String, at time: Date) {
-        let content = UNMutableNotificationContent()
-        content.title = "Alışkanlık Zamanı! ⭐"
-        content.body = "\(habitName) yapma zamanı geldi!"
-        content.sound = .default
-        content.categoryIdentifier = "HABIT_REMINDER"
+        Task {
+            // İzin kontrolü
+            guard await checkPermission() else {
+                print("⚠️ Bildirim izni yok - Alışkanlık hatırlatıcısı oluşturulamadı")
+                return
+            }
 
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: time)
+            let content = UNMutableNotificationContent()
+            content.title = "Alışkanlık Zamanı! ⭐"
+            content.body = "\(habitName) yapma zamanı geldi!"
+            content.sound = .default
+            content.categoryIdentifier = "HABIT_REMINDER"
 
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        let request = UNNotificationRequest(
-            identifier: "habit-\(habitName)-\(UUID().uuidString)",
-            content: content,
-            trigger: trigger
-        )
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.hour, .minute], from: time)
 
-        center.add(request)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+            let request = UNNotificationRequest(
+                identifier: "habit-\(habitName)-\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            do {
+                try await center.add(request)
+                print("✅ Alışkanlık hatırlatıcısı oluşturuldu: \(habitName)")
+            } catch {
+                print("❌ Alışkanlık hatırlatıcısı oluşturulamadı: \(error)")
+            }
+        }
     }
 
     // Motivasyon mesajı
     func sendMotivationalMessage() {
+        // Cooldown kontrolü - Günde bir kez gönder
+        let lastSentKey = "lastMotivationNotification"
+        if let lastSent = UserDefaults.standard.object(forKey: lastSentKey) as? Date {
+            let hoursSinceLastNotification = Date().timeIntervalSince(lastSent) / 3600
+            if hoursSinceLastNotification < 24 {
+                print("⏳ Motivasyon bildirimi cooldown'da (bugün zaten gönderildi)")
+                return
+            }
+        }
+
+        // Önce mevcut bildirimi iptal et
+        center.removePendingNotificationRequests(withIdentifiers: ["motivation"])
+
         let content = UNMutableNotificationContent()
 
         switch currentLanguage {
@@ -174,12 +282,16 @@ class NotificationService {
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(
-            identifier: "motivation-\(UUID().uuidString)",
+            identifier: "motivation", // Sabit ID
             content: content,
             trigger: trigger
         )
 
         center.add(request)
+
+        // Son gönderim zamanını kaydet
+        UserDefaults.standard.set(Date(), forKey: lastSentKey)
+        print("✅ Motivasyon bildirimi gönderildi")
     }
 
     // İletişim tamamlandı bildirimi

@@ -153,6 +153,16 @@ extension Color {
         })
     }
 
+    /// Adaptive background - Otomatik dark/light mode
+    static var adaptiveBackground: Color {
+        Color(UIColor.systemBackground)
+    }
+
+    /// Adaptive secondary background - Otomatik dark/light mode
+    static var adaptiveSecondaryBackground: Color {
+        Color(UIColor.secondarySystemBackground)
+    }
+
     // MARK: - Text Renkleri (Dynamic - Dark Mode Destekli)
 
     /// Ana text rengi - Otomatik dark/light mode

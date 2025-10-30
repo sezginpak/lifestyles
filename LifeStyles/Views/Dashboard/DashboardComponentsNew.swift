@@ -8,163 +8,11 @@
 
 import SwiftUI
 
-// MARK: - Hero Stats Card (4 Ring System)
+// MARK: - Hero Stats Card (Modern Design)
+// Not: Yeni modern tasarım ModernHeroCard.swift dosyasında
+// Eski tasarımı korumak için bu typedef bırakıldı
 
-struct HeroStatsCard: View {
-    let summary: DashboardSummary
-
-    var body: some View {
-        VStack(spacing: 20) {
-            // 4'lü Ring Grid
-            HStack(spacing: 12) {
-                // Sol Sütun
-                VStack(spacing: 12) {
-                    // Goals Ring (Sol Üst)
-                    MiniRingView(data: summary.goalsRing)
-
-                    // Social Ring (Sol Alt)
-                    MiniRingView(data: summary.socialRing)
-                }
-
-                // Orta: Overall Score
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 10)
-                        .frame(width: 110, height: 110)
-
-                    Circle()
-                        .trim(from: 0, to: CGFloat(summary.overallScore) / 100.0)
-                        .stroke(
-                            LinearGradient(
-                                colors: performanceColors(score: summary.overallScore),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            style: StrokeStyle(lineWidth: 10, lineCap: .round)
-                        )
-                        .frame(width: 110, height: 110)
-                        .rotationEffect(.degrees(-90))
-                        .animation(.spring(response: 0.8, dampingFraction: 0.7), value: summary.overallScore)
-
-                    VStack(spacing: 4) {
-                        Text("\(summary.overallScore)")
-                            .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: performanceColors(score: summary.overallScore),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-
-                        Text(String(localized: "dashboard.score", comment: "Score"))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                // Sağ Sütun
-                VStack(spacing: 12) {
-                    // Habits Ring (Sağ Üst)
-                    MiniRingView(data: summary.habitsRing)
-
-                    // Activity Ring (Sağ Alt)
-                    MiniRingView(data: summary.activityRing)
-                }
-            }
-
-            // Motivasyon Mesajı
-            Text(summary.motivationMessage)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-        }
-        .padding(20)
-        .background(
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(hex: "667EEA"),
-                        Color(hex: "764BA2")
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-
-                LinearGradient(
-                    colors: [
-                        Color.white.opacity(0.2),
-                        Color.clear,
-                        Color.black.opacity(0.1)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .shadow(color: Color(hex: "667EEA").opacity(0.3), radius: 20, x: 0, y: 10)
-    }
-
-    private func performanceColors(score: Int) -> [Color] {
-        switch score {
-        case 80...100:
-            return [Color(hex: "2ECC71"), Color(hex: "27AE60")]
-        case 60..<80:
-            return [Color(hex: "3498DB"), Color(hex: "2980B9")]
-        case 40..<60:
-            return [Color(hex: "F39C12"), Color(hex: "E67E22")]
-        default:
-            return [Color(hex: "E74C3C"), Color(hex: "C0392B")]
-        }
-    }
-}
-
-// MARK: - Mini Ring View
-
-struct MiniRingView: View {
-    let data: DashboardRingData
-
-    var body: some View {
-        VStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .stroke(Color.white.opacity(0.2), lineWidth: 6)
-                    .frame(width: 70, height: 70)
-
-                Circle()
-                    .trim(from: 0, to: data.progress)
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color(hex: data.color),
-                                Color(hex: data.color).opacity(0.7)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                    )
-                    .frame(width: 70, height: 70)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: data.progress)
-
-                Image(systemName: data.icon)
-                    .font(.title3)
-                    .foregroundStyle(.white)
-            }
-
-            Text(data.label)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.9))
-
-            Text("\(data.completed)/\(data.total)")
-                .font(.caption2.bold())
-                .foregroundStyle(.white)
-        }
-    }
-}
+typealias HeroStatsCard = ModernHeroStatsCard
 
 // MARK: - Partner Card
 
@@ -407,7 +255,7 @@ struct StreakAchievementCard: View {
                             .font(.title3)
                             .foregroundStyle(.yellow)
 
-                        Text("+\(streakInfo.recentAchievements.count - 3)")
+                        Text(String(format: NSLocalizedString("dashboard.more.achievements", comment: "More achievements count"), streakInfo.recentAchievements.count - 3))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -466,98 +314,221 @@ struct MiniAchievementBadge: View {
     }
 }
 
+// MARK: - Sparkline Mini Chart
+
+struct SparklineChart: View {
+    let data: [Double]
+    let color: Color
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+
+            let maxValue = data.max() ?? 1.0
+            let minValue = data.min() ?? 0.0
+            let range = maxValue - minValue
+
+            // Çizgi path
+            let path = Path { path in
+                guard !data.isEmpty else { return }
+
+                let stepX = width / CGFloat(data.count - 1)
+
+                for (index, value) in data.enumerated() {
+                    let x = CGFloat(index) * stepX
+                    let normalizedValue = range > 0 ? (value - minValue) / range : 0.5
+                    let y = height - (CGFloat(normalizedValue) * height)
+
+                    if index == 0 {
+                        path.move(to: CGPoint(x: x, y: y))
+                    } else {
+                        path.addLine(to: CGPoint(x: x, y: y))
+                    }
+                }
+            }
+
+            // Gradient fill path
+            let fillPath = Path { path in
+                guard !data.isEmpty else { return }
+
+                let stepX = width / CGFloat(data.count - 1)
+
+                // Başlangıç
+                path.move(to: CGPoint(x: 0, y: height))
+
+                for (index, value) in data.enumerated() {
+                    let x = CGFloat(index) * stepX
+                    let normalizedValue = range > 0 ? (value - minValue) / range : 0.5
+                    let y = height - (CGFloat(normalizedValue) * height)
+                    path.addLine(to: CGPoint(x: x, y: y))
+                }
+
+                // Sona kadar
+                path.addLine(to: CGPoint(x: width, y: height))
+                path.closeSubpath()
+            }
+
+            ZStack {
+                // Gradient fill
+                fillPath
+                    .fill(
+                        LinearGradient(
+                            colors: [color.opacity(0.3), color.opacity(0.05)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+
+                // Çizgi
+                path
+                    .stroke(color, lineWidth: 2)
+            }
+        }
+        .frame(height: 30)
+    }
+}
+
 // MARK: - Dashboard Compact Stat Card
 
 struct DashboardCompactStatCard: View {
     let data: CompactStatData
+    var onTap: (() -> Void)? = nil
+    var onQuickAction: ((QuickAction) -> Void)? = nil
+
+    @State private var isPressed = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Icon ve Title
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(Color(hex: data.color).opacity(0.15))
-                        .frame(width: 40, height: 40)
+        Button {
+            HapticFeedback.medium()
+            onTap?()
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                // Main content
+                VStack(alignment: .leading, spacing: 10) {
+                    // Icon ve Title
+                    HStack(spacing: 8) {
+                        ZStack {
+                            Circle()
+                                .fill(Color(hex: data.color).opacity(0.15))
+                                .frame(width: 40, height: 40)
 
-                    Image(systemName: data.icon)
-                        .font(.title3)
-                        .foregroundStyle(Color(hex: data.color))
-                }
+                            Image(systemName: data.icon)
+                                .font(.title3)
+                                .foregroundStyle(Color(hex: data.color))
+                        }
 
-                Text(data.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.primary)
-            }
+                        Text(data.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
 
-            Spacer()
+                        Spacer()
+                    }
 
-            // Main Value
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(data.mainValue)
-                    .font(.title2.bold())
-                    .foregroundStyle(.primary)
+                    Spacer()
 
-                if let badge = data.badge {
-                    Text(badge)
-                        .font(.caption2.bold())
-                        .foregroundStyle(badge.hasPrefix("+") ? .green : .red)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill((badge.hasPrefix("+") ? Color.green : Color.red).opacity(0.15))
-                        )
-                }
-            }
+                    // Main Value
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(data.mainValue)
+                            .font(.title2.bold())
+                            .foregroundStyle(.primary)
 
-            // Sub Value
-            Text(data.subValue)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            // Progress Bar (opsiyonel)
-            if let progress = data.progressValue {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(Color.secondary.opacity(0.15))
-
-                        Capsule()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color(hex: data.color),
-                                        Color(hex: data.color).opacity(0.7)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
+                        if let badge = data.badge {
+                            Text(badge)
+                                .font(.caption2.bold())
+                                .foregroundStyle(badge.hasPrefix("+") ? .green : .red)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill((badge.hasPrefix("+") ? Color.green : Color.red).opacity(0.15))
                                 )
-                            )
-                            .frame(width: geometry.size.width * progress)
+                        }
+                    }
+
+                    // Sub Value
+                    Text(data.subValue)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    // Sparkline (trend data varsa)
+                    if let trendData = data.trendData, !trendData.isEmpty {
+                        SparklineChart(data: trendData, color: Color(hex: data.color))
+                            .padding(.top, 4)
+                    }
+                    // Progress Bar (trend yoksa ve progress varsa)
+                    else if let progress = data.progressValue {
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(Color.secondary.opacity(0.15))
+
+                                Capsule()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                Color(hex: data.color),
+                                                Color(hex: data.color).opacity(0.7)
+                                            ],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: geometry.size.width * progress)
+                            }
+                        }
+                        .frame(height: 6)
                     }
                 }
-                .frame(height: 6)
+                .padding(16)
+
+                // Quick Actions (sağ üst köşe)
+                if let actions = data.quickActions, !actions.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(actions) { action in
+                            Button {
+                                HapticFeedback.light()
+                                onQuickAction?(action)
+                            } label: {
+                                Image(systemName: action.icon)
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(Color(hex: action.color))
+                                    .frame(width: 28, height: 28)
+                                    .background(
+                                        Circle()
+                                            .fill(Color(hex: action.color).opacity(0.15))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(8)
+                }
             }
+            .frame(maxWidth: .infinity, minHeight: 140)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.3), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+            )
         }
-        .padding(16)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(
-                            LinearGradient(
-                                colors: [.white.opacity(0.2), .clear],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
-        )
+        .buttonStyle(.plain)
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 }
 

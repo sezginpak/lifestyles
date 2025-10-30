@@ -37,7 +37,7 @@ struct RelationshipTimelineWidget: View {
                     // Toplam Süre
                     if let duration = friend.relationshipDuration {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Birlikte")
+                            Text(String(localized: "relationship.together", comment: "Together"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
 
@@ -55,7 +55,7 @@ struct RelationshipTimelineWidget: View {
                                     Text("\(duration.months)")
                                         .font(.title2)
                                         .fontWeight(.bold)
-                                    Text("ay")
+                                    Text(String(localized: "common.month", comment: "month"))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -75,7 +75,7 @@ struct RelationshipTimelineWidget: View {
                     // Sonraki Milestone
                     if let nextMilestone = getNextMilestone() {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Sonraki Hedef")
+                            Text(String(localized: "relationship.next.goal", comment: "Next Goal"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
 

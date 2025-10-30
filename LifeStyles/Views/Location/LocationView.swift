@@ -24,11 +24,8 @@ struct LocationView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     // Mevcut Durum
-                    StatusCard(
-                        isAtHome: viewModel.isAtHome,
-                        hoursAtHome: viewModel.hoursAtHome
-                    )
-                    .padding(.horizontal)
+                    CurrentLocationCard()
+                        .padding(.horizontal)
 
                     // İstatistik Kartı
                     if let stats = viewModel.activityStats {
@@ -62,7 +59,7 @@ struct LocationView: View {
                             HStack {
                                 Image(systemName: "star.fill")
                                     .foregroundStyle(.yellow)
-                                Text("Favorilerim")
+                                Text(String(localized: "location.my.favorites", comment: "My Favorites"))
                                     .font(.headline)
                                     .fontWeight(.bold)
                                 Spacer()
@@ -338,19 +335,26 @@ struct LocationView: View {
                 )
                 .ignoresSafeArea()
             )
-            .onAppear {
+            .task {
+                // Async olarak yükle - UI donmasını önle
                 viewModel.setModelContext(modelContext)
-                viewModel.startTracking()
+
+                // Main thread işlemleri önce
                 viewModel.updateLocationStatus()
                 viewModel.updatePeriodicTrackingStatus()
 
-                // Load stats, badges, favorites
-                viewModel.loadOrCreateStats(context: modelContext)
-                viewModel.loadBadges(context: modelContext)
-                viewModel.loadFavoriteActivities(context: modelContext)
+                // Ağır işlemleri arka planda çalıştır
+                await Task.detached {
+                    // Background thread'de çalışacak
+                    await viewModel.loadOrCreateStats(context: modelContext)
+                    await viewModel.loadBadges(context: modelContext)
+                    await viewModel.loadFavoriteActivities(context: modelContext)
+                }.value
 
-                // Otomatik başlatma: Her açılışta kontrol et
-                // setModelContext içinde de kontrol var ama burası view refresh için
+                // Location tracking sonra başlat
+                viewModel.startTracking()
+
+                // Otomatik başlatma
                 if !viewModel.isPeriodicTrackingActive && PermissionManager.shared.hasAlwaysLocationPermission() {
                     print("📍 LocationView açıldı, otomatik başlatılıyor...")
                     viewModel.startPeriodicTracking()
@@ -578,3 +582,153 @@ struct ActivityCard: View {
     }
 }
 
+// MARK: - Current Location Card (With SavedPlaces)
+
+struct CurrentLocationCard: View {
+    @State private var placesService = SavedPlacesService.shared
+    @State private var currentPlace: SavedPlace?
+    @State private var isAnimating = false
+    @State private var visitDuration: TimeInterval = 0
+
+    // Timer to update duration
+    let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: currentPlace != nil ? [currentPlace!.color, currentPlace!.color.opacity(0.7)] : [Color.gray, Color.gray.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+                    .glowEffect(color: currentPlace?.color ?? .gray, radius: 8)
+
+                if let place = currentPlace {
+                    Text(place.emoji)
+                        .font(.title2)
+                        .symbolEffect(.bounce, value: isAnimating)
+                } else {
+                    Image(systemName: "location.slash.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                }
+            }
+            .scaleEffect(isAnimating ? 1.0 : 0.9)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    if let place = currentPlace {
+                        Text(String(format: NSLocalizedString("location.at.place", comment: "At place name"), place.name))
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [place.color, place.color.opacity(0.7)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                    } else {
+                        Text(String(localized: "location.unknown", comment: "Unknown Location"))
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    // Status badge
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(currentPlace?.color ?? .gray)
+                }
+
+                if let place = currentPlace, visitDuration > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+
+                        Text(formatDuration(visitDuration))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } else if currentPlace == nil {
+                    Text(String(localized: "location.not.at.saved.place", comment: "You are not at a saved place"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+
+            // Suggestions button
+            if let place = currentPlace {
+                NavigationLink {
+                    PlaceDetailView(place: place)
+                } label: {
+                    Image(systemName: "info.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(place.color)
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: currentPlace != nil ? [currentPlace!.color.opacity(0.3), currentPlace!.color.opacity(0.1)] : [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+        )
+        .shadow(color: (currentPlace?.color ?? .gray).opacity(0.12), radius: 10, x: 0, y: 4)
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                isAnimating = true
+            }
+            updateCurrentPlace()
+        }
+        .onReceive(timer) { _ in
+            updateDuration()
+        }
+    }
+
+    private func updateCurrentPlace() {
+        currentPlace = placesService.currentPlace
+
+        // Calculate duration if there's an ongoing visit
+        //if let visit = placesService.currentVisit, visit.isOngoing {
+        //     visitDuration = Date().timeIntervalSince(visit.arrivalTime)
+        // }
+    }
+
+    private func updateDuration() {
+        //if let visit = placesService.currentVisit, visit.isOngoing {
+        //     visitDuration = Date().timeIntervalSince(visit.arrivalTime)
+        // }
+    }
+
+    private func formatDuration(_ seconds: TimeInterval) -> String {
+        let hours = Int(seconds) / 3600
+        let minutes = (Int(seconds) % 3600) / 60
+
+        if hours > 0 {
+            return "\(hours) saat \(minutes) dakika"
+        } else if minutes > 0 {
+            return "\(minutes) dakika"
+        } else {
+            return "Az önce geldiniz"
+        }
+    }
+}

@@ -28,33 +28,6 @@ struct FriendQuickActionButton: View {
     }
 }
 
-struct CompactStatCard: View {
-    let icon: String
-    let value: String
-    let label: String
-    let color: Color
-
-    var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(color)
-
-            Text(value)
-                .font(.headline)
-                .fontWeight(.bold)
-
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-}
-
 struct CompactHistoryCard: View {
     let historyItem: ContactHistory
 

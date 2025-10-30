@@ -94,7 +94,7 @@ struct GoalRingCard: View {
                     HStack(spacing: 2) {
                         Image(systemName: "chart.line.uptrend.xyaxis")
                             .font(.caption2)
-                        Text("%\(goal.progressPercentage)")
+                        Text(String(format: NSLocalizedString("goals.progress.percentage", comment: "Goal progress percentage"), goal.progressPercentage))
                             .font(.caption2)
                             .fontWeight(.semibold)
                     }

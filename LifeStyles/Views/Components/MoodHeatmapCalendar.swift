@@ -123,7 +123,7 @@ struct MoodHeatmapCalendar: View {
 
     private var heatmapLegend: some View {
         HStack(spacing: 12) {
-            Text("Daha az")
+            Text(String(localized: "mood.less", comment: "Less"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 

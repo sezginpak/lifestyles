@@ -54,7 +54,7 @@ struct AIPrivacySettingsView: View {
             Section {
                 Toggle(isOn: $privacySettings.morningInsightEnabled) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Morning Insight")
+                        Text(String(localized: "ai.morning.insight", comment: "Morning Insight"))
                             .font(.subheadline)
                         Text(String(localized: "settings.ai.morning.insight.description", comment: "Personalized suggestions every morning"))
                             .font(.caption)
@@ -65,7 +65,7 @@ struct AIPrivacySettingsView: View {
 
                 Toggle(isOn: $privacySettings.aiChatEnabled) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("AI Chat")
+                        Text(String(localized: "ai.chat", comment: "AI Chat"))
                             .font(.subheadline)
                         Text(String(localized: "settings.ai.chat.description", comment: "AI assistant for conversations and suggestions"))
                             .font(.caption)
@@ -338,7 +338,7 @@ struct AIConsentSheet: View {
                         HapticFeedback.success()
                         dismiss()
                     } label: {
-                        Text("Kabul Ediyorum")
+                        Text(String(localized: "common.accept", comment: "I Accept"))
                             .font(.headline)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)

@@ -50,7 +50,7 @@ struct HomeLocationPickerView: View {
                     HStack {
                         Image(systemName: "house.fill")
                             .foregroundStyle(Color.brandPrimary)
-                        Text("Ev Konumunu Ayarla")
+                        Text(String(localized: "settings.home.location.set", comment: "Set Home Location"))
                             .font(.headline)
                         Spacer()
                         Button {
@@ -73,7 +73,7 @@ struct HomeLocationPickerView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.primary)
                             Spacer()
-                            Text("\(Int(homeRadiusMeters)) metre")
+                            Text(String(format: NSLocalizedString("settings.home.radius.meters", comment: "Home radius in meters"), Int(homeRadiusMeters)))
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .foregroundStyle(Color.brandPrimary)
@@ -131,7 +131,7 @@ struct HomeLocationPickerView: View {
                     Spacer()
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Mevcut Ev Konumu")
+                            Text(String(localized: "settings.home.location.current", comment: "Current Home Location"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Text("Lat: \(String(format: "%.4f", home.latitude)), Lon: \(String(format: "%.4f", home.longitude))")

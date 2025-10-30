@@ -2,17 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Anılarınıza fotoğraf ve video eklemek için kamera erişimi gerekiyor.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>LifeStyles, önemli kişilerle düzenli iletişim kurmanıza yardımcı olmak için rehber erişimine ihtiyaç duyar. Verileriniz yalnızca cihazınızda saklanır.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Gizli anılarınızı korumak için Face ID kullanılır.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>LifeStyles, size konum bazlı aktivite önerileri sunmak için konumunuza ihtiyaç duyar.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Video kaydetmek için mikrofon erişimi gerekiyor.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
 	</array>
-	<key>NSContactsUsageDescription</key>
-	<string>LifeStyles, önemli kişilerle düzenli iletişim kurmanıza yardımcı olmak için rehber erişimine ihtiyaç duyar. Verileriniz yalnızca cihazınızda saklanır.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>LifeStyles, size konum bazlı aktivite önerileri sunmak için konumunuza ihtiyaç duyar.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bu özellik arka planda da çalışır ve size konum bazlı aktivite önerileri sunar.</string>
 </dict>
 </plist>

@@ -414,7 +414,7 @@ private struct IntensityDots: View {
         VStack(spacing: Spacing.large) {
             // Section 1: Compact Cards
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                Text("Compact Mood Cards")
+                Text(String(localized: "compact.mood.cards", comment: "Compact Mood Cards"))
                     .font(.title3)
                     .fontWeight(.bold)
 
@@ -437,7 +437,7 @@ private struct IntensityDots: View {
 
             // Section 2: Stats
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                Text("Mini Stat Cards")
+                Text(String(localized: "mood.mini.stat.cards", comment: "Mini Stat Cards"))
                     .font(.title3)
                     .fontWeight(.bold)
 
@@ -467,7 +467,7 @@ private struct IntensityDots: View {
 
             // Section 3: Journal Types
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                Text("Journal Type Pills")
+                Text(String(localized: "journal.type.pills", comment: "Journal Type Pills"))
                     .font(.title3)
                     .fontWeight(.bold)
 
@@ -514,5 +514,213 @@ private struct IntensityDots: View {
         }
         .padding()
     }
+    .background(Color.backgroundPrimary)
+}
+
+// MARK: - 6. TodayMoodCard (Gün İçi Mood Kartları)
+
+/// Bugünün mood'larını gösterir (spotlight veya compact variant)
+struct TodayMoodCard: View {
+    let mood: MoodEntry
+    var isSpotlight: Bool = false
+    var onEdit: (() -> Void)?
+    var onDelete: (() -> Void)?
+
+    @State private var isPressed: Bool = false
+    @State private var showDeleteConfirm: Bool = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: isSpotlight ? Spacing.medium : Spacing.small) {
+            // Header: Emoji + Actions
+            HStack(alignment: .top) {
+                Text(mood.moodType.emoji)
+                    .font(.system(size: isSpotlight ? 64 : 40))
+
+                Spacer()
+
+                if isSpotlight {
+                    // Edit/Delete buttons
+                    HStack(spacing: Spacing.small) {
+                        Button {
+                            HapticFeedback.light()
+                            onEdit?()
+                        } label: {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .background(Circle().fill(Color.brandPrimary))
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            HapticFeedback.warning()
+                            showDeleteConfirm = true
+                        } label: {
+                            Image(systemName: "trash.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .background(Circle().fill(Color.red))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            // Mood Info
+            VStack(alignment: .leading, spacing: Spacing.micro) {
+                Text(mood.moodType.displayName)
+                    .font(isSpotlight ? .title3 : .subheadline)
+                    .fontWeight(.bold)
+
+                // Time
+                Text(timeString(for: mood.date))
+                    .font(isSpotlight ? .callout : .caption)
+                    .foregroundStyle(.secondary)
+
+                // Intensity
+                HStack(spacing: 3) {
+                    ForEach(1...5, id: \.self) { index in
+                        Circle()
+                            .fill(index <= mood.intensity ? mood.moodType.color : Color.gray.opacity(0.3))
+                            .frame(width: isSpotlight ? 6 : 5, height: isSpotlight ? 6 : 5)
+                    }
+                }
+                .padding(.top, Spacing.micro)
+            }
+
+            // Note (if exists and spotlight)
+            if isSpotlight, let note = mood.note, !note.isEmpty {
+                Text(note)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .padding(.top, Spacing.micro)
+            }
+
+            Spacer()
+        }
+        .padding(isSpotlight ? Spacing.large : Spacing.medium)
+        .frame(width: isSpotlight ? 180 : 130, height: isSpotlight ? 200 : 150)
+        .background(
+            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.large, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            mood.moodType.color.opacity(0.15),
+                            mood.moodType.color.opacity(0.05)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.large, style: .continuous)
+                .strokeBorder(
+                    mood.moodType.color.opacity(isSpotlight ? 0.5 : 0.3),
+                    lineWidth: isSpotlight ? 2 : 1
+                )
+        )
+        .shadow(
+            color: isSpotlight ? mood.moodType.color.opacity(0.2) : .clear,
+            radius: 12,
+            y: 4
+        )
+        .scaleEffect(isPressed ? 0.97 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isPressed)
+        .alert("Mood'u Sil", isPresented: $showDeleteConfirm) {
+            Button("İptal", role: .cancel) { }
+            Button("Sil", role: .destructive) {
+                onDelete?()
+            }
+        } message: {
+            Text(String(localized: "mood.delete.confirmation", comment: "Are you sure you want to delete this mood entry?"))
+        }
+    }
+
+    /// Saat formatı (HH:mm)
+    private func timeString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.locale = Locale(identifier: "tr_TR")
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: - 7. TodayMoodsScrollView (Yatay Kaydırmalı Grid)
+
+/// Bugünün mood'larını yatay scrollview ile gösterir
+struct TodayMoodsScrollView: View {
+    let moods: [MoodEntry]
+    var onEdit: ((MoodEntry) -> Void)?
+    var onDelete: ((MoodEntry) -> Void)?
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: Spacing.medium) {
+                ForEach(Array(moods.enumerated()), id: \.element.id) { index, mood in
+                    TodayMoodCard(
+                        mood: mood,
+                        isSpotlight: index == 0, // İlk mood spotlight
+                        onEdit: { onEdit?(mood) },
+                        onDelete: { onDelete?(mood) }
+                    )
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .padding(.horizontal, Spacing.large)
+        }
+        .frame(height: 220)
+    }
+}
+
+// MARK: - Previews (Yeni Component'ler)
+
+#Preview("TodayMoodCard - Spotlight") {
+    TodayMoodCard(
+        mood: MoodEntry(
+            moodType: .happy,
+            intensity: 4,
+            note: "Harika bir sabah!"
+        ),
+        isSpotlight: true
+    )
+    .padding()
+    .background(Color.backgroundPrimary)
+}
+
+#Preview("TodayMoodCard - Compact") {
+    HStack(spacing: Spacing.medium) {
+        TodayMoodCard(
+            mood: MoodEntry(
+                moodType: .excited,
+                intensity: 5
+            ),
+            isSpotlight: false
+        )
+
+        TodayMoodCard(
+            mood: MoodEntry(
+                moodType: .grateful,
+                intensity: 4
+            ),
+            isSpotlight: false
+        )
+    }
+    .padding()
+    .background(Color.backgroundPrimary)
+}
+
+#Preview("TodayMoodsScrollView") {
+    TodayMoodsScrollView(
+        moods: [
+            MoodEntry(moodType: .happy, intensity: 4, note: "Sabah kahvem harika!"),
+            MoodEntry(moodType: .excited, intensity: 5),
+            MoodEntry(moodType: .grateful, intensity: 4),
+            MoodEntry(moodType: .neutral, intensity: 3)
+        ]
+    )
     .background(Color.backgroundPrimary)
 }

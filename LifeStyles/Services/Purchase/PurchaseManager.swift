@@ -19,10 +19,23 @@ class PurchaseManager {
     private(set) var purchasedProductIDs: Set<String> = []
     private(set) var subscriptionStatus: SubscriptionStatus = .free
 
+    #if DEBUG
+    // Debug override - paywall test etmek için
+    var debugForceFreeMode: Bool = false
+    #endif
+
     var isPremium: Bool {
-        // TODO: GEÇICI - TEST İÇİN PREMIUM AKTİF
+        #if DEBUG
+        // Debug override aktifse, free mode
+        if debugForceFreeMode {
+            return false
+        }
+        // Yoksa debug modda premium
         return true
-        // subscriptionStatus == .premium
+        #else
+        // Production modda gerçek abonelik kontrolü
+        return subscriptionStatus == .premium
+        #endif
     }
 
     // Transaction update task
@@ -112,7 +125,7 @@ class PurchaseManager {
         var hasPremium = false
 
         // Check all transactions
-        for await result in Transaction.currentEntitlements {
+        for await result in StoreKit.Transaction.currentEntitlements {
             do {
                 let transaction = try checkVerified(result)
 
@@ -146,7 +159,7 @@ class PurchaseManager {
     // MARK: - Transaction Updates
 
     private func observeTransactionUpdates() async {
-        for await result in Transaction.updates {
+        for await result in StoreKit.Transaction.updates {
             do {
                 let transaction = try checkVerified(result)
                 await transaction.finish()

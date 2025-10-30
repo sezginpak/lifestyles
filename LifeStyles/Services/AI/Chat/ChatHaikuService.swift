@@ -384,6 +384,21 @@ class ChatHaikuService {
                     }
                 }
                 contextInfo += "\n"
+
+                // Saved places
+                if !location.savedPlaces.isEmpty {
+                    contextInfo += "\n🏠 Kayıtlı Yerler:\n"
+                    for place in location.savedPlaces {
+                        contextInfo += "   \(place.emoji) \(place.name) (\(place.category))"
+                        if place.visitCount > 0 {
+                            contextInfo += " - \(place.visitCount) ziyaret"
+                        }
+                        if let notes = place.notes, !notes.isEmpty {
+                            contextInfo += " - Not: \(notes)"
+                        }
+                        contextInfo += "\n"
+                    }
+                }
             }
 
             // Journal context

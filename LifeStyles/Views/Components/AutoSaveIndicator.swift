@@ -278,7 +278,7 @@ class AutoSaveManager {
 
 #Preview("All States") {
     VStack(spacing: 24) {
-        Text("Auto Save Indicator States")
+        Text(String(localized: "auto.save.states", comment: "Auto Save Indicator States"))
             .font(.title2)
             .fontWeight(.bold)
 
@@ -294,7 +294,7 @@ class AutoSaveManager {
         Divider()
 
         VStack(alignment: .leading, spacing: 16) {
-            Text("Without Message")
+            Text(String(localized: "without.message", comment: "Without Message"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

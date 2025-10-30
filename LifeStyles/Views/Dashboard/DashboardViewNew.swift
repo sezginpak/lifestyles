@@ -14,13 +14,18 @@ struct DashboardViewNew: View {
     @State var viewModel = DashboardViewModel()
     @State var showingSuggestions = false
     @State private var showingGeneralAIChat = false
-    @State private var showingFullMorningInsight = false
-    @State private var isMorningInsightPressed = false
+    @State private var showingFullDailyInsight = false
 
     // Computed data
     @State private var dashboardSummary: DashboardSummary = .empty()
     @State private var partnerInfo: PartnerInfo? = nil
     @State private var streakInfo: StreakInfo = .empty()
+
+    // Navigation states (YENİ)
+    @State private var selectedTab: Int? = nil
+    @State private var showingAddGoalSheet = false
+    @State private var showingAddHabitSheet = false
+    @State private var goalsViewModel = GoalsViewModel()
 
     var body: some View {
         NavigationStack {
@@ -34,8 +39,8 @@ struct DashboardViewNew: View {
                         // 2. Mood Widget
                         DashboardMoodWidget()
 
-                        // 2.5. Morning Insight (Claude Haiku)
-                        morningInsightSection
+                        // 2.5. Daily Insight (Claude Haiku) - Sabah/Öğle/Akşam dinamik
+                        dailyInsightSection
 
                         // 3. AI Insights (iOS 26+)
                         if #available(iOS 26.0, *) {
@@ -122,11 +127,33 @@ struct DashboardViewNew: View {
             .sheet(isPresented: $showingGeneralAIChat) {
                 GeneralAIChatView()
             }
-            .sheet(isPresented: $showingFullMorningInsight) {
-                FullMorningInsightSheet(insight: viewModel.morningInsight ?? "")
+            .sheet(isPresented: $showingFullDailyInsight) {
+                if let insight = viewModel.dailyInsightText {
+                    FullDailyInsightSheet(
+                        insight: insight,
+                        timeOfDay: viewModel.dailyInsightTimeOfDay
+                    )
+                }
+            }
+            .sheet(isPresented: $viewModel.showLimitReachedSheet) {
+                if let limitType = viewModel.limitReachedType {
+                    LimitReachedSheet(limitType: limitType)
+                }
+            }
+            .sheet(isPresented: $showingAddGoalSheet) {
+                AddGoalView(viewModel: goalsViewModel, modelContext: modelContext)
+            }
+            .sheet(isPresented: $showingAddHabitSheet) {
+                AddHabitView(viewModel: goalsViewModel, modelContext: modelContext)
             }
             .onAppear {
                 loadDashboardData()
+            }
+            .onChange(of: selectedTab) { oldValue, newValue in
+                // Tab değiştiğinde ContentView'a bildir (TODO: Environment ile implement edilecek)
+                if let tab = newValue {
+                    NotificationCenter.default.post(name: NSNotification.Name("ChangeTab"), object: tab)
+                }
             }
         }
     }
@@ -149,8 +176,19 @@ struct DashboardViewNew: View {
                         mainValue: "%\(Int(viewModel.goalCompletionRate * 100))",
                         subValue: String(localized: "dashboard.stats.completion", comment: "Completion"),
                         progressValue: viewModel.goalCompletionRate,
-                        badge: viewModel.overdueGoals > 0 ? String(format: NSLocalizedString("dashboard.stats.overdue.format", comment: "X overdue"), viewModel.overdueGoals) : nil
-                    )
+                        badge: viewModel.overdueGoals > 0 ? String(format: NSLocalizedString("dashboard.stats.overdue.format", comment: "X overdue"), viewModel.overdueGoals) : nil,
+                        trendData: viewModel.getGoalsTrendData(context: modelContext),
+                        destination: .goals,
+                        quickActions: [
+                            QuickAction(icon: "plus", color: "667EEA", action: .addGoal)
+                        ]
+                    ),
+                    onTap: {
+                        selectedTab = 3 // Goals tab
+                    },
+                    onQuickAction: { action in
+                        handleQuickAction(action)
+                    }
                 )
 
                 // İletişim
@@ -162,8 +200,19 @@ struct DashboardViewNew: View {
                         mainValue: "\(viewModel.contactsThisWeek)",
                         subValue: String(localized: "dashboard.stats.this.week", comment: "This week"),
                         progressValue: nil,
-                        badge: viewModel.contactTrendPercentage != 0 ? "\(viewModel.contactTrendPercentage >= 0 ? "+" : "")\(Int(viewModel.contactTrendPercentage))%" : nil
-                    )
+                        badge: viewModel.contactTrendPercentage != 0 ? "\(viewModel.contactTrendPercentage >= 0 ? "+" : "")\(Int(viewModel.contactTrendPercentage))%" : nil,
+                        trendData: viewModel.getContactsTrendData(context: modelContext),
+                        destination: .friends,
+                        quickActions: partnerInfo != nil ? [
+                            QuickAction(icon: "phone.fill", color: "3498DB", action: .callPartner)
+                        ] : nil
+                    ),
+                    onTap: {
+                        selectedTab = 1 // Friends tab
+                    },
+                    onQuickAction: { action in
+                        handleQuickAction(action)
+                    }
                 )
 
                 // Alışkanlıklar
@@ -175,8 +224,19 @@ struct DashboardViewNew: View {
                         mainValue: "\(viewModel.completedHabitsToday)/\(viewModel.totalHabitsToday)",
                         subValue: String(localized: "dashboard.stats.today", comment: "Today"),
                         progressValue: viewModel.totalHabitsToday > 0 ? Double(viewModel.completedHabitsToday) / Double(viewModel.totalHabitsToday) : 0,
-                        badge: String(format: NSLocalizedString("dashboard.stats.weekly.format", comment: "X% weekly"), Int(viewModel.weeklyHabitCompletionRate * 100))
-                    )
+                        badge: String(format: NSLocalizedString("dashboard.stats.weekly.format", comment: "X% weekly"), Int(viewModel.weeklyHabitCompletionRate * 100)),
+                        trendData: viewModel.getHabitsTrendData(context: modelContext),
+                        destination: .habits,
+                        quickActions: [
+                            QuickAction(icon: "checkmark", color: "E74C3C", action: .completeHabit)
+                        ]
+                    ),
+                    onTap: {
+                        selectedTab = 3 // Goals tab (habits are there)
+                    },
+                    onQuickAction: { action in
+                        handleQuickAction(action)
+                    }
                 )
 
                 // Mobilite
@@ -188,8 +248,19 @@ struct DashboardViewNew: View {
                         mainValue: "\(viewModel.mobilityScore)",
                         subValue: String(localized: "dashboard.stats.score", comment: "Score"),
                         progressValue: Double(viewModel.mobilityScore) / 100.0,
-                        badge: String(format: NSLocalizedString("dashboard.stats.locations.format", comment: "X locations"), viewModel.uniqueLocationsThisWeek)
-                    )
+                        badge: String(format: NSLocalizedString("dashboard.stats.locations.format", comment: "X locations"), viewModel.uniqueLocationsThisWeek),
+                        trendData: viewModel.getMobilityTrendData(context: modelContext),
+                        destination: .location,
+                        quickActions: [
+                            QuickAction(icon: "mappin.and.ellipse", color: "2ECC71", action: .logLocation)
+                        ]
+                    ),
+                    onTap: {
+                        selectedTab = 2 // Location tab
+                    },
+                    onQuickAction: { action in
+                        handleQuickAction(action)
+                    }
                 )
             }
             .padding(.horizontal)
@@ -275,7 +346,7 @@ struct DashboardViewNew: View {
                 Text(suggestion.estimatedDifficulty.emoji)
                     .font(.caption)
 
-                Text("%\(Int(suggestion.relevanceScore * 100))")
+                Text(String(format: NSLocalizedString("dashboard.relevance.percentage", comment: "Relevance percentage"), Int(suggestion.relevanceScore * 100)))
                     .font(.caption2.bold())
                     .foregroundColor(.brandPrimary)
             }
@@ -329,140 +400,68 @@ struct DashboardViewNew: View {
         .padding(.horizontal)
     }
 
-    // MARK: - Morning Insight Section
+    // MARK: - Daily Insight Section (Yeni Tasarım)
 
-    var morningInsightSection: some View {
-        Group {
-            if viewModel.isLoadingMorningInsight {
-                // Loading state
-                HStack(spacing: 10) {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                        .tint(.purple)
-
-                    Text(String(localized: "dashboard.morning.insight.loading", comment: "Claude is thinking about you..."))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .padding(.horizontal, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
+    @ViewBuilder
+    var dailyInsightSection: some View {
+        if viewModel.isLoadingDailyInsight {
+                // Modern loading card
+                DailyInsightCard(
+                    insight: "",
+                    timeOfDay: viewModel.dailyInsightTimeOfDay,
+                    isLoading: true
                 )
-                .padding(.horizontal)
+                .padding(.horizontal, Spacing.large)
 
-            } else if let insight = viewModel.morningInsight {
-                // Morning insight card
-                VStack(alignment: .leading, spacing: 12) {
-                    // Header
-                    HStack(spacing: 8) {
-                        Image(systemName: "sun.horizon.fill")
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.orange, .pink, .purple],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .font(.title3)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(String(localized: "dashboard.morning.insight", comment: "Morning Insight"))
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-
-                            Text(String(localized: "dashboard.morning.insight.personalized", comment: "Personalized with Claude Haiku"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-
-                        Spacer()
-
-                        // Refresh button
-                        Button {
-                            HapticFeedback.light()
-                            Task {
-                                await viewModel.refreshMorningInsight(context: modelContext)
-                            }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.callout)
-                                .foregroundStyle(.purple.opacity(0.8))
-                        }
-                    }
-
-                    Divider()
-
-                    // Insight text
-                    Text(insight)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .lineSpacing(4)
-                        .lineLimit(4)
-
-                    // Long press hint
-                    Text(String(localized: "dashboard.morning.insight.long.press.hint", comment: "Long press to view full insight"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .italic()
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16)
-                .background(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial)
-
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [.orange.opacity(0.3), .pink.opacity(0.3), .purple.opacity(0.3)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: isMorningInsightPressed ? 2 : 1
-                            )
+            } else if let insight = viewModel.dailyInsightText {
+                // Modern Daily Insight kartı
+                DailyInsightCard(
+                    insight: insight,
+                    timeOfDay: viewModel.dailyInsightTimeOfDay,
+                    onRefresh: {
+                        await viewModel.refreshDailyInsight(context: modelContext)
+                    },
+                    onExpand: {
+                        showingFullDailyInsight = true
                     }
                 )
-                .shadow(
-                    color: isMorningInsightPressed ? .purple.opacity(0.3) : .purple.opacity(0.1),
-                    radius: isMorningInsightPressed ? 20 : 10,
-                    y: isMorningInsightPressed ? 8 : 5
-                )
-                .scaleEffect(isMorningInsightPressed ? 0.98 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isMorningInsightPressed)
-                .padding(.horizontal)
-                .onLongPressGesture(minimumDuration: 0.5) {
-                    HapticFeedback.medium()
-                    showingFullMorningInsight = true
-                } onPressingChanged: { pressing in
-                    isMorningInsightPressed = pressing
-                }
+                .padding(.horizontal, Spacing.large)
 
-            } else if let error = viewModel.morningInsightError {
-                // Error state
-                HStack(spacing: 10) {
+            } else if let error = viewModel.dailyInsightError {
+                // Error state (kompakt)
+                HStack(spacing: Spacing.small) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
+                        .font(.callout)
 
-                    Text(String(format: NSLocalizedString("dashboard.morning.insight.error.format", comment: "Could not create insight: %@"), error))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "insight.could.not.generate", comment: "Could not generate insight"))
+                            .font(.subheadline.weight(.medium))
+
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+
+                    Spacer()
+
+                    Button("Tekrar Dene") {
+                        Task {
+                            await viewModel.refreshDailyInsight(context: modelContext)
+                        }
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.orange)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
+                .padding(Spacing.medium)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: CornerRadius.normal)
                         .fill(.orange.opacity(0.1))
                 )
-                .padding(.horizontal)
-            }
+                .padding(.horizontal, Spacing.large)
+        } else {
+            EmptyView()
         }
     }
 
@@ -491,42 +490,53 @@ struct DashboardViewNew: View {
                 .padding(.horizontal)
 
             } else if let insight = viewModel.dailyInsight {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.purple, .pink],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                // Compact AI Insight Card
+                HStack(spacing: 10) {
+                    // Icon
+                    Image(systemName: "sparkles")
+                        .font(.title3)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.purple, .pink],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                            .font(.caption)
+                        )
+                        .frame(width: 36, height: 36)
+                        .background(
+                            Circle()
+                                .fill(.purple.opacity(0.1))
+                        )
 
-                        Text(String(localized: "dashboard.ai.summary", comment: "AI summary"))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.primary)
+                    // Content
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(String(localized: "dashboard.ai.summary", comment: "AI summary"))
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.primary)
 
-                        Spacer()
+                            Spacer()
 
-                        Button {
-                            Task {
-                                await viewModel.refreshAIInsights(context: modelContext)
+                            // Refresh button
+                            Button {
+                                Task {
+                                    await viewModel.refreshAIInsights(context: modelContext)
+                                }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.caption2)
+                                    .foregroundStyle(.purple.opacity(0.6))
                             }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.caption2)
-                                .foregroundStyle(.purple.opacity(0.7))
+                            .buttonStyle(.plain)
                         }
-                    }
 
-                    Text(insight.summary)
-                        .font(.caption)
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
+                        // Summary (single line)
+                        Text(insight.summary)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
 
-                    HStack(spacing: 6) {
+                        // Priority badge (single compact badge)
                         HStack(spacing: 4) {
                             Text("⭐")
                                 .font(.caption2)
@@ -535,50 +545,46 @@ struct DashboardViewNew: View {
                                 .foregroundStyle(.primary)
                                 .lineLimit(1)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(Color.yellow.opacity(0.12)))
-
-                        Spacer(minLength: 4)
-
-                        HStack(spacing: 4) {
-                            Text("❤️")
-                                .font(.caption2)
-                            Text(insight.motivationMessage)
-                                .font(.caption2)
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Capsule().fill(Color.pink.opacity(0.12)))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(.yellow.opacity(0.15))
+                        )
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
+                .padding(12)
                 .background(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(.ultraThinMaterial)
-
-                        RoundedRectangle(cornerRadius: 14)
-                            .strokeBorder(
-                                LinearGradient(
-                                    colors: [
-                                        .purple.opacity(0.3),
-                                        .pink.opacity(0.2),
-                                        .clear
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    }
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .strokeBorder(.purple.opacity(0.2), lineWidth: 1)
+                        )
                 )
-                .shadow(color: .purple.opacity(0.08), radius: 8, x: 0, y: 4)
                 .padding(.horizontal)
+                .contentShape(Rectangle()) // Tıklanabilir alan
+                .allowsHitTesting(true) // Touch event'leri geçir
             }
+        }
+    }
+
+    // MARK: - Quick Action Handler
+
+    private func handleQuickAction(_ action: QuickAction) {
+        switch action.action {
+        case .addGoal:
+            showingAddGoalSheet = true
+        case .callPartner:
+            if let partner = partnerInfo {
+                callPartner(partner)
+            }
+        case .completeHabit:
+            showingAddHabitSheet = true // TODO: Bugünün alışkanlıklarını göster
+        case .logLocation:
+            selectedTab = 2 // Location tab'e git
+        case .custom(let customAction):
+            customAction()
         }
     }
 
@@ -649,7 +655,7 @@ struct FullMorningInsightSheet: View {
 
                         Spacer()
 
-                        Text("Claude Haiku")
+                        Text(String(localized: "dashboard.claude.haiku", comment: "Claude Haiku model name"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 12)

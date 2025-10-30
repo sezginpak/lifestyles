@@ -93,7 +93,7 @@ struct MoodIntensitySlider: View {
 
                 Spacer()
 
-                Text("\(intensity)/5")
+                Text(String(format: NSLocalizedString("mood.intensity.of.five", comment: "Intensity out of 5"), intensity))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     // DS: Updated padding to Spacing.small and Spacing.micro
@@ -359,7 +359,7 @@ struct MoodEmptyState: View {
 
                 Text(message)
                     .secondaryText() // DS: Using typography helper
-                    .multilineTextAlignment(.center)
+                    .multilineTextAlignment(TextAlignment.center)
             }
 
             if let actionLabel = actionLabel, let action = action {

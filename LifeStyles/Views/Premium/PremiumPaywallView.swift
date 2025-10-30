@@ -35,7 +35,7 @@ struct PremiumPaywallView: View {
                             .foregroundStyle(.yellow)
                             .shadow(color: .yellow.opacity(0.5), radius: 10)
 
-                        Text("LifeStyles Premium")
+                        Text(String(localized: "premium.lifestyles.title", comment: "LifeStyles Premium"))
                             .font(.largeTitle.bold())
                             .foregroundStyle(.white)
 
@@ -293,7 +293,7 @@ struct SubscriptionPlaceholderCard: View {
                         .font(.title.bold())
                         .foregroundStyle(.white)
 
-                    Text("/ay")
+                    Text(String(localized: "premium.per.month", comment: "Per month"))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
                 }

@@ -10,6 +10,7 @@ import SwiftData
 import CoreLocation
 
 @Observable
+@MainActor
 class LocationViewModel {
     var isAtHome: Bool = false
     var hoursAtHome: Double = 0

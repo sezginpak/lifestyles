@@ -29,6 +29,9 @@ struct AddFriendView: View {
     @State private var selectedLoveLanguage: LoveLanguage? = nil
     @State private var favoriteThings: String = ""
 
+    // Duplicate error
+    @State private var showDuplicateError: Bool = false
+
     var body: some View {
         NavigationStack {
             Form {
@@ -136,7 +139,7 @@ struct AddFriendView: View {
 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(String(localized: "common.save", comment: "Save")) {
-                        viewModel.addFriend(
+                        let success = viewModel.addFriend(
                             name: name,
                             phoneNumber: phoneNumber.isEmpty ? nil : phoneNumber,
                             frequency: selectedFrequency,
@@ -149,10 +152,21 @@ struct AddFriendView: View {
                             loveLanguage: relationshipType == .partner ? selectedLoveLanguage : nil,
                             favoriteThings: relationshipType == .partner && !favoriteThings.isEmpty ? favoriteThings : nil
                         )
-                        dismiss()
+
+                        if success {
+                            dismiss()
+                        } else {
+                            showDuplicateError = true
+                            HapticFeedback.error()
+                        }
                     }
                     .disabled(name.isEmpty)
                 }
+            }
+            .alert("Duplicate Arkadaş", isPresented: $showDuplicateError) {
+                Button("Tamam", role: .cancel) { }
+            } message: {
+                Text(String(localized: "friends.already.exists", comment: "Friend already exists validation"))
             }
         }
     }

@@ -17,94 +17,57 @@ struct FriendsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    // Relationship Type Segmented Control
+                VStack(spacing: 12) {
+                    // Compact Stats Banner
+                    compactStatsBanner
+                        .padding(.horizontal)
+                        .padding(.top, 4)
+
+                    // Sort Picker
+                    sortPicker
+                        .padding(.horizontal)
+
+                    // Relationship Type Filter
                     relationshipTypeFilter
                         .padding(.horizontal)
-                        .padding(.top, 8)
 
-                    // Partner özel kartı (eğer partner varsa ve filtre partner'da ise)
-                    if let partner = viewModel.partner,
-                       viewModel.selectedRelationshipType == .partner || viewModel.selectedRelationshipType == nil {
-                        PartnerHeroCard(partner: partner)
-                            .padding(.horizontal)
-                    }
-
-                    // İstatistik Kartı
-                    FriendsStatsCard(
-                        needsAttention: viewModel.friendsNeedingAttention,
-                        totalFriends: viewModel.friends.count,
-                        importantFriends: viewModel.importantFriends.count
-                    )
-                    .padding(.horizontal)
-
-                    // İletişim Gerekenlerin Listesi
-                    if !viewModel.filteredFriends.filter({ $0.needsContact }).isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(String(localized: "friend.needs.contact", comment: "Needs contact"))
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .padding(.horizontal)
-
-                            ForEach(viewModel.filteredFriends.filter { $0.needsContact }) { friend in
-                                NavigationLink(destination: FriendDetailView(friend: friend)) {
-                                    FriendCard(friend: friend, viewModel: viewModel)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .padding(.horizontal)
+                    // Compact Friends List
+                    if !viewModel.filteredFriends.isEmpty {
+                        VStack(spacing: 8) {
+                            ForEach(viewModel.filteredFriends) { friend in
+                                SwipeableFriendRow(friend: friend, viewModel: viewModel)
+                                    .padding(.horizontal)
                             }
                         }
-                    }
-
-                    // Tüm Arkadaşlar
-                    if !viewModel.filteredFriends.filter({ !$0.needsContact }).isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(String(localized: "friend.all.friends", comment: "All friends"))
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .padding(.horizontal)
-
-                            ForEach(viewModel.filteredFriends.filter { !$0.needsContact }) { friend in
-                                NavigationLink(destination: FriendDetailView(friend: friend)) {
-                                    FriendCard(friend: friend, viewModel: viewModel)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                                .padding(.horizontal)
-                            }
-                        }
-                    }
-
-                    // Boş durum
-                    if viewModel.friends.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "person.2.slash")
-                                .font(.system(size: 60))
+                    } else if viewModel.friends.isEmpty {
+                        // Boş durum
+                        emptyState
+                            .padding(.top, 40)
+                    } else {
+                        // Arama sonucu boş
+                        VStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 40))
                                 .foregroundStyle(.secondary)
 
-                            Text(String(localized: "friend.empty.title", comment: "No friends added yet"))
+                            Text(String(localized: "common.no.results", comment: "No results found"))
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
-
-                            Text(String(localized: "friend.empty.message", comment: "Add important friends and track regular communication."))
-                                .font(.subheadline)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
                         }
-                        .padding(.top, 60)
+                        .padding(.top, 40)
                     }
                 }
-                .padding(.vertical)
+                .padding(.bottom, 8)
             }
             .navigationTitle(String(localized: "friends.title", comment: "Friends"))
-            .searchable(text: $viewModel.searchText, prompt: "Arkadaş Ara")
+            .searchable(text: $viewModel.searchText, prompt: String(localized: "friends.search.placeholder", comment: "Search Friends"))
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         showingPhoneBookPicker = true
                     } label: {
-                        Label("Rehberden Seç", systemImage: "person.crop.circle.badge.plus")
-                            .font(.subheadline)
+                        Label(String(localized: "friends.pick.from.contacts", comment: "Pick from Contacts"), systemImage: "person.crop.circle.badge.plus")
+                            .font(.caption)
                     }
                 }
 
@@ -113,7 +76,7 @@ struct FriendsView: View {
                         showingAddSheet = true
                     } label: {
                         Image(systemName: "plus.circle.fill")
-                            .font(.title3)
+                            .font(.body)
                     }
                 }
             }
@@ -129,6 +92,147 @@ struct FriendsView: View {
         }
     }
 
+    // MARK: - Compact Stats Banner
+
+    private var compactStatsBanner: some View {
+        HStack(spacing: 10) {
+            // Acil
+            HStack(spacing: 3) {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                Text("\(viewModel.friendsNeedingAttention)")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.red)
+                Text(String(localized: "common.urgent", comment: "Urgent"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Divider()
+                .frame(height: 16)
+
+            // Yakında
+            HStack(spacing: 3) {
+                Image(systemName: "clock.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                Text("\(viewModel.friendsSoonCount)")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.orange)
+                Text(String(localized: "friends.coming.soon", comment: "Coming Soon"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Divider()
+                .frame(height: 16)
+
+            // Toplam
+            HStack(spacing: 3) {
+                Image(systemName: "person.2.fill")
+                    .font(.caption)
+                    .foregroundStyle(.blue)
+                Text("\(viewModel.friends.count)")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.blue)
+                Text(String(localized: "common.total", comment: "Total"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+    }
+
+    // MARK: - Sort Picker
+
+    private var sortPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(FriendSortOption.allCases, id: \.self) { option in
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            viewModel.sortOption = option
+                            HapticFeedback.light()
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: option.icon)
+                                .font(.caption)
+                            Text(option.rawValue)
+                                .font(.caption.weight(.medium))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(viewModel.sortOption == option
+                                      ? Color.accentColor
+                                      : Color(.tertiarySystemGroupedBackground))
+                        )
+                        .foregroundStyle(viewModel.sortOption == option
+                                       ? .white
+                                       : .primary)
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.2.crop.square.stack")
+                .font(.system(size: 64))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.blue, .purple],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            VStack(spacing: 8) {
+                Text(String(localized: "friends.empty.title", comment: "No Friends Added Yet"))
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.primary)
+
+                Text(String(localized: "friends.empty.message", comment: "Add your important friends and start tracking"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    showingPhoneBookPicker = true
+                } label: {
+                    Label("Rehberden Ekle", systemImage: "person.crop.circle.badge.plus")
+                        .font(.subheadline.weight(.medium))
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    showingAddSheet = true
+                } label: {
+                    Label("Manuel Ekle", systemImage: "plus.circle.fill")
+                        .font(.subheadline.weight(.medium))
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+
     // MARK: - Relationship Type Filter
 
     private var relationshipTypeFilter: some View {
@@ -136,7 +240,7 @@ struct FriendsView: View {
             HStack(spacing: 12) {
                 // Tümü butonu
                 FriendFilterChip(
-                    title: "Tümü",
+                    title: String(localized: "friends.filter.all", comment: "All"),
                     emoji: "👥",
                     isSelected: viewModel.selectedRelationshipType == nil,
                     count: viewModel.friends.count

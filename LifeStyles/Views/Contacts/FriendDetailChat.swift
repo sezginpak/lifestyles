@@ -4,19 +4,14 @@
 //
 //  Created by Claude on 21.10.2025.
 //  Refactored from FriendDetailView.swift - Chat components
+//  Updated to SwiftData model on 25.10.2025
 //
 
 import SwiftUI
-import FoundationModels
+import SwiftData
 
-// MARK: - Chat Components
-
-struct ChatMessage: Identifiable {
-    let id = UUID()
-    let content: String
-    let isUser: Bool
-    let timestamp = Date()
-}
+// MARK: - Chat Bubble Component
+// Note: ChatMessage model is defined in Models/ChatMessage.swift
 
 struct ChatBubble: View {
     let message: ChatMessage

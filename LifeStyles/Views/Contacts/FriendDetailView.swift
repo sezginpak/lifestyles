@@ -31,6 +31,9 @@ struct FriendDetailView: View {
     @State var isGeneratingAI = false
     @State var aiSuggestionText: String = ""
 
+    // Transaction State
+    @State var showingAddTransaction = false
+
     enum DetailTab: String {
         case overview = "Genel"
         case history = "Geçmiş"
@@ -345,7 +348,7 @@ struct FriendDetailView: View {
                 .fill(healthScoreColor)
                 .frame(width: 8, height: 8)
 
-            Text("\(relationshipHealthScore)%")
+            Text(String(format: NSLocalizedString("friends.health.percentage", comment: "Relationship health percentage"), relationshipHealthScore))
                 .font(.caption2)
                 .fontWeight(.semibold)
                 .foregroundStyle(healthScoreColor)
@@ -360,6 +363,32 @@ struct FriendDetailView: View {
         .clipShape(Capsule())
     }
 
-    // MARK: - Overview Content
+    // MARK: - Notes Section
+
+    var notesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Notlar", systemImage: "note.text")
+                    .font(.headline)
+                Spacer()
+            }
+
+            if let notes = friend.notes, !notes.isEmpty {
+                Text(notes)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("Not yok")
+                    .font(.body)
+                    .foregroundStyle(.tertiary)
+                    .italic()
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+        )
+    }
 
 }

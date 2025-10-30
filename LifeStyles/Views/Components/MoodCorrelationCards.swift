@@ -288,7 +288,7 @@ struct LocationCorrelationCard: View {
                 .lineLimit(2)
 
             // Visit count
-            Text("\(correlation.visitCount) ziyaret")
+            Text(String(format: NSLocalizedString("location.visits.count", comment: "Visit count"), correlation.visitCount))
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
