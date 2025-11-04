@@ -20,7 +20,6 @@ struct ChatHistoryView: View {
     // UI State
     @State private var selectedMode: ConversationMode = .general
     @State private var searchText = ""
-    @State private var showingConversation: ChatConversation?
     @State private var isRefreshing = false
 
     enum ConversationMode: String, CaseIterable {
@@ -85,20 +84,6 @@ struct ChatHistoryView: View {
                     }
                 }
             }
-            .sheet(item: $showingConversation) { conversation in
-                // Open conversation
-                if conversation.isGeneralMode {
-                    GeneralAIChatView(existingConversation: conversation)
-                } else {
-                    // Friend-specific chat
-                    if let friendId = conversation.friendId {
-                        FriendAIChatView(
-                            friend: findFriend(by: friendId),
-                            existingConversation: conversation
-                        )
-                    }
-                }
-            }
         }
     }
 
@@ -141,22 +126,38 @@ struct ChatHistoryView: View {
     }
 
     private func conversationRow(_ conversation: ChatConversation) -> some View {
-        ConversationCard(
-            conversation: conversation,
-            onTap: {
-                showingConversation = conversation
-            },
-            onDelete: {
-                deleteConversation(conversation)
-            },
-            onToggleFavorite: {
-                conversation.toggleFavorite()
-                try? modelContext.save()
-            },
-            onEdit: {
-                try? modelContext.save()
+        NavigationLink {
+            // Navigate to conversation
+            if conversation.isGeneralMode {
+                GeneralAIChatView(existingConversation: conversation)
+            } else {
+                // Friend-specific chat
+                if let friendId = conversation.friendId {
+                    FriendAIChatView(
+                        friend: findFriend(by: friendId),
+                        existingConversation: conversation
+                    )
+                }
             }
-        )
+        } label: {
+            ConversationCard(
+                conversation: conversation,
+                onTap: {
+                    // NavigationLink handles the tap
+                },
+                onDelete: {
+                    deleteConversation(conversation)
+                },
+                onToggleFavorite: {
+                    conversation.toggleFavorite()
+                    try? modelContext.save()
+                },
+                onEdit: {
+                    try? modelContext.save()
+                }
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) {
                 deleteConversation(conversation)

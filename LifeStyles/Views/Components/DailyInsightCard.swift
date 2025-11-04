@@ -18,51 +18,65 @@ struct DailyInsightCard: View {
     var onExpand: (() -> Void)?
 
     @State private var animateGradient = false
+    @State private var animateGlow = false
 
     var body: some View {
-        HStack(spacing: Spacing.medium) {
-            // Compact icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: timeOfDay.gradientColors.map { $0.opacity(0.2) },
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 50, height: 50)
+        ZStack {
+            // Animated gradient background with blur
+            LinearGradient(
+                colors: timeOfDay.gradientColors.map { $0.opacity(0.2) },
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .blur(radius: 30)
+            .scaleEffect(animateGlow ? 1.08 : 0.92)
 
-                if isLoading {
-                    ProgressView()
-                        .tint(timeOfDay.gradientColors.first!)
-                } else {
-                    Image(systemName: timeOfDay.icon)
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: timeOfDay.gradientColors,
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+            // Glassmorphism overlay
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(.ultraThinMaterial)
+
+            VStack(alignment: .leading, spacing: 10) {
+                // Header with icon
+                HStack(spacing: 12) {
+                    // Icon with glow
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: timeOfDay.gradientColors.map { $0.opacity(0.25) },
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                }
-            }
+                            .frame(width: 48, height: 48)
+                            .blur(radius: 8)
+                            .scaleEffect(animateGlow ? 1.04 : 0.96)
 
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(timeOfDay.displayName)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.primary)
+                        if isLoading {
+                            ProgressView()
+                                .tint(timeOfDay.gradientColors.first!)
+                        } else {
+                            Image(systemName: timeOfDay.icon)
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: timeOfDay.gradientColors,
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        }
+                    }
 
-                    Text("•")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(timeOfDay.displayName)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
 
-                    Text(String(localized: "insight.personal.recommendation", comment: "Your Personal Recommendation"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        Text("Claude Haiku")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
 
                     Spacer()
 
@@ -77,59 +91,70 @@ struct DailyInsightCard: View {
                             Image(systemName: "arrow.clockwise")
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundStyle(timeOfDay.gradientColors.first!)
+                                .frame(width: 30, height: 30)
+                                .background(
+                                    Circle()
+                                        .fill(timeOfDay.gradientColors.first!.opacity(0.12))
+                                )
                         }
                         .buttonStyle(.plain)
                         .disabled(isLoading)
                     }
                 }
 
+                // Content
                 if isLoading {
-                    // Compact loading skeleton
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(.secondary.opacity(0.1))
-                        .frame(height: 14)
-                        .shimmering()
+                    VStack(spacing: 6) {
+                        ForEach(0..<2, id: \.self) { _ in
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(.secondary.opacity(0.1))
+                                .frame(height: 12)
+                                .shimmering()
+                        }
+                    }
                 } else {
                     Text(insight)
                         .font(.subheadline)
                         .foregroundStyle(.primary)
-                        .lineLimit(2)
-                        .lineSpacing(4)
-                }
+                        .lineSpacing(3)
+                        .lineLimit(3)
 
-                // Expand button (if provided)
-                if onExpand != nil {
-                    Button {
-                        HapticFeedback.light()
-                        onExpand?()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(String(localized: "insight.view.detailed", comment: "View Details"))
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(timeOfDay.gradientColors.first!)
+                    // Expand button
+                    if onExpand != nil {
+                        Button {
+                            HapticFeedback.light()
+                            onExpand?()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("Detaylı Gör")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(timeOfDay.gradientColors.first!)
 
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(timeOfDay.gradientColors.first!)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(timeOfDay.gradientColors.first!)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(timeOfDay.gradientColors.first!.opacity(0.12))
+                            )
                         }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.top, 2)
                 }
             }
+            .padding(14)
         }
-        .padding(Spacing.medium)
-        .background(
-            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.medium, style: .continuous)
-                .fill(.ultraThinMaterial)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.medium, style: .continuous)
-                .stroke(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(
                     LinearGradient(
                         colors: [
-                            timeOfDay.gradientColors[0].opacity(animateGradient ? 0.3 : 0.15),
-                            timeOfDay.gradientColors[1].opacity(animateGradient ? 0.15 : 0.3)
+                            timeOfDay.gradientColors[0].opacity(animateGradient ? 0.5 : 0.25),
+                            timeOfDay.gradientColors[1].opacity(animateGradient ? 0.25 : 0.5)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -138,16 +163,19 @@ struct DailyInsightCard: View {
                 )
         )
         .shadow(
-            color: timeOfDay.gradientColors.first!.opacity(0.1),
-            radius: 8,
-            y: 4
+            color: timeOfDay.gradientColors.first!.opacity(0.2),
+            radius: 15,
+            y: 8
         )
         .contentShape(Rectangle())
-        .allowsHitTesting(true)
         .onAppear {
             // Gradient animation
             withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
                 animateGradient = true
+            }
+            // Glow animation
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                animateGlow = true
             }
         }
     }

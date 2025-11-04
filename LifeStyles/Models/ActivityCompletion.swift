@@ -10,18 +10,19 @@ import SwiftData
 
 @Model
 final class ActivityCompletion {
-    var id: UUID
-    var completedAt: Date
-    var activityTitle: String
-    var activityDescription: String
-    var activityCategory: String // ActivityType raw value
-    var pointsEarned: Int
-    var currentStreak: Int
-    var streakBonusApplied: Bool
-    var difficultyLevel: String // easy, medium, hard
+    var id: UUID = UUID()
+    var completedAt: Date = Date()
+    var activityTitle: String = ""
+    var activityDescription: String = ""
+    var activityCategory: String = "other"
+    var pointsEarned: Int = 0
+    var currentStreak: Int = 0
+    var streakBonusApplied: Bool = false
+    var difficultyLevel: String = "easy"
     var notes: String?
 
     // İlişkili aktivite önerisi (opsiyonel)
+    @Relationship(inverse: \ActivitySuggestion.completions)
     var relatedSuggestion: ActivitySuggestion?
 
     init(
@@ -90,10 +91,10 @@ final class ActivityCompletion {
     // Zorluk türkçe isim
     var difficultyDisplayName: String {
         switch difficultyLevel {
-        case "easy": return "Kolay"
-        case "medium": return "Orta"
-        case "hard": return "Zor"
-        default: return "Bilinmiyor"
+        case "easy": return String(localized: "difficulty.easy")
+        case "medium": return String(localized: "difficulty.medium")
+        case "hard": return String(localized: "difficulty.hard")
+        default: return String(localized: "difficulty.unknown")
         }
     }
 }

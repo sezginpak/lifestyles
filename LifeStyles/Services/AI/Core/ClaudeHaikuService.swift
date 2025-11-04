@@ -49,6 +49,8 @@ enum ClaudeError: Error, LocalizedError {
     case invalidAPIKey
     case networkError(String)
     case rateLimited
+    case clientRateLimited(String)
+    case securityCheckFailed(String)  // ✅ YENI: Jailbreak/güvenlik kontrolü
     case invalidResponse
     case apiError(Int, String)
     case contextTooLarge
@@ -61,6 +63,10 @@ enum ClaudeError: Error, LocalizedError {
             return "Network hatası: \(message)"
         case .rateLimited:
             return "Rate limit aşıldı, lütfen bekleyin"
+        case .clientRateLimited(let reason):
+            return reason
+        case .securityCheckFailed(let reason):
+            return reason
         case .invalidResponse:
             return "API'den geçersiz yanıt"
         case .apiError(let code, let message):
@@ -74,7 +80,7 @@ enum ClaudeError: Error, LocalizedError {
 // MARK: - Claude Haiku Service
 
 @Observable
-class ClaudeHaikuService {
+class ClaudeHaikuService: AIServiceProtocol {
     static let shared = ClaudeHaikuService()
 
     // Cost tracking
@@ -96,6 +102,21 @@ class ClaudeHaikuService {
         maxTokens: Int = APIConfig.maxTokens
     ) async throws -> String {
 
+        // ✅ YENI: Güvenlik kontrolü (jailbreak detection)
+        let securityStatus = SecurityUtilities.shared.getSecurityStatus()
+        if !securityStatus.isSecure {
+            throw ClaudeError.securityCheckFailed(
+                securityStatus.warningMessage ?? "Güvenlik kontrolü başarısız"
+            )
+        }
+
+        // ✅ YENI: Rate limit kontrolü
+        let limiter = APIUsageLimiter.shared
+        let (allowed, reason) = limiter.canMakeRequest()
+        guard allowed else {
+            throw ClaudeError.clientRateLimited(reason ?? "Limit aşıldı")
+        }
+
         // Build request
         let request = ClaudeRequest(
             model: APIConfig.defaultModel,
@@ -109,6 +130,9 @@ class ClaudeHaikuService {
 
         // Send to API
         let response = try await sendRequest(request)
+
+        // ✅ YENI: Request kaydını yap
+        limiter.recordRequest()
 
         // Track usage
         trackUsage(response.usage)
@@ -130,6 +154,21 @@ class ClaudeHaikuService {
         temperature: Double = APIConfig.defaultTemperature
     ) async throws -> String {
 
+        // ✅ YENI: Güvenlik kontrolü (jailbreak detection)
+        let securityStatus = SecurityUtilities.shared.getSecurityStatus()
+        if !securityStatus.isSecure {
+            throw ClaudeError.securityCheckFailed(
+                securityStatus.warningMessage ?? "Güvenlik kontrolü başarısız"
+            )
+        }
+
+        // ✅ YENI: Rate limit kontrolü
+        let limiter = APIUsageLimiter.shared
+        let (allowed, reason) = limiter.canMakeRequest()
+        guard allowed else {
+            throw ClaudeError.clientRateLimited(reason ?? "Limit aşıldı")
+        }
+
         let request = ClaudeRequest(
             model: APIConfig.defaultModel,
             max_tokens: APIConfig.maxTokens,
@@ -139,6 +178,10 @@ class ClaudeHaikuService {
         )
 
         let response = try await sendRequest(request)
+
+        // ✅ YENI: Request kaydını yap
+        limiter.recordRequest()
+
         trackUsage(response.usage)
 
         guard let text = response.content.first?.text else {

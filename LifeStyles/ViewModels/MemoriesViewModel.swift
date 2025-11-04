@@ -148,7 +148,6 @@ class MemoriesViewModel {
 
         do {
             memories = try context.fetch(descriptor)
-            print("✅ \(memories.count) memory loaded")
         } catch {
             print("❌ Failed to fetch memories: \(error)")
         }
@@ -200,7 +199,6 @@ class MemoriesViewModel {
         do {
             try context.save()
             fetchMemories()
-            print("✅ Memory created with \(photos.count) photos and \(videos.count) videos")
         } catch {
             print("❌ Failed to create memory: \(error)")
         }
@@ -210,7 +208,6 @@ class MemoriesViewModel {
         do {
             try context.save()
             fetchMemories()
-            print("✅ Memory updated")
         } catch {
             print("❌ Failed to update memory: \(error)")
         }
@@ -222,7 +219,6 @@ class MemoriesViewModel {
         do {
             try context.save()
             fetchMemories()
-            print("✅ Memory deleted")
         } catch {
             print("❌ Failed to delete memory: \(error)")
         }
@@ -301,7 +297,6 @@ class MemoriesViewModel {
         do {
             try context.save()
             fetchMemories()
-            print("✅ Memory created from journal")
         } catch {
             print("❌ Failed to create memory from journal: \(error)")
         }
@@ -327,7 +322,6 @@ class MemoriesViewModel {
         switch result {
         case .success:
             isPrivateUnlocked = true
-            print("✅ Private memories unlocked")
             return true
 
         case .failure(let error):

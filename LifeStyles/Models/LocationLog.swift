@@ -17,15 +17,18 @@ enum LocationType: String, Codable {
 
 @Model
 final class LocationLog {
-    var id: UUID
-    var timestamp: Date
-    var latitude: Double
-    var longitude: Double
-    var locationTypeRaw: String
+    var id: UUID = UUID()
+    var timestamp: Date = Date()
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+    var locationTypeRaw: String = "other"
     var durationInMinutes: Int = 10 // Bu lokasyonda ne kadar kaldı - DEFAULT 10 dakika
     var accuracy: Double = 0 // Konum doğruluğu (metre)
     var altitude: Double = 0 // Rakım
     var address: String? = nil // Reverse geocoding ile elde edilen adres
+
+    @Relationship(deleteRule: .nullify)
+    var relatedMood: MoodEntry?
 
     init(
         id: UUID = UUID(),

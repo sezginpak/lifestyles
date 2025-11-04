@@ -11,19 +11,20 @@ import SwiftData
 
 @Model
 final class Friend {
-    var id: UUID
-    var name: String
+    var id: UUID = UUID()
+    var name: String = ""
     var phoneNumber: String?
-    var frequencyRaw: String
+    var frequencyRaw: String = "weekly"
     var lastContactDate: Date?
-    var isImportant: Bool
+    var isImportant: Bool = false
     var notes: String?
-    var createdAt: Date
+    var createdAt: Date = Date()
+    var schemaVersion: Int = 2 // Model versiyonu (V2: channel + tags eklendi)
     var avatarEmoji: String? // Özel emoji avatar
     var profileImageData: Data? // Rehberden alınan profil fotoğrafı
 
     // İlişki Tipi
-    var relationshipTypeRaw: String
+    var relationshipTypeRaw: String = "friend"
 
     // Sevgili için özel alanlar
     var relationshipStartDate: Date? // İlişki başlangıç tarihi
@@ -48,6 +49,9 @@ final class Friend {
 
     @Relationship(deleteRule: .cascade, inverse: \Transaction.friend)
     var transactions: [Transaction]?
+
+    @Relationship(deleteRule: .nullify)
+    var relatedMoods: [MoodEntry]?
 
     var frequency: ContactFrequency {
         get { ContactFrequency(rawValue: frequencyRaw) ?? .weekly }
@@ -268,12 +272,12 @@ final class Friend {
 
 @Model
 final class SpecialDate {
-    var id: UUID
-    var title: String
-    var date: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var date: Date = Date()
     var emoji: String?
     var notes: String?
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     @Relationship
     var friend: Friend?
@@ -328,24 +332,39 @@ final class SpecialDate {
 
 @Model
 final class ContactHistory {
-    var id: UUID
-    var date: Date
+    var id: UUID = UUID()
+    var date: Date = Date()
     var notes: String?
     var mood: ContactMood? // Görüşme nasıl geçti?
+    var channelRaw: String? // İletişim kanalı (ContactChannel enum)
 
     @Relationship
     var friend: Friend?
+
+    // Many-to-many relationship with ContactTag
+    @Relationship(deleteRule: .nullify)
+    var tags: [ContactTag]?
+
+    var channel: ContactChannel? {
+        get {
+            guard let raw = channelRaw else { return nil }
+            return ContactChannel(rawValue: raw)
+        }
+        set { channelRaw = newValue?.rawValue }
+    }
 
     init(
         id: UUID = UUID(),
         date: Date = Date(),
         notes: String? = nil,
-        mood: ContactMood? = nil
+        mood: ContactMood? = nil,
+        channel: ContactChannel? = nil
     ) {
         self.id = id
         self.date = date
         self.notes = notes
         self.mood = mood
+        self.channelRaw = channel?.rawValue
     }
 }
 
@@ -370,6 +389,46 @@ enum ContactMood: String, Codable {
         case .good: return String(localized: "contact.mood.good", comment: "Good mood")
         case .okay: return String(localized: "contact.mood.okay", comment: "Okay mood")
         case .notGreat: return String(localized: "contact.mood.notGreat", comment: "Not great mood")
+        }
+    }
+}
+
+// MARK: - İletişim Kanalı Enum
+
+enum ContactChannel: String, Codable, CaseIterable {
+    case phone = "phone"
+    case message = "message"
+    case video = "video"
+    case inPerson = "inPerson"
+    case email = "email"
+
+    var icon: String {
+        switch self {
+        case .phone: return "phone.fill"
+        case .message: return "message.fill"
+        case .video: return "video.fill"
+        case .inPerson: return "person.2.fill"
+        case .email: return "envelope.fill"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .phone: return String(localized: "contact.channel.phone", comment: "Phone")
+        case .message: return String(localized: "contact.channel.message", comment: "Message")
+        case .video: return String(localized: "contact.channel.video", comment: "Video Call")
+        case .inPerson: return String(localized: "contact.channel.inPerson", comment: "In Person")
+        case .email: return String(localized: "contact.channel.email", comment: "Email")
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .phone: return "green"
+        case .message: return "blue"
+        case .video: return "purple"
+        case .inPerson: return "orange"
+        case .email: return "gray"
         }
     }
 }

@@ -58,8 +58,7 @@ struct FriendAIChatView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 // Chat Messages
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -123,19 +122,6 @@ struct FriendAIChatView: View {
             .navigationTitle("AI Chat")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.caption)
-                            Text(String(localized: "common.back", comment: "Back"))
-                                .font(.subheadline)
-                        }
-                    }
-                }
-
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
                         // History button
@@ -198,7 +184,6 @@ struct FriendAIChatView: View {
             } message: {
                 Text(String(localized: "ai.chat.enable.instruction", comment: "Instructions to enable AI chat from settings"))
             }
-        }
     }
 
     // MARK: - Empty State

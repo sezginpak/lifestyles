@@ -70,32 +70,35 @@ enum ActivitySourceType: String, Codable {
 
 @Model
 final class ActivitySuggestion {
-    var id: UUID
-    var title: String
-    var activityDescription: String
-    var typeRaw: String
-    var isCompleted: Bool
-    var suggestedAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var activityDescription: String = ""
+    var typeRaw: String = "other"
+    var isCompleted: Bool = false
+    var suggestedAt: Date = Date()
     var completedAt: Date?
 
     // Gamification özellikleri
-    var completionPoints: Int
-    var sourceTypeRaw: String
-    var difficultyLevel: String // "easy", "medium", "hard"
+    var completionPoints: Int = 10
+    var sourceTypeRaw: String = "rule"
+    var difficultyLevel: String = "easy"
 
     // Ek bilgiler
     var estimatedDuration: String?
     var scientificReason: String? // Bilgilendirici ton için
 
     // Yeni özellikler
-    var isFavorite: Bool
+    var isFavorite: Bool = false
     var timeOfDay: String? // "morning", "afternoon", "evening", "night"
-    var viewCount: Int
+    var viewCount: Int = 0
     var lastViewedAt: Date?
 
     // İlişkiler
-    @Relationship
+    @Relationship(inverse: \Goal.relatedSuggestions)
     var relatedGoal: Goal?
+
+    @Relationship(deleteRule: .nullify)
+    var completions: [ActivityCompletion]?
 
     // Friend ilişkisi yerine UUID kullan (tip belirsizliği sorunu nedeniyle)
     var relatedFriendID: UUID?
@@ -173,10 +176,10 @@ final class ActivitySuggestion {
     // Zorluk türkçe
     var difficultyDisplayName: String {
         switch difficultyLevel {
-        case "easy": return "Kolay"
-        case "medium": return "Orta"
-        case "hard": return "Zor"
-        default: return "Bilinmiyor"
+        case "easy": return String(localized: "difficulty.easy")
+        case "medium": return String(localized: "difficulty.medium")
+        case "hard": return String(localized: "difficulty.hard")
+        default: return String(localized: "difficulty.unknown")
         }
     }
 
@@ -216,10 +219,10 @@ final class ActivitySuggestion {
     // Zaman dilimi display
     var timeOfDayDisplay: String {
         switch timeOfDay {
-        case "morning": return "Sabah"
-        case "afternoon": return "Öğle"
-        case "evening": return "Akşam"
-        case "night": return "Gece"
+        case "morning": return String(localized: "time.morning")
+        case "afternoon": return String(localized: "time.afternoon")
+        case "evening": return String(localized: "time.evening")
+        case "night": return String(localized: "time.night")
         default: return ""
         }
     }

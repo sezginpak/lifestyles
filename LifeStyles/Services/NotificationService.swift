@@ -46,12 +46,15 @@ class NotificationService {
             }
 
             let content = UNMutableNotificationContent()
-            content.title = "İletişim Hatırlatması"
-            content.body = "\(contactName) ile \(daysSince) gündür konuşmadınız. Aramayı düşünür müsünüz?"
+            content.title = String(localized: "notification.contact.reminder.title", comment: "Contact reminder title")
+            content.body = String(format: NSLocalizedString("notification.contact.reminder.body", comment: "Contact reminder body"), contactName, daysSince)
             content.sound = .default
             content.categoryIdentifier = "CONTACT_REMINDER"
 
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
+            // TODO: ML Scheduler ile optimal zamanda gönderilecek
+            // Geçici olarak rastgele saat dilimine zamanla
+            let randomSeconds = TimeInterval.random(in: 3600...14400) // 1-4 saat arası
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: randomSeconds, repeats: false)
             let request = UNNotificationRequest(
                 identifier: "contact-\(contactName)-\(UUID().uuidString)",
                 content: content,
@@ -95,7 +98,9 @@ class NotificationService {
             content.sound = .default
             content.categoryIdentifier = "ACTIVITY_SUGGESTION"
 
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            // TODO: Context-aware scheduler ile akıllı zamanlama yapılacak
+            // Geçici olarak 30 dakika sonraya ayarla
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1800, repeats: false)
             let request = UNNotificationRequest(
                 identifier: "activity-suggestion", // Sabit ID
                 content: content,
@@ -136,12 +141,14 @@ class NotificationService {
             center.removePendingNotificationRequests(withIdentifiers: ["go-outside"])
 
             let content = UNMutableNotificationContent()
-            content.title = "Dışarı Çıkma Zamanı! 🌞"
+            content.title = String(localized: "notification.go.outside.title", comment: "Go outside")
             content.body = "\(hoursAtHome) saattir evdesiniz. Biraz hava almaya ne dersiniz?"
             content.sound = .default
             content.categoryIdentifier = "GO_OUTSIDE"
 
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+            // TODO: Geofence trigger ile entegre edilecek
+            // Geçici olarak 10 dakika sonraya ayarla
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 600, repeats: false)
             let request = UNNotificationRequest(
                 identifier: "go-outside", // Sabit ID - tekrar oluşmayı engellemek için
                 content: content,
@@ -172,7 +179,7 @@ class NotificationService {
 
             switch currentLanguage {
             case .turkish:
-                content.title = "Hedef Hatırlatması 🎯"
+                content.title = String(localized: "notification.goal.reminder.title", comment: "Goal reminder")
                 content.body = "\(goalTitle) için \(daysLeft) gün kaldı!"
             case .english:
                 content.title = "Goal Reminder 🎯"
@@ -213,7 +220,7 @@ class NotificationService {
             }
 
             let content = UNMutableNotificationContent()
-            content.title = "Alışkanlık Zamanı! ⭐"
+            content.title = String(localized: "notification.habit.reminder.title", comment: "Habit reminder")
             content.body = "\(habitName) yapma zamanı geldi!"
             content.sound = .default
             content.categoryIdentifier = "HABIT_REMINDER"
@@ -263,7 +270,7 @@ class NotificationService {
                 "Liderler asla pes etmez! 👑",
                 "Bugün kendine yatırım yap! 📈"
             ]
-            content.title = "Günlük Motivasyon"
+            content.title = String(localized: "notification.motivation.title", comment: "Daily motivation")
             content.body = messages.randomElement() ?? messages[0]
 
         case .english:
@@ -280,7 +287,9 @@ class NotificationService {
 
         content.sound = .default
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        // TODO: ML Scheduler ile optimal sabah saatinde gönderilecek
+        // Geçici olarak 1 saat sonraya ayarla
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3600, repeats: false)
         let request = UNNotificationRequest(
             identifier: "motivation", // Sabit ID
             content: content,
@@ -297,7 +306,7 @@ class NotificationService {
     // İletişim tamamlandı bildirimi
     func sendContactCompletedNotification(for friend: Friend) {
         let content = UNMutableNotificationContent()
-        content.title = "İletişim Kaydedildi ✓"
+        content.title = String(localized: "notification.contact.saved.title", comment: "Contact saved")
         content.body = "\(friend.name) ile iletişiminiz kaydedildi. Sonraki iletişim: \(formatDate(friend.nextContactDate))"
         content.sound = .default
         content.categoryIdentifier = "CONTACT_COMPLETED"
@@ -319,7 +328,7 @@ class NotificationService {
 
         for friend in friends where friend.needsContact {
             let content = UNMutableNotificationContent()
-            content.title = "İletişim Zamanı! 📞"
+            content.title = String(localized: "notification.contact.time.title", comment: "Contact time")
             content.body = "\(friend.name) ile iletişim kurma zamanı geldi. \(friend.daysOverdue) gün gecikti."
             content.sound = .default
             content.categoryIdentifier = "CONTACT_REMINDER"
@@ -356,7 +365,7 @@ class NotificationService {
     // Haftalık iletişim özeti
     func sendWeeklyContactSummary(totalContacts: Int, needsAttention: Int, completed: Int) {
         let content = UNMutableNotificationContent()
-        content.title = "Haftalık İletişim Özeti 📊"
+        content.title = String(localized: "notification.weekly.summary.title", comment: "Weekly summary")
         content.body = "Bu hafta \(completed)/\(totalContacts) kişiyle iletişim kurdunuz. \(needsAttention) kişi bekliyor."
         content.sound = .default
         content.categoryIdentifier = "WEEKLY_SUMMARY"
@@ -394,7 +403,7 @@ class NotificationService {
     /// Günlük aktivite hatırlatması
     func scheduleDailyActivityReminder() {
         let content = UNMutableNotificationContent()
-        content.title = "🎯 Günlük Aktivite Zamanı!"
+        content.title = String(localized: "notification.daily.activity.title", comment: "Daily activity")
         content.body = "Bugün kendine zaman ayırmayı unutma. Streak'ini koru!"
         content.sound = .default
 
@@ -503,7 +512,7 @@ extension NotificationService {
         title: String,
         body: String,
         category: NotificationCategory,
-        priority: NotificationPriority = .normal,
+        priority: SchedulerPriority = .normal,
         respectQuietHours: Bool = true,
         emoji: String? = nil,
         userInfo: [String: Any] = [:]
@@ -538,7 +547,7 @@ extension NotificationService {
         friend: Friend,
         title: String,
         body: String,
-        priority: NotificationPriority = .normal
+        priority: SchedulerPriority = .normal
     ) async throws {
         var userInfo: [String: Any] = [
             "friendId": friend.id.uuidString
@@ -571,7 +580,7 @@ extension NotificationService {
         goal: Goal,
         title: String,
         body: String,
-        priority: NotificationPriority = .normal
+        priority: SchedulerPriority = .normal
     ) async throws {
         var userInfo: [String: Any] = [
             "goalId": goal.id.uuidString
@@ -593,7 +602,7 @@ extension NotificationService {
         habit: Habit,
         title: String,
         body: String,
-        priority: NotificationPriority = .normal
+        priority: SchedulerPriority = .normal
     ) async throws {
         var userInfo: [String: Any] = [
             "habitId": habit.id.uuidString
@@ -1020,24 +1029,24 @@ extension NotificationService {
         ) {
             print("✅ Live Activity başlatıldı: \(friend.name) - \(minutes) dakika")
 
-            // Ayrıca Time Sensitive bildirim de planla
-            scheduleCallReminder(for: friend, after: minutes)
+            // ✅ SADECE Live Activity kullan - Ek bildirim GÖNDERMEYELİM
+            // Normal bildirim kaldırıldı - Sadece Dynamic Island/Live Activity gösterilecek
 
             // Toast göster
             showSuccessToast(
-                title: "Live Activity Başlatıldı",
-                message: "\(minutes) dakika sonra \(friend.name) ile konuşma hatırlatması",
+                title: "Hatırlatma Başlatıldı",
+                message: "\(minutes) dakika sonra \(friend.name) ile konuşma hatırlatması Dynamic Island'da görünecek",
                 emoji: "📱"
             )
         } else {
             print("❌ Live Activity başlatılamadı")
             showErrorToast(
                 title: "Live Activity Hatası",
-                message: "Live Activity başlatılamadı. Time Sensitive kullanılıyor.",
+                message: "Live Activity başlatılamadı. Ayarları kontrol edin.",
                 emoji: "⚠️"
             )
 
-            // Fallback: Sadece Time Sensitive
+            // Fallback: Eğer Live Activity çalışmazsa, normal bildirim kullan
             scheduleCallReminder(for: friend, after: minutes)
         }
     }

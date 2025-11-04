@@ -12,11 +12,21 @@ import Contacts
 // MARK: - Sort Options
 
 enum FriendSortOption: String, CaseIterable {
-    case smart = "Akıllı"
-    case name = "İsim"
-    case lastContact = "Son İletişim"
-    case nextContact = "Sonraki İletişim"
-    case importance = "Önem"
+    case smart
+    case name
+    case lastContact
+    case nextContact
+    case importance
+
+    var displayName: String {
+        switch self {
+        case .smart: return String(localized: "friends.sort.smart", comment: "Smart")
+        case .name: return String(localized: "friends.sort.name", comment: "Name")
+        case .lastContact: return String(localized: "friends.sort.last.contact", comment: "Last Contact")
+        case .nextContact: return String(localized: "friends.sort.next.contact", comment: "Next Contact")
+        case .importance: return String(localized: "friends.sort.importance", comment: "Importance")
+        }
+    }
 
     var icon: String {
         switch self {
@@ -246,7 +256,6 @@ class FriendsViewModel {
         do {
             try context.save()
             fetchFriends()
-            print("✅ \(relationshipType.displayName) eklendi: \(trimmedName)")
             return true
         } catch {
             print("❌ Eklenemedi: \(error)")
@@ -266,7 +275,6 @@ class FriendsViewModel {
         do {
             try modelContext?.save()
             fetchFriends()
-            print("✅ Arkadaş güncellendi: \(name)")
         } catch {
             print("❌ Arkadaş güncellenemedi: \(error)")
         }
@@ -281,7 +289,6 @@ class FriendsViewModel {
         do {
             try context.save()
             fetchFriends()
-            print("✅ Arkadaş silindi")
         } catch {
             print("❌ Arkadaş silinemedi: \(error)")
         }
@@ -299,7 +306,6 @@ class FriendsViewModel {
         do {
             try modelContext?.save()
             fetchFriends()
-            print("✅ İletişim kaydedildi: \(friend.name)")
 
             // Bildirim gönder
             NotificationService.shared.sendContactCompletedNotification(for: friend)
@@ -345,7 +351,6 @@ class FriendsViewModel {
                 }
             }
 
-            print("✅ \(contacts.count) kişi yüklendi")
             return contacts
         } catch {
             print("❌ Rehber okunamadı: \(error)")

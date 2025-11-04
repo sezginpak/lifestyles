@@ -12,8 +12,6 @@ struct MemoryCard: View {
     let memory: Memory
     var isCompact: Bool = false
 
-    @State private var isPressed = false
-
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             // Photo Background
@@ -104,17 +102,10 @@ struct MemoryCard: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.large, style: .continuous))
         .shadow(
-            color: .black.opacity(isPressed ? 0.3 : 0.15),
-            radius: isPressed ? 12 : 8,
+            color: .black.opacity(0.15),
+            radius: 8,
             x: 0,
-            y: isPressed ? 6 : 4
-        )
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
+            y: 4
         )
     }
 }

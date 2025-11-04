@@ -19,16 +19,20 @@ struct ContentView: View {
         case memories = 3
         case activities = 4
         case goals = 5
-        case settings = 6
+        case analytics = 6
+        case aiBrain = 7
+        case settings = 8
 
         var title: String {
             switch self {
             case .dashboard: return String(localized: "tab.dashboard", comment: "Dashboard tab title")
             case .contacts: return String(localized: "tab.contacts", comment: "Contacts/Friends tab title")
-            case .moodJournal: return "Mood"
-            case .memories: return "Anılar"
-            case .activities: return "Aktivite"
+            case .moodJournal: return String(localized: "tab.moodJournal", defaultValue: "Mood", comment: "Mood journal tab title")
+            case .memories: return String(localized: "tab.memories", defaultValue: "Anılar", comment: "Memories tab title")
+            case .activities: return String(localized: "tab.activities", defaultValue: "Aktivite", comment: "Activities tab title")
             case .goals: return String(localized: "tab.goals", comment: "Goals tab title")
+            case .analytics: return String(localized: "tab.analytics", defaultValue: "Analiz", comment: "Analytics tab title")
+            case .aiBrain: return String(localized: "aibrain.tab.title", defaultValue: "AI Hafıza", comment: "AI Brain tab title")
             case .settings: return String(localized: "tab.settings", comment: "Settings tab title")
             }
         }
@@ -41,6 +45,8 @@ struct ContentView: View {
             case .memories: return "photo.on.rectangle.angled"
             case .activities: return "figure.walk"
             case .goals: return "target"
+            case .analytics: return "chart.bar.fill"
+            case .aiBrain: return "brain.head.profile"
             case .settings: return "gearshape.fill"
             }
         }
@@ -53,6 +59,8 @@ struct ContentView: View {
             case .memories: return .teal
             case .activities: return .cardActivity
             case .goals: return .cardGoals
+            case .analytics: return .orange
+            case .aiBrain: return .purple
             case .settings: return .textSecondary
             }
         }
@@ -94,6 +102,18 @@ struct ContentView: View {
                 .tag(Tab.goals)
                 .tabItem {
                     Label(Tab.goals.title, systemImage: Tab.goals.icon)
+                }
+
+            AnalyticsView()
+                .tag(Tab.analytics)
+                .tabItem {
+                    Label(Tab.analytics.title, systemImage: Tab.analytics.icon)
+                }
+
+            AIBrainView()
+                .tag(Tab.aiBrain)
+                .tabItem {
+                    Label(Tab.aiBrain.title, systemImage: Tab.aiBrain.icon)
                 }
 
             SettingsView()

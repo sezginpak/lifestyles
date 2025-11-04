@@ -14,70 +14,51 @@ import FoundationModels
 // MARK: - Friend Detail View Extension (Tabs)
 extension FriendDetailView {
     var overviewContent: some View {
-        VStack(spacing: 16) {
-            // Compact Stats Grid (Partner için ilişki süresi de eklenebilir)
-            if friend.isPartner && friend.relationshipStartDate != nil {
-                // Partner için genişletilmiş stats grid
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", gradient: [.blue, .cyan])
-                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", gradient: [.purple, .pink])
-                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", gradient: [.orange, .red])
-
-                    // Partner için ilişki süresi
-                    if let duration = friend.relationshipDuration {
-                        let totalMonths = duration.years * 12 + duration.months
-                        CompactStatCard(icon: "heart.fill", value: "\(totalMonths)", label: "Ay Birlikte", gradient: [.pink, .red])
-                    }
-                }
+        VStack(spacing: 20) {
+            // Hero Stats Section - Modern & Visual
+            modernHeroStats
                 .padding(.horizontal)
-            } else {
-                // Normal stats grid
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    CompactStatCard(icon: "phone.fill", value: "\(friend.totalContactCount)", label: "İletişim", gradient: [.blue, .cyan])
-                    CompactStatCard(icon: "calendar", value: "\(daysSinceCreation)", label: "Gün", gradient: [.purple, .pink])
-                    CompactStatCard(icon: "clock.fill", value: friend.frequency.displayName, label: "Sıklık", gradient: [.orange, .red])
-                }
-                .padding(.horizontal)
-            }
 
-            // AI Suggestion Card (Compact)
+            // AI Suggestion Card (Modern)
             if showingAISuggestion {
-                aiSuggestionCard
+                modernAISuggestionCard
+                    .padding(.horizontal)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
 
-            // Next Contact Reminder (Compact)
-            nextContactCard
-
-            // Yaklaşan Özel Günler Kartı
-            UpcomingSpecialDatesCard(friend: friend)
+            // Next Contact Card - Enhanced
+            modernNextContactCard
                 .padding(.horizontal)
 
-            // İletişim Kalitesi & Trend Kartları (Yan Yana)
+            // İlişki Sağlığı Kartı
+            relationshipHealthCard
+                .padding(.horizontal)
+
+            // Partner için Özel Kartlar
+            if friend.isPartner {
+                VStack(spacing: 12) {
+                    PartnerRelationshipDurationCard(friend: friend)
+                    PartnerAnniversaryCard(friend: friend)
+                    LoveLanguageSummaryCard(friend: friend)
+                }
+                .padding(.horizontal)
+            }
+
+            // İletişim & Ruh Hali Trend (Yan Yana)
             HStack(spacing: 12) {
                 CommunicationTrendCard(friend: friend)
                 MoodTrendCard(friend: friend)
             }
             .padding(.horizontal)
 
-            // Partner için Özel Kartlar
-            if friend.isPartner {
-                VStack(spacing: 12) {
-                    // İlişki Süresi Kartı
-                    PartnerRelationshipDurationCard(friend: friend)
-
-                    // Yıldönümü Kartı
-                    PartnerAnniversaryCard(friend: friend)
-
-                    // Sevgi Dili Özet Kartı
-                    LoveLanguageSummaryCard(friend: friend)
-                }
+            // Yaklaşan Özel Günler
+            UpcomingSpecialDatesCard(friend: friend)
                 .padding(.horizontal)
-            }
 
-            // Achievement Badges (Compact)
+            // Achievement Badges
             if !achievementBadges.isEmpty {
-                achievementSection
+                modernAchievementSection
+                    .padding(.horizontal)
             }
 
             // Ortak İlgi Alanları
@@ -88,10 +69,322 @@ extension FriendDetailView {
             transactionSection
                 .padding(.horizontal)
 
-            // Quick Notes
-            compactNotesSection
+            // Quick Notes - Modern
+            modernNotesSection
+                .padding(.horizontal)
         }
         .padding(.vertical)
+    }
+
+    // MARK: - Modern Components
+
+    private var modernHeroStats: some View {
+        VStack(spacing: 12) {
+            // İlk sıra - 2 büyük kart
+            HStack(spacing: 12) {
+                // İletişim Sayısı
+                EnhancedStatCard(
+                    icon: "phone.fill",
+                    value: "\(friend.totalContactCount)",
+                    label: "İletişim",
+                    gradient: LinearGradient(colors: [.blue, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    accentColor: .blue
+                )
+
+                // İlişki Süresi
+                EnhancedStatCard(
+                    icon: "calendar",
+                    value: "\(daysSinceCreation)",
+                    label: "Gün",
+                    gradient: LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    accentColor: .purple
+                )
+            }
+
+            // İkinci sıra - Partner için özel veya 2 normal kart
+            HStack(spacing: 12) {
+                EnhancedStatCard(
+                    icon: "clock.fill",
+                    value: friend.frequency.displayName,
+                    label: "Sıklık",
+                    gradient: LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    accentColor: .orange
+                )
+
+                if friend.isPartner, let duration = friend.relationshipDuration {
+                    let totalMonths = duration.years * 12 + duration.months
+                    EnhancedStatCard(
+                        icon: "heart.fill",
+                        value: "\(totalMonths)",
+                        label: "Ay Birlikte",
+                        gradient: LinearGradient(colors: [.pink, .red], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        accentColor: .pink
+                    )
+                } else {
+                    EnhancedStatCard(
+                        icon: "message.fill",
+                        value: "\(currentStreak)",
+                        label: "Seri",
+                        gradient: LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        accentColor: .green
+                    )
+                }
+            }
+        }
+    }
+
+    private var modernAISuggestionCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.purple.opacity(0.2), .blue.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 36, height: 36)
+
+                    Image(systemName: "brain.head.profile")
+                        .font(.title3)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.purple, .blue],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+
+                Text("AI Önerisi")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                if aiSuggestionText.isEmpty {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+            }
+
+            Text(aiSuggestionText.isEmpty ? generateAISuggestion() : aiSuggestionText)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineSpacing(4)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.purple.opacity(0.08), Color.blue.opacity(0.05)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+        .onAppear {
+            loadAISuggestionForOverview()
+        }
+    }
+
+    private var modernNextContactCard: some View {
+        HStack(spacing: 16) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: friend.needsContact ? [.red.opacity(0.2), .orange.opacity(0.2)] : [.green.opacity(0.2), .mint.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+
+                Image(systemName: friend.needsContact ? "exclamationmark.triangle.fill" : "calendar.badge.clock")
+                    .font(.title2)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: friend.needsContact ? [.red, .orange] : [.green, .mint],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(friend.needsContact ? "İletişim Gerekiyor!" : "Sonraki İletişim")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Text(friend.needsContact ? "\(friend.daysOverdue) gün gecikti" : "\(friend.daysRemaining) gün içinde")
+                    .font(.subheadline)
+                    .foregroundStyle(friend.needsContact ? .red : .green)
+            }
+
+            Spacer()
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(
+                    friend.needsContact ? Color.red.opacity(0.3) : Color.green.opacity(0.3),
+                    lineWidth: 2
+                )
+        )
+    }
+
+    private var relationshipHealthCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("İlişki Sağlığı")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                Text("\(relationshipHealthScore)%")
+                    .font(.title2.bold())
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: healthGradientColors,
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+            }
+
+            // Progress Bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.systemGray5))
+                        .frame(height: 12)
+
+                    // Progress
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                colors: healthGradientColors,
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geometry.size.width * CGFloat(relationshipHealthScore) / 100, height: 12)
+                }
+            }
+            .frame(height: 12)
+
+            // Detaylar
+            HStack(spacing: 20) {
+                HealthIndicator(icon: "phone.fill", label: "İletişim", isGood: !friend.needsContact)
+                HealthIndicator(icon: "flame.fill", label: "Seri", isGood: currentStreak > 3)
+                HealthIndicator(icon: "heart.fill", label: "Ruh Hali", isGood: (averageMoodScore ?? 0) > 0.5)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: healthGradientColors.map { $0.opacity(0.3) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
+    }
+
+    private var healthGradientColors: [Color] {
+        switch relationshipHealthScore {
+        case 80...100: return [.green, .mint]
+        case 50..<80: return [.orange, .yellow]
+        default: return [.red, .orange]
+        }
+    }
+
+    private var modernAchievementSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Başarılar")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(achievementBadges, id: \.title) { badge in
+                        ModernAchievementBadge(badge: badge)
+                    }
+                }
+            }
+        }
+    }
+
+    private var modernNotesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Notlar")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            TextEditor(text: $noteText)
+                .frame(height: 100)
+                .padding(12)
+                .background(Color(.tertiarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            if noteText != (friend.notes ?? "") {
+                Button {
+                    saveNotes()
+                } label: {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Kaydet")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .cyan],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
     }
 
     // MARK: - History Content
@@ -126,20 +419,7 @@ extension FriendDetailView {
     // MARK: - Insights Content
 
     var insightsContent: some View {
-        VStack(spacing: 16) {
-            // Trend Chart
-            trendChartSection
-
-            // Mood Distribution
-            moodDistributionSection
-
-            // Communication Pattern
-            communicationPatternSection
-
-            // Best Day/Time
-            bestTimeSection
-        }
-        .padding(.vertical)
+        ModernInsightsView(friend: friend)
     }
 
     // MARK: - Partner Content

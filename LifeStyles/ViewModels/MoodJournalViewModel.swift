@@ -74,8 +74,14 @@ class MoodJournalViewModel {
     func loadAllData(context: ModelContext) {
         loadMoodEntries(context: context)
         loadJournalEntries(context: context)
-        loadAnalytics(context: context)
         loadTodaysMoods()
+
+        // Analytics'i arka planda yükle (UI'ı bloklamadan)
+        Task { @MainActor in
+            // UI'ın render olması için kısa gecikme
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 saniye
+            loadAnalytics(context: context)
+        }
     }
 
     /// Mood entry'leri yükle
@@ -86,7 +92,6 @@ class MoodJournalViewModel {
 
         do {
             moodEntries = try context.fetch(descriptor)
-            print("✅ Loaded \(moodEntries.count) mood entries")
         } catch {
             print("❌ Failed to load mood entries: \(error)")
             moodEntries = []
@@ -96,10 +101,9 @@ class MoodJournalViewModel {
     /// Journal entry'leri yükle
     private func loadJournalEntries(context: ModelContext) {
         journalEntries = journalService.fetchAllEntries(context: context)
-        print("✅ Loaded \(journalEntries.count) journal entries")
     }
 
-    /// Analytics hesapla
+    /// Analytics hesapla (arka planda - UI donmasını önlemek için)
     private func loadAnalytics(context: ModelContext) {
         // Son 30 günün verileri
         let last30Days = analyticsService.filterEntriesByPeriod(
@@ -137,14 +141,12 @@ class MoodJournalViewModel {
             context: context
         )
 
-        print("✅ Analytics loaded (streak: \(streakData.currentStreak), locations: \(locationCorrelations.count))")
     }
 
     /// Bugünün tüm mood'larını yükle
     private func loadTodaysMoods() {
         todaysMoods = moodEntries.filter { $0.isToday }
             .sorted { $0.date > $1.date } // En yeni önce
-        print("✅ Loaded \(todaysMoods.count) moods for today")
     }
 
     /// En son kaydedilen mood (computed property)
@@ -198,14 +200,10 @@ class MoodJournalViewModel {
 
         do {
             try context.save()
-            print("✅ Mood logged: \(moodType.emoji)")
 
             // State güncelle
             moodEntries.insert(entry, at: 0)
             loadTodaysMoods()
-
-            // Analytics'i yeniden hesapla
-            loadAnalytics(context: context)
 
             HapticFeedback.success()
         } catch {
@@ -219,12 +217,10 @@ class MoodJournalViewModel {
 
         do {
             try context.save()
-            print("✅ Mood deleted")
 
             // State güncelle
             moodEntries.removeAll { $0.id == entry.id }
             loadTodaysMoods()
-            loadAnalytics(context: context)
 
             HapticFeedback.success()
         } catch {
@@ -257,9 +253,8 @@ class MoodJournalViewModel {
 
         do {
             try context.save()
-            print("✅ Mood updated")
             loadTodaysMoods()
-            loadAnalytics(context: context)
+
             HapticFeedback.success()
         } catch {
             print("❌ Failed to update mood: \(error)")

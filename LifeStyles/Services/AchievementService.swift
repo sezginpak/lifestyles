@@ -42,11 +42,11 @@ enum AchievementCategory: String, Codable {
 
     var displayName: String {
         switch self {
-        case .goal: return "Hedefler"
-        case .habit: return "Alışkanlıklar"
+        case .goal: return String(localized: "achievement.category.goal", comment: "Goals category")
+        case .habit: return String(localized: "achievement.category.habit", comment: "Habits category")
         case .streak: return "Seri"
-        case .consistency: return "Tutarlılık"
-        case .special: return "Özel"
+        case .consistency: return String(localized: "achievement.category.consistency", comment: "Consistency category")
+        case .special: return String(localized: "achievement.category.special", comment: "Special category")
         }
     }
 }
@@ -74,8 +74,8 @@ class AchievementService {
         achievements.append(contentsOf: [
             createAchievement(
                 id: "first_goal",
-                title: "İlk Hedef",
-                description: "İlk hedefini oluştur",
+                title: String(localized: "achievement.first.goal.title", comment: "First goal"),
+                description: String(localized: "achievement.first.goal.desc", comment: "First goal desc"),
                 emoji: "🎯",
                 category: .goal,
                 requirement: 1,
@@ -84,7 +84,7 @@ class AchievementService {
             ),
             createAchievement(
                 id: "goal_crusher_10",
-                title: "Hedef Avcısı",
+                title: String(localized: "achievement.goal.hunter.title", comment: "Goal hunter"),
                 description: "10 hedef tamamla",
                 emoji: "💪",
                 category: .goal,
@@ -104,8 +104,8 @@ class AchievementService {
             ),
             createAchievement(
                 id: "category_king_health",
-                title: "Sağlık Kralı",
-                description: "Sağlık kategorisinde 5 hedef tamamla",
+                title: String(localized: "achievement.health.king.title", comment: "Health king"),
+                description: String(localized: "achievement.health.king.desc", comment: "Health king desc"),
                 emoji: "❤️",
                 category: .goal,
                 requirement: 5,
@@ -118,8 +118,8 @@ class AchievementService {
         achievements.append(contentsOf: [
             createAchievement(
                 id: "first_habit",
-                title: "İlk Alışkanlık",
-                description: "İlk alışkanlığını oluştur",
+                title: String(localized: "achievement.first.habit.title", comment: "First habit"),
+                description: String(localized: "achievement.first.habit.desc", comment: "First habit desc"),
                 emoji: "⭐",
                 category: .habit,
                 requirement: 1,
@@ -128,8 +128,8 @@ class AchievementService {
             ),
             createAchievement(
                 id: "habit_master_30",
-                title: "Alışkanlık Ustası",
-                description: "Bir alışkanlıkta 30 gün seri yap",
+                title: String(localized: "achievement.habit.master.title", comment: "Habit master"),
+                description: String(localized: "achievement.habit.master.desc", comment: "Habit master desc"),
                 emoji: "🏆",
                 category: .habit,
                 requirement: 30,
@@ -138,8 +138,8 @@ class AchievementService {
             ),
             createAchievement(
                 id: "habit_master_90",
-                title: "Efsane Alışkanlık",
-                description: "Bir alışkanlıkta 90 gün seri yap",
+                title: String(localized: "achievement.legendary.habit.title", comment: "Legendary habit"),
+                description: String(localized: "achievement.legendary.habit.desc", comment: "Legendary habit desc"),
                 emoji: "🔥",
                 category: .habit,
                 requirement: 90,
@@ -152,8 +152,8 @@ class AchievementService {
         achievements.append(contentsOf: [
             createAchievement(
                 id: "week_warrior",
-                title: "Hafta Savaşçısı",
-                description: "7 gün üst üste hedef/alışkanlık tamamla",
+                title: String(localized: "achievement.week.warrior.title", comment: "Week warrior"),
+                description: String(localized: "achievement.week.warrior.desc", comment: "Week warrior desc"),
                 emoji: "🔥",
                 category: .streak,
                 requirement: 7,
@@ -162,8 +162,8 @@ class AchievementService {
             ),
             createAchievement(
                 id: "streak_30",
-                title: "Ay Şampiyonu",
-                description: "30 gün üst üste tamamla",
+                title: String(localized: "achievement.month.champion.title", comment: "Month champion"),
+                description: String(localized: "achievement.month.champion.desc", comment: "Month champion desc"),
                 emoji: "🌟",
                 category: .streak,
                 requirement: 30,
@@ -172,8 +172,8 @@ class AchievementService {
             ),
             createAchievement(
                 id: "streak_100",
-                title: "Yüzün Ustası",
-                description: "100 gün üst üste tamamla",
+                title: String(localized: "achievement.hundred.master.title", comment: "Hundred master"),
+                description: String(localized: "achievement.hundred.master.desc", comment: "Hundred master desc"),
                 emoji: "💎",
                 category: .streak,
                 requirement: 100,

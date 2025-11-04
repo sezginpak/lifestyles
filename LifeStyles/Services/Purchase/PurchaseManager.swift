@@ -19,6 +19,11 @@ class PurchaseManager {
     private(set) var purchasedProductIDs: Set<String> = []
     private(set) var subscriptionStatus: SubscriptionStatus = .free
 
+    // Trial State
+    private(set) var isInTrial: Bool = false
+    private(set) var trialEndDate: Date?
+    private(set) var trialDaysRemaining: Int = 0
+
     #if DEBUG
     // Debug override - paywall test etmek için
     var debugForceFreeMode: Bool = false
@@ -31,10 +36,11 @@ class PurchaseManager {
             return false
         }
         // Debug modda da gerçek subscription kontrolü yap
-        return subscriptionStatus == .premium
+        return subscriptionStatus == .premium || (subscriptionStatus == .trial && isInTrial)
         #else
         // Production modda gerçek abonelik kontrolü
-        return subscriptionStatus == .premium
+        // Trial kullanıcıları da premium özelliklere erişebilir
+        return subscriptionStatus == .premium || (subscriptionStatus == .trial && isInTrial)
         #endif
     }
 
@@ -117,6 +123,7 @@ class PurchaseManager {
     @MainActor
     func checkSubscriptionStatus() async {
         var hasPremium = false
+        var hasActiveTrial = false
 
         // Check all transactions
         for await result in StoreKit.Transaction.currentEntitlements {
@@ -127,14 +134,33 @@ class PurchaseManager {
                 if transaction.productID == ProductID.monthlySubscription {
                     hasPremium = true
                     purchasedProductIDs.insert(transaction.productID)
+
+                    // Check for introductory offer (trial)
+                    if let offerType = transaction.offerType {
+                        switch offerType {
+                        case .introductory:
+                            hasActiveTrial = true
+                        default:
+                            break
+                        }
+                    }
                 }
             } catch {
                 print("❌ Transaction verification failed: \(error.localizedDescription)")
             }
         }
 
-        // Update status
-        subscriptionStatus = hasPremium ? .premium : .free
+        // Update trial state
+        updateTrialStatus()
+
+        // Update subscription status
+        if hasActiveTrial && isInTrial {
+            subscriptionStatus = .trial
+        } else if hasPremium {
+            subscriptionStatus = .premium
+        } else {
+            subscriptionStatus = .free
+        }
     }
 
     // MARK: - Transaction Verification
@@ -171,7 +197,60 @@ class PurchaseManager {
     }
 
     var monthlyPrice: String {
-        getMonthlyProduct()?.displayPrice ?? "₺39.99"
+        getMonthlyProduct()?.displayPrice ?? "$0.99"
+    }
+
+    // MARK: - Trial Management
+
+    private let trialEndDateKey = "com.lifestyles.trial.endDate"
+    private let hasStartedTrialKey = "com.lifestyles.trial.hasStarted"
+
+    @MainActor
+    func startTrial() {
+        // 3 günlük trial başlat
+        let endDate = Calendar.current.date(byAdding: .day, value: 3, to: Date())!
+        UserDefaults.standard.set(endDate, forKey: trialEndDateKey)
+        UserDefaults.standard.set(true, forKey: hasStartedTrialKey)
+
+        // Update trial state
+        updateTrialStatus()
+        subscriptionStatus = .trial
+    }
+
+    func hasUserStartedTrial() -> Bool {
+        UserDefaults.standard.bool(forKey: hasStartedTrialKey)
+    }
+
+    @MainActor
+    private func updateTrialStatus() {
+        guard let endDate = UserDefaults.standard.object(forKey: trialEndDateKey) as? Date else {
+            isInTrial = false
+            trialEndDate = nil
+            trialDaysRemaining = 0
+            return
+        }
+
+        let now = Date()
+        if now < endDate {
+            // Trial hala aktif
+            isInTrial = true
+            trialEndDate = endDate
+            let daysRemaining = Calendar.current.dateComponents([.day], from: now, to: endDate).day ?? 0
+            trialDaysRemaining = max(0, daysRemaining)
+        } else {
+            // Trial süresi dolmuş
+            isInTrial = false
+            trialEndDate = nil
+            trialDaysRemaining = 0
+        }
+    }
+
+    @MainActor
+    func clearTrial() {
+        // Debug/test için trial'ı temizle
+        UserDefaults.standard.removeObject(forKey: trialEndDateKey)
+        UserDefaults.standard.removeObject(forKey: hasStartedTrialKey)
+        updateTrialStatus()
     }
 }
 
@@ -179,12 +258,15 @@ class PurchaseManager {
 
 enum SubscriptionStatus: String, Codable {
     case free = "Free"
+    case trial = "Trial"
     case premium = "Premium"
 
     var displayName: String {
         switch self {
         case .free:
             return "Free"
+        case .trial:
+            return "Trial"
         case .premium:
             return "Premium"
         }
@@ -194,6 +276,8 @@ enum SubscriptionStatus: String, Codable {
         switch self {
         case .free:
             return "gray"
+        case .trial:
+            return "blue"
         case .premium:
             return "gold"
         }

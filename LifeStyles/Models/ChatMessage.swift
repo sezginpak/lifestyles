@@ -11,10 +11,10 @@ import SwiftData
 
 @Model
 final class ChatMessage {
-    var id: UUID
-    var content: String
-    var isUser: Bool
-    var timestamp: Date
+    var id: UUID = UUID()
+    var content: String = ""
+    var isUser: Bool = false
+    var timestamp: Date = Date()
 
     // Relationship to conversation
     var conversation: ChatConversation?

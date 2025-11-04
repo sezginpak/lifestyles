@@ -11,6 +11,8 @@ struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
     @Binding var isOnboardingComplete: Bool
     @State private var showAIConsentSheet = false
+    @State private var showPremiumSheet = false
+    @State private var didStartTrial = false
 
     var body: some View {
         ZStack {
@@ -119,9 +121,9 @@ struct OnboardingView: View {
                                             viewModel.nextPage()
                                         }
                                     } else {
-                                        // Son sayfadaysa AI Consent göster
+                                        // Son sayfadaysa Premium tanıtımı göster
                                         try? await Task.sleep(nanoseconds: 300_000_000)
-                                        showAIConsentSheet = true
+                                        showPremiumSheet = true
                                     }
                                 }
                             }
@@ -179,14 +181,14 @@ struct OnboardingView: View {
                 PermissionManager.shared.openAppSettings()
                 // Onboarding'i tamamla veya devam et
                 if viewModel.isLastPage {
-                    showAIConsentSheet = true
+                    showPremiumSheet = true
                 } else {
                     viewModel.nextPage()
                 }
             }
             Button("Daha Sonra", role: .cancel) {
                 if viewModel.isLastPage {
-                    showAIConsentSheet = true
+                    showPremiumSheet = true
                 } else {
                     viewModel.nextPage()
                 }
@@ -194,8 +196,21 @@ struct OnboardingView: View {
         } message: {
             Text(String(localized: "onboarding.location.always.instruction", comment: "Instructions for always location permission"))
         }
+        .sheet(isPresented: $showPremiumSheet, onDismiss: {
+            // Premium sheet kapandıktan sonra AI Consent göster
+            showAIConsentSheet = true
+        }) {
+            PremiumOnboardingPage(
+                isPresented: $showPremiumSheet,
+                didStartTrial: $didStartTrial
+            )
+        }
         .sheet(isPresented: $showAIConsentSheet) {
-            OnboardingAIConsentSheet(isOnboardingComplete: $isOnboardingComplete, viewModel: viewModel)
+            OnboardingAIConsentSheet(
+                isOnboardingComplete: $isOnboardingComplete,
+                viewModel: viewModel,
+                didStartTrial: didStartTrial
+            )
         }
     }
 
@@ -255,6 +270,7 @@ struct OnboardingAIConsentSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var isOnboardingComplete: Bool
     let viewModel: OnboardingViewModel
+    let didStartTrial: Bool
     @State private var privacySettings = AIPrivacySettings.shared
 
     var body: some View {
@@ -368,6 +384,14 @@ struct OnboardingAIConsentSheet: View {
     }
 }
 
-#Preview {
+#Preview("Onboarding") {
     OnboardingView(isOnboardingComplete: .constant(false))
+}
+
+#Preview("AI Consent") {
+    OnboardingAIConsentSheet(
+        isOnboardingComplete: .constant(false),
+        viewModel: OnboardingViewModel(),
+        didStartTrial: false
+    )
 }

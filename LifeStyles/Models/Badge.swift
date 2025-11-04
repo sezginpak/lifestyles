@@ -29,15 +29,15 @@ enum BadgeCategory: String, Codable, CaseIterable {
 
 @Model
 final class Badge {
-    var id: UUID
-    var title: String
-    var badgeDescription: String
-    var categoryRaw: String
-    var iconName: String // SF Symbol name
+    var id: UUID = UUID()
+    var title: String = ""
+    var badgeDescription: String = ""
+    var categoryRaw: String = "special"
+    var iconName: String = "star.fill" // SF Symbol name
     var earnedAt: Date?
-    var isEarned: Bool
-    var requirement: Int // Gerekli sayı (örn: 7 gün streak için 7)
-    var currentProgress: Int // Mevcut ilerleme
+    var isEarned: Bool = false
+    var requirement: Int = 1 // Gerekli sayı (örn: 7 gün streak için 7)
+    var currentProgress: Int = 0 // Mevcut ilerleme
 
     init(
         id: UUID = UUID(),

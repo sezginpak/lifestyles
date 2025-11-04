@@ -5,6 +5,11 @@
 //  Product Identifiers for StoreKit
 //  Created by Claude on 22.10.2025.
 //
+//  PRICING:
+//  - Monthly Subscription: $0.99/month
+//  - 3-day free trial for new users
+//  - Configure trial in App Store Connect under Subscriptions → Introductory Offers
+//
 
 import Foundation
 
@@ -12,6 +17,9 @@ enum ProductID {
     static let monthlySubscription = "com.lifestyles.premium.monthly"
 
     static let allProducts = [monthlySubscription]
+
+    // Trial configuration
+    static let trialDurationDays = 3
 }
 
 enum SubscriptionFeature: String, CaseIterable {

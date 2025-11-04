@@ -36,6 +36,10 @@ struct GoalSuggestion: Identifiable {
         case medium = "Orta"
         case hard = "Zor"
 
+        var displayName: String {
+            rawValue
+        }
+
         var emoji: String {
             switch self {
             case .easy: return "🟢"

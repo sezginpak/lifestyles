@@ -11,21 +11,21 @@ import SwiftData
 
 @Model
 final class MoodEntry {
-    var id: UUID
-    var date: Date
-    var moodTypeRaw: String
-    var intensity: Int // 1-5 arası (düşük-yüksek)
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var moodTypeRaw: String = "neutral"
+    var intensity: Int = 3 // 1-5 arası (düşük-yüksek)
     var note: String? // Kısa not (optional)
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     // İlişkiler
-    @Relationship(deleteRule: .nullify)
+    @Relationship(deleteRule: .nullify, inverse: \Goal.relatedMoods)
     var relatedGoals: [Goal]?
 
-    @Relationship(deleteRule: .nullify)
+    @Relationship(deleteRule: .nullify, inverse: \Friend.relatedMoods)
     var relatedFriends: [Friend]?
 
-    @Relationship(deleteRule: .nullify)
+    @Relationship(deleteRule: .nullify, inverse: \LocationLog.relatedMood)
     var relatedLocation: LocationLog?
 
     @Relationship(deleteRule: .cascade, inverse: \JournalEntry.moodEntry)
@@ -95,15 +95,15 @@ final class MoodEntry {
 
 @Model
 final class JournalEntry {
-    var id: UUID
-    var date: Date
+    var id: UUID = UUID()
+    var date: Date = Date()
     var title: String?
-    var content: String
-    var journalTypeRaw: String
-    var tags: [String]
-    var createdAt: Date
-    var updatedAt: Date
-    var isFavorite: Bool
+    var content: String = ""
+    var journalTypeRaw: String = "general"
+    var tags: [String] = []
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var isFavorite: Bool = false
 
     // NEW: Image support
     var imageData: Data?
@@ -112,16 +112,19 @@ final class JournalEntry {
 
     // NEW: Markdown support
     var markdownContent: String?
-    var hasMarkdown: Bool
+    var hasMarkdown: Bool = false
 
     // NEW: Template support
     var templateId: UUID?
+
+    // NEW: Sticker support (JSON encoded)
+    var stickersData: Data?
 
     // İlişkiler
     @Relationship
     var moodEntry: MoodEntry?
 
-    @Relationship(deleteRule: .nullify)
+    @Relationship(deleteRule: .nullify, inverse: \JournalTemplate.journals)
     var template: JournalTemplate?
 
     @Relationship(deleteRule: .nullify, inverse: \Memory.journalEntry)
@@ -237,5 +240,63 @@ final class JournalEntry {
     /// Content to render (markdown varsa onu, yoksa plain text)
     var renderableContent: String {
         hasMarkdown ? (markdownContent ?? content) : content
+    }
+
+    /// Sticker'ları decode et
+    var stickers: [StickerData] {
+        get {
+            guard let data = stickersData else { return [] }
+            return (try? JSONDecoder().decode([StickerData].self, from: data)) ?? []
+        }
+        set {
+            stickersData = try? JSONEncoder().encode(newValue)
+        }
+    }
+
+    /// Has stickers?
+    var hasStickers: Bool {
+        !stickers.isEmpty
+    }
+
+    /// Add sticker
+    func addSticker(_ sticker: StickerData) {
+        var current = stickers
+        guard current.count < 5 else { return } // Max 5 sticker
+        current.append(sticker)
+        stickers = current
+        touch()
+    }
+
+    /// Remove sticker
+    func removeSticker(id: UUID) {
+        var current = stickers
+        current.removeAll { $0.id == id }
+        stickers = current
+        touch()
+    }
+}
+
+// MARK: - Sticker Data Model
+
+/// Sticker data for journal entries
+struct StickerData: Codable, Identifiable, Hashable {
+    var id: UUID
+    var emoji: String
+    var position: CGPoint // Normalized (0.0 - 1.0)
+    var scale: CGFloat    // 0.5 - 2.0
+    var rotation: Double  // Degrees (0 - 360)
+
+    init(
+        id: UUID = UUID(),
+        emoji: String,
+        position: CGPoint = CGPoint(x: 0.5, y: 0.5),
+        scale: CGFloat = 1.0,
+        rotation: Double = 0.0
+    ) {
+        self.id = id
+        self.emoji = emoji
+        self.position = position
+        self.scale = scale
+        self.rotation = rotation
     }
 }

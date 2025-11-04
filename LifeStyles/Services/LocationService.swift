@@ -24,7 +24,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
 
     // Periyodik konum kayıt sistemi
     private var locationTimer: Timer?
-    private let locationTrackingInterval: TimeInterval = 10 * 60 // 10 dakika (PRODUCTION)
+    private let locationTrackingInterval: TimeInterval = 30 * 60 // 30 dakika (CloudKit quota için - yarı yarıya azaltılmış)
     private let locationDistanceThreshold: Double = 20 // 20 metre - Bu mesafe içindeyse aynı yer sayılır
     private var modelContext: ModelContext?
     private(set) var isPeriodicTrackingActive: Bool = false

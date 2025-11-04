@@ -150,61 +150,61 @@ struct FriendDetailView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 240)
+            .frame(height: 220)
             .overlay(
                 // Glassmorphism effect
                 LinearGradient(
                     colors: [
-                        Color.white.opacity(0.2),
+                        Color.white.opacity(0.15),
                         Color.clear,
-                        Color.black.opacity(0.05)
+                        Color.black.opacity(0.03)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
             )
 
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 // Hero Avatar Section
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     // Floating Avatar with rings
                     FriendAvatarAdvancedView(
                         friend: friend,
-                        size: 90,
+                        size: 80,
                         accentColor: relationshipAccentColor
                     )
 
                     // Name and Relationship Type
-                    VStack(spacing: 6) {
+                    VStack(spacing: 4) {
                         Text(friend.name)
-                            .font(.system(size: 26, weight: .bold))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundStyle(.primary)
 
-                        HStack(spacing: 6) {
+                        HStack(spacing: 5) {
                             Text(friend.relationshipType.emoji)
-                                .font(.caption)
+                                .font(.caption2)
                             Text(friend.relationshipType.displayName)
-                                .font(.caption)
+                                .font(.caption2)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.3))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 3)
+                        .background(Color.white.opacity(0.25))
                         .clipShape(Capsule())
 
                         if let phone = friend.phoneNumber {
                             Text(phone)
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.secondary.opacity(0.8))
                         }
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 6)
 
-                // Stats Row - Scrollable badges
+                // Stats Row - Hafif ve kompakt badges
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         // Health Score
                         StatsBadge(
                             icon: "heart.circle.fill",
@@ -245,13 +245,14 @@ struct FriendDetailView: View {
                             StatsBadge(
                                 icon: "heart.fill",
                                 value: "\(totalMonths)",
-                                label: "Ay Birlikte",
+                                label: "Ay",
                                 color: .pink
                             )
                         }
                     }
                     .padding(.horizontal)
                 }
+                .padding(.bottom, 4)
 
                 // Quick Actions - Compact 2x2 grid
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -274,7 +275,7 @@ struct FriendDetailView: View {
 
                                         Divider()
 
-                                        Section("Live Activity (Dynamic Island)") {
+                                        Section("Hatırlatma Süresi (Dynamic Island)") {
                                             if #available(iOS 16.1, *) {
                                                 Button {
                                                     NotificationService.shared.startLiveActivityReminder(for: friend, after: 1)
@@ -303,49 +304,11 @@ struct FriendDetailView: View {
                                                 } label: {
                                                     Label("1 Saat", systemImage: "circle.hexagongrid.fill")
                                                 }
-                                            }
-                                        }
-
-                                        Divider()
-
-                                        Section("Normal Hatırlatma") {
-                                            Button {
-                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 15)
-                                                HapticFeedback.success()
-                                            } label: {
-                                                Label("15 Dakika Sonra", systemImage: "clock")
-                                            }
-
-                                            Button {
-                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 30)
-                                                HapticFeedback.success()
-                                            } label: {
-                                                Label("30 Dakika Sonra", systemImage: "clock.fill")
-                                            }
-
-                                            Button {
-                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 60)
-                                                HapticFeedback.success()
-                                            } label: {
-                                                Label("1 Saat Sonra", systemImage: "clock.badge")
-                                            }
-
-                                            Button {
-                                                NotificationService.shared.scheduleCallReminder(for: friend, after: 120)
-                                                HapticFeedback.success()
-                                            } label: {
-                                                Label("2 Saat Sonra", systemImage: "clock.badge.checkmark")
-                                            }
-                                        }
-
-                                        Divider()
-
-                                        Section("Test") {
-                                            Button {
-                                                NotificationService.shared.sendTimeSensitiveCallReminder(for: friend)
-                                                HapticFeedback.success()
-                                            } label: {
-                                                Label("Time Sensitive Test", systemImage: "bell.badge.fill")
+                                            } else {
+                                                // iOS 16 altı için fallback
+                                                Text("Live Activity iOS 16.1+ gerektirir")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
                                             }
                                         }
                                     }
@@ -479,5 +442,131 @@ struct FriendDetailView: View {
                 .fill(.ultraThinMaterial)
         )
     }
+}
 
+// MARK: - Enhanced Stat Card Component
+
+struct EnhancedStatCard: View {
+    let icon: String
+    let value: String
+    let label: String
+    let gradient: LinearGradient
+    let accentColor: Color
+
+    var body: some View {
+        VStack(spacing: 12) {
+            // Icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(gradient.opacity(0.2))
+                    .frame(width: 56, height: 56)
+
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(gradient)
+            }
+
+            // Value
+            Text(value)
+                .font(.title.bold())
+                .foregroundStyle(.primary)
+
+            // Label
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(
+                    gradient.opacity(0.3),
+                    lineWidth: 1
+                )
+        )
+        .shadow(color: accentColor.opacity(0.15), radius: 8, x: 0, y: 4)
+    }
+}
+
+// MARK: - Health Indicator Component
+
+struct HealthIndicator: View {
+    let icon: String
+    let label: String
+    let isGood: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(isGood ? .green : .red)
+
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            Capsule()
+                .fill((isGood ? Color.green : Color.red).opacity(0.1))
+        )
+    }
+}
+
+// MARK: - Modern Achievement Badge Component
+
+struct ModernAchievementBadge: View {
+    let badge: FriendAchievement
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [badge.color.opacity(0.2), badge.color.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+
+                Image(systemName: badge.icon)
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [badge.color, badge.color.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+
+            Text(badge.title)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(width: 80)
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(
+                    badge.color.opacity(0.3),
+                    lineWidth: 1
+                )
+        )
+    }
 }

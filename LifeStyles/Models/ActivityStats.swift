@@ -11,39 +11,39 @@ import SwiftData
 
 @Model
 final class ActivityStats {
-    var id: UUID
-    var lastUpdated: Date
+    var id: UUID = UUID()
+    var lastUpdated: Date = Date()
 
     // Streak (ardışık günler)
-    var currentStreak: Int
-    var longestStreak: Int
+    var currentStreak: Int = 0
+    var longestStreak: Int = 0
     var lastActivityDate: Date?
 
     // Puan ve Seviye
-    var totalPoints: Int
-    var currentLevel: Int
+    var totalPoints: Int = 0
+    var currentLevel: Int = 1
 
     // Kategori bazlı sayaçlar
-    var outdoorCount: Int
-    var exerciseCount: Int
-    var socialCount: Int
-    var learningCount: Int
-    var creativeCount: Int
-    var relaxCount: Int
+    var outdoorCount: Int = 0
+    var exerciseCount: Int = 0
+    var socialCount: Int = 0
+    var learningCount: Int = 0
+    var creativeCount: Int = 0
+    var relaxCount: Int = 0
 
     // Zaman bazlı sayaçlar
-    var morningActivities: Int
-    var afternoonActivities: Int
-    var eveningActivities: Int
-    var nightActivities: Int
+    var morningActivities: Int = 0
+    var afternoonActivities: Int = 0
+    var eveningActivities: Int = 0
+    var nightActivities: Int = 0
 
     // Toplam aktiviteler
-    var totalActivitiesCompleted: Int
-    var totalActivitiesFailed: Int // Önerildi ama tamamlanmadı
+    var totalActivitiesCompleted: Int = 0
+    var totalActivitiesFailed: Int = 0 // Önerildi ama tamamlanmadı
 
     // Bu hafta/ay istatistikleri
-    var thisWeekActivities: Int
-    var thisMonthActivities: Int
+    var thisWeekActivities: Int = 0
+    var thisMonthActivities: Int = 0
 
     init(
         id: UUID = UUID(),
@@ -214,13 +214,13 @@ final class ActivityStats {
     // En aktif zaman dilimi
     var mostActiveTimeOfDay: String {
         let times = [
-            ("Sabah", morningActivities),
-            ("Öğle", afternoonActivities),
-            ("Akşam", eveningActivities),
-            ("Gece", nightActivities)
+            (String(localized: "time.morning"), morningActivities),
+            (String(localized: "time.afternoon"), afternoonActivities),
+            (String(localized: "time.evening"), eveningActivities),
+            (String(localized: "time.night"), nightActivities)
         ]
 
-        return times.max(by: { $0.1 < $1.1 })?.0 ?? "Bilinmiyor"
+        return times.max(by: { $0.1 < $1.1 })?.0 ?? String(localized: "difficulty.unknown")
     }
 
     // Başarı oranı

@@ -12,18 +12,21 @@ import SwiftUI
 
 @Model
 final class JournalTemplate {
-    var id: UUID
-    var name: String
-    var templateDescription: String
-    var icon: String
-    var emoji: String
-    var colorHex: String
-    var categoryRaw: String
-    var prompts: [String] // Sıralı prompt listesi
-    var placeholderText: String
-    var isBuiltIn: Bool // Varsayılan şablonlar
-    var usageCount: Int
-    var createdAt: Date
+    var id: UUID = UUID()
+    var name: String = ""
+    var templateDescription: String = ""
+    var icon: String = "doc.text.fill"
+    var emoji: String = "📝"
+    var colorHex: String = "3B82F6"
+    var categoryRaw: String = "productivity"
+    var prompts: [String] = [] // Sıralı prompt listesi
+    var placeholderText: String = ""
+    var isBuiltIn: Bool = false // Varsayılan şablonlar
+    var usageCount: Int = 0
+    var createdAt: Date = Date()
+
+    @Relationship(deleteRule: .nullify)
+    var journals: [JournalEntry]?
 
     init(
         id: UUID = UUID(),

@@ -16,9 +16,9 @@ enum UserEnergyLevel: String, Codable {
 
     var displayName: String {
         switch self {
-        case .energetic: return "Enerjik"
-        case .normal: return "Normal"
-        case .tired: return "Yorgun"
+        case .energetic: return String(localized: "energy.energetic")
+        case .normal: return String(localized: "energy.normal")
+        case .tired: return String(localized: "energy.tired")
         }
     }
 
@@ -40,10 +40,10 @@ enum UserMood: String, Codable {
 
     var displayName: String {
         switch self {
-        case .happy: return "Mutlu"
-        case .neutral: return "Normal"
-        case .stressed: return "Stresli"
-        case .sad: return "Üzgün"
+        case .happy: return String(localized: "mood.happy")
+        case .neutral: return String(localized: "mood.neutral")
+        case .stressed: return String(localized: "mood.stressed")
+        case .sad: return String(localized: "mood.sad")
         }
     }
 
@@ -59,9 +59,9 @@ enum UserMood: String, Codable {
 
 @Model
 final class UserActivityState {
-    var id: UUID
-    var timestamp: Date
-    var energyLevelRaw: String
+    var id: UUID = UUID()
+    var timestamp: Date = Date()
+    var energyLevelRaw: String = "normal"
     var moodRaw: String?
     var lastActivityTime: Date?
     var notes: String?

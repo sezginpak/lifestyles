@@ -18,54 +18,36 @@ struct StatsBadge: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 6) {
+        HStack(spacing: 8) {
+            // Icon with subtle background
             Image(systemName: icon)
-                .font(.system(size: 16))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(color)
+                .frame(width: 28, height: 28)
+                .background(color.opacity(0.12))
+                .clipShape(Circle())
 
-            Text(value)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.primary)
+            // Value and label
+            VStack(alignment: .leading, spacing: 1) {
+                Text(value)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.primary)
 
-            Text(label)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.secondary)
-        }
-        .frame(width: 85)
-        .padding(.vertical, 12)
-        .background(
-            ZStack {
-                // Base background
-                Color(.systemBackground)
-                    .opacity(0.9)
-
-                // Subtle gradient overlay
-                LinearGradient(
-                    colors: [
-                        color.opacity(0.15),
-                        color.opacity(0.05)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Text(label)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
             }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground).opacity(0.7))
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            color.opacity(0.3),
-                            color.opacity(0.1)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(color.opacity(0.2), lineWidth: 1)
         )
-        .shadow(color: color.opacity(0.15), radius: 8, x: 0, y: 4)
     }
 }
 

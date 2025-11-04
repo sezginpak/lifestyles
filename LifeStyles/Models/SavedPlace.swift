@@ -90,29 +90,29 @@ enum PlaceCategory: String, Codable, CaseIterable {
 
 @Model
 final class SavedPlace {
-    var id: UUID
-    var name: String
-    var emoji: String
-    var colorHex: String
-    var categoryRaw: String
+    var id: UUID = UUID()
+    var name: String = ""
+    var emoji: String = "📍"
+    var colorHex: String = "6B7280"
+    var categoryRaw: String = "custom"
 
     // Location
-    var latitude: Double
-    var longitude: Double
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
     var address: String?
 
     // Geofencing
-    var radius: Double // meters (50-500)
-    var isGeofenceEnabled: Bool
-    var notifyOnEntry: Bool
-    var notifyOnExit: Bool
+    var radius: Double = 100.0 // meters (50-500)
+    var isGeofenceEnabled: Bool = true
+    var notifyOnEntry: Bool = true
+    var notifyOnExit: Bool = false
 
     // Statistics
-    var visitCount: Int
-    var totalTimeSpent: TimeInterval // seconds
+    var visitCount: Int = 0
+    var totalTimeSpent: TimeInterval = 0 // seconds
 
     // Metadata
-    var createdAt: Date
+    var createdAt: Date = Date()
     var lastVisitedAt: Date?
 
     // Notes
@@ -269,10 +269,10 @@ final class SavedPlace {
 
 @Model
 final class PlaceVisit {
-    var id: UUID
-    var arrivalTime: Date
+    var id: UUID = UUID()
+    var arrivalTime: Date = Date()
     var departureTime: Date?
-    var duration: TimeInterval // computed on departure
+    var duration: TimeInterval = 0 // computed on departure
 
     // Relationship
     var place: SavedPlace?

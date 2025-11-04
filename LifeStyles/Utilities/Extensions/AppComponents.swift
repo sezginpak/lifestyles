@@ -95,17 +95,17 @@ struct ModernStatCard: View {
     @State private var isAnimating = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppConstants.Spacing.small) {
+        VStack(alignment: .leading, spacing: 6) {
             // Icon ve Badge
             HStack {
                 // Icon container
                 ZStack {
                     Circle()
                         .fill(.white.opacity(0.2))
-                        .frame(width: 44, height: 44)
+                        .frame(width: 36, height: 36)
 
                     Image(systemName: icon)
-                        .font(.title3)
+                        .font(.body)
                         .foregroundStyle(iconColor)
                 }
 
@@ -117,8 +117,8 @@ struct ModernStatCard: View {
                         .font(.caption2)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
                         .background(.white.opacity(0.25))
                         .clipShape(Capsule())
                 }
@@ -127,22 +127,22 @@ struct ModernStatCard: View {
             Spacer()
 
             // Value ve Title - Daha kompakt
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
                 Text(title)
-                    .font(.caption)
+                    .font(.caption2)
                     .fontWeight(.medium)
                     .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(1)
             }
         }
-        .padding(AppConstants.Spacing.medium)
-        .frame(maxWidth: .infinity, minHeight: 140, alignment: .leading)
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 110, alignment: .leading)
         .gradientCard(gradient: gradient)
         .scaleEffect(isAnimating ? 1.0 : 0.9)
         .opacity(isAnimating ? 1.0 : 0.0)

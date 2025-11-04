@@ -9,15 +9,17 @@
 import Foundation
 import UserNotifications
 
-// MARK: - Notification Priority
+// MARK: - Scheduler Priority (Legacy)
+// NotificationScheduler için basit priority enum
+// Yeni sistem için NotificationPriority.swift dosyasındaki struct kullanılıyor
 
-enum NotificationPriority: Int, Comparable {
+enum SchedulerPriority: Int, Comparable {
     case low = 0
     case normal = 1
     case high = 2
     case critical = 3
 
-    static func < (lhs: NotificationPriority, rhs: NotificationPriority) -> Bool {
+    static func < (lhs: SchedulerPriority, rhs: SchedulerPriority) -> Bool {
         return lhs.rawValue < rhs.rawValue
     }
 }
@@ -116,7 +118,7 @@ class NotificationScheduler {
     // MARK: - Spam Prevention
 
     /// Notification gönderilebilir mi? (spam kontrolü)
-    func canSendNotification(priority: NotificationPriority = .normal) -> Bool {
+    func canSendNotification(priority: SchedulerPriority = .normal) -> Bool {
         // Critical öncelikli bildirimler her zaman gönderilir
         if priority == .critical {
             return true
@@ -139,7 +141,7 @@ class NotificationScheduler {
 
     /// Notification gönderilebilir mi? (sessiz saat + spam kontrolü)
     func shouldSendNotification(
-        priority: NotificationPriority = .normal,
+        priority: SchedulerPriority = .normal,
         respectQuietHours: Bool = true
     ) -> (canSend: Bool, reason: String?) {
         // Spam kontrolü
@@ -227,7 +229,7 @@ class NotificationScheduler {
         identifier: String,
         content: UNMutableNotificationContent,
         at date: Date,
-        priority: NotificationPriority = .normal,
+        priority: SchedulerPriority = .normal,
         respectQuietHours: Bool = true
     ) async throws {
         // Gönderim kontrolü
@@ -278,7 +280,7 @@ class NotificationScheduler {
     func sendImmediateNotification(
         identifier: String,
         content: UNMutableNotificationContent,
-        priority: NotificationPriority = .normal,
+        priority: SchedulerPriority = .normal,
         respectQuietHours: Bool = true,
         delay: TimeInterval = 1
     ) async throws {

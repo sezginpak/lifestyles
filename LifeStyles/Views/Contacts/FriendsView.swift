@@ -13,13 +13,14 @@ struct FriendsView: View {
     @State private var viewModel = FriendsViewModel()
     @State private var showingAddSheet = false
     @State private var showingPhoneBookPicker = false
+    @State private var showingAIChat = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 12) {
-                    // Compact Stats Banner
-                    compactStatsBanner
+                    // Compact Stats
+                    modernStatsCards
                         .padding(.horizontal)
                         .padding(.top, 4)
 
@@ -57,10 +58,36 @@ struct FriendsView: View {
                         .padding(.top, 40)
                     }
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 80)
             }
             .navigationTitle(String(localized: "friends.title", comment: "Friends"))
             .searchable(text: $viewModel.searchText, prompt: String(localized: "friends.search.placeholder", comment: "Search Friends"))
+            .overlay(alignment: .bottomTrailing) {
+                // Floating AI Chat Button
+                Button {
+                    HapticFeedback.medium()
+                    showingAIChat = true
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.blue, .cyan],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 60, height: 60)
+                            .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
+
+                        Image(systemName: "brain.head.profile")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                    }
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -89,66 +116,52 @@ struct FriendsView: View {
             .sheet(isPresented: $showingPhoneBookPicker) {
                 PhoneBookPickerView(viewModel: viewModel)
             }
+            .sheet(isPresented: $showingAIChat) {
+                GeneralAIChatView()
+            }
         }
     }
 
-    // MARK: - Compact Stats Banner
+    // MARK: - Modern Stats Cards
 
-    private var compactStatsBanner: some View {
-        HStack(spacing: 10) {
-            // Acil
-            HStack(spacing: 3) {
-                Image(systemName: "exclamationmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                Text("\(viewModel.friendsNeedingAttention)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.red)
-                Text(String(localized: "common.urgent", comment: "Urgent"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+    private var modernStatsCards: some View {
+        HStack(spacing: 8) {
+            // Acil Kart
+            ModernStatCard(
+                title: String(localized: "common.urgent", comment: "Urgent"),
+                value: "\(viewModel.friendsNeedingAttention)",
+                icon: "exclamationmark.triangle.fill",
+                gradient: LinearGradient(
+                    colors: [.red, .orange],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
 
-            Divider()
-                .frame(height: 16)
+            // Yakında Kart
+            ModernStatCard(
+                title: String(localized: "friends.coming.soon", comment: "Coming Soon"),
+                value: "\(viewModel.friendsSoonCount)",
+                icon: "clock.fill",
+                gradient: LinearGradient(
+                    colors: [.orange, .yellow],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
 
-            // Yakında
-            HStack(spacing: 3) {
-                Image(systemName: "clock.fill")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                Text("\(viewModel.friendsSoonCount)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.orange)
-                Text(String(localized: "friends.coming.soon", comment: "Coming Soon"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            Divider()
-                .frame(height: 16)
-
-            // Toplam
-            HStack(spacing: 3) {
-                Image(systemName: "person.2.fill")
-                    .font(.caption)
-                    .foregroundStyle(.blue)
-                Text("\(viewModel.friends.count)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.blue)
-                Text(String(localized: "common.total", comment: "Total"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
+            // Toplam Kart
+            ModernStatCard(
+                title: String(localized: "common.total", comment: "Total"),
+                value: "\(viewModel.friends.count)",
+                icon: "person.2.fill",
+                gradient: LinearGradient(
+                    colors: [.blue, .cyan],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
     }
 
     // MARK: - Sort Picker
@@ -166,7 +179,7 @@ struct FriendsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: option.icon)
                                 .font(.caption)
-                            Text(option.rawValue)
+                            Text(option.displayName)
                                 .font(.caption.weight(.medium))
                         }
                         .padding(.horizontal, 12)
@@ -217,7 +230,7 @@ struct FriendsView: View {
                 Button {
                     showingPhoneBookPicker = true
                 } label: {
-                    Label("Rehberden Ekle", systemImage: "person.crop.circle.badge.plus")
+                    Label(String(localized: "friends.add.from.contacts", comment: "Add from Contacts"), systemImage: "person.crop.circle.badge.plus")
                         .font(.subheadline.weight(.medium))
                 }
                 .buttonStyle(.bordered)
@@ -225,7 +238,7 @@ struct FriendsView: View {
                 Button {
                     showingAddSheet = true
                 } label: {
-                    Label("Manuel Ekle", systemImage: "plus.circle.fill")
+                    Label(String(localized: "friends.add.manually", comment: "Add Manually"), systemImage: "plus.circle.fill")
                         .font(.subheadline.weight(.medium))
                 }
                 .buttonStyle(.borderedProminent)
@@ -271,4 +284,3 @@ struct FriendsView: View {
         }
     }
 }
-

@@ -40,6 +40,9 @@ struct AddContactHistoryView: View {
     @State private var notes: String = ""
     @State private var selectedMood: ContactMood? = nil
     @State private var selectedDate: Date = Date()
+    @State private var selectedChannel: ContactChannel? = nil
+    @State private var selectedTags: [ContactTag] = []
+    @State private var showingTagPicker = false
 
     var body: some View {
         NavigationStack {
@@ -57,6 +60,59 @@ struct AddContactHistoryView: View {
                                 Text(mood.displayName)
                             }
                             .tag(mood as ContactMood?)
+                        }
+                    }
+                }
+
+                Section("İletişim Kanalı") {
+                    Picker("Kanal", selection: $selectedChannel) {
+                        Text("Seçilmedi").tag(nil as ContactChannel?)
+                        ForEach(ContactChannel.allCases, id: \.self) { channel in
+                            Label {
+                                Text(channel.displayName)
+                            } icon: {
+                                Image(systemName: channel.icon)
+                            }
+                            .tag(channel as ContactChannel?)
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    if let channel = selectedChannel {
+                        HStack {
+                            Image(systemName: channel.icon)
+                                .foregroundStyle(Color(channel.color))
+                            Text(channel.displayName)
+                                .font(.subheadline)
+                        }
+                    }
+                }
+
+                Section {
+                    Button {
+                        showingTagPicker.toggle()
+                    } label: {
+                        HStack {
+                            Label("Etiketler", systemImage: "tag.fill")
+                            Spacer()
+                            if !selectedTags.isEmpty {
+                                Text("\(selectedTags.count) seçili")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+
+                    if !selectedTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(selectedTags) { tag in
+                                    ContactTagChip(tag: tag, onRemove: {
+                                        selectedTags.removeAll { $0.id == tag.id }
+                                    })
+                                }
+                            }
+                            .padding(.vertical, 4)
                         }
                     }
                 }
@@ -81,6 +137,9 @@ struct AddContactHistoryView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingTagPicker) {
+                ContactTagPickerView(selectedTags: $selectedTags)
+            }
         }
     }
 
@@ -88,9 +147,11 @@ struct AddContactHistoryView: View {
         let history = ContactHistory(
             date: selectedDate,
             notes: notes.isEmpty ? nil : notes,
-            mood: selectedMood
+            mood: selectedMood,
+            channel: selectedChannel
         )
         history.friend = friend
+        history.tags = selectedTags.isEmpty ? nil : selectedTags
 
         modelContext.insert(history)
 

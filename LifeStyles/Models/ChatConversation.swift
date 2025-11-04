@@ -13,22 +13,22 @@ import SwiftData
 final class ChatConversation {
     // MARK: - Properties
 
-    var id: UUID
-    var title: String
-    var createdAt: Date
-    var updatedAt: Date
+    var id: UUID = UUID()
+    var title: String = "Yeni Sohbet"
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
 
     // Friend-specific conversation (nil = general mode)
     var friendId: UUID?
     var friendName: String?  // Cached for display
-    var isGeneralMode: Bool
+    var isGeneralMode: Bool = true
 
     // Organization
-    var isFavorite: Bool
-    var isPinned: Bool
+    var isFavorite: Bool = false
+    var isPinned: Bool = false
 
     // Auto-generated title state
-    var hasAITitle: Bool  // true = AI generated, false = manual/default
+    var hasAITitle: Bool = false  // true = AI generated, false = manual/default
 
     // Messages relationship
     @Relationship(deleteRule: .cascade, inverse: \ChatMessage.conversation)

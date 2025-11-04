@@ -47,6 +47,40 @@ struct LifeStylesApp: App {
     @State private var isOnboardingComplete = OnboardingViewModel.hasCompletedOnboarding()
     @State private var deepLinkRouter = DeepLinkRouter()
 
+    // ⚠️ TEMİZLEME: Sadece bir kere çalıştır, sonra yorum satırına al!
+    init() {
+        // cleanupOldLocationData() // ← Sadece eski konum kayıtlarını sil (✅ Tamamlandı)
+    }
+
+    /// Eski konum kayıtlarını temizle (CloudKit quota için)
+    func cleanupOldLocationData() {
+        Task {
+            let context = sharedModelContainer.mainContext
+
+            // Son 7 günden eski konum kayıtlarını sil
+            let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
+
+            let descriptor = FetchDescriptor<LocationLog>(
+                predicate: #Predicate { log in
+                    log.timestamp < sevenDaysAgo
+                }
+            )
+
+            do {
+                let oldLogs = try context.fetch(descriptor)
+                print("🗑️ Silinecek eski konum kaydı: \(oldLogs.count)")
+
+                for log in oldLogs {
+                    context.delete(log)
+                }
+
+                try context.save()
+            } catch {
+                print("❌ Temizleme hatası: \(error)")
+            }
+        }
+    }
+
     // SwiftData ModelContainer'ı CloudKit ile kur
     var sharedModelContainer: ModelContainer = {
         // NOT: DEBUG modda otomatik silme KAPATILDI
@@ -57,6 +91,7 @@ struct LifeStylesApp: App {
             let schema = Schema([
                 Friend.self,
                 ContactHistory.self,
+                ContactTag.self, // NEW - Contact tagging system
                 LocationLog.self,
                 Goal.self,
                 Habit.self,
@@ -64,7 +99,10 @@ struct LifeStylesApp: App {
                 ActivitySuggestion.self,
                 UserActivityState.self,
                 ActivityCompletion.self,
-                Badge.self,
+                Badge.self, // Activity Badge (not gamification)
+                GamificationBadge.self, // NEW - Gamification Badge
+                UserProgress.self, // NEW - Gamification
+                AcceptedSuggestion.self, // NEW - Smart Suggestions Progress
                 ActivityStats.self,
                 SpecialDate.self,
                 GoalMilestone.self,
@@ -77,15 +115,18 @@ struct LifeStylesApp: App {
                 SavedPlace.self, // NEW - Saved places
                 PlaceVisit.self, // NEW - Place visits
                 Memory.self, // NEW - Memories & Photos
-                Transaction.self // NEW - Borç/Alacak
+                Transaction.self, // NEW - Borç/Alacak
+                NotificationTiming.self, // NEW - ML-based notification timing
+                UserKnowledge.self // NEW - AI Learning System
             ])
 
-            // CloudKit configuration - Tekrar aktif
-            // NOT: Validation uyarıları olabilir ama veriler senkronize olacak
+            // CloudKit configuration
+            // NOT: Development environment temizlendikten sonra aktif
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                cloudKitDatabase: .automatic // ✅ CloudKit açık - veriler geri gelecek
+                cloudKitDatabase: .automatic // ✅ CloudKit aktif - Environment otomatik seçilir
+                // Simulator = Development, Real Device = Production
             )
 
             let container = try ModelContainer(
@@ -96,8 +137,7 @@ struct LifeStylesApp: App {
             // CloudKit sync'i aktif et
             container.mainContext.autosaveEnabled = true
 
-            print("✅ ModelContainer oluşturuldu (20 model) + CloudKit aktif")
-            print("🔄 CloudKit senkronizasyonu otomatik başlayacak...")
+            // CloudKit durumunu kontrol et
             print("💡 İlk sync birkaç dakika sürebilir, lütfen bekleyin")
 
             return container
@@ -108,12 +148,12 @@ struct LifeStylesApp: App {
 
             // Schema değişikliği nedeniyle migration gerekiyor
             // Lokal storage ile devam et (veriler korunur)
-            print("🔄 CloudKit yerine lokal storage kullanılacak...")
 
             do {
                 let schema = Schema([
                     Friend.self,
                     ContactHistory.self,
+                    ContactTag.self, // NEW - Contact tagging system
                     LocationLog.self,
                     Goal.self,
                     Habit.self,
@@ -121,7 +161,9 @@ struct LifeStylesApp: App {
                     ActivitySuggestion.self,
                     UserActivityState.self,
                     ActivityCompletion.self,
-                    Badge.self,
+                    Badge.self, // Activity Badge (not gamification)
+                    GamificationBadge.self, // NEW - Gamification Badge
+                    UserProgress.self, // NEW - Gamification
                     ActivityStats.self,
                     SpecialDate.self,
                     GoalMilestone.self,
@@ -134,7 +176,9 @@ struct LifeStylesApp: App {
                     SavedPlace.self,
                     PlaceVisit.self,
                     Memory.self,
-                    Transaction.self
+                    Transaction.self,
+                    NotificationTiming.self,
+                    UserKnowledge.self
                 ])
 
                 let modelConfiguration = ModelConfiguration(
@@ -148,7 +192,6 @@ struct LifeStylesApp: App {
                     configurations: [modelConfiguration]
                 )
                 container.mainContext.autosaveEnabled = true
-                print("✅ Lokal storage ile başarıyla oluşturuldu")
                 print("💾 Verileriniz güvenli bir şekilde cihazınızda saklanacak")
                 return container
             } catch let retryError {
@@ -160,6 +203,7 @@ struct LifeStylesApp: App {
                     let schema = Schema([
                         Friend.self,
                         ContactHistory.self,
+                        ContactTag.self, // NEW - Contact tagging system
                         LocationLog.self,
                         Goal.self,
                         Habit.self,
@@ -167,7 +211,9 @@ struct LifeStylesApp: App {
                         ActivitySuggestion.self,
                         UserActivityState.self,
                         ActivityCompletion.self,
-                        Badge.self,
+                        Badge.self, // Activity Badge (not gamification)
+                        GamificationBadge.self, // NEW - Gamification Badge
+                        UserProgress.self, // NEW - Gamification
                         ActivityStats.self,
                         SpecialDate.self,
                         GoalMilestone.self,
@@ -180,7 +226,9 @@ struct LifeStylesApp: App {
                         SavedPlace.self,
                         PlaceVisit.self,
                         Memory.self,
-                        Transaction.self
+                        Transaction.self,
+                        NotificationTiming.self,
+                        UserKnowledge.self
                     ])
 
                     let modelConfiguration = ModelConfiguration(
@@ -230,6 +278,9 @@ struct LifeStylesApp: App {
                                 // Notification sistemini başlat
                                 initializeNotificationSystem()
                             }
+                            .onOpenURL { url in
+                                handleDeepLink(url)
+                            }
                     } else {
                         OnboardingView(isOnboardingComplete: $isOnboardingComplete)
                             .transition(.opacity)
@@ -247,11 +298,146 @@ struct LifeStylesApp: App {
         }
     }
 
+    // MARK: - Deep Link Handling
+
+    /// Widget'tan gelen deep link'leri handle et
+    private func handleDeepLink(_ url: URL) {
+        print("🔗 Deep Link alındı: \(url)")
+
+        guard url.scheme == "lifestyles" else {
+            print("⚠️ Bilinmeyen URL scheme: \(url.scheme ?? "nil")")
+            return
+        }
+
+        let host = url.host ?? ""
+        let pathComponents = url.pathComponents.filter { $0 != "/" }
+
+        switch host {
+        case "complete-call":
+            // lifestyles://complete-call/{friendId}
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            handleCompleteCall(friendId: uuid)
+
+        case "snooze":
+            // lifestyles://snooze/{friendId}
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            handleSnoozeReminder(friendId: uuid)
+
+        case "call-reminder":
+            // lifestyles://call-reminder/{friendId}
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            // Friend detay sayfasına git
+            deepLinkRouter.handle(path: "friend/\(uuid.uuidString)", parameters: [:])
+
+        default:
+            print("⚠️ Bilinmeyen deep link host: \(host)")
+        }
+    }
+
+    /// İletişimi tamamlanmış olarak işaretle
+    private func handleCompleteCall(friendId: UUID) {
+        let context = sharedModelContainer.mainContext
+
+        Task { @MainActor in
+            // Friend'i bul
+            let fetchDescriptor = FetchDescriptor<Friend>(
+                predicate: #Predicate { $0.id == friendId }
+            )
+
+            guard let friends = try? context.fetch(fetchDescriptor),
+                  let friend = friends.first else {
+                print("❌ Friend bulunamadı: \(friendId)")
+                return
+            }
+
+            // İletişim geçmişi ekle
+            let history = ContactHistory(
+                date: Date(),
+                notes: "Widget'tan hızlı aksiyon ile tamamlandı",
+                mood: nil
+            )
+            history.friend = friend
+            context.insert(history)
+
+            // Friend'i güncelle
+            friend.lastContactDate = Date()
+
+            // Kaydet
+            do {
+                try context.save()
+
+                // Toast göster
+                NotificationService.shared.showFriendToast(
+                    friend: friend,
+                    title: "İletişim Tamamlandı",
+                    message: "\(friend.name) ile iletişim kaydedildi"
+                )
+
+                // Live Activity'yi sonlandır
+                if #available(iOS 16.1, *) {
+                    LiveActivityService.shared.endCallReminder(friendId: friendId.uuidString)
+                }
+
+            } catch {
+                print("❌ Kayıt hatası: \(error)")
+            }
+        }
+    }
+
+    /// Hatırlatmayı ertele
+    private func handleSnoozeReminder(friendId: UUID) {
+        let context = sharedModelContainer.mainContext
+
+        Task { @MainActor in
+            // Friend'i bul
+            let fetchDescriptor = FetchDescriptor<Friend>(
+                predicate: #Predicate { $0.id == friendId }
+            )
+
+            guard let friends = try? context.fetch(fetchDescriptor),
+                  let friend = friends.first else {
+                print("❌ Friend bulunamadı: \(friendId)")
+                return
+            }
+
+            // 10 dakika sonra yeni hatırlatma
+            NotificationService.shared.scheduleCallReminder(for: friend, after: 10)
+
+            print("⏰ Hatırlatma 10 dakika ertelendi: \(friend.name)")
+
+            // Toast göster
+            NotificationService.shared.showInfoToast(
+                title: "Hatırlatma Ertelendi",
+                message: "10 dakika sonra tekrar hatırlatılacak",
+                emoji: "⏰"
+            )
+
+            // Mevcut Live Activity'yi sonlandır
+            if #available(iOS 16.1, *) {
+                LiveActivityService.shared.endCallReminder(friendId: friendId.uuidString)
+            }
+        }
+    }
+
     // Konum takibini otomatik başlat
     private func initializeLocationTracking() {
         // Her Zaman izni var mı kontrol et
         guard PermissionManager.shared.hasAlwaysLocationPermission() else {
-            print("ℹ️ Her Zaman konum izni yok, otomatik başlatma yapılamadı")
             return
         }
 
@@ -272,10 +458,8 @@ struct LifeStylesApp: App {
 
         // Eğer takip durumu kaydedilmişse ve aktifse, yeniden başlat
         if service.isPeriodicTrackingActive {
-            print("🔄 Uygulama açıldı, konum takibi devam ettiriliyor...")
             service.startPeriodicTracking()
         } else {
-            print("✅ Her Zaman izni var, ilk kez otomatik başlatılıyor...")
             service.startPeriodicTracking()
         }
     }
@@ -284,6 +468,16 @@ struct LifeStylesApp: App {
     private func initializeNotificationSystem() {
         // Notification sistemini setup et
         NotificationService.shared.initializeNotificationSystem()
+
+        // ML-based notification sistemini başlat
+        let context = sharedModelContainer.mainContext
+        UserBehaviorAnalyzer.shared.configure(with: context)
+
+        // Context awareness servisini başlat
+        ContextualAwarenessService.shared.updateContext()
+
+        // Priority engine'i başlat
+        NotificationPriorityEngine.shared.startAutoManagement()
 
         // Deep link callback'i ayarla
         NotificationDelegate.shared.setDeepLinkHandler { [self] path, parameters in
@@ -297,7 +491,6 @@ struct LifeStylesApp: App {
         // Tüm friend hatırlatmalarını zamanla
         scheduleFriendReminders()
 
-        print("✅ Notification sistem tamamen başlatıldı")
     }
 
     // Tüm friend'ler için hatırlatmaları zamanla
@@ -315,7 +508,6 @@ struct LifeStylesApp: App {
         NotificationService.shared.scheduleContactReminders(for: friends)
 
         let needsContactCount = friends.filter { $0.needsContact }.count
-        print("✅ \(friends.count) arkadaş için bildirimler zamanlandı (\(needsContactCount) kişi bekliyor)")
     }
 
     // Geçmiş LocationLog kayıtlarını migrate et
@@ -326,7 +518,6 @@ struct LifeStylesApp: App {
             return
         }
 
-        print("🔄 LocationLog migration başlatılıyor...")
 
         // Async olarak çalıştır - UI'yı bloklama
         Task.detached {
@@ -346,9 +537,7 @@ struct LifeStylesApp: App {
 
                 if fixedCount > 0 {
                     try context.save()
-                    print("✅ \(fixedCount) adet LocationLog kaydı güncellendi (durationInMinutes = 10)")
                 } else {
-                    print("✅ Tüm LocationLog kayıtları zaten güncel")
                 }
 
                 // Migration tamamlandı, bir daha çalıştırma
@@ -359,7 +548,6 @@ struct LifeStylesApp: App {
             } catch {
                 // SwiftData hatası - silent fail, kullanıcı deneyimini bozma
                 print("⚠️ LocationLog migration hatası: \(error.localizedDescription)")
-                print("ℹ️  Uygulama normal şekilde çalışmaya devam edecek")
 
                 // Yine de migration'ı tamamlanmış say ki tekrar deneme
                 await MainActor.run {

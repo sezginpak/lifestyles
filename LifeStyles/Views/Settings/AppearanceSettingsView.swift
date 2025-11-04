@@ -9,13 +9,48 @@
 import SwiftUI
 import SwiftData
 
+// Tema enum
+enum AppTheme: String, CaseIterable, Identifiable {
+    case light, dark, auto
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .light: return String(localized: "appearance.theme.light", comment: "Light")
+        case .dark: return String(localized: "appearance.theme.dark", comment: "Dark")
+        case .auto: return String(localized: "appearance.theme.auto", comment: "Auto")
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .light: return String(localized: "appearance.theme.description.light", comment: "Always use light theme")
+        case .dark: return String(localized: "appearance.theme.description.dark", comment: "Always use dark theme")
+        case .auto: return String(localized: "appearance.theme.description.auto", comment: "Follow system settings")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        case .auto: return "circle.lefthalf.filled"
+        }
+    }
+}
+
 struct AppearanceSettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) var systemColorScheme
     @Query private var userProfiles: [UserProfile]
+    @AppStorage("appTheme") private var selectedTheme: String = AppTheme.auto.rawValue
+    @AppStorage("userAvatar") private var userAvatar: String = "👤"
     @State private var showLanguageAlert = false
     @State private var pendingLanguage: AppLanguage?
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var showAvatarPicker = false
 
     private var userProfile: UserProfile? {
         userProfiles.first
@@ -23,100 +58,64 @@ struct AppearanceSettingsView: View {
 
     private let purchaseManager = PurchaseManager.shared
 
+    // Avatar emojileri
+    private let avatarEmojis = [
+        "👤", "👨", "👩", "🧑", "👦", "👧",
+        "👨‍💼", "👩‍💼", "👨‍🎓", "👩‍🎓", "👨‍⚕️", "👩‍⚕️",
+        "👨‍🎨", "👩‍🎨", "👨‍💻", "👩‍💻", "👨‍🔬", "👩‍🔬",
+        "🧙‍♂️", "🧙‍♀️", "🧚‍♂️", "🧚‍♀️", "🦸‍♂️", "🦸‍♀️",
+        "😀", "😎", "🤓", "🥳", "😇", "🤠",
+        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊",
+        "🐻", "🐼", "🐨", "🐯", "🦁", "🐮"
+    ]
+
     var body: some View {
         List {
-            // TEST: Başarı mesajı
+            // Profil Bölümü
             Section {
-                Text(String(localized: "settings.sheet.working", comment: "Sheet working"))
-                    .font(.headline)
-                    .foregroundStyle(.green)
-            }
-
-            // Profil Bölümü (BASİT - Sadece isim ve premium badge)
-            Section {
-                HStack(spacing: 12) {
-                    // Avatar emoji
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient.primaryGradient)
-                            .frame(width: 50, height: 50)
-
-                        Text("👤")
-                            .font(.title2)
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
-                            Text(userProfile?.name ?? "Kullanıcı")
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-
-                            // Premium Badge
-                            if purchaseManager.isPremium {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "crown.fill")
-                                        .font(.caption)
-                                    Text("Premium")
-                                        .font(.caption2)
-                                        .fontWeight(.semibold)
-                                }
-                                .foregroundStyle(.yellow)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.yellow.opacity(0.2))
-                                .clipShape(Capsule())
-                            }
-                        }
-
-                        // Tamamlanma yüzdesi
-                        if let profile = userProfile {
-                            let completion = calculateCompletion(profile: profile)
-                            Text(String(format: NSLocalizedString("settings.profile.completion", comment: "Profile completion"), Int(completion)))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    Spacer()
-
-                    // Tamamlanma circle
-                    if let profile = userProfile {
-                        ZStack {
-                            Circle()
-                                .stroke(Color.secondary.opacity(0.2), lineWidth: 3)
-                                .frame(width: 44, height: 44)
-
-                            Circle()
-                                .trim(from: 0, to: calculateCompletion(profile: profile) / 100)
-                                .stroke(LinearGradient.primaryGradient, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                                .frame(width: 44, height: 44)
-                                .rotationEffect(.degrees(-90))
-
-                            Text("\(Int(calculateCompletion(profile: profile)))%")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.brandPrimary)
-                        }
-                    }
-                }
-                .padding(.vertical, 8)
+                profileCard
 
                 // Profil düzenle butonu
                 NavigationLink {
                     UserProfileEditView()
                 } label: {
                     HStack {
+                        Image(systemName: "person.crop.circle.badge.checkmark")
+                            .foregroundStyle(Color.brandPrimary)
                         Text(String(localized: "settings.edit.profile", comment: "Edit profile"))
                             .font(.subheadline)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
                     .foregroundStyle(Color.brandPrimary)
                 }
                 .buttonStyle(.plain)
             } header: {
-                Text("Profil")
+                Text(String(localized: "appearance.profile.header", comment: "Profile"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textCase(.none)
+            }
+
+            // Avatar Seçimi
+            Section {
+                avatarSelector
+            } header: {
+                Text(String(localized: "appearance.avatar.header", comment: "Avatar"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textCase(.none)
+            }
+
+            // Tema Seçimi
+            Section {
+                ForEach(AppTheme.allCases) { theme in
+                    themeRow(theme: theme)
+                }
+            } header: {
+                Text(String(localized: "appearance.theme.header", comment: "Theme"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .textCase(.none)
@@ -126,37 +125,7 @@ struct AppearanceSettingsView: View {
             Section {
                 VStack(spacing: 12) {
                     ForEach(AppLanguage.allCases) { language in
-                        Button {
-                            HapticFeedback.medium()
-                            if language != LanguageManager.shared.currentLanguage {
-                                pendingLanguage = language
-                                showLanguageAlert = true
-                            }
-                        } label: {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(LanguageManager.shared.currentLanguage == language ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 40, height: 40)
-
-                                    Text(language.flag)
-                                        .font(.title3)
-                                }
-
-                                Text(language.displayName)
-                                    .font(.body)
-                                    .foregroundStyle(LanguageManager.shared.currentLanguage == language ? Color.brandPrimary : .primary)
-
-                                Spacer()
-
-                                if LanguageManager.shared.currentLanguage == language {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(Color.brandPrimary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                        }
-                        .buttonStyle(.plain)
+                        languageRow(language: language)
                     }
                 }
             } header: {
@@ -171,10 +140,10 @@ struct AppearanceSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Görünüm & Dil")
+        .navigationTitle(String(localized: "appearance.title", comment: "Appearance & Language"))
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Bilgi", isPresented: $showAlert) {
-            Button("Tamam", role: .cancel) {}
+        .alert(String(localized: "common.info", comment: "Info"), isPresented: $showAlert) {
+            Button(String(localized: "common.ok", comment: "OK"), role: .cancel) {}
         } message: {
             Text(alertMessage)
         }
@@ -185,7 +154,7 @@ struct AppearanceSettingsView: View {
             Button(String(localized: "settings.language.change.button", comment: "Change"), role: .none) {
                 if let newLanguage = pendingLanguage {
                     LanguageManager.shared.changeLanguage(to: newLanguage)
-                    alertMessage = "Dil ayarları kaydedildi! Değişikliklerin uygulanması için lütfen uygulamayı kapatıp tekrar açın.\n\nLanguage settings saved! Please close and reopen the app to apply changes."
+                    alertMessage = String(localized: "appearance.language.success.message", comment: "Language changed")
                     showAlert = true
                     pendingLanguage = nil
                 }
@@ -193,6 +162,207 @@ struct AppearanceSettingsView: View {
         } message: {
             Text(String(localized: "settings.language.restart.message", comment: "App needs to be reopened to apply language changes.\n\nDeğişikliklerin uygulanması için uygulama yeniden açılmalı."))
         }
+    }
+
+    // MARK: - Profile Card
+    private var profileCard: some View {
+        HStack(spacing: 16) {
+            // Avatar emoji
+            ZStack {
+                Circle()
+                    .fill(LinearGradient.primaryGradient)
+                    .frame(width: 60, height: 60)
+                    .shadow(color: Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
+
+                Text(userAvatar)
+                    .font(.largeTitle)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    Text(userProfile?.name ?? String(localized: "appearance.profile.default.name", comment: "User"))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    // Premium Badge
+                    if purchaseManager.isPremium {
+                        HStack(spacing: 4) {
+                            Image(systemName: "crown.fill")
+                                .font(.caption)
+                            Text("Premium")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(.yellow)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.yellow.opacity(0.2))
+                        .clipShape(Capsule())
+                    }
+                }
+
+                // Tamamlanma yüzdesi
+                if let profile = userProfile {
+                    let completion = calculateCompletion(profile: profile)
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption2)
+                            .foregroundStyle(completion == 100 ? .green : Color.brandPrimary)
+                        Text(String(format: NSLocalizedString("settings.profile.completion", comment: "Profile completion"), Int(completion)))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Tamamlanma circle
+            if let profile = userProfile {
+                ZStack {
+                    Circle()
+                        .stroke(Color.secondary.opacity(0.2), lineWidth: 4)
+                        .frame(width: 50, height: 50)
+
+                    Circle()
+                        .trim(from: 0, to: calculateCompletion(profile: profile) / 100)
+                        .stroke(LinearGradient.primaryGradient, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                        .frame(width: 50, height: 50)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: calculateCompletion(profile: profile))
+
+                    Text("\(Int(calculateCompletion(profile: profile)))%")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.brandPrimary)
+                }
+            }
+        }
+        .padding(.vertical, 12)
+    }
+
+    // MARK: - Avatar Selector
+    private var avatarSelector: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Current avatar
+            HStack {
+                Text(String(localized: "appearance.avatar.change", comment: "Change Avatar"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(userAvatar)
+                    .font(.title)
+            }
+
+            // Avatar grid
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
+                ForEach(avatarEmojis, id: \.self) { emoji in
+                    Button {
+                        HapticFeedback.light()
+                        userAvatar = emoji
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(userAvatar == emoji ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.15), .secondary.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(width: 44, height: 44)
+
+                            Text(emoji)
+                                .font(.title3)
+
+                            if userAvatar == emoji {
+                                Circle()
+                                    .strokeBorder(Color.brandPrimary, lineWidth: 2)
+                                    .frame(width: 44, height: 44)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+
+    // MARK: - Theme Row
+    private func themeRow(theme: AppTheme) -> some View {
+        let isSelected = selectedTheme == theme.rawValue
+
+        return Button {
+            HapticFeedback.medium()
+            selectedTheme = theme.rawValue
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: theme.icon)
+                        .font(.title3)
+                        .foregroundStyle(isSelected ? .white : .secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(theme.displayName)
+                        .font(.body)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(isSelected ? Color.brandPrimary : .primary)
+
+                    Text(theme.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.brandPrimary)
+                        .font(.title3)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Language Row
+    private func languageRow(language: AppLanguage) -> some View {
+        let isSelected = LanguageManager.shared.currentLanguage == language
+
+        return Button {
+            HapticFeedback.medium()
+            if !isSelected {
+                pendingLanguage = language
+                showLanguageAlert = true
+            }
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 44, height: 44)
+
+                    Text(language.flag)
+                        .font(.title2)
+                }
+
+                Text(language.displayName)
+                    .font(.body)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                    .foregroundStyle(isSelected ? Color.brandPrimary : .primary)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.brandPrimary)
+                        .font(.title3)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
     }
 
     // GÜVENLİ completion hesaplama - NaN'i önle

@@ -27,16 +27,11 @@ struct MoodTrackerView: View {
                 // [2] Quick Stats Bar
                 quickStatsBar
 
-                // [3] Mood Timeline (if has moods) OR Empty State
-                if !viewModel.todaysMoods.isEmpty {
-                    moodTimelineSection
+                // [3] Timeline View (Tüm mood'lar)
+                if !viewModel.moodEntries.isEmpty {
+                    timelineSection
                 } else {
                     emptyMoodState
-                }
-
-                // [4] Recent Moods Grid (geçmiş günler)
-                if !viewModel.moodEntries.isEmpty {
-                    recentMoodsSection
                 }
             }
             .padding(.vertical, Spacing.large)
@@ -60,150 +55,333 @@ struct MoodTrackerView: View {
         }
     }
 
-    // MARK: - [1] Hero Mood Banner
+    // MARK: - [1] Hero Mood Banner (Modern Redesign)
 
     private var heroMoodBanner: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            // Header
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: Spacing.micro) {
-                    Text(String(localized: "mood.todays.mood", comment: "Today's Mood"))
-                        .font(.title3)
-                        .fontWeight(.bold)
+        VStack(alignment: .leading, spacing: Spacing.large) {
+            // Modern Header with Gradient
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 6) {
+                    // Animated title
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .font(.title3)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.yellow, .orange, .pink],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .symbolEffect(.bounce, value: viewModel.todaysMoods.count)
 
-                    HStack(spacing: Spacing.micro) {
-                        if !viewModel.todaysMoods.isEmpty {
-                            Text(String(format: NSLocalizedString("mood.records.format", comment: "records count"), viewModel.todaysMoods.count))
-                                .metadataText()
+                        Text(String(localized: "mood.todays.mood", comment: "Today's Mood"))
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.primary, .primary.opacity(0.7)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                    }
 
-                            Circle()
-                                .fill(.secondary.opacity(0.4))
-                                .frame(width: 3, height: 3)
+                    // Stats badges
+                    if !viewModel.todaysMoods.isEmpty {
+                        HStack(spacing: 8) {
+                            // Kayıt sayısı badge
+                            HStack(spacing: 4) {
+                                Image(systemName: "circle.fill")
+                                    .font(.system(size: 6))
+                                    .foregroundStyle(Color.brandPrimary)
+                                Text("\(viewModel.todaysMoods.count) kayıt")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(Color.brandPrimary.opacity(0.15))
+                            )
 
-                            Text(String(format: NSLocalizedString("mood.average.format", comment: "Average"), viewModel.todaysMoodAverage))
-                                .metadataText()
-                        } else {
-                            Text(String(localized: "mood.no.records.yet", comment: "No records yet"))
-                                .metadataText()
+                            // Ortalama badge
+                            HStack(spacing: 4) {
+                                Image(systemName: "chart.line.uptrend.xyaxis")
+                                    .font(.system(size: 10))
+                                Text(String(format: "%.1f", viewModel.todaysMoodAverage))
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(.purple.opacity(0.15))
+                            )
+                            .foregroundStyle(.purple)
                         }
+                    } else {
+                        Text(String(localized: "mood.no.records.yet", comment: "No records yet"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
                 Spacer()
 
-                // Add Button
-                addMoodButton
+                // Enhanced Add Button
+                modernAddButton
             }
             .padding(.horizontal, Spacing.large)
+            .padding(.top, Spacing.medium)
 
-            // Content: Timeline or Empty
+            // Content: Modern Timeline or Empty
             if !viewModel.todaysMoods.isEmpty {
-                // Timeline ScrollView
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Spacing.medium) {
-                        ForEach(Array(viewModel.todaysMoods.enumerated()), id: \.element.id) { index, mood in
-                            MoodTimelineCard(
-                                mood: mood,
-                                isLatest: index == 0,
-                                onEdit: {
-                                    viewModel.startEditingMood(mood)
-                                    showingMoodPicker = true
-                                },
-                                onDelete: {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                        viewModel.deleteMood(mood, context: modelContext)
-                                    }
+                // Latest mood HERO card
+                if let latestMood = viewModel.todaysMoods.first {
+                    modernLatestMoodCard(mood: latestMood)
+                        .padding(.horizontal, Spacing.large)
+                }
+
+                // Previous moods - compact horizontal
+                if viewModel.todaysMoods.count > 1 {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Önceki Kayıtlar")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, Spacing.large)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(Array(viewModel.todaysMoods.dropFirst().enumerated()), id: \.element.id) { index, mood in
+                                    compactMoodCard(mood: mood)
                                 }
-                            )
-                            .transition(.asymmetric(
-                                insertion: .scale.combined(with: .opacity),
-                                removal: .scale.combined(with: .opacity)
-                            ))
+                            }
+                            .padding(.horizontal, Spacing.large)
                         }
                     }
-                    .padding(.horizontal, Spacing.large)
                 }
-                .frame(height: 200)
             } else {
-                // Empty Hero State
-                heroEmptyState
+                // Enhanced Empty State
+                modernEmptyState
                     .padding(.horizontal, Spacing.large)
             }
         }
-        .padding(.vertical, Spacing.medium)
+        .padding(.vertical, Spacing.large)
         .background(
-            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.large, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.brandPrimary.opacity(0.08),
-                            Color.purple.opacity(0.04)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+            ZStack {
+                // Dynamic gradient based on mood
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: gradientColors,
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
-                )
+
+                // Glassmorphism overlay
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .opacity(0.7)
+            }
         )
         .overlay(
-            RoundedRectangle(cornerRadius: AppConstants.CornerRadius.large, style: .continuous)
-                .strokeBorder(.white.opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.white.opacity(0.6), .white.opacity(0.2)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
         )
+        .shadow(color: .black.opacity(0.1), radius: 20, y: 10)
         .padding(.horizontal, Spacing.large)
     }
 
-    // Hero Empty State
-    private var heroEmptyState: some View {
-        VStack(spacing: Spacing.large) {
-            // Large Emoji
-            Text("😊")
-                .font(.system(size: 80))
+    // Dynamic gradient based on latest mood
+    private var gradientColors: [Color] {
+        guard let latestMood = viewModel.todaysMoods.first else {
+            return [Color.brandPrimary.opacity(0.1), Color.purple.opacity(0.05)]
+        }
+
+        let baseColor = latestMood.moodType.color
+        return [
+            baseColor.opacity(0.15),
+            baseColor.opacity(0.05),
+            Color.clear
+        ]
+    }
+
+    // MARK: - Modern Latest Mood Card
+
+    private func modernLatestMoodCard(mood: MoodEntry) -> some View {
+        HStack(spacing: 16) {
+            // Giant emoji with animation
+            Text(mood.moodType.emoji)
+                .font(.system(size: 72))
+                .shadow(color: mood.moodType.color.opacity(0.3), radius: 10)
                 .scaleEffect(1.0)
-                .animation(.spring(response: 0.6, dampingFraction: 0.7).repeatForever(autoreverses: true), value: viewModel.todaysMoods.count)
+                .animation(.spring(response: 0.6, dampingFraction: 0.6).repeatCount(1), value: mood.id)
 
-            VStack(spacing: Spacing.small) {
-                Text(String(localized: "mood.add.first.record", comment: "Add first record"))
-                    .font(.headline)
-                    .fontWeight(.semibold)
+            VStack(alignment: .leading, spacing: 8) {
+                // Mood name
+                Text(mood.moodType.displayName)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(mood.moodType.color)
 
-                Text(String(localized: "mood.track.mood", comment: "Track your mood"))
+                // Time
+                HStack(spacing: 6) {
+                    Image(systemName: "clock.fill")
+                        .font(.caption)
+                    Text(timeString(for: mood.date))
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(.secondary)
+
+                // Intensity visualization
+                HStack(spacing: 4) {
+                    ForEach(1...5, id: \.self) { index in
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(index <= mood.intensity ? mood.moodType.color : Color.gray.opacity(0.2))
+                            .frame(width: 30, height: 6)
+                    }
+                }
+
+                // Note preview
+                if let note = mood.note, !note.isEmpty {
+                    Text(note)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .padding(.top, 4)
+                }
+            }
+
+            Spacer()
+
+            // Action menu
+            Menu {
+                Button {
+                    viewModel.startEditingMood(mood)
+                    showingMoodPicker = true
+                } label: {
+                    Label("Düzenle", systemImage: "pencil")
+                }
+
+                Button(role: .destructive) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        viewModel.deleteMood(mood, context: modelContext)
+                    }
+                } label: {
+                    Label("Sil", systemImage: "trash")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(mood.moodType.color.opacity(0.7))
+                    .padding(8)
+                    .background(
+                        Circle()
+                            .fill(mood.moodType.color.opacity(0.15))
+                    )
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(mood.moodType.color.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .strokeBorder(mood.moodType.color.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+    }
+
+    // MARK: - Compact Mood Card (for previous moods)
+
+    private func compactMoodCard(mood: MoodEntry) -> some View {
+        VStack(spacing: 8) {
+            Text(mood.moodType.emoji)
+                .font(.system(size: 40))
+
+            Text(timeString(for: mood.date))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            // Intensity dots
+            HStack(spacing: 3) {
+                ForEach(1...5, id: \.self) { index in
+                    Circle()
+                        .fill(index <= mood.intensity ? mood.moodType.color : Color.gray.opacity(0.2))
+                        .frame(width: 5, height: 5)
+                }
+            }
+        }
+        .frame(width: 80)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(mood.moodType.color.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .onTapGesture {
+            viewModel.startEditingMood(mood)
+            showingMoodPicker = true
+        }
+    }
+
+    // MARK: - Modern Empty State
+
+    private var modernEmptyState: some View {
+        VStack(spacing: 20) {
+            // Animated emoji
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.brandPrimary.opacity(0.2), .purple.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+
+                Text("😊")
+                    .font(.system(size: 60))
+                    .scaleEffect(1.0)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.7).repeatForever(autoreverses: true), value: viewModel.todaysMoods.count)
+            }
+
+            VStack(spacing: 8) {
+                Text("Bugün Nasıl Hissediyorsun?")
+                    .font(.title3)
+                    .fontWeight(.bold)
+
+                Text("İlk ruh hali kaydını oluştur ve günlük duygusal yolculuğunu takip et")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal)
             }
-
-            Button {
-                HapticFeedback.medium()
-                showingMoodPicker = true
-            } label: {
-                HStack(spacing: Spacing.small) {
-                    Image(systemName: "plus.circle.fill")
-                    Text(String(localized: "mood.add.first.record.button", comment: "Add First Record"))
-                }
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.white)
-                .padding(.horizontal, Spacing.xlarge)
-                .padding(.vertical, Spacing.medium)
-                .background(
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [.brandPrimary, .purple],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                )
-                .shadow(color: .brandPrimary.opacity(0.4), radius: 12, y: 4)
-            }
-            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 240)
+        .frame(height: 220)
     }
 
-    // Add Mood Button
-    private var addMoodButton: some View {
+    // MARK: - Modern Add Button
+
+    private var modernAddButton: some View {
         Button {
             if viewModel.canAddMood {
                 HapticFeedback.medium()
@@ -212,101 +390,323 @@ struct MoodTrackerView: View {
                 HapticFeedback.warning()
             }
         } label: {
-            HStack(spacing: Spacing.small) {
+            HStack(spacing: 6) {
                 Image(systemName: viewModel.canAddMood ? "plus.circle.fill" : "exclamationmark.circle.fill")
                     .font(.title3)
+                Text(viewModel.canAddMood ? "Ekle" : "Limit")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
             }
-            .foregroundStyle(viewModel.canAddMood ? Color.brandPrimary : Color.secondary)
-            .padding(Spacing.small)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(
-                Circle()
-                    .fill(viewModel.canAddMood ? Color.brandPrimary.opacity(0.15) : Color.gray.opacity(0.1))
+                Capsule()
+                    .fill(
+                        viewModel.canAddMood
+                        ? LinearGradient(
+                            colors: [.brandPrimary, .purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        : LinearGradient(
+                            colors: [.gray, .gray.opacity(0.8)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+            )
+            .shadow(
+                color: viewModel.canAddMood ? .brandPrimary.opacity(0.4) : .clear,
+                radius: 10,
+                y: 4
             )
         }
         .buttonStyle(.plain)
         .disabled(!viewModel.canAddMood)
     }
 
-    // MARK: - [2] Quick Stats Bar
+    private func timeString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.locale = Locale(identifier: "tr_TR")
+        return formatter.string(from: date)
+    }
+
+
+    // MARK: - [2] Modern Stats Grid (Redesigned)
 
     private var quickStatsBar: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            Text(String(localized: "mood.statistics", comment: "Statistics"))
-                .cardTitle()
-                .padding(.horizontal, Spacing.large)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Spacing.medium) {
-                    // Bugün Ortalama (sadece mood varsa)
-                    if !viewModel.todaysMoods.isEmpty {
-                        AnimatedStatCard(
-                            title: String(localized: "mood.today.avg", comment: "Today Avg."),
-                            value: viewModel.todaysMoodAverage,
-                            icon: "calendar.badge.clock",
-                            color: .purple,
-                            format: "%.1f"
+        VStack(alignment: .leading, spacing: 16) {
+            // Header with gradient
+            HStack(spacing: 8) {
+                Image(systemName: "chart.bar.fill")
+                    .font(.title3)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.blue, .cyan],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                    }
-
-                    AnimatedStatCard(
-                        title: "Streak",
-                        value: Double(viewModel.streakData.currentStreak),
-                        icon: "flame.fill",
-                        color: .orange,
-                        format: "%.0f"
                     )
 
-                    AnimatedStatCard(
-                        title: String(localized: "mood.general.avg", comment: "General Avg."),
-                        value: viewModel.moodStats.averageMood,
-                        icon: "star.fill",
-                        color: .brandPrimary,
-                        format: "%.1f"
-                    )
+                Text(String(localized: "mood.statistics", comment: "Statistics"))
+                    .font(.title3)
+                    .fontWeight(.bold)
 
-                    AnimatedStatCard(
-                        title: String(localized: "mood.this.week", comment: "This Week"),
-                        value: Double(viewModel.moodCountThisWeek),
-                        icon: "calendar",
-                        color: .blue,
-                        format: "%.0f"
+                Spacer()
+
+                // Haftalık trend badge
+                HStack(spacing: 4) {
+                    Image(systemName: getTrendIcon())
+                        .font(.caption)
+                    Text(getTrendText())
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                }
+                .foregroundStyle(getTrendColor())
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(
+                    Capsule()
+                        .fill(getTrendColor().opacity(0.15))
+                )
+            }
+            .padding(.horizontal, Spacing.large)
+
+            // Stats Grid - 2x2
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ],
+                spacing: 12
+            ) {
+                // 1. Bugün Ortalama
+                if !viewModel.todaysMoods.isEmpty {
+                    modernStatCard(
+                        title: "Bugün",
+                        value: String(format: "%.1f", viewModel.todaysMoodAverage),
+                        subtitle: "\(viewModel.todaysMoods.count) kayıt",
+                        icon: "sun.max.fill",
+                        gradient: [.orange, .pink],
+                        progress: viewModel.todaysMoodAverage / 5.0
                     )
                 }
-                .padding(.horizontal, Spacing.large)
+
+                // 2. Streak
+                modernStatCard(
+                    title: "Seri",
+                    value: "\(viewModel.streakData.currentStreak)",
+                    subtitle: "gün",
+                    icon: "flame.fill",
+                    gradient: [.orange, .red],
+                    progress: Double(min(viewModel.streakData.currentStreak, 30)) / 30.0,
+                    showProgress: viewModel.streakData.currentStreak > 0
+                )
+
+                // 3. Genel Ortalama
+                modernStatCard(
+                    title: "Ortalama",
+                    value: String(format: "%.1f", viewModel.moodStats.averageMood),
+                    subtitle: "genel",
+                    icon: "star.fill",
+                    gradient: [.purple, .blue],
+                    progress: viewModel.moodStats.averageMood / 5.0
+                )
+
+                // 4. Bu Hafta
+                modernStatCard(
+                    title: "Bu Hafta",
+                    value: "\(viewModel.moodCountThisWeek)",
+                    subtitle: "kayıt",
+                    icon: "calendar.badge.clock",
+                    gradient: [.blue, .cyan],
+                    progress: Double(viewModel.moodCountThisWeek) / 21.0, // Max 3/gün × 7
+                    showProgress: viewModel.moodCountThisWeek > 0
+                )
             }
+            .padding(.horizontal, Spacing.large)
         }
     }
 
-    // MARK: - [3] Mood Timeline Section
+    // MARK: - Modern Stat Card
 
-    private var moodTimelineSection: some View {
+    private func modernStatCard(
+        title: String,
+        value: String,
+        subtitle: String,
+        icon: String,
+        gradient: [Color],
+        progress: Double? = nil,
+        showProgress: Bool = true
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Icon with gradient background
+            HStack {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: gradient.map { $0.opacity(0.2) },
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: gradient,
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+
+                Spacer()
+            }
+
+            // Value
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: gradient,
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fontWeight(.medium)
+            }
+
+            // Title
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+
+            // Progress bar (optional)
+            if showProgress, let progressValue = progress, progressValue > 0 {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 6)
+
+                        // Progress
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(
+                                LinearGradient(
+                                    colors: gradient,
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width * min(progressValue, 1.0), height: 6)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progressValue)
+                    }
+                }
+                .frame(height: 6)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: 160)
+        .background(
+            ZStack {
+                // Gradient background
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: gradient.map { $0.opacity(0.08) } + [Color.clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                // Glassmorphism
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .opacity(0.5)
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: gradient.map { $0.opacity(0.3) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
+        )
+        .shadow(color: gradient.first!.opacity(0.15), radius: 10, y: 5)
+    }
+
+    // MARK: - Trend Helpers
+
+    private func getTrendIcon() -> String {
+        let thisWeek = viewModel.moodCountThisWeek
+        // Basit mantık: haftalık kayıt sayısına göre
+        if thisWeek >= 14 { return "arrow.up.right" }
+        if thisWeek >= 7 { return "arrow.right" }
+        return "arrow.down.right"
+    }
+
+    private func getTrendText() -> String {
+        let thisWeek = viewModel.moodCountThisWeek
+        if thisWeek >= 14 { return "Harika" }
+        if thisWeek >= 7 { return "İyi" }
+        return "Başlangıç"
+    }
+
+    private func getTrendColor() -> Color {
+        let thisWeek = viewModel.moodCountThisWeek
+        if thisWeek >= 14 { return .green }
+        if thisWeek >= 7 { return .blue }
+        return .orange
+    }
+
+    // MARK: - [3] Timeline Section (Yeni Modern Timeline)
+
+    private var timelineSection: some View {
         VStack(alignment: .leading, spacing: Spacing.medium) {
             HStack {
-                Text(String(localized: "mood.todays.flow", comment: "Today's Flow"))
+                Text(String(localized: "mood.timeline", comment: "Mood Timeline"))
                     .cardTitle()
 
                 Spacer()
 
-                Text("\(viewModel.todaysMoods.count)/5")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, Spacing.small)
-                    .padding(.vertical, Spacing.micro)
-                    .background(
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                    )
+                Text(String(format: NSLocalizedString("mood.total.format", comment: "total"), viewModel.moodEntries.count))
+                    .metadataText()
             }
             .padding(.horizontal, Spacing.large)
 
-            // Timeline List
-            VStack(spacing: Spacing.small) {
-                ForEach(viewModel.todaysMoods) { mood in
-                    MoodTimelineRow(mood: mood)
+            // TimelineMoodView entegrasyonu
+            TimelineMoodView(
+                moodEntries: viewModel.moodEntries,
+                onEdit: { mood in
+                    viewModel.startEditingMood(mood)
+                    showingMoodPicker = true
+                },
+                onDelete: { mood in
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        viewModel.deleteMood(mood, context: modelContext)
+                    }
+                },
+                onRefresh: {
+                    // Refresh logic (SwiftData otomatik refresh yapar, ama gerekirse eklenebilir)
                 }
-            }
-            .padding(.horizontal, Spacing.large)
+            )
         }
     }
 
@@ -343,35 +743,6 @@ struct MoodTrackerView: View {
         .padding(.horizontal, Spacing.large)
     }
 
-    // MARK: - [4] Recent Moods Section
-
-    private var recentMoodsSection: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
-            HStack {
-                Text(String(localized: "mood.past.records", comment: "Past Records"))
-                    .cardTitle()
-
-                Spacer()
-
-                Text(String(format: NSLocalizedString("mood.total.format", comment: "total"), viewModel.moodEntries.count))
-                    .metadataText()
-            }
-            .padding(.horizontal, Spacing.large)
-
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: Spacing.medium),
-                GridItem(.flexible(), spacing: Spacing.medium)
-            ], spacing: Spacing.medium) {
-                ForEach(Array(viewModel.moodEntries.prefix(6).enumerated()), id: \.element.id) { index, mood in
-                    if !mood.isToday { // Bugünkiler zaten yukarıda
-                        CompactMoodCard(mood: mood)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
-            }
-            .padding(.horizontal, Spacing.large)
-        }
-    }
 
     // MARK: - Mood Picker Sheet
 

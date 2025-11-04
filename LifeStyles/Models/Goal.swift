@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 enum GoalCategory: String, Codable {
     case health = "health"          // Sağlık
@@ -49,6 +50,11 @@ enum GoalCategory: String, Codable {
         case .other: return "95A5A6"        // Gri
         }
     }
+
+    /// SwiftUI Color objesi
+    var color: Color {
+        Color(hex: ringColor)
+    }
 }
 
 enum GoalPriority: String, Codable {
@@ -75,20 +81,26 @@ enum GoalPriority: String, Codable {
 
 @Model
 final class Goal {
-    var id: UUID
-    var title: String
-    var goalDescription: String
-    var categoryRaw: String
-    var priorityRaw: String
-    var targetDate: Date
-    var createdAt: Date
-    var isCompleted: Bool
-    var progress: Double // 0.0 - 1.0 arası
-    var reminderEnabled: Bool
+    var id: UUID = UUID()
+    var title: String = ""
+    var goalDescription: String = ""
+    var categoryRaw: String = "personal"
+    var priorityRaw: String = "medium"
+    var targetDate: Date = Date()
+    var createdAt: Date = Date()
+    var isCompleted: Bool = false
+    var progress: Double = 0.0 // 0.0 - 1.0 arası
+    var reminderEnabled: Bool = true
     var emoji: String? // Kullanıcı seçebilir (opsiyonel)
 
     @Relationship(deleteRule: .cascade)
     var milestones: [GoalMilestone]?
+
+    @Relationship(deleteRule: .nullify)
+    var relatedMoods: [MoodEntry]?
+
+    @Relationship(deleteRule: .nullify)
+    var relatedSuggestions: [ActivitySuggestion]?
 
     init(
         id: UUID = UUID(),

@@ -161,7 +161,6 @@ class GoalsViewModel {
         // Draft temizle
         DraftManager.shared.clearDraftGoal()
 
-        print("✅ Hedef eklendi: \(title)")
     }
 
     func updateGoalProgress(goal: Goal, progress: Double) {
@@ -220,7 +219,6 @@ class GoalsViewModel {
         // Draft temizle
         DraftManager.shared.clearDraftHabit()
 
-        print("✅ Alışkanlık eklendi: \(name)")
     }
 
     func toggleHabitCompletion(habit: Habit, context: ModelContext) {

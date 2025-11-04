@@ -14,7 +14,7 @@ import SwiftUI
 
 typealias HeroStatsCard = ModernHeroStatsCard
 
-// MARK: - Partner Card
+// MARK: - Partner Card - MODERN REDESIGN
 
 struct PartnerCard: View {
     let partner: PartnerInfo
@@ -22,179 +22,215 @@ struct PartnerCard: View {
     let onMessage: () -> Void
     let onLogContact: () -> Void
 
+    @State private var isPressed = false
+    @State private var showingStats = false
+
     var body: some View {
-        VStack(spacing: 16) {
-            // Üst: Avatar + İsim + İlişki Süresi
-            HStack(spacing: 16) {
-                // Avatar
-                ZStack {
+        ZStack {
+            // Gradient Background
+            LinearGradient(
+                colors: [
+                    Color(hex: "FF6B9D").opacity(0.12),
+                    Color(hex: "FF9A9E").opacity(0.08),
+                    Color(hex: "FAD0C4").opacity(0.06)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            VStack(spacing: 20) {
+                // Header: Avatar + Info
+                HStack(spacing: 16) {
+                    // Modern Avatar with pulse animation
+                    ZStack {
+                        // Pulse background
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(hex: "FF6B9D").opacity(0.3),
+                                        Color(hex: "FF6B9D").opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 90, height: 90)
+                            .scaleEffect(showingStats ? 1.1 : 1.0)
+                            .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: showingStats)
+
+                        // Main avatar
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(hex: "FF6B9D"),
+                                        Color(hex: "FF9A9E")
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 80, height: 80)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(.white.opacity(0.3), lineWidth: 2)
+                            )
+
+                        if let emoji = partner.emoji {
+                            Text(emoji)
+                                .font(.system(size: 40))
+                        } else {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 32))
+                                .foregroundStyle(.white)
+                        }
+                    }
+
+                    // Info
+                    VStack(alignment: .leading, spacing: 8) {
+                        // Name
+                        HStack(spacing: 8) {
+                            Text(partner.name)
+                                .font(.title2.weight(.heavy))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(hex: "FF6B9D"),
+                                            Color(hex: "C44569")
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .lineLimit(1)
+
+                            Text("💖")
+                                .font(.title3)
+                        }
+
+                        // Relationship duration
+                        Text(partner.relationshipText)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        // Last contact badge
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock.fill")
+                                .font(.caption2)
+                            Text(partner.lastContactText)
+                                .font(.caption.weight(.medium))
+                        }
+                        .foregroundStyle(Color(hex: "FF6B9D"))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            Capsule()
+                                .fill(Color(hex: "FF6B9D").opacity(0.15))
+                        )
+                    }
+
+                    Spacer()
+                }
+
+                // Stats Row - Compact
+                if let anniversaryText = partner.anniversaryText {
+                    HStack(spacing: 16) {
+                        // Anniversary
+                        statBadge(emoji: "🎉", text: anniversaryText, color: "FF6B9D")
+
+                        // Love Language
+                        if let loveLanguage = partner.loveLanguage {
+                            statBadge(emoji: "💕", text: loveLanguage, color: "FF9A9E")
+                        }
+                    }
+                }
+
+                // Quick Actions - Compact Icons
+                HStack(spacing: 12) {
+                    actionButton(icon: "phone.fill", color: "3498DB", action: onCall)
+                    actionButton(icon: "message.fill", color: "2ECC71", action: onMessage)
+                    actionButton(icon: "checkmark.circle.fill", color: "FF6B9D", action: onLogContact)
+                }
+            }
+            .padding(24)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.4),
+                            .white.opacity(0.1),
+                            .clear
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
+        )
+        .shadow(color: Color(hex: "FF6B9D").opacity(0.15), radius: 20, x: 0, y: 12)
+        .shadow(color: .black.opacity(0.08), radius: 30, x: 0, y: 15)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .onAppear {
+            showingStats = true
+        }
+    }
+
+    // Helper: Stat Badge
+    private func statBadge(emoji: String, text: String, color: String) -> some View {
+        HStack(spacing: 8) {
+            Text(emoji)
+                .font(.title3)
+
+            Text(text)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color(hex: color).opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+
+    // Helper: Action Button
+    private func actionButton(icon: String, color: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(.white)
+                .frame(width: 56, height: 56)
+                .background(
                     Circle()
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    Color(hex: "FF6B9D"),
-                                    Color(hex: "C44569")
+                                    Color(hex: color),
+                                    Color(hex: color).opacity(0.8)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 70, height: 70)
-
-                    if let emoji = partner.emoji {
-                        Text(emoji)
-                            .font(.system(size: 36))
-                    } else {
-                        Image(systemName: "heart.fill")
-                            .font(.largeTitle)
-                            .foregroundStyle(.white)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Text(partner.name)
-                            .font(.title2.bold())
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-
-                        Text("❤️")
-                            .font(.title3)
-                    }
-
-                    Text(partner.relationshipText)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-
-                    Text(String(format: NSLocalizedString("dashboard.last.contact.format", comment: "Last contact"), partner.lastContactText))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-
-                Spacer()
-            }
-
-            // İstatistikler
-            HStack(spacing: 12) {
-                // Yıldönümü
-                if let anniversaryText = partner.anniversaryText {
-                    VStack(spacing: 4) {
-                        Text("🎉")
-                            .font(.title3)
-                        Text(anniversaryText)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color(hex: "FF6B9D").opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                // Love Language
-                if let loveLanguage = partner.loveLanguage {
-                    VStack(spacing: 4) {
-                        Text("💕")
-                            .font(.title3)
-                        Text(loveLanguage)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color(hex: "C44569").opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-
-            // Quick Actions
-            HStack(spacing: 8) {
-                Button(action: onCall) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "phone.fill")
-                            .font(.caption)
-                        Text(String(localized: "common.call", comment: "Call"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 4)
-                    .background(Color(hex: "3498DB"))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                Button(action: onMessage) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "message.fill")
-                            .font(.caption)
-                        Text(String(localized: "common.message", comment: "Message"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 4)
-                    .background(Color(hex: "2ECC71"))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                Button(action: onLogContact) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                        Text(String(localized: "common.save", comment: "Save"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 4)
-                    .background(Color(hex: "FF6B9D"))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-        }
-        .padding(20)
-        .background(
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(hex: "FF6B9D").opacity(0.15),
-                        Color(hex: "C44569").opacity(0.1)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
                 )
-
-                RoundedRectangle(cornerRadius: 20)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                Color(hex: "FF6B9D").opacity(0.4),
-                                Color(hex: "C44569").opacity(0.2)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-            }
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: Color(hex: "FF6B9D").opacity(0.2), radius: 15, x: 0, y: 8)
+                .overlay(
+                    Circle()
+                        .strokeBorder(.white.opacity(0.2), lineWidth: 1)
+                )
+                .shadow(color: Color(hex: color).opacity(0.3), radius: 8, y: 4)
+        }
+        .buttonStyle(.plain)
     }
 }
 

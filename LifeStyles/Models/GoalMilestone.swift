@@ -11,12 +11,12 @@ import SwiftData
 
 @Model
 final class GoalMilestone {
-    var id: UUID
-    var title: String
-    var isCompleted: Bool
+    var id: UUID = UUID()
+    var title: String = ""
+    var isCompleted: Bool = false
     var completedAt: Date?
-    var order: Int // Sıralama (0, 1, 2...)
-    var createdAt: Date
+    var order: Int = 0 // Sıralama (0, 1, 2...)
+    var createdAt: Date = Date()
 
     @Relationship(deleteRule: .nullify, inverse: \Goal.milestones)
     var goal: Goal?

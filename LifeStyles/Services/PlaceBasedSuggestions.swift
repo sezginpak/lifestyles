@@ -85,15 +85,15 @@ struct PlaceBasedSuggestions {
         switch time {
         case .morning:
             suggestions.append(PlaceSuggestion(
-                title: "Güne Başla",
-                description: "Sabah rutininle güne başla",
+                title: String(localized: "activity.home.start.day.title", comment: "Start day"),
+                description: String(localized: "activity.home.start.day.desc", comment: "Start day desc"),
                 icon: "sunrise.fill",
                 action: nil,
                 priority: 4
             ))
             suggestions.append(PlaceSuggestion(
-                title: "Hedeflerini Gözden Geçir",
-                description: "Bugünkü hedeflerini planla",
+                title: String(localized: "activity.home.review.goals.title", comment: "Review goals"),
+                description: String(localized: "activity.home.review.goals.desc", comment: "Review goals desc"),
                 icon: "target",
                 action: nil,
                 priority: 3
@@ -101,8 +101,8 @@ struct PlaceBasedSuggestions {
 
         case .afternoon:
             suggestions.append(PlaceSuggestion(
-                title: "Kısa Mola",
-                description: "15 dakika dinlenme zamanı",
+                title: String(localized: "activity.home.short.break.title", comment: "Short break"),
+                description: String(localized: "activity.home.short.break.desc", comment: "Short break desc"),
                 icon: "pause.circle.fill",
                 action: nil,
                 priority: 3
@@ -110,22 +110,22 @@ struct PlaceBasedSuggestions {
 
         case .evening:
             suggestions.append(PlaceSuggestion(
-                title: "Arkadaşlarınla İletişim",
-                description: "Bugün kiminle konuşman gerek?",
+                title: String(localized: "activity.home.connect.friends.title", comment: "Connect friends"),
+                description: String(localized: "activity.home.connect.friends.desc", comment: "Connect friends desc"),
                 icon: "phone.fill",
                 action: nil,
                 priority: 5
             ))
             suggestions.append(PlaceSuggestion(
-                title: "Günlüğünü Yaz",
-                description: "Bugün neler oldu?",
+                title: String(localized: "activity.home.write.journal.title", comment: "Write journal"),
+                description: String(localized: "activity.home.write.journal.desc", comment: "Write journal desc"),
                 icon: "book.fill",
                 action: nil,
                 priority: 4
             ))
             suggestions.append(PlaceSuggestion(
-                title: "Rahatlama Zamanı",
-                description: "Kendine özel zaman ayır",
+                title: String(localized: "activity.home.relax.time.title", comment: "Relax time"),
+                description: String(localized: "activity.home.relax.time.desc", comment: "Relax time desc"),
                 icon: "sparkles",
                 action: nil,
                 priority: 3
@@ -134,7 +134,7 @@ struct PlaceBasedSuggestions {
         case .night:
             suggestions.append(PlaceSuggestion(
                 title: "Uyku Rutini",
-                description: "Yarın için hazırlan",
+                description: String(localized: "activity.home.prepare.tomorrow.desc", comment: "Prepare tomorrow"),
                 icon: "moon.fill",
                 action: nil,
                 priority: 5
@@ -143,7 +143,7 @@ struct PlaceBasedSuggestions {
 
         // Always available
         suggestions.append(PlaceSuggestion(
-            title: "Kitap Oku",
+            title: String(localized: "activity.cafe.read.book.title", comment: "Read book"),
             description: "Zihnini dinlendir",
             icon: "book.closed.fill",
             action: nil,
@@ -159,8 +159,8 @@ struct PlaceBasedSuggestions {
         var suggestions: [PlaceSuggestion] = []
 
         suggestions.append(PlaceSuggestion(
-            title: "Focus Mode Aç",
-            description: "Dikkatini topla, bildirimler kapalı",
+            title: String(localized: "activity.work.focus.mode.title", comment: "Focus mode"),
+            description: String(localized: "activity.work.focus.mode.desc", comment: "Focus mode desc"),
             icon: "moon.circle.fill",
             action: nil,
             priority: 5
@@ -176,7 +176,7 @@ struct PlaceBasedSuggestions {
 
         if time == .afternoon || time == .evening {
             suggestions.append(PlaceSuggestion(
-                title: "Su İç",
+                title: String(localized: "activity.work.hydrate.title", comment: "Hydrate"),
                 description: "Hidrasyon çok önemli!",
                 icon: "drop.fill",
                 action: nil,
@@ -214,7 +214,7 @@ struct PlaceBasedSuggestions {
                 priority: 4
             ),
             PlaceSuggestion(
-                title: "Su İç",
+                title: String(localized: "activity.work.hydrate.title", comment: "Hydrate"),
                 description: "Antrenman öncesi hidrasyon",
                 icon: "drop.fill",
                 action: nil,
@@ -242,14 +242,14 @@ struct PlaceBasedSuggestions {
                 priority: 5
             ),
             PlaceSuggestion(
-                title: "Günlüğünü Yaz",
+                title: String(localized: "activity.home.write.journal.title", comment: "Write journal"),
                 description: "Kahve eşliğinde düşüncelerini kaydet",
                 icon: "book.fill",
                 action: nil,
                 priority: 4
             ),
             PlaceSuggestion(
-                title: "Kitap Oku",
+                title: String(localized: "activity.cafe.read.book.title", comment: "Read book"),
                 description: "Huzurlu bir okuma molası",
                 icon: "book.closed.fill",
                 action: nil,

@@ -13,8 +13,9 @@ struct DashboardViewNew: View {
     @Environment(\.modelContext) var modelContext
     @State var viewModel = DashboardViewModel()
     @State var showingSuggestions = false
-    @State private var showingGeneralAIChat = false
     @State private var showingFullDailyInsight = false
+    @State private var showConfetti = false
+    @State private var selectedSuggestion: GoalSuggestion?
 
     // Computed data
     @State private var dashboardSummary: DashboardSummary = .empty()
@@ -29,79 +30,82 @@ struct DashboardViewNew: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // 1. Hero Stats Card (4 Ring)
-                        HeroStatsCard(summary: dashboardSummary)
-                            .padding(.horizontal)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // 1. Hero Stats Card (4 Ring)
+                    HeroStatsCard(summary: dashboardSummary)
+                        .padding(.horizontal)
 
-                        // 2. Mood Widget
-                        DashboardMoodWidget()
+                    // 2. Mood Widget
+                    DashboardMoodWidget()
 
-                        // 2.5. Daily Insight (Claude Haiku) - Sabah/Öğle/Akşam dinamik
-                        dailyInsightSection
+                    // 2.5. Daily Insight (Claude Haiku) - Sabah/Öğle/Akşam dinamik
+                    dailyInsightSection
 
-                        // 3. AI Insights (iOS 26+)
-                        if #available(iOS 26.0, *) {
-                            aiInsightsSection
-                        }
-
-                        // 4. Partner Card (Varsa)
-                        if let partner = partnerInfo {
-                            PartnerCard(
-                                partner: partner,
-                                onCall: {
-                                    HapticFeedback.medium()
-                                    callPartner(partner)
-                                },
-                                onMessage: {
-                                    HapticFeedback.medium()
-                                    messagePartner(partner)
-                                },
-                                onLogContact: {
-                                    HapticFeedback.success()
-                                    logPartnerContact()
-                                }
-                            )
-                            .padding(.horizontal)
-                        }
-
-                        // 5. Streak & Achievements
-                        if streakInfo.currentStreak > 0 || !streakInfo.recentAchievements.isEmpty {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text(String(localized: "dashboard.achievements", comment: "Achievements"))
-                                    .font(.headline)
-                                    .padding(.horizontal)
-
-                                StreakAchievementCard(streakInfo: streakInfo)
+                    // 3. Partner Card (Varsa)
+                    if let partner = partnerInfo {
+                        PartnerCard(
+                            partner: partner,
+                            onCall: {
+                                HapticFeedback.medium()
+                                callPartner(partner)
+                            },
+                            onMessage: {
+                                HapticFeedback.medium()
+                                messagePartner(partner)
+                            },
+                            onLogContact: {
+                                HapticFeedback.success()
+                                logPartnerContact()
                             }
-                        }
+                        )
+                        .padding(.horizontal)
+                    }
 
-                        // 6. Compact Stats Grid (2x2)
-                        compactStatsGrid
+                    // 5. Streak & Achievements
+                    if streakInfo.currentStreak > 0 || !streakInfo.recentAchievements.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(String(localized: "dashboard.achievements", comment: "Achievements"))
+                                .font(.headline)
+                                .padding(.horizontal)
 
-                        // 7. Smart Suggestions
-                        if !viewModel.smartGoalSuggestions.isEmpty {
-                            smartSuggestionsSection
-                        }
-
-                        // 8. Location Alert
-                        if viewModel.needsToGoOutside {
-                            locationAlertCard
+                            StreakAchievementCard(streakInfo: streakInfo)
                         }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical)
-                    .padding(.bottom, 80) // FAB için boşluk
-                }
-                .background(Color(.systemGroupedBackground))
 
+                    // 6. Compact Stats Grid (2x2)
+                    compactStatsGrid
+
+                    // 7. Smart Suggestions
+                    if !viewModel.smartGoalSuggestions.isEmpty {
+                        smartSuggestionsSection
+                    }
+
+                    // 8. Location Alert
+                    if viewModel.needsToGoOutside {
+                        locationAlertCard
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical)
+            }
+            .refreshable {
+                // Tüm işlemleri main thread'de sıralı olarak yap
+                await viewModel.refreshAll(context: modelContext)
+
+                // Computed data'ları güncelle - refreshAll tamamlandıktan sonra
+                await MainActor.run {
+                    dashboardSummary = viewModel.getDashboardSummary(context: modelContext)
+                    partnerInfo = viewModel.getPartnerInfo(context: modelContext)
+                    streakInfo = viewModel.getStreakInfo(context: modelContext)
+                }
+
+                HapticFeedback.success()
+            }
+            .background(Color(.systemGroupedBackground))
+            .overlay(alignment: .bottomTrailing) {
                 // Floating AI Chat Button
-                Button {
-                    HapticFeedback.medium()
-                    showingGeneralAIChat = true
-                } label: {
+                NavigationLink(destination: GeneralAIChatView()) {
                     ZStack {
                         Circle()
                             .fill(
@@ -112,21 +116,21 @@ struct DashboardViewNew: View {
                                 )
                             )
                             .frame(width: 60, height: 60)
-                            .shadow(color: .purple.opacity(0.4), radius: 12, y: 6)
+                            .shadow(color: .purple.opacity(0.4), radius: 10, x: 0, y: 5)
 
                         Image(systemName: "brain.head.profile")
                             .font(.title2)
                             .foregroundStyle(.white)
                     }
                 }
+                .simultaneousGesture(TapGesture().onEnded {
+                    HapticFeedback.medium()
+                })
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
             }
             .navigationTitle("LifeStyles")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingGeneralAIChat) {
-                GeneralAIChatView()
-            }
             .sheet(isPresented: $showingFullDailyInsight) {
                 if let insight = viewModel.dailyInsightText {
                     FullDailyInsightSheet(
@@ -146,8 +150,9 @@ struct DashboardViewNew: View {
             .sheet(isPresented: $showingAddHabitSheet) {
                 AddHabitView(viewModel: goalsViewModel, modelContext: modelContext)
             }
-            .onAppear {
-                loadDashboardData()
+            .task {
+                // Async olarak veri yükle
+                await loadDashboardData()
             }
             .onChange(of: selectedTab) { oldValue, newValue in
                 // Tab değiştiğinde ContentView'a bildir (TODO: Environment ile implement edilecek)
@@ -270,94 +275,83 @@ struct DashboardViewNew: View {
     // MARK: - Smart Suggestions
 
     var smartSuggestionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Image(systemName: "lightbulb.fill")
-                    .font(.title3)
+                Image(systemName: "sparkles")
+                    .font(.title2)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.warning, .accentSecondary],
+                            colors: [.purple, .pink],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
 
-                Text(String(localized: "dashboard.smart.suggestions", comment: "Smart suggestions"))
-                    .font(.headline)
+                Text("Akıllı Öneriler")
+                    .font(.title3.bold())
 
                 Spacer()
 
-                if viewModel.smartGoalSuggestions.count > 3 {
-                    Button {
-                        HapticFeedback.light()
-                        showingSuggestions = true
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(String(localized: "common.all", comment: "All"))
-                            Image(systemName: "chevron.right")
-                        }
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.brandPrimary)
+                // AI Yenile Butonu
+                Button {
+                    HapticFeedback.light()
+                    Task {
+                        await viewModel.loadAISuggestions(context: modelContext)
                     }
-                }
-            }
-            .padding(.horizontal)
-
-            VStack(spacing: 12) {
-                ForEach(Array(viewModel.smartGoalSuggestions.prefix(3).enumerated()), id: \.element.id) { _, suggestion in
-                    suggestionCard(suggestion: suggestion)
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
-
-    func suggestionCard(suggestion: GoalSuggestion) -> some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.brandPrimary.opacity(0.2), .accentSecondary.opacity(0.2)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "brain.head.profile")
+                        Text("AI")
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.purple)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(.purple.opacity(0.15))
                     )
-                    .frame(width: 44, height: 44)
-
-                Text(suggestion.category.emoji)
-                    .font(.title3)
+                }
             }
+            .padding(.horizontal)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(suggestion.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.textPrimary)
-                    .lineLimit(1)
+            // Suggestion Cards
+            VStack(spacing: 16) {
+                ForEach(Array(viewModel.smartGoalSuggestions.prefix(3).enumerated()), id: \.element.id) { index, suggestion in
+                    SmartSuggestionCard(
+                        suggestion: suggestion,
+                        progress: viewModel.getAcceptedSuggestionProgress(
+                            for: suggestion.title,
+                            context: modelContext
+                        ),
+                        onAccept: {
+                            // Confetti animation
+                            showConfetti = true
 
-                Text(suggestion.description)
-                    .font(.caption)
-                    .foregroundColor(.textSecondary)
-                    .lineLimit(2)
+                            // Accept
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                                viewModel.acceptSuggestion(suggestion, context: modelContext)
+                            }
+                        },
+                        onDismiss: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                viewModel.dismissSuggestion(suggestion, context: modelContext)
+                            }
+                        },
+                        onTap: {
+                            // TODO: Öneri detay sayfası eklenecek
+                            print("📌 Öneri tıklandı: \(suggestion.title)")
+                        }
+                    )
+                    .padding(.horizontal)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .bottom).combined(with: .opacity),
+                        removal: .move(edge: .trailing).combined(with: .opacity)
+                    ))
+                }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            VStack(spacing: 4) {
-                Text(suggestion.estimatedDifficulty.emoji)
-                    .font(.caption)
-
-                Text(String(format: NSLocalizedString("dashboard.relevance.percentage", comment: "Relevance percentage"), Int(suggestion.relevanceScore * 100)))
-                    .font(.caption2.bold())
-                    .foregroundColor(.brandPrimary)
-            }
-            .frame(minWidth: 40)
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.03), radius: 8, x: 0, y: 4)
-        )
+        .confetti(isPresented: $showConfetti, count: 30)
     }
 
     // MARK: - Location Alert
@@ -411,7 +405,7 @@ struct DashboardViewNew: View {
                     timeOfDay: viewModel.dailyInsightTimeOfDay,
                     isLoading: true
                 )
-                .padding(.horizontal, Spacing.large)
+                .padding(.horizontal)
 
             } else if let insight = viewModel.dailyInsightText {
                 // Modern Daily Insight kartı
@@ -425,7 +419,7 @@ struct DashboardViewNew: View {
                         showingFullDailyInsight = true
                     }
                 )
-                .padding(.horizontal, Spacing.large)
+                .padding(.horizontal)
 
             } else if let error = viewModel.dailyInsightError {
                 // Error state (kompakt)
@@ -459,113 +453,9 @@ struct DashboardViewNew: View {
                     RoundedRectangle(cornerRadius: CornerRadius.normal)
                         .fill(.orange.opacity(0.1))
                 )
-                .padding(.horizontal, Spacing.large)
+                .padding(.horizontal)
         } else {
             EmptyView()
-        }
-    }
-
-    // MARK: - AI Insights Section
-
-    @available(iOS 26.0, *)
-    var aiInsightsSection: some View {
-        Group {
-            if viewModel.isLoadingAI {
-                HStack(spacing: 8) {
-                    ProgressView()
-                        .scaleEffect(0.7)
-                        .tint(.purple)
-
-                    Text(String(localized: "dashboard.ai.analyzing", comment: "AI analyzing"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                )
-                .padding(.horizontal)
-
-            } else if let insight = viewModel.dailyInsight {
-                // Compact AI Insight Card
-                HStack(spacing: 10) {
-                    // Icon
-                    Image(systemName: "sparkles")
-                        .font(.title3)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.purple, .pink],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(.purple.opacity(0.1))
-                        )
-
-                    // Content
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(String(localized: "dashboard.ai.summary", comment: "AI summary"))
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.primary)
-
-                            Spacer()
-
-                            // Refresh button
-                            Button {
-                                Task {
-                                    await viewModel.refreshAIInsights(context: modelContext)
-                                }
-                            } label: {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.caption2)
-                                    .foregroundStyle(.purple.opacity(0.6))
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        // Summary (single line)
-                        Text(insight.summary)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-
-                        // Priority badge (single compact badge)
-                        HStack(spacing: 4) {
-                            Text("⭐")
-                                .font(.caption2)
-                            Text(insight.topPriority)
-                                .font(.caption2)
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(.yellow.opacity(0.15))
-                        )
-                    }
-                }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .strokeBorder(.purple.opacity(0.2), lineWidth: 1)
-                        )
-                )
-                .padding(.horizontal)
-                .contentShape(Rectangle()) // Tıklanabilir alan
-                .allowsHitTesting(true) // Touch event'leri geçir
-            }
         }
     }
 
@@ -590,24 +480,15 @@ struct DashboardViewNew: View {
 
     // MARK: - Helper Functions
 
-    private func loadDashboardData() {
-        viewModel.loadDashboardData(context: modelContext)
+    @MainActor
+    private func loadDashboardData() async {
+        // ViewModel'deki veri yükleme fonksiyonunu çağır
+        await viewModel.loadDashboardDataAsync(context: modelContext)
 
-        // Dashboard summary
+        // Computed data'ları güncelle
         dashboardSummary = viewModel.getDashboardSummary(context: modelContext)
-
-        // Partner info
         partnerInfo = viewModel.getPartnerInfo(context: modelContext)
-
-        // Streak info
         streakInfo = viewModel.getStreakInfo(context: modelContext)
-
-        // AI Insights (iOS 26+)
-        if #available(iOS 26.0, *) {
-            Task {
-                await viewModel.loadAIInsights(context: modelContext)
-            }
-        }
     }
 
     private func callPartner(_ partner: PartnerInfo) {

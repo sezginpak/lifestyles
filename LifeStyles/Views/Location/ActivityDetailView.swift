@@ -39,9 +39,7 @@ struct ActivityDetailView: View {
                     activityInfo
 
                     // Tips Section
-                    if !activityTips.isEmpty {
-                        tipsSection
-                    }
+                    tipsSection
 
                     // Completion History
                     if !relatedCompletions.isEmpty {
@@ -186,15 +184,15 @@ struct ActivityDetailView: View {
                 .fontWeight(.bold)
 
             VStack(spacing: 10) {
-                ActivityInfoRow(icon: "star.fill", label: "Zorluk", value: activity.difficultyDisplayName, color: .orange)
-                ActivityInfoRow(icon: "clock.fill", label: "Süre", value: activity.formattedDuration, color: .blue)
-                ActivityInfoRow(icon: "star.circle.fill", label: "Puan", value: String(format: NSLocalizedString("location.points", comment: "Points"), activity.calculatedPoints), color: .yellow)
-                ActivityInfoRow(icon: "eye.fill", label: "Görüntülenme", value: String(format: NSLocalizedString("location.times.count", comment: "Times count"), activity.viewCount), color: .purple)
+                ActivityInfoRow(icon: "star.fill", label: String(localized: "activity.info.difficulty"), value: activity.difficultyDisplayName, color: .orange)
+                ActivityInfoRow(icon: "clock.fill", label: String(localized: "activity.info.duration"), value: activity.formattedDuration, color: .blue)
+                ActivityInfoRow(icon: "star.circle.fill", label: String(localized: "activity.info.points"), value: String(format: NSLocalizedString("location.points", comment: "Points"), activity.calculatedPoints), color: .yellow)
+                ActivityInfoRow(icon: "eye.fill", label: String(localized: "activity.info.views"), value: String(format: NSLocalizedString("location.times.count", comment: "Times count"), activity.viewCount), color: .purple)
 
                 if let lastViewed = activity.lastViewedAt {
                     ActivityInfoRow(
                         icon: "clock.arrow.circlepath",
-                        label: "Son Görüldü",
+                        label: String(localized: "activity.info.last_viewed"),
                         value: formatRelativeDate(lastViewed),
                         color: .indigo
                     )
@@ -215,31 +213,15 @@ struct ActivityDetailView: View {
             HStack {
                 Image(systemName: "lightbulb.fill")
                     .foregroundStyle(.yellow)
-                Text(String(localized: "activity.tips", comment: "Tips"))
+                Text(activityTipTitle)
                     .font(.headline)
                     .fontWeight(.bold)
             }
 
-            VStack(alignment: .leading, spacing: 10) {
-                ForEach(Array(activityTips.enumerated()), id: \.offset) { index, tip in
-                    HStack(alignment: .top, spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.yellow.opacity(0.2))
-                                .frame(width: 28, height: 28)
-
-                            Text("\(index + 1)")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.yellow)
-                        }
-
-                        Text(tip)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
+            Text(activityTipContent)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineSpacing(4)
         }
         .padding()
         .background(
@@ -346,50 +328,25 @@ struct ActivityDetailView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 
-    private var activityTips: [String] {
+    private var activityTipTitle: String {
         switch activity.type {
-        case .outdoor:
-            return [
-                "Güneşli havalarda dışarı çık",
-                "Doğada 20-30 dakika yürüyüş yap",
-                "Yeşil alanları tercih et",
-                "Su içmeyi unutma"
-            ]
-        case .exercise:
-            return [
-                "Isınma ve soğuma hareketlerini atla",
-                "Kendi hızında ilerle",
-                "Düzenli nefes al",
-                "Zorlanmadan keyif al"
-            ]
-        case .social:
-            return [
-                "Telefonunu bir kenara bırak",
-                "Aktif dinleme yap",
-                "Göz teması kur",
-                "Samimi ol"
-            ]
-        case .learning:
-            return [
-                "Sessiz bir ortam seç",
-                "Not al",
-                "15 dakikalık molalar ver",
-                "Öğrendiklerini uygula"
-            ]
-        case .creative:
-            return [
-                "Kendini yargılama",
-                "Farklı malzemeler dene",
-                "İlham kaynakları bul",
-                "Süreç sonuçtan önemli"
-            ]
-        case .relax:
-            return [
-                "Derin nefes al",
-                "Rahat bir pozisyon bul",
-                "Müzik dinleyebilirsin",
-                "Acele etme"
-            ]
+        case .outdoor: return String(localized: "tips.outdoor.title")
+        case .exercise: return String(localized: "tips.exercise.title")
+        case .social: return String(localized: "tips.social.title")
+        case .learning: return String(localized: "tips.learning.title")
+        case .creative: return String(localized: "tips.creative.title")
+        case .relax: return String(localized: "tips.relax.title")
+        }
+    }
+
+    private var activityTipContent: String {
+        switch activity.type {
+        case .outdoor: return String(localized: "tips.outdoor.content")
+        case .exercise: return String(localized: "tips.exercise.content")
+        case .social: return String(localized: "tips.social.content")
+        case .learning: return String(localized: "tips.learning.content")
+        case .creative: return String(localized: "tips.creative.content")
+        case .relax: return String(localized: "tips.relax.content")
         }
     }
 }

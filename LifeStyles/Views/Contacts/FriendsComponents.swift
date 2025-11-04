@@ -35,8 +35,8 @@ struct AddFriendView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("İlişki Tipi") {
-                    Picker("Tip", selection: $relationshipType) {
+                Section(String(localized: "friends.relationship.type", comment: "Relationship Type")) {
+                    Picker(String(localized: "friends.type", comment: "Type"), selection: $relationshipType) {
                         ForEach(RelationshipType.allCases, id: \.self) { type in
                             HStack {
                                 Text(type.emoji)
@@ -48,26 +48,26 @@ struct AddFriendView: View {
                     .pickerStyle(.menu)
                 }
 
-                Section("Kişi Bilgileri") {
-                    TextField("İsim", text: $name)
+                Section(String(localized: "friends.person.info", comment: "Person Info")) {
+                    TextField(String(localized: "friends.name", comment: "Name"), text: $name)
 
-                    TextField("Telefon (Opsiyonel)", text: $phoneNumber)
+                    TextField(String(localized: "friends.phone.optional", comment: "Phone (Optional)"), text: $phoneNumber)
                         .keyboardType(.phonePad)
 
-                    TextField("Avatar Emoji (Opsiyonel)", text: $avatarEmoji)
+                    TextField(String(localized: "friends.avatar.emoji.optional", comment: "Avatar Emoji (Optional)"), text: $avatarEmoji)
                         .font(.title2)
                 }
 
                 // Partner için özel bölümler
                 if relationshipType == .partner {
-                    Section("İlişki Bilgileri") {
-                        DatePicker("İlişki Başlangıcı", selection: $relationshipStartDate, displayedComponents: .date)
+                    Section(String(localized: "friends.relationship.info", comment: "Relationship Info")) {
+                        DatePicker(String(localized: "friends.relationship.start", comment: "Relationship Start"), selection: $relationshipStartDate, displayedComponents: .date)
 
-                        DatePicker("Yıldönümü Tarihi", selection: $anniversaryDate, displayedComponents: .date)
+                        DatePicker(String(localized: "friends.anniversary.date", comment: "Anniversary Date"), selection: $anniversaryDate, displayedComponents: .date)
                     }
 
-                    Section("Sevgi Dili") {
-                        Picker("Sevgi Dili", selection: $selectedLoveLanguage) {
+                    Section(String(localized: "friends.love.language", comment: "Love Language")) {
+                        Picker(String(localized: "friends.love.language", comment: "Love Language"), selection: $selectedLoveLanguage) {
                             Text(String(localized: "friends.not.selected", comment: "Not Selected")).tag(nil as LoveLanguage?)
                             ForEach(LoveLanguage.allCases, id: \.self) { language in
                                 HStack {
@@ -95,8 +95,8 @@ struct AddFriendView: View {
                     }
                 }
 
-                Section("İletişim Sıklığı") {
-                    Picker("Sıklık", selection: $selectedFrequency) {
+                Section(String(localized: "friends.contact.frequency", comment: "Contact Frequency")) {
+                    Picker(String(localized: "friends.frequency", comment: "Frequency"), selection: $selectedFrequency) {
                         ForEach(ContactFrequency.orderedCases, id: \.self) { freq in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(freq.displayName)
@@ -118,12 +118,12 @@ struct AddFriendView: View {
                 }
 
                 Section {
-                    Toggle("Önemli Arkadaş", isOn: $isImportant)
+                    Toggle(String(localized: "friends.important.friend", comment: "Important Friend"), isOn: $isImportant)
                 } footer: {
                     Text(String(localized: "friends.important.description", comment: "Important friends are shown prioritized in widgets"))
                 }
 
-                Section("Notlar (Opsiyonel)") {
+                Section(String(localized: "friends.notes.optional", comment: "Notes (Optional)")) {
                     TextEditor(text: $notes)
                         .frame(height: 80)
                 }
@@ -163,8 +163,8 @@ struct AddFriendView: View {
                     .disabled(name.isEmpty)
                 }
             }
-            .alert("Duplicate Arkadaş", isPresented: $showDuplicateError) {
-                Button("Tamam", role: .cancel) { }
+            .alert(String(localized: "friends.duplicate.title", comment: "Duplicate Friend"), isPresented: $showDuplicateError) {
+                Button(String(localized: "common.ok", comment: "OK"), role: .cancel) { }
             } message: {
                 Text(String(localized: "friends.already.exists", comment: "Friend already exists validation"))
             }

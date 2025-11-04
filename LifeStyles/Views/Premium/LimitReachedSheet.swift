@@ -42,16 +42,23 @@ enum LimitType {
         }
     }
 
-    var message: String {
+    func message(isInTrial: Bool, trialDaysRemaining: Int) -> String {
+        let softPrefix = String(localized: "limit.reached.soft.message")
+
+        if isInTrial {
+            let trialMessage = "\nDeneme sürenizde \(trialDaysRemaining) gün kaldı ve sınırsız erişiminiz var!"
+            return softPrefix + trialMessage
+        }
+
         switch self {
         case .dailyInsight:
-            return "Bugünkü Daily Insight limitinize ulaştınız. Premium üyelikle sınırsız insight alabilirsiniz."
+            return softPrefix + "\nPremium ile sınırsız Daily Insight alabilirsiniz."
         case .activitySuggestion:
-            return "Bugünkü aktivite önerisi limitinize ulaştınız. Premium üyelikle sınırsız öneri alabilirsiniz."
+            return softPrefix + "\nPremium ile sınırsız aktivite önerisi alabilirsiniz."
         case .goalSuggestion:
-            return "Bugünkü hedef önerisi limitinize ulaştınız. Premium üyelikle sınırsız öneri alabilirsiniz."
+            return softPrefix + "\nPremium ile sınırsız hedef önerisi alabilirsiniz."
         case .chat:
-            return "Bugünkü chat limitinize ulaştınız. Premium üyelikle sınırsız AI sohbeti yapabilirsiniz."
+            return softPrefix + "\nPremium ile sınırsız AI sohbeti yapabilirsiniz."
         }
     }
 
@@ -76,6 +83,7 @@ struct LimitReachedSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showFullPaywall = false
     @State private var animateIcon = false
+    @State private var purchaseManager = PurchaseManager.shared
 
     var body: some View {
         ZStack {
@@ -119,10 +127,19 @@ struct LimitReachedSheet: View {
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
 
-                    Text(limitType.message)
+                    Text(limitType.message(
+                        isInTrial: purchaseManager.isInTrial,
+                        trialDaysRemaining: purchaseManager.trialDaysRemaining
+                    ))
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
+
+                // Trial Banner (if not started trial yet)
+                if !purchaseManager.hasUserStartedTrial() && !purchaseManager.isInTrial {
+                    TrialBanner()
                         .padding(.horizontal, 24)
                 }
 
@@ -155,9 +172,15 @@ struct LimitReachedSheet: View {
                         showFullPaywall = true
                     } label: {
                         HStack {
-                            Image(systemName: "crown.fill")
-                            Text(String(localized: "premium.upgrade.button", comment: "Upgrade to Premium button"))
-                                .font(.headline)
+                            if !purchaseManager.hasUserStartedTrial() {
+                                Image(systemName: "sparkles")
+                                Text(String(localized: "premium.trial.3days"))
+                                    .font(.headline)
+                            } else {
+                                Image(systemName: "crown.fill")
+                                Text(String(localized: "premium.upgrade.button", comment: "Upgrade to Premium button"))
+                                    .font(.headline)
+                            }
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -268,6 +291,68 @@ struct LimitFeatureRow: View {
 
             Spacer()
         }
+    }
+}
+
+// MARK: - Trial Banner
+
+struct TrialBanner: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(localized: "premium.trial.3days"))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Text(String(localized: "premium.price.after.trial"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "arrow.right")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.blue)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(
+                    LinearGradient(
+                        colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
 }
 

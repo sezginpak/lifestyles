@@ -134,7 +134,6 @@ struct MemoriesView: View {
 struct MemoryGridView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var viewModel: MemoriesViewModel
-    @State private var tapTracker = TapTracker()
 
     let columns = [
         GridItem(.flexible(), spacing: Spacing.medium),
@@ -151,7 +150,8 @@ struct MemoryGridView: View {
                         ForEach(viewModel.filteredMemories, id: \.id) { memory in
                             MemoryCard(memory: memory)
                                 .onTapGesture {
-                                    handleMemoryTap(memory)
+                                    HapticFeedback.light()
+                                    viewModel.selectedMemory = memory
                                 }
                                 .contextMenu {
                                     Button {
@@ -183,35 +183,6 @@ struct MemoryGridView: View {
                     .padding(Spacing.large)
                 }
             }
-        }
-    }
-
-    private func handleMemoryTap(_ memory: Memory) {
-        let count = tapTracker.registerTap(for: memory.id)
-
-        switch count {
-        case 1:
-            // İlk tıklama - Detay aç
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if tapTracker.getTapCount(for: memory.id) == 1 {
-                    viewModel.selectedMemory = memory
-                    tapTracker.reset(for: memory.id)
-                }
-            }
-        case 2:
-            HapticFeedback.light()
-        case 3:
-            // 3. tıklama - Gizliye al
-            HapticFeedback.success()
-            Task {
-                let success = await viewModel.authenticateForPrivate()
-                if success {
-                    viewModel.togglePrivateStatus(memory, context: modelContext)
-                    tapTracker.reset(for: memory.id)
-                }
-            }
-        default:
-            break
         }
     }
 
@@ -267,7 +238,6 @@ struct MemoryGridView: View {
 struct MemoryTimelineView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var viewModel: MemoriesViewModel
-    @State private var tapTracker = TapTracker()
 
     var body: some View {
         Group {
@@ -281,7 +251,8 @@ struct MemoryTimelineView: View {
                                 ForEach(groupedMemories[key] ?? [], id: \.id) { memory in
                                     TimelineMemoryRow(memory: memory)
                                         .onTapGesture {
-                                            handleMemoryTap(memory)
+                                            HapticFeedback.light()
+                                            viewModel.selectedMemory = memory
                                         }
                                         .contextMenu {
                                             Button {
@@ -316,35 +287,6 @@ struct MemoryTimelineView: View {
                     }
                 }
             }
-        }
-    }
-
-    private func handleMemoryTap(_ memory: Memory) {
-        let count = tapTracker.registerTap(for: memory.id)
-
-        switch count {
-        case 1:
-            // İlk tıklama - Detay aç
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if tapTracker.getTapCount(for: memory.id) == 1 {
-                    viewModel.selectedMemory = memory
-                    tapTracker.reset(for: memory.id)
-                }
-            }
-        case 2:
-            HapticFeedback.light()
-        case 3:
-            // 3. tıklama - Gizliye al
-            HapticFeedback.success()
-            Task {
-                let success = await viewModel.authenticateForPrivate()
-                if success {
-                    viewModel.togglePrivateStatus(memory, context: modelContext)
-                    tapTracker.reset(for: memory.id)
-                }
-            }
-        default:
-            break
         }
     }
 
@@ -747,40 +689,6 @@ struct MemoryMapCard: View {
     }
 }
 
-// MARK: - Tap Tracker
-
-@Observable
-class TapTracker {
-    private var tapCounts: [UUID: Int] = [:]
-    private var timers: [UUID: Timer] = [:]
-
-    func registerTap(for id: UUID) -> Int {
-        // Timer'ı iptal et
-        timers[id]?.invalidate()
-
-        // Tap count artır
-        let currentCount = (tapCounts[id] ?? 0) + 1
-        tapCounts[id] = currentCount
-
-        // 1 saniye sonra reset
-        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-            self?.reset(for: id)
-        }
-        timers[id] = timer
-
-        return currentCount
-    }
-
-    func getTapCount(for id: UUID) -> Int {
-        return tapCounts[id] ?? 0
-    }
-
-    func reset(for id: UUID) {
-        tapCounts[id] = nil
-        timers[id]?.invalidate()
-        timers[id] = nil
-    }
-}
 
 #Preview {
     MemoriesView()

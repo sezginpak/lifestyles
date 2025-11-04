@@ -11,18 +11,18 @@ import SwiftData
 
 @Model
 final class Transaction {
-    var id: UUID
-    var amount: Decimal
-    var currency: String // "TL", "USD", "EUR"
-    var transactionDescription: String
-    var transactionTypeRaw: String // Raw value for SwiftData
-    var date: Date
+    var id: UUID = UUID()
+    var amount: Decimal = 0
+    var currency: String = "TL" // "TL", "USD", "EUR"
+    var transactionDescription: String = ""
+    var transactionTypeRaw: String = "Borç" // Raw value for SwiftData
+    var date: Date = Date()
     var dueDate: Date?
-    var isPaid: Bool
+    var isPaid: Bool = false
     var paidDate: Date?
-    var paidAmount: Decimal
+    var paidAmount: Decimal = 0
     var category: String?
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     // Relationship - inverse tanımlı Friend tarafında
     var friend: Friend?

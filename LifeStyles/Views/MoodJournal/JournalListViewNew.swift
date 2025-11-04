@@ -275,12 +275,18 @@ struct JournalListViewNew: View {
                     .foregroundStyle(entry.journalType.color)
             }
 
-            GlassJournalCard(
+            ModernJournalCard(
                 entry: entry,
-                showImage: true,
-                isHero: true,
                 onTap: {
                     viewModel.selectedJournalForDetail = entry
+                },
+                onToggleFavorite: {
+                    entry.toggleFavorite()
+                    HapticFeedback.success()
+                    toastManager.success(
+                        title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
+                        message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
+                    )
                 }
             )
         }
@@ -297,12 +303,18 @@ struct JournalListViewNew: View {
             spacing: Spacing.medium
         ) {
             ForEach(filteredAndSortedEntries, id: \.id) { entry in
-                GlassJournalCard(
+                ModernJournalCard(
                     entry: entry,
-                    showImage: true,
-                    isHero: false,
                     onTap: {
                         viewModel.selectedJournalForDetail = entry
+                    },
+                    onToggleFavorite: {
+                        entry.toggleFavorite()
+                        HapticFeedback.success()
+                        toastManager.success(
+                            title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
+                            message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
+                        )
                     }
                 )
                 .contextMenu {
@@ -323,12 +335,18 @@ struct JournalListViewNew: View {
     private var listView: some View {
         LazyVStack(spacing: Spacing.medium) {
             ForEach(filteredAndSortedEntries, id: \.id) { entry in
-                GlassJournalCard(
+                ModernJournalCard(
                     entry: entry,
-                    showImage: true,
-                    isHero: false,
                     onTap: {
                         viewModel.selectedJournalForDetail = entry
+                    },
+                    onToggleFavorite: {
+                        entry.toggleFavorite()
+                        HapticFeedback.success()
+                        toastManager.success(
+                            title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
+                            message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
+                        )
                     }
                 )
                 .contextMenu {

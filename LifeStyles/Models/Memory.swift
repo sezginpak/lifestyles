@@ -12,14 +12,14 @@ import CoreLocation
 
 @Model
 final class Memory {
-    var id: UUID
+    var id: UUID = UUID()
     var title: String?
-    var photos: [Data]              // Orijinal fotoğraflar (CloudKit senkron)
+    var photos: [Data] = []              // Orijinal fotoğraflar (CloudKit senkron)
     var thumbnails: [Data]?         // Optimize edilmiş küçük versiyonlar
-    var videos: [Data]              // Video dosyaları (CloudKit senkron)
+    var videos: [Data] = []              // Video dosyaları (CloudKit senkron)
     var videoThumbnails: [Data]?    // Video thumbnail'ları
-    var date: Date                  // Memory tarihi (kullanıcının seçtiği)
-    var createdAt: Date             // Oluşturulma tarihi (sistem)
+    var date: Date = Date()                  // Memory tarihi (kullanıcının seçtiği)
+    var createdAt: Date = Date()             // Oluşturulma tarihi (sistem)
 
     // Location
     var latitude: Double?
@@ -28,7 +28,7 @@ final class Memory {
 
     // Content
     var notes: String?
-    var tags: [String]
+    var tags: [String] = []
 
     // Relations
     @Relationship(deleteRule: .nullify)
@@ -38,9 +38,9 @@ final class Memory {
     var journalEntry: JournalEntry?
 
     // Metadata
-    var isFavorite: Bool
-    var viewCount: Int
-    var isPrivate: Bool             // Gizli klasörde mi? (Face ID korumalı)
+    var isFavorite: Bool = false
+    var viewCount: Int = 0
+    var isPrivate: Bool = false             // Gizli klasörde mi? (Face ID korumalı)
 
     init(
         id: UUID = UUID(),

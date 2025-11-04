@@ -16,7 +16,7 @@ struct NotificationSettingsView: View {
             Section {
                 SettingsToggleRow(
                     icon: "bell.fill",
-                    title: "Bildirimler Aktif",
+                    title: String(localized: "Bildirimler Aktif", comment: "Notifications Enabled"),
                     color: Color.error,
                     isOn: Binding(
                         get: { viewModel.notificationsEnabled },
@@ -32,7 +32,7 @@ struct NotificationSettingsView: View {
 
                 SettingsToggleRow(
                     icon: "sparkles",
-                    title: "Günlük Motivasyon",
+                    title: String(localized: "Günlük Motivasyon", comment: "Daily Motivation"),
                     color: Color.brandSecondary,
                     isOn: Binding(
                         get: { viewModel.dailyMotivationEnabled },
@@ -54,7 +54,7 @@ struct NotificationSettingsView: View {
                 } label: {
                     SettingsRow(
                         icon: "slider.horizontal.3",
-                        title: "Bildirim Tercihleri",
+                        title: String(localized: "Bildirim Tercihleri", comment: "Notification Preferences"),
                         color: Color.info
                     )
                 }
@@ -107,7 +107,7 @@ struct NotificationSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Bildirim Ayarları")
+        .navigationTitle(String(localized: "Bildirim Ayarları", comment: "Notification Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.checkPermissions()

@@ -9,6 +9,7 @@
 import Foundation
 import ActivityKit
 import SwiftUI
+import UIKit
 
 @available(iOS 16.1, *)
 @Observable
@@ -44,10 +45,14 @@ class LiveActivityService {
         let authInfo = ActivityAuthorizationInfo()
         print("🔐 Activities Enabled: \(authInfo.areActivitiesEnabled)")
         print("🔐 Frequent Updates Enabled: \(authInfo.frequentPushesEnabled)")
+        print("📱 iOS Version Check: \(ProcessInfo.processInfo.operatingSystemVersion)")
 
         guard authInfo.areActivitiesEnabled else {
             print("❌ Live Activities devre dışı!")
-            print("⚠️ Ayarlar → [Uygulamanız] → Live Activities açık olmalı")
+            print("⚠️ ÇÖZÜM 1: iPhone Ayarlar → LifeStyles → Live Activities (AÇIK yapın)")
+            print("⚠️ ÇÖZÜM 2: iPhone Ayarlar → Ekran ve Parlaklık → Always On Display (AÇIK yapın - iPhone 14 Pro+)")
+            print("⚠️ ÇÖZÜM 3: Uygulamayı kapatıp yeniden açın")
+            print("⚠️ ÇÖZÜM 4: Telefonu yeniden başlatın")
             return nil
         }
 
@@ -58,11 +63,94 @@ class LiveActivityService {
             return friend.id.uuidString
         }
 
+        // Profil fotoğrafını base64'e encode et (eğer varsa)
+        // NOT: Live Activity boyut sınırı ~4KB, agresif sıkıştırma gerekli
+        var profileImageBase64: String? = nil
+        if let imageData = friend.profileImageData {
+            // Çok küçült (max 40x40) ve agresif compress
+            #if canImport(UIKit)
+            if let uiImage = UIImage(data: imageData),
+               let thumbnail = uiImage.preparingThumbnail(of: CGSize(width: 40, height: 40)),
+               let jpegData = thumbnail.jpegData(compressionQuality: 0.3) {
+                let base64 = jpegData.base64EncodedString()
+                // 2KB'den küçükse kullan, değilse atla
+                if base64.count < 2048 {
+                    profileImageBase64 = base64
+                    print("✅ Profil fotoğrafı eklendi: \(base64.count) bytes")
+                } else {
+                    print("⚠️ Profil fotoğrafı çok büyük, atlanıyor: \(base64.count) bytes")
+                }
+            }
+            #endif
+        }
+
+        // Özel tarih hesaplamaları
+        var hasUpcomingBirthday = false
+        var daysUntilBirthday: Int? = nil
+
+        if let specialDates = friend.specialDates {
+            for specialDate in specialDates {
+                // Doğum günü kontrolü (7 gün içinde)
+                if specialDate.title.lowercased().contains("doğum") ||
+                   specialDate.title.lowercased().contains("birthday") {
+                    let days = specialDate.daysUntil
+                    if days >= 0 && days <= 7 {
+                        hasUpcomingBirthday = true
+                        daysUntilBirthday = days
+                    }
+                }
+            }
+        }
+
+        // Yıldönümü kontrolü (partner için, 14 gün içinde)
+        var hasUpcomingAnniversary = false
+        var daysUntilAnniversary: Int? = nil
+
+        if friend.isPartner, let days = friend.daysUntilAnniversary {
+            if days >= 0 && days <= 14 {
+                hasUpcomingAnniversary = true
+                daysUntilAnniversary = days
+            }
+        }
+
+        // Balance'ı kısa formatta hazırla (boyut tasarrufu için)
+        var shortBalance: String? = nil
+        if friend.hasOutstandingTransactions {
+            let balance = friend.balance
+            if balance > 0 {
+                shortBalance = "+₺\(Int(truncating: balance as NSDecimalNumber))"
+            } else if balance < 0 {
+                shortBalance = "-₺\(Int(truncating: abs(balance) as NSDecimalNumber))"
+            }
+        }
+
         // Attributes oluştur
         let attributes = CallReminderAttributes(
             friendId: friend.id.uuidString,
-            friendEmoji: friend.avatarEmoji
+            friendEmoji: friend.avatarEmoji,
+            profileImageBase64: profileImageBase64,
+            relationshipType: friend.relationshipType.rawValue,
+            isVIP: friend.isImportant,
+            loveLanguage: friend.loveLanguage?.rawValue,
+            contactFrequency: friend.frequency.rawValue,
+            daysOverdue: friend.daysOverdue,
+            hasDebt: friend.totalDebt > 0,
+            hasCredit: friend.totalCredit > 0,
+            balance: shortBalance,
+            hasUpcomingBirthday: hasUpcomingBirthday,
+            daysUntilBirthday: daysUntilBirthday,
+            hasUpcomingAnniversary: hasUpcomingAnniversary,
+            daysUntilAnniversary: daysUntilAnniversary
         )
+
+        // Debug: Toplam attribute boyutu
+        let encoder = JSONEncoder()
+        if let jsonData = try? encoder.encode(attributes) {
+            print("📦 Attributes boyutu: \(jsonData.count) bytes")
+            if jsonData.count > 4000 {
+                print("⚠️ UYARI: Attributes çok büyük! (>\(jsonData.count) bytes)")
+            }
+        }
 
         // Initial state
         let initialState = CallReminderAttributes.ContentState(
@@ -93,7 +181,26 @@ class LiveActivityService {
             return friend.id.uuidString
 
         } catch {
-            print("❌ Live Activity başlatılamadı: \(error)")
+            print("❌ Live Activity başlatılamadı!")
+            print("🔍 Hata Detayı: \(error)")
+            print("🔍 Hata Türü: \(type(of: error))")
+            print("🔍 LocalizedDescription: \(error.localizedDescription)")
+
+            // Özel hata mesajları
+            let errorString = String(describing: error)
+            if errorString.contains("attributesTooLarge") {
+                print("⚠️ HATA: Attribute verisi çok büyük!")
+                print("💡 Profil fotoğrafı boyutunu azaltın veya kaldırın")
+            } else if errorString.contains("disabled") {
+                print("⚠️ HATA: Live Activities devre dışı!")
+                print("💡 iPhone Ayarlar → LifeStyles → Live Activities açın")
+            }
+
+            print("\n💡 Genel Çözümler:")
+            print("1. iPhone Ayarlar → LifeStyles → Live Activities AÇIK olmalı")
+            print("2. Clean Build (⌘+Shift+K) yapıp tekrar deneyin")
+            print("3. Telefonu yeniden başlatın")
+
             return nil
         }
     }

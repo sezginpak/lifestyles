@@ -114,7 +114,7 @@ struct GoalsViewNew: View {
                     // Empty States
                     if viewModel.goals.isEmpty && viewModel.habits.isEmpty {
                         ContentUnavailableView(
-                            "Başlayalım!",
+                            String(localized: "goals.lets_start"),
                             systemImage: "target",
                             description: Text(String(localized: "goal.empty.description", comment: "Start by adding a new goal or habit"))
                         )
@@ -124,7 +124,7 @@ struct GoalsViewNew: View {
                 .padding(.vertical)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Hedefler")
+            .navigationTitle(String(localized: "goals.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -132,13 +132,13 @@ struct GoalsViewNew: View {
                         Button {
                             viewModel.showingAddGoal = true
                         } label: {
-                            Label("Yeni Hedef", systemImage: "target")
+                            Label(String(localized: "goals.new_goal"), systemImage: "target")
                         }
 
                         Button {
                             viewModel.showingAddHabit = true
                         } label: {
-                            Label("Yeni Alışkanlık", systemImage: "flame")
+                            Label(String(localized: "goals.new_habit"), systemImage: "flame")
                         }
 
                         Divider()
@@ -146,7 +146,7 @@ struct GoalsViewNew: View {
                         Button {
                             // Achievement gallery
                         } label: {
-                            Label("Başarımlar", systemImage: "trophy.fill")
+                            Label(String(localized: "goals.achievements"), systemImage: "trophy.fill")
                         }
                     } label: {
                         Image(systemName: "plus.circle.fill")

@@ -18,7 +18,7 @@ struct LocationSettingsView: View {
             Section {
                 SettingsToggleRow(
                     icon: "location.fill",
-                    title: "Konum Takibi",
+                    title: String(localized: "Konum Takibi", comment: "Location Tracking"),
                     color: Color.cardActivity,
                     isOn: Binding(
                         get: { viewModel.locationTrackingEnabled },
@@ -40,7 +40,7 @@ struct LocationSettingsView: View {
                 } label: {
                     SettingsRow(
                         icon: "mappin.circle.fill",
-                        title: "Kayıtlı Yerler",
+                        title: String(localized: "Kayıtlı Yerler", comment: "Saved Places"),
                         color: Color.brandPrimary
                     )
                 }
@@ -129,7 +129,7 @@ struct LocationSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Konum Ayarları")
+        .navigationTitle(String(localized: "Konum Ayarları", comment: "Location Settings"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.checkPermissions()

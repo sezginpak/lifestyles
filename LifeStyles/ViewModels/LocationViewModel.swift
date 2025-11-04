@@ -65,17 +65,14 @@ class LocationViewModel {
     private func autoStartTrackingIfNeeded() {
         // Eğer zaten aktifse, tekrar başlatma
         guard !isPeriodicTrackingActive else {
-            print("ℹ️ Konum takibi zaten aktif")
             return
         }
 
         // "Her Zaman" izni var mı kontrol et
         if PermissionManager.shared.hasAlwaysLocationPermission() {
-            print("✅ Her Zaman konum izni var, otomatik başlatılıyor...")
             locationService.startPeriodicTracking()
             updatePeriodicTrackingStatus()
         } else {
-            print("ℹ️ Her Zaman konum izni yok, otomatik başlatma yapılamadı")
         }
     }
 
@@ -104,7 +101,7 @@ class LocationViewModel {
         if isAtHome {
             currentActivity = "Evde"
         } else {
-            currentActivity = "Dışarıda"
+            currentActivity = String(localized: "activity.current.outdoor", comment: "Outdoor")
         }
     }
 
@@ -115,11 +112,11 @@ class LocationViewModel {
         if hoursAtHome >= 4 {
             // Dışarı çık önerileri
             let activities: [(String, String, ActivityType)] = [
-                ("Yürüyüşe Çık 🚶", "30 dakika yürüyüş yapın, hava alın", .outdoor),
-                ("Spor Yap 🏃", "Yakındaki parka gidip koşu yapabilirsiniz", .exercise),
-                ("Kafe'ye Git ☕", "Bir arkadaşınızla kahve içmeye ne dersiniz?", .social),
-                ("Alışverişe Çık 🛍️", "İhtiyacınız olan şeyleri almaya çıkabilirsiniz", .outdoor),
-                ("Kitapçıya Uğra 📚", "Yeni bir kitap keşfetme zamanı", .learning)
+                (String(localized: "activity.suggestion.walk.title", comment: "Walk"), String(localized: "activity.suggestion.walk.desc", comment: "Walk desc"), .outdoor),
+                (String(localized: "activity.suggestion.exercise.title", comment: "Exercise"), String(localized: "activity.suggestion.exercise.desc", comment: "Exercise desc"), .exercise),
+                (String(localized: "activity.suggestion.cafe.title", comment: "Cafe"), String(localized: "activity.suggestion.cafe.desc", comment: "Cafe desc"), .social),
+                (String(localized: "activity.suggestion.shopping.title", comment: "Shopping"), String(localized: "activity.suggestion.shopping.desc", comment: "Shopping desc"), .outdoor),
+                (String(localized: "activity.suggestion.bookstore.title", comment: "Bookstore"), String(localized: "activity.suggestion.bookstore.desc", comment: "Bookstore desc"), .learning)
             ]
 
             for (title, description, type) in activities.prefix(3) {
@@ -134,9 +131,9 @@ class LocationViewModel {
         } else {
             // Ev içi aktiviteler
             let activities: [(String, String, ActivityType)] = [
-                ("Meditasyon Yap 🧘", "10 dakika nefes egzersizi yapın", .relax),
-                ("Yeni Şeyler Öğren 📖", "Online bir kurs başlatın", .learning),
-                ("Yaratıcı Ol 🎨", "Bir şeyler çizin veya yazın", .creative)
+                (String(localized: "activity.suggestion.meditation.title", comment: "Meditation"), String(localized: "activity.suggestion.meditation.desc", comment: "Meditation desc"), .relax),
+                (String(localized: "activity.suggestion.learn.title", comment: "Learn"), String(localized: "activity.suggestion.learn.desc", comment: "Learn desc"), .learning),
+                (String(localized: "activity.suggestion.creative.title", comment: "Creative"), String(localized: "activity.suggestion.creative.desc", comment: "Creative desc"), .creative)
             ]
 
             for (title, description, type) in activities.prefix(2) {
@@ -466,9 +463,9 @@ class LocationViewModel {
         switch category {
         case .outdoor:
             return [
-                ("Yeşilde Yürüyüş", "Yakındaki bir parkta 30 dakika tempolu yürüyüş yap"),
-                ("Doğa Fotoğrafçılığı", "Doğada güzel anları fotoğrafla"),
-                ("Açık Hava Meditasyonu", "Yeşil alanda 15 dakika meditasyon")
+                (String(localized: "activity.nature.walk.title", comment: "Nature walk"), String(localized: "activity.nature.walk.desc", comment: "Nature walk desc")),
+                (String(localized: "activity.nature.photo.title", comment: "Nature photo"), String(localized: "activity.nature.photo.desc", comment: "Nature photo desc")),
+                (String(localized: "activity.nature.meditation.title", comment: "Nature meditation"), String(localized: "activity.nature.meditation.desc", comment: "Nature meditation desc"))
             ]
         case .exercise:
             return [

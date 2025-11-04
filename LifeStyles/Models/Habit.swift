@@ -16,17 +16,17 @@ enum HabitFrequency: String, Codable {
 
 @Model
 final class Habit {
-    var id: UUID
-    var name: String
-    var habitDescription: String
-    var frequencyRaw: String
-    var targetCount: Int // Hedef tekrar sayısı (günlük/haftalık/aylık)
-    var currentStreak: Int // Mevcut seri
-    var longestStreak: Int // En uzun seri
-    var createdAt: Date
-    var isActive: Bool
+    var id: UUID = UUID()
+    var name: String = ""
+    var habitDescription: String = ""
+    var frequencyRaw: String = "daily"
+    var targetCount: Int = 1 // Hedef tekrar sayısı (günlük/haftalık/aylık)
+    var currentStreak: Int = 0 // Mevcut seri
+    var longestStreak: Int = 0 // En uzun seri
+    var createdAt: Date = Date()
+    var isActive: Bool = true
     var reminderTime: Date? // Hatırlatıcı saati
-    var colorHex: String // UI renk kodu (hex)
+    var colorHex: String = "3498DB" // UI renk kodu (hex)
 
     @Relationship(deleteRule: .cascade)
     var completions: [HabitCompletion]?
@@ -122,8 +122,8 @@ final class Habit {
 
 @Model
 final class HabitCompletion {
-    var id: UUID
-    var completedAt: Date
+    var id: UUID = UUID()
+    var completedAt: Date = Date()
     var habit: Habit?
 
     init(id: UUID = UUID(), completedAt: Date = Date()) {

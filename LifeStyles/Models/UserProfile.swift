@@ -11,9 +11,9 @@ import SwiftData
 
 @Model
 final class UserProfile {
-    var id: UUID
-    var createdAt: Date
-    var updatedAt: Date
+    var id: UUID = UUID()
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
 
     // Basic Info
     var name: String?
@@ -22,8 +22,8 @@ final class UserProfile {
 
     // Personal Details
     var bio: String?
-    var hobbies: [String]
-    var interests: [String]
+    var hobbies: [String] = []
+    var interests: [String] = []
 
     // Lifestyle
     var workSchedule: String? // "9-5", "Flexible", "Night shift", etc.
@@ -31,7 +31,7 @@ final class UserProfile {
 
     // Goals & Values
     var lifeGoals: String? // Long-term aspirations
-    var coreValues: [String] // "Family", "Career", "Health", etc.
+    var coreValues: [String] = [] // "Family", "Career", "Health", etc.
 
     init(
         id: UUID = UUID(),

@@ -73,7 +73,9 @@ struct ChatContext: Codable {
 class ChatHaikuService {
     static let shared = ChatHaikuService()
 
-    private let claude = ClaudeHaikuService.shared
+    // ✅ YENI: Abstraction layer - Backend migration için hazır
+    // Gelecekte AIServiceType.current = .backend yapınca otomatik backend kullanacak
+    private let aiService: AIServiceProtocol = AIServiceFactory.shared.getService()
 
     private init() {}
 
@@ -136,17 +138,62 @@ class ChatHaikuService {
         let (systemPrompt, userMessage) = generateChatPrompt(
             context: context,
             question: question,
-            chatHistory: chatHistory
+            chatHistory: chatHistory,
+            modelContext: modelContext
         )
 
-        // Call Claude Haiku
-        let response = try await claude.generate(
+        // Call AI Service (abstraction layer - backend ready)
+        let response = try await aiService.generate(
             systemPrompt: systemPrompt,
             userMessage: userMessage,
-            temperature: 0.9  // More creative for chat
+            temperature: 0.9,  // More creative for chat
+            maxTokens: 1024
         )
 
+        // YENI: Knowledge extraction (async, arka planda)
+        Task.detached {
+            await self.extractKnowledgeFromConversation(
+                userMessage: question,
+                aiResponse: response,
+                chatHistory: chatHistory,
+                modelContext: modelContext
+            )
+        }
+
         return response
+    }
+
+    // MARK: - Knowledge Extraction (NEW)
+
+    /// Konuşmadan bilgi çıkar ve kaydet
+    private func extractKnowledgeFromConversation(
+        userMessage: String,
+        aiResponse: String,
+        chatHistory: [ChatMessage],
+        modelContext: ModelContext
+    ) async {
+        // Privacy check
+        guard KnowledgePrivacyManager.shared.isLearningEnabled else {
+            return
+        }
+
+        // Tüm user mesajlarını topla (son 10 mesaj - token limiti için)
+        var allUserMessages: [ChatMessage] = []
+
+        // Geçmiş konuşmalardan sadece user mesajları
+        let recentHistory = chatHistory.suffix(10).filter { $0.isUser }
+        allUserMessages.append(contentsOf: recentHistory)
+
+        // Şimdiki mesaj
+        allUserMessages.append(
+            ChatMessage(id: UUID(), content: userMessage, isUser: true, timestamp: Date())
+        )
+
+        let extractor = KnowledgeExtractor.shared
+        let _ = await extractor.extractKnowledge(
+            from: allUserMessages,
+            context: modelContext
+        )
     }
 
     // MARK: - Data Usage Tracking
@@ -302,7 +349,8 @@ class ChatHaikuService {
     private func generateChatPrompt(
         context: ChatContext,
         question: String,
-        chatHistory: [ChatMessage]
+        chatHistory: [ChatMessage],
+        modelContext: ModelContext
     ) -> (system: String, user: String) {
 
         let systemPrompt: String
@@ -458,6 +506,25 @@ class ChatHaikuService {
                 }
             }
 
+            // 🧠 YENI: AI Learned Knowledge Context
+            // AI'ın önceki konuşmalardan öğrendiği bilgileri yükle
+            if let allKnowledge = try? modelContext.fetch(
+                FetchDescriptor<UserKnowledge>(
+                    predicate: #Predicate { $0.isActive == true },
+                    sortBy: [SortDescriptor(\.confidence, order: .reverse)]
+                )
+            ) {
+                // SmartContextBuilder ile relevant facts seç (token optimization)
+                let smartContext = SmartContextBuilder.shared.buildContext(
+                    for: question,
+                    from: allKnowledge
+                )
+
+                if !smartContext.isEmpty {
+                    contextInfo += "\n\n🧠 ÖĞRENİLMİŞ BİLGİLER (Önceki konuşmalardan):\(smartContext)"
+                }
+            }
+
             systemPrompt = """
             Sen LifeStyles uygulamasının kişisel yaşam asistanısın. Adın Claude.
 
@@ -472,6 +539,7 @@ class ChatHaikuService {
             - Kullanıcının adını, yaşını, mesleğini kullanarak kişisel ol
             - Hobiler ve ilgi alanlarına özel önerilerde bulun
             - Context bilgilerini kullanarak kişiselleştirilmiş önerilerde bulun
+            - Önceki konuşmalardan öğrendiğin bilgileri (🧠 işaretli) mutlaka dikkate al
             - Hedef/alışkanlık/mood verilerini analiz ederek tavsiye ver
             - Gerekirse soru sor, daha fazla detay iste
 
@@ -530,6 +598,26 @@ class ChatHaikuService {
                 }
             }
 
+            // 🧠 YENI: AI Learned Knowledge Context (Friend mode için de)
+            // AI'ın önceki konuşmalardan öğrendiği bilgileri yükle
+            var knowledgeContext = ""
+            if let allKnowledge = try? modelContext.fetch(
+                FetchDescriptor<UserKnowledge>(
+                    predicate: #Predicate { $0.isActive == true },
+                    sortBy: [SortDescriptor(\.confidence, order: .reverse)]
+                )
+            ) {
+                // SmartContextBuilder ile relevant facts seç (token optimization)
+                let smartContext = SmartContextBuilder.shared.buildContext(
+                    for: question,
+                    from: allKnowledge
+                )
+
+                if !smartContext.isEmpty {
+                    knowledgeContext = "\n\n🧠 Kullanıcı hakkında öğrendiğim bilgiler:\(smartContext)"
+                }
+            }
+
             systemPrompt = """
             Sen LifeStyles uygulamasının kişisel asistanısın. Adın Claude.
 
@@ -538,6 +626,7 @@ class ChatHaikuService {
             \(userInfo)
             \(contextInfo)
             \(lifeContext)
+            \(knowledgeContext)
 
             Görevin: Kullanıcıya \(friendName) ile ilişkisini güçlendirmede yardımcı olmak.
 
@@ -547,6 +636,7 @@ class ChatHaikuService {
             - Emoji kullan (1-2 emoji yeterli)
             - Yapıcı öneriler sun
             - Kullanıcının context bilgisini kullan ama tekrar etme
+            - Öğrendiğin bilgileri (🧠 işaretli) kullanarak kişiselleştirilmiş öneriler yap
             - İlişkiyi güçlendirici fikirler ver
             - Kullanıcının ruh hali ve hedeflerini dikkate al
 

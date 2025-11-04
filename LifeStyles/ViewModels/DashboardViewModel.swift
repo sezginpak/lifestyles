@@ -75,7 +75,8 @@ class DashboardViewModel {
         checkLocationStatus()
     }
 
-    func loadDashboardData(context: ModelContext) {
+    @MainActor
+    func loadDashboardDataAsync(context: ModelContext) async {
         // Temel veriler
         loadBasicStats(context: context)
 
@@ -93,8 +94,13 @@ class DashboardViewModel {
         motivationalMessage = goalService.getMotivationalMessage()
 
         // Daily Insight (async, background'da yükle)
-        Task {
-            await loadDailyInsight(context: context)
+        await loadDailyInsight(context: context)
+    }
+
+    // DEPRECATED: Eski senkron wrapper - geriye dönük uyumluluk için
+    func loadDashboardData(context: ModelContext) {
+        Task { @MainActor in
+            await loadDashboardDataAsync(context: context)
         }
     }
 
@@ -231,19 +237,35 @@ class DashboardViewModel {
         )
 
         if let logs = try? context.fetch(locationDescriptor) {
-            // Benzersiz lokasyon sayısı (10m hassasiyetle)
-            let uniqueCoordinates = Set(logs.map { "\(Int($0.latitude * 100)),\(Int($0.longitude * 100))" })
+            // Debug: Toplam log sayısı
+            print("   Total logs (7 gün): \(logs.count)")
+
+            // Benzersiz lokasyon sayısı - DÜZELTİLDİ: 200m hassasiyet (daha geniş bölgeler)
+            // latitude * 5 = 200 metre hassasiyet (GPS kayması aynı yer olarak sayılır)
+            let uniqueCoordinates = Set(logs.map { "\(Int($0.latitude * 5)),\(Int($0.longitude * 5))" })
             uniqueLocationsThisWeek = uniqueCoordinates.count
+            print("   Benzersiz lokasyonlar (200m): \(uniqueLocationsThisWeek)")
 
             // Dışarıda geçirilen süre
             let outsideLogs = logs.filter { $0.locationType != .home }
-            hoursOutsideThisWeek = Double(outsideLogs.count) * 0.25 // Her log ~15dk
+            hoursOutsideThisWeek = Double(outsideLogs.count) * 0.5 // Her log ~30dk
+            print("   Dışarıda log sayısı: \(outsideLogs.count)")
+            print("   Dışarıda saat: \(String(format: "%.1f", hoursOutsideThisWeek))")
 
-            // Mobilite skoru (0-100)
-            // Formül: Benzersiz lokasyon sayısı * 10 + Dışarıda geçirilen saat * 5
-            let locationScore = min(uniqueLocationsThisWeek * 10, 50)
-            let timeScore = min(Int(hoursOutsideThisWeek * 5), 50)
-            mobilityScore = locationScore + timeScore
+            // Mobilite skoru (0-100) - GERÇEKÇİ FORMÜL
+            // 2-3 yer (ev, iş) = 20-30 puan
+            // 5-7 yer (+ market, cafe) = 40-50 puan
+            // 10-12 yer (aktif sosyal hayat) = 70-80 puan
+            // 15+ yer (çok hareketli) = 90-100 puan
+
+            let locationDiversity = min(Double(uniqueLocationsThisWeek) / 15.0, 1.0) // 15 yer = 100%
+            let locationScore = Int(locationDiversity * 100)
+
+            mobilityScore = locationScore
+            print("   Mobilite Skoru: \(mobilityScore)")
+            print("   ---")
+        } else {
+            mobilityScore = 0
         }
     }
 
@@ -387,7 +409,6 @@ class DashboardViewModel {
         if let cached = DailyInsightService.shared.getCachedInsight() {
             dailyInsightText = cached.insight
             dailyInsightTimeOfDay = cached.timeOfDay
-            print("✅ Cached \(cached.timeOfDay.rawValue) insight loaded: \(cached.date)")
             return
         }
 
@@ -403,7 +424,6 @@ class DashboardViewModel {
             // Cache'e kaydet
             DailyInsightService.shared.cacheInsight(insight)
 
-            print("✅ \(dailyInsightTimeOfDay.rawValue) insight generated and cached")
         } catch {
             // Limit hatası mı kontrol et
             if let morningError = error as? MorningInsightError, morningError == .limitReached {
@@ -430,6 +450,7 @@ class DashboardViewModel {
     // MARK: - Dashboard Summary Functions
 
     /// Sevgili/Partner bilgilerini getir
+    @MainActor
     func getPartnerInfo(context: ModelContext) -> PartnerInfo? {
         let partnerDescriptor = FetchDescriptor<Friend>(
             predicate: #Predicate { $0.relationshipTypeRaw == "partner" }
@@ -468,41 +489,10 @@ class DashboardViewModel {
         )
     }
 
-    /// Dashboard için 4 ring verisi
+    /// Dashboard için 4 ring verisi - YENİ: İletişim, Mobilite, Ruh Hali, Günlük
+    @MainActor
     func getDashboardSummary(context: ModelContext) -> DashboardSummary {
-        // 1. Goals Ring
-        let goalDescriptor = FetchDescriptor<Goal>()
-        let allGoals = (try? context.fetch(goalDescriptor)) ?? []
-        let todayGoals = allGoals.filter { goal in
-            !goal.isCompleted && goal.targetDate >= Date()
-        }
-        let completedTodayGoals = todayGoals.filter { $0.isCompleted }
-
-        let goalsRing = DashboardRingData(
-            completed: completedTodayGoals.count,
-            total: max(todayGoals.count, 1),
-            color: "667EEA", // Purple
-            icon: "target",
-            label: "Hedefler"
-        )
-
-        // 2. Habits Ring
-        let habitDescriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate { $0.isActive }
-        )
-        let allHabits = (try? context.fetch(habitDescriptor)) ?? []
-        let todayHabits = allHabits
-        let completedTodayHabits = todayHabits.filter { $0.isCompletedToday() }
-
-        let habitsRing = DashboardRingData(
-            completed: completedTodayHabits.count,
-            total: max(todayHabits.count, 1),
-            color: "E74C3C", // Red
-            icon: "flame.fill",
-            label: "Alışkanlıklar"
-        )
-
-        // 3. Social Ring (İletişim skoru 0-100)
+        // 1. Social Ring (İletişim skoru 0-100)
         let socialScore = calculateSocialScore()
         let socialRing = DashboardRingData(
             completed: socialScore,
@@ -512,7 +502,7 @@ class DashboardViewModel {
             label: "İletişim"
         )
 
-        // 4. Activity Ring (Mobilite skoru 0-100)
+        // 2. Activity Ring (Mobilite skoru 0-100)
         let activityScore = calculateActivityScore()
         let activityRing = DashboardRingData(
             completed: activityScore,
@@ -522,26 +512,53 @@ class DashboardViewModel {
             label: "Mobilite"
         )
 
-        // Overall Score
-        let overallScore = calculateOverallScore()
+        // 3. Mood Ring (Ruh Hali skoru 0-100)
+        let moodScore = calculateMoodScore(context: context)
+        let moodRing = DashboardRingData(
+            completed: moodScore,
+            total: 100,
+            color: "F093FB", // Pink
+            icon: "face.smiling.fill",
+            label: "Ruh Hali"
+        )
 
-        // Motivasyon mesajı
+        // 4. Journal Ring (Günlük skoru 0-100)
+        let journalScore = calculateJournalScore(context: context)
+        let journalRing = DashboardRingData(
+            completed: journalScore,
+            total: 100,
+            color: "FF9500", // Orange
+            icon: "book.fill",
+            label: "Günlük"
+        )
+
+        // Overall Score - Yeni ring'lere göre hesapla
+        let overallScore = Int((Double(socialScore) * 0.3 + Double(activityScore) * 0.25 + Double(moodScore) * 0.25 + Double(journalScore) * 0.2))
+
+        // Motivasyon mesajı - RUH HALİNE GÖRE
         let message: String
-        if overallScore >= 80 {
-            message = "Muhteşem gidiyorsun! 🌟"
-        } else if overallScore >= 60 {
-            message = "Harika bir gün! 💪"
-        } else if overallScore >= 40 {
-            message = "Devam et! 🚀"
+        if moodScore >= 80 {
+            // Çok mutlu
+            message = "Muhteşem hissediyorsun!"
+        } else if moodScore >= 60 {
+            // İyi
+            message = "Harika bir gün!"
+        } else if moodScore >= 40 {
+            // Normal
+            message = "Her şey yolunda!"
+        } else if moodScore >= 20 {
+            // Biraz kötü
+            message = "Bugün daha iyi olacak!"
         } else {
-            message = "Bugün başlayalım! ✨"
+            // Kötü
+            message = "Kendine iyi bak!"
         }
 
         return DashboardSummary(
-            goalsRing: goalsRing,
-            habitsRing: habitsRing,
-            socialRing: socialRing,
-            activityRing: activityRing,
+            goalsRing: socialRing,
+            habitsRing: activityRing,
+            socialRing: moodRing,
+            activityRing: journalRing,
             overallScore: overallScore,
             motivationMessage: message
         )
@@ -549,14 +566,22 @@ class DashboardViewModel {
 
     /// İletişim skoru hesapla (0-100)
     func calculateSocialScore() -> Int {
-        // Bu haftaki iletişim sayısı (0-5 kişi arası normalleştir)
-        let weeklyScore = min(Double(contactsThisWeek) / 5.0, 1.0) * 50
+        // Eğer hiç arkadaş yoksa, 0 puan
+        guard totalContacts > 0 else { return 0 }
 
-        // İletişim gereken arkadaş oranı (tersten - az olanın skoru yüksek)
-        let attentionRatio = totalContacts > 0 ? Double(contactsNeedingAttention) / Double(totalContacts) : 0
-        let attentionScore = (1.0 - attentionRatio) * 50
+        print("💬 İletişim Debug:")
+        print("   Total arkadaş: \(totalContacts)")
+        print("   Bu hafta iletişim: \(contactsThisWeek)")
+        print("   İletişim gereken: \(contactsNeedingAttention)")
 
-        return Int(weeklyScore + attentionScore)
+        // Bu haftaki iletişim sayısı - ANA AĞIRLIK %100
+        // 0 iletişim = 0 puan, 5+ iletişim = 100 puan
+        let contactScore = min(Double(contactsThisWeek) / 5.0, 1.0) * 100
+
+        print("   İletişim Skoru: \(Int(contactScore))")
+        print("   ---")
+
+        return Int(contactScore)
     }
 
     /// Mobilite skoru döndür (zaten hesaplanıyor)
@@ -564,7 +589,62 @@ class DashboardViewModel {
         return mobilityScore
     }
 
+    /// Ruh Hali skoru hesapla (0-100) - Son 7 günün ortalaması
+    @MainActor
+    func calculateMoodScore(context: ModelContext) -> Int {
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+
+        do {
+            let moodDescriptor = FetchDescriptor<MoodEntry>(
+                predicate: #Predicate { entry in
+                    entry.date >= sevenDaysAgo
+                }
+            )
+
+            let moods = try context.fetch(moodDescriptor)
+
+            guard !moods.isEmpty else {
+                return 50 // Varsayılan orta değer
+            }
+
+            // Ortalama mood skoru hesapla (score: -2 ile +2 arası, normalize to 0-100)
+            let avgScore = moods.map { $0.score }.reduce(0, +) / Double(moods.count)
+            // -2...+2 -> 0...100'e dönüştür
+            let normalizedScore = ((avgScore + 2) / 4) * 100
+            return Int(normalizedScore)
+        } catch {
+            print("⚠️ Mood score hesaplanamadı: \(error.localizedDescription)")
+            return 50 // Varsayılan orta değer
+        }
+    }
+
+    /// Günlük skoru hesapla (0-100) - Son 7 günde yazılan günlük sayısı
+    @MainActor
+    func calculateJournalScore(context: ModelContext) -> Int {
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+
+        // JournalEntry fetch - güvenli hata yönetimi ile
+        do {
+            let journalDescriptor = FetchDescriptor<JournalEntry>(
+                predicate: #Predicate { entry in
+                    entry.createdAt >= sevenDaysAgo
+                }
+            )
+
+            let journalCount = try context.fetchCount(journalDescriptor)
+            // 7 günlük hedef: günde 1 yazı = 7 yazı (100%)
+            let score = min(Int((Double(journalCount) / 7.0) * 100), 100)
+            return score
+        } catch {
+            print("⚠️ Journal score hesaplanamadı: \(error.localizedDescription)")
+            return 50 // Varsayılan orta değer
+        }
+    }
+
     /// Streak ve Achievement bilgisi
+    @MainActor
     func getStreakInfo(context: ModelContext) -> StreakInfo {
         // En uzun streak'i bul
         let habitDescriptor = FetchDescriptor<Habit>(
@@ -718,6 +798,138 @@ class DashboardViewModel {
         }
 
         return trendData.isEmpty ? [0.0] : trendData
+    }
+
+    // MARK: - Smart Suggestions Actions
+
+    /// Öneriyi kabul et ve Goal'a dönüştür
+    func acceptSuggestion(_ suggestion: GoalSuggestion, context: ModelContext) {
+        // Goal oluştur
+        let goal = Goal(
+            title: suggestion.title,
+            goalDescription: suggestion.description,
+            category: suggestion.category,
+            targetDate: suggestion.suggestedTargetDate
+        )
+
+        context.insert(goal)
+
+        // AcceptedSuggestion kaydı oluştur
+        let accepted = AcceptedSuggestion(
+            from: suggestion,
+            convertedGoalId: goal.id
+        )
+        context.insert(accepted)
+
+        // Listeden kaldır
+        smartGoalSuggestions.removeAll { $0.id == suggestion.id }
+
+        do {
+            try context.save()
+        } catch {
+            print("❌ Öneri kabul edilirken hata: \(error)")
+        }
+    }
+
+    /// Öneriyi reddet/dismiss et
+    func dismissSuggestion(_ suggestion: GoalSuggestion, context: ModelContext) {
+        // AcceptedSuggestion olarak kaydet ama dismissed flag'i true
+        let dismissed = AcceptedSuggestion(from: suggestion)
+        dismissed.isDismissed = true
+        context.insert(dismissed)
+
+        // Listeden kaldır
+        smartGoalSuggestions.removeAll { $0.id == suggestion.id }
+
+        do {
+            try context.save()
+            print("🚫 Öneri reddedildi: \(suggestion.title)")
+        } catch {
+            print("❌ Öneri reddedilirken hata: \(error)")
+        }
+    }
+
+    /// AI ile yeni öneriler yükle (async)
+    func loadAISuggestions(context: ModelContext) async {
+        // UserProgress al
+        let progressDescriptor = FetchDescriptor<UserProgress>()
+        let userProgress = try? context.fetch(progressDescriptor).first
+
+        // AI provider ile öneriler üret
+        let aiProvider = AIGoalSuggestionProvider()
+
+        do {
+            let aiSuggestions = try await aiProvider.generatePersonalizedSuggestions(
+                context: context,
+                userProgress: userProgress,
+                count: 2
+            )
+
+            // Mevcut önerilerle birleştir
+            DispatchQueue.main.async {
+                self.smartGoalSuggestions.append(contentsOf: aiSuggestions)
+                // Relevance'a göre sırala
+                self.smartGoalSuggestions.sort { $0.relevanceScore > $1.relevanceScore }
+                print("🤖 AI önerileri eklendi: \(aiSuggestions.count) adet")
+            }
+        } catch {
+            print("❌ AI önerileri yüklenemedi: \(error)")
+        }
+    }
+
+    /// Kabul edilen öneri için progress güncelle
+    func getAcceptedSuggestionProgress(for suggestionTitle: String, context: ModelContext) -> Double? {
+        let descriptor = FetchDescriptor<AcceptedSuggestion>(
+            predicate: #Predicate { $0.suggestionTitle == suggestionTitle && !$0.isDismissed }
+        )
+
+        guard let accepted = try? context.fetch(descriptor).first,
+              let goalId = accepted.convertedGoalId else {
+            return nil
+        }
+
+        // Goal'un progress'ini al
+        let goalDescriptor = FetchDescriptor<Goal>(
+            predicate: #Predicate { $0.id == goalId }
+        )
+
+        guard let goal = try? context.fetch(goalDescriptor).first else {
+            return nil
+        }
+
+        return goal.progress
+    }
+
+    // MARK: - Refresh
+
+    /// Dashboard'daki tüm verileri yenile (Pull-to-refresh için optimize edilmiş)
+    @MainActor
+    func refreshAll(context: ModelContext) async {
+
+        // Kısa gecikme ile UI'ın render olmasını sağla
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 saniye
+
+        // Tüm verileri yeniden yükle (async)
+        loadBasicStats(context: context)
+
+        goalService.setModelContext(context)
+        loadGoalStatistics(context: context)
+
+        loadHabitPerformance(context: context)
+        loadContactTrends(context: context)
+        loadMobilityData(context: context)
+        loadSmartSuggestions(context: context)
+
+        motivationalMessage = goalService.getMotivationalMessage()
+
+        // Daily Insight yenile (eğer iOS 26+ ise)
+        if #available(iOS 26.0, *) {
+            await loadDailyInsight(context: context)
+        }
+
+        // AI Suggestions yenile
+        await loadAISuggestions(context: context)
+
     }
 }
 

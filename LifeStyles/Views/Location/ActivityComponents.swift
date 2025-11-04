@@ -126,7 +126,7 @@ struct EnhancedActivityCard: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: activity.isCompleted ? "checkmark.circle.fill" : "circle")
-                            Text(activity.isCompleted ? "Tamamlandı" : "Tamamla")
+                            Text(activity.isCompleted ? String(localized: "common.completed") : String(localized: "common.complete"))
                         }
                         .font(.caption)
                         .fontWeight(.medium)
@@ -186,7 +186,7 @@ struct ActivityStatsCard: View {
                 CompactStatCard(
                     icon: "flame.fill",
                     value: "\(stats.currentStreak)",
-                    label: "Streak",
+                    label: String(localized: "stat.streak"),
                     gradient: [.orange, .red]
                 )
 
@@ -194,7 +194,7 @@ struct ActivityStatsCard: View {
                 CompactStatCard(
                     icon: "star.fill",
                     value: "\(stats.totalPoints)",
-                    label: "Puan",
+                    label: String(localized: "stat.points"),
                     gradient: [.yellow, .orange]
                 )
 
@@ -202,7 +202,7 @@ struct ActivityStatsCard: View {
                 CompactStatCard(
                     icon: "arrow.up.circle.fill",
                     value: "Lv\(stats.currentLevel)",
-                    label: "Seviye",
+                    label: String(localized: "stat.level"),
                     gradient: [.purple, .pink]
                 )
             }
@@ -362,7 +362,7 @@ struct CategoryFilterChips: View {
                 // All categories chip
                 FilterChip(
                     icon: "sparkles",
-                    label: "Tümü",
+                    label: String(localized: "common.all"),
                     isSelected: selectedCategory == nil,
                     color: .brandPrimary
                 ) {
@@ -454,7 +454,7 @@ struct TimeFilterChips: View {
                 // All time chip
                 FilterChip(
                     icon: "clock",
-                    label: "Tüm Gün",
+                    label: String(localized: "time.all_day"),
                     isSelected: selectedTime == nil,
                     color: .indigo
                 ) {
@@ -820,13 +820,13 @@ struct StreakCard: View {
 
     private var streakMessage: String {
         if currentStreak == 0 {
-            return "İlk aktivitenle başla!"
+            return String(localized: "streak.message.start")
         } else if currentStreak < 7 {
-            return "Harika gidiyorsun! Devam et!"
+            return String(localized: "streak.message.keep_going")
         } else if currentStreak < 30 {
-            return "İnanılmaz! Streak'ini koru!"
+            return String(localized: "streak.message.on_fire")
         } else {
-            return "Efsanesin! 🎉"
+            return String(localized: "streak.message.legendary")
         }
     }
 }
