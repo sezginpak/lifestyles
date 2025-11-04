@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LifeStyles - Legal</title>
+    <title>LifeStyles - Life Quality Tracker</title>
     <style>
         * {
             margin: 0;
@@ -28,6 +28,41 @@
             padding: 60px 40px;
             text-align: center;
             max-width: 600px;
+            position: relative;
+        }
+
+        /* Language Switcher */
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 5px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s;
+            color: #666;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: #333;
         }
 
         h1 {
@@ -66,10 +101,82 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
+        .support-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            text-align: left;
+        }
+
+        .support-section h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .support-section h3 {
+            color: #764ba2;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .support-section p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .support-section a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .support-section a:hover {
+            text-decoration: underline;
+        }
+
+        details {
+            margin: 10px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        summary:hover {
+            background: #f0f0f0;
+        }
+
+        details[open] summary {
+            background: #e8ecff;
+            color: #667eea;
+        }
+
+        details p {
+            padding: 10px;
+            color: #666;
+        }
+
         .footer {
             margin-top: 40px;
             color: #999;
             font-size: 0.9em;
+        }
+
+        .footer a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
         }
 
         @media (max-width: 768px) {
@@ -84,68 +191,185 @@
             .links {
                 flex-direction: column;
             }
+
+            .lang-switcher {
+                top: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Language Switcher -->
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="tr">TR</button>
+        </div>
+
         <h1>📱 LifeStyles</h1>
-        <p class="subtitle">Hayat Kaliteni Artır</p>
+        <p class="subtitle" data-i18n="subtitle"></p>
 
         <div class="links">
             <a href="privacy.html" class="link-card">
-                🔒 Gizlilik Politikası
+                <span data-i18n="privacy-link"></span>
             </a>
             <a href="terms.html" class="link-card">
-                📄 Kullanım Koşulları
+                <span data-i18n="terms-link"></span>
             </a>
         </div>
 
         <!-- Support Section -->
-        <div style="margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 16px; text-align: left;">
-            <h2 style="color: #667eea; font-size: 1.5em; margin-bottom: 20px;">💬 Destek</h2>
+        <div class="support-section">
+            <h2 data-i18n="support-title"></h2>
 
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #764ba2; font-size: 1.1em; margin-bottom: 10px;">İletişim</h3>
-                <p style="margin: 5px 0;">📧 E-posta: <a href="mailto:sezginpak@icloud.com">sezginpak@icloud.com</a></p>
-                <p style="margin: 5px 0;">🌐 GitHub: <a href="https://github.com/sezginpak/lifestyles" target="_blank">github.com/sezginpak/lifestyles</a></p>
+            <div>
+                <h3 data-i18n="contact-title"></h3>
+                <p>📧 <span data-i18n="email-label"></span>: <a href="mailto:sezginpak@icloud.com">sezginpak@icloud.com</a></p>
+                <p>🌐 GitHub: <a href="https://github.com/sezginpak/lifestyles" target="_blank">github.com/sezginpak/lifestyles</a></p>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #764ba2; font-size: 1.1em; margin-bottom: 10px;">Sık Sorulan Sorular</h3>
-                <details style="margin: 10px 0;">
-                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: white; border-radius: 8px;">Premium aboneliği nasıl iptal ederim?</summary>
-                    <p style="padding: 10px; color: #666;">iPhone Ayarlar → Apple ID → Abonelikler → LifeStyles → İptal Et</p>
+            <div>
+                <h3 data-i18n="faq-title"></h3>
+                <details>
+                    <summary data-i18n="faq-cancel-q"></summary>
+                    <p data-i18n="faq-cancel-a"></p>
                 </details>
-                <details style="margin: 10px 0;">
-                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: white; border-radius: 8px;">Verilerim nasıl korunuyor?</summary>
-                    <p style="padding: 10px; color: #666;">Tüm verileriniz Apple CloudKit ile şifreli şekilde saklanır. Detaylar için Gizlilik Politikası'na bakın.</p>
+                <details>
+                    <summary data-i18n="faq-data-q"></summary>
+                    <p data-i18n="faq-data-a"></p>
                 </details>
-                <details style="margin: 10px 0;">
-                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: white; border-radius: 8px;">AI özelliklerini nasıl kapatırım?</summary>
-                    <p style="padding: 10px; color: #666;">Ayarlar → AI & Gizlilik → AI özelliklerini kapat</p>
+                <details>
+                    <summary data-i18n="faq-ai-q"></summary>
+                    <p data-i18n="faq-ai-a"></p>
                 </details>
-                <details style="margin: 10px 0;">
-                    <summary style="cursor: pointer; font-weight: 600; padding: 10px; background: white; border-radius: 8px;">Sorun bildirimi nasıl yaparım?</summary>
-                    <p style="padding: 10px; color: #666;">E-posta: sezginpak@icloud.com veya GitHub Issues üzerinden</p>
+                <details>
+                    <summary data-i18n="faq-report-q"></summary>
+                    <p data-i18n="faq-report-a"></p>
                 </details>
             </div>
 
             <div>
-                <h3 style="color: #764ba2; font-size: 1.1em; margin-bottom: 10px;">🚀 Hızlı Linkler</h3>
-                <p style="margin: 5px 0;">• <a href="https://github.com/sezginpak/lifestyles/issues" target="_blank">Sorun Bildir</a></p>
-                <p style="margin: 5px 0;">• <a href="https://github.com/sezginpak/lifestyles" target="_blank">Kaynak Kod</a></p>
+                <h3 data-i18n="quick-links-title"></h3>
+                <p>• <a href="https://github.com/sezginpak/lifestyles/issues" target="_blank" data-i18n="report-issue"></a></p>
+                <p>• <a href="https://github.com/sezginpak/lifestyles" target="_blank" data-i18n="source-code"></a></p>
             </div>
         </div>
 
         <div class="footer">
             <p style="margin-bottom: 10px;">
-                <a href="https://apps.apple.com/app/lifestyles" target="_blank" style="color: #667eea; font-weight: 600;">
-                    App Store'da İndir
-                </a>
+                <a href="https://apps.apple.com/app/lifestyles" target="_blank" data-i18n="download-app"></a>
             </p>
-            <p>© 2024 LifeStyles. Tüm hakları saklıdır.</p>
+            <p data-i18n="copyright"></p>
         </div>
     </div>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                subtitle: "Improve Your Life Quality",
+                "privacy-link": "🔒 Privacy Policy",
+                "terms-link": "📄 Terms of Service",
+                "support-title": "💬 Support",
+                "contact-title": "Contact",
+                "email-label": "Email",
+                "faq-title": "Frequently Asked Questions",
+                "faq-cancel-q": "How do I cancel Premium subscription?",
+                "faq-cancel-a": "iPhone Settings → Apple ID → Subscriptions → LifeStyles → Cancel",
+                "faq-data-q": "How is my data protected?",
+                "faq-data-a": "All your data is encrypted and stored with Apple CloudKit. See Privacy Policy for details.",
+                "faq-ai-q": "How do I disable AI features?",
+                "faq-ai-a": "Settings → AI & Privacy → Disable AI features",
+                "faq-report-q": "How do I report an issue?",
+                "faq-report-a": "Email: sezginpak@icloud.com or via GitHub Issues",
+                "quick-links-title": "🚀 Quick Links",
+                "report-issue": "Report Issue",
+                "source-code": "Source Code",
+                "download-app": "Download on App Store",
+                "copyright": "© 2024 LifeStyles. All rights reserved."
+            },
+            tr: {
+                subtitle: "Hayat Kaliteni Artır",
+                "privacy-link": "🔒 Gizlilik Politikası",
+                "terms-link": "📄 Kullanım Koşulları",
+                "support-title": "💬 Destek",
+                "contact-title": "İletişim",
+                "email-label": "E-posta",
+                "faq-title": "Sık Sorulan Sorular",
+                "faq-cancel-q": "Premium aboneliği nasıl iptal ederim?",
+                "faq-cancel-a": "iPhone Ayarlar → Apple ID → Abonelikler → LifeStyles → İptal Et",
+                "faq-data-q": "Verilerim nasıl korunuyor?",
+                "faq-data-a": "Tüm verileriniz Apple CloudKit ile şifreli şekilde saklanır. Detaylar için Gizlilik Politikası'na bakın.",
+                "faq-ai-q": "AI özelliklerini nasıl kapatırım?",
+                "faq-ai-a": "Ayarlar → AI & Gizlilik → AI özelliklerini kapat",
+                "faq-report-q": "Sorun bildirimi nasıl yaparım?",
+                "faq-report-a": "E-posta: sezginpak@icloud.com veya GitHub Issues üzerinden",
+                "quick-links-title": "🚀 Hızlı Linkler",
+                "report-issue": "Sorun Bildir",
+                "source-code": "Kaynak Kod",
+                "download-app": "App Store'da İndir",
+                "copyright": "© 2024 LifeStyles. Tüm hakları saklıdır."
+            }
+        };
+
+        // Get saved language or detect browser language
+        function getInitialLanguage() {
+            // 1. Check URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('lang')) {
+                return urlParams.get('lang');
+            }
+
+            // 2. Check localStorage
+            const saved = localStorage.getItem('preferredLanguage');
+            if (saved) {
+                return saved;
+            }
+
+            // 3. Detect browser language
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('tr') ? 'tr' : 'en';
+        }
+
+        // Apply translations
+        function applyTranslations(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            // Save to localStorage
+            localStorage.setItem('preferredLanguage', lang);
+        }
+
+        // Initialize
+        const initialLang = getInitialLanguage();
+        applyTranslations(initialLang);
+
+        // Language switcher event listeners
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.dataset.lang;
+                applyTranslations(lang);
+
+                // Update URL without reload
+                const url = new URL(window.location);
+                url.searchParams.set('lang', lang);
+                window.history.pushState({}, '', url);
+            });
+        });
+    </script>
 </body>
 </html>
