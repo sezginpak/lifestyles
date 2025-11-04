@@ -109,9 +109,9 @@ struct PremiumPaywallView: View {
 
                     // Legal
                     HStack(spacing: 16) {
-                        Link("Gizlilik Politikası", destination: URL(string: "https://lifestyles.app/privacy")!)
+                        Link("Gizlilik Politikası", destination: URL(string: "https://sezginpak.github.io/lifestyles/privacy.html")!)
                         Text("•")
-                        Link("Kullanım Koşulları", destination: URL(string: "https://lifestyles.app/terms")!)
+                        Link("Kullanım Koşulları", destination: URL(string: "https://sezginpak.github.io/lifestyles/terms.html")!)
                     }
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.6))

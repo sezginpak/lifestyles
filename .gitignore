@@ -117,3 +117,13 @@ __pycache__/
 .Python
 env/
 venv/
+
+# API Keys (SECURITY)
+**/SecureAPIKeyManager.swift
+APIKeys.swift
+Secrets.swift
+*.plist.secret
+
+# Log backups
+logs_backup_*.tar.gz
+cleanup_logs.sh

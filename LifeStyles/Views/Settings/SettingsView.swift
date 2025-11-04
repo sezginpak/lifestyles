@@ -16,7 +16,6 @@ struct SettingsView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showAppearanceSettings = false
-    @State private var showLocationView = false
 
     // Premium
     @State private var purchaseManager = PurchaseManager.shared
@@ -42,13 +41,13 @@ struct SettingsView: View {
                         // Ayarlar bölümleri
                         VStack(spacing: AppConstants.Spacing.medium) {
                             // Görünüm & Kişiselleştirme
-                            SettingsSection(title: "Kişiselleştirme") {
+                            SettingsSection(title: String(localized: "settings.personalization.title", comment: "Personalization")) {
                                 Button {
                                     showAppearanceSettings = true
                                 } label: {
                                     SettingsRow(
                                         icon: "paintbrush.fill",
-                                        title: "Görünüm & Profil",
+                                        title: String(localized: "settings.appearance.profile", comment: "Appearance & Profile"),
                                         color: Color.purple
                                     )
                                 }
@@ -60,7 +59,7 @@ struct SettingsView: View {
                                 } label: {
                                     SettingsRow(
                                         icon: "lock.shield.fill",
-                                        title: "Uygulama İzinleri",
+                                        title: String(localized: "settings.app.permissions", comment: "App Permissions"),
                                         color: Color.brandPrimary
                                     )
                                 }
@@ -73,7 +72,7 @@ struct SettingsView: View {
                                 } label: {
                                     SettingsRow(
                                         icon: "bell.fill",
-                                        title: "Bildirim Ayarları",
+                                        title: String(localized: "Bildirim Ayarları", comment: "Notification Settings"),
                                         color: Color.error
                                     )
                                 }
@@ -86,20 +85,7 @@ struct SettingsView: View {
                                 } label: {
                                     SettingsRow(
                                         icon: "location.fill",
-                                        title: "Konum Ayarları",
-                                        color: Color.cardActivity
-                                    )
-                                }
-                            }
-
-                            // Aktivite & Öneriler
-                            SettingsSection(title: "Aktivite & Öneriler") {
-                                Button {
-                                    showLocationView = true
-                                } label: {
-                                    SettingsRow(
-                                        icon: "figure.walk",
-                                        title: "Aktivitelerim",
+                                        title: String(localized: "Konum Ayarları", comment: "Location Settings"),
                                         color: Color.cardActivity
                                     )
                                 }
@@ -195,14 +181,25 @@ struct SettingsView: View {
                             }
 
                             // AI & Privacy
-                            SettingsSection(title: "AI & Gizlilik") {
+                            SettingsSection(title: String(localized: "settings.ai.privacy.title", comment: "AI & Privacy")) {
                                 NavigationLink {
                                     AIPrivacySettingsView()
                                 } label: {
                                     SettingsRow(
                                         icon: "brain.head.profile",
-                                        title: "AI Ayarları & Gizlilik",
+                                        title: String(localized: "settings.ai.privacy.settings", comment: "AI Settings & Privacy"),
                                         color: .purple
+                                    )
+                                }
+
+                                // ✅ YENI: API Usage Stats
+                                NavigationLink {
+                                    APIUsageStatsView()
+                                } label: {
+                                    SettingsRow(
+                                        icon: "chart.bar.fill",
+                                        title: "API Kullanım İstatistikleri",
+                                        color: .blue
                                     )
                                 }
                             }
@@ -228,7 +225,7 @@ struct SettingsView: View {
                                 } label: {
                                     SettingsRow(
                                         icon: "square.and.arrow.down.fill",
-                                        title: viewModel.isImporting ? "İçe Aktarılıyor..." : "Yedekten Geri Yükle",
+                                        title: viewModel.isImporting ? String(localized: "settings.data.importing", comment: "Importing...") : String(localized: "settings.data.restore.backup", comment: "Restore from Backup"),
                                         color: Color.info
                                     )
                                 }
@@ -240,35 +237,35 @@ struct SettingsView: View {
                                 VStack(spacing: AppConstants.Spacing.small) {
                                     StatRow(
                                         icon: "person.2.fill",
-                                        title: "Toplam Arkadaş",
+                                        title: String(localized: "settings.stats.total.friends", comment: "Total Friends"),
                                         value: "\(viewModel.totalFriends)",
                                         color: .blue
                                     )
 
                                     StatRow(
                                         icon: "location.fill",
-                                        title: "Konum Kaydı",
+                                        title: String(localized: "settings.stats.location.logs", comment: "Location Logs"),
                                         value: "\(viewModel.totalLocationLogs)",
                                         color: .green
                                     )
 
                                     StatRow(
                                         icon: "target",
-                                        title: "Toplam Hedef",
+                                        title: String(localized: "settings.stats.total.goals", comment: "Total Goals"),
                                         value: "\(viewModel.totalGoals)",
                                         color: .orange
                                     )
 
                                     StatRow(
                                         icon: "star.fill",
-                                        title: "Toplam Alışkanlık",
+                                        title: String(localized: "settings.stats.total.habits", comment: "Total Habits"),
                                         value: "\(viewModel.totalHabits)",
                                         color: .purple
                                     )
 
                                     StatRow(
                                         icon: "internaldrive.fill",
-                                        title: "Depolama Kullanımı",
+                                        title: String(localized: "settings.stats.storage.usage", comment: "Storage Usage"),
                                         value: viewModel.storageUsed,
                                         color: .gray
                                     )
@@ -296,18 +293,18 @@ struct SettingsView: View {
                                 .padding(AppConstants.Spacing.medium)
                                 .cardStyle()
 
-                                Link(destination: URL(string: "https://example.com/privacy")!) {
+                                Link(destination: URL(string: "https://sezginpak.github.io/lifestyles/privacy.html")!) {
                                     SettingsRow(
                                         icon: "hand.raised.fill",
-                                        title: "Gizlilik Politikası",
+                                        title: String(localized: "settings.privacy.policy", comment: "Privacy Policy"),
                                         color: .secondary
                                     )
                                 }
 
-                                Link(destination: URL(string: "https://example.com/terms")!) {
+                                Link(destination: URL(string: "https://sezginpak.github.io/lifestyles/terms.html")!) {
                                     SettingsRow(
                                         icon: "doc.text.fill",
-                                        title: "Kullanım Şartları",
+                                        title: String(localized: "settings.terms.of.use", comment: "Terms of Use"),
                                         color: .secondary
                                     )
                                 }
@@ -321,7 +318,7 @@ struct SettingsView: View {
                                 } label: {
                                     HStack {
                                         Image(systemName: "trash.fill")
-                                        Text(viewModel.isDeleting ? "Siliniyor..." : "Tüm Verileri Sil")
+                                        Text(viewModel.isDeleting ? String(localized: "settings.delete.deleting", comment: "Deleting...") : String(localized: "settings.delete.all.data", comment: "Delete All Data"))
                                             .fontWeight(.semibold)
                                     }
                                     .frame(maxWidth: .infinity)
@@ -345,20 +342,8 @@ struct SettingsView: View {
                     AppearanceSettingsView()
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
-                                Button("Kapat") {
+                                Button(String(localized: "common.close", comment: "Close")) {
                                     showAppearanceSettings = false
-                                }
-                            }
-                        }
-                }
-            }
-            .sheet(isPresented: $showLocationView) {
-                NavigationStack {
-                    LocationView()
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button("Kapat") {
-                                    showLocationView = false
                                 }
                             }
                         }
@@ -374,7 +359,7 @@ struct SettingsView: View {
                     await viewModel.calculateStatistics(context: modelContext)
                 }
             }
-            .alert("Tüm Verileri Sil?", isPresented: $viewModel.showDeleteConfirmation) {
+            .alert(String(localized: "settings.delete.all.data.title", comment: "Delete All Data?"), isPresented: $viewModel.showDeleteConfirmation) {
                 Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {}
                 Button(String(localized: "common.delete", comment: "Delete"), role: .destructive) {
                     deleteAllData()
@@ -382,8 +367,8 @@ struct SettingsView: View {
             } message: {
                 Text(String(localized: "settings.delete.warning", comment: "This action cannot be undone. All your friends, goals, habits and location history will be deleted."))
             }
-            .alert("Bilgi", isPresented: $showAlert) {
-                Button("Tamam", role: .cancel) {}
+            .alert(String(localized: "common.info", comment: "Info"), isPresented: $showAlert) {
+                Button(String(localized: "common.ok", comment: "OK"), role: .cancel) {}
             } message: {
                 Text(alertMessage)
             }
@@ -411,7 +396,7 @@ struct SettingsView: View {
                     showAlert = true
                 }
             } catch {
-                alertMessage = "Yedekleme hatası: \(error.localizedDescription)"
+                alertMessage = String(localized: "settings.error.export.prefix", comment: "Export error:") + " \(error.localizedDescription)"
                 showAlert = true
             }
         }
@@ -429,7 +414,7 @@ struct SettingsView: View {
                 // İstatistikleri yeniden hesapla
                 await viewModel.calculateStatistics(context: modelContext)
             } catch {
-                alertMessage = "İçe aktarma hatası: \(error.localizedDescription)"
+                alertMessage = String(localized: "settings.error.import.prefix", comment: "Import error:") + " \(error.localizedDescription)"
                 showAlert = true
             }
         }
@@ -446,7 +431,7 @@ struct SettingsView: View {
                 // İstatistikleri yeniden hesapla
                 await viewModel.calculateStatistics(context: modelContext)
             } catch {
-                alertMessage = "Silme hatası: \(error.localizedDescription)"
+                alertMessage = String(localized: "settings.error.delete.prefix", comment: "Delete error:") + " \(error.localizedDescription)"
                 showAlert = true
             }
         }
@@ -461,24 +446,24 @@ struct PermissionsDetailView: View {
         List {
             PermissionRow(
                 icon: "person.2.fill",
-                title: "Rehber",
-                description: "İletişim geçmişi takibi için",
+                title: String(localized: "settings.permission.contacts.title", comment: "Contacts"),
+                description: String(localized: "settings.permission.contacts.desc", comment: "For contact history tracking"),
                 color: .blue,
                 status: viewModel.contactsPermissionStatus
             )
 
             PermissionRow(
                 icon: "location.fill",
-                title: "Konum",
-                description: "Aktivite önerileri için",
+                title: String(localized: "settings.permission.location.title", comment: "Location"),
+                description: String(localized: "settings.permission.location.desc", comment: "For activity suggestions"),
                 color: .green,
                 status: viewModel.locationPermissionStatus
             )
 
             PermissionRow(
                 icon: "bell.fill",
-                title: "Bildirimler",
-                description: "Hatırlatmalar ve öneriler için",
+                title: String(localized: "settings.permission.notifications.title", comment: "Notifications"),
+                description: String(localized: "settings.permission.notifications.desc", comment: "For reminders and suggestions"),
                 color: .red,
                 status: viewModel.notificationsPermissionStatus
             )

@@ -30,8 +30,8 @@ class PurchaseManager {
         if debugForceFreeMode {
             return false
         }
-        // Yoksa debug modda premium
-        return true
+        // Debug modda da gerçek subscription kontrolü yap
+        return subscriptionStatus == .premium
         #else
         // Production modda gerçek abonelik kontrolü
         return subscriptionStatus == .premium
@@ -65,9 +65,8 @@ class PurchaseManager {
         do {
             let fetchedProducts = try await Product.products(for: ProductID.allProducts)
             products = fetchedProducts.sorted(by: { $0.price < $1.price })
-            print("✅ StoreKit products loaded: \(products.count)")
         } catch {
-            print("❌ Failed to load products: \(error)")
+            print("❌ Failed to load products: \(error.localizedDescription)")
         }
     }
 
@@ -88,19 +87,15 @@ class PurchaseManager {
             // Finish the transaction
             await transaction.finish()
 
-            print("✅ Purchase successful: \(product.id)")
             return true
 
         case .userCancelled:
-            print("ℹ️ User cancelled purchase")
             return false
 
         case .pending:
-            print("⏳ Purchase pending (parental approval)")
             return false
 
         @unknown default:
-            print("❌ Unknown purchase result")
             return false
         }
     }
@@ -112,9 +107,8 @@ class PurchaseManager {
         do {
             try await AppStore.sync()
             await checkSubscriptionStatus()
-            print("✅ Purchases restored")
         } catch {
-            print("❌ Restore failed: \(error)")
+            print("❌ Restore failed: \(error.localizedDescription)")
         }
     }
 
@@ -135,14 +129,12 @@ class PurchaseManager {
                     purchasedProductIDs.insert(transaction.productID)
                 }
             } catch {
-                print("❌ Transaction verification failed: \(error)")
+                print("❌ Transaction verification failed: \(error.localizedDescription)")
             }
         }
 
         // Update status
         subscriptionStatus = hasPremium ? .premium : .free
-
-        print("📊 Subscription Status: \(subscriptionStatus.rawValue)")
     }
 
     // MARK: - Transaction Verification
@@ -166,10 +158,8 @@ class PurchaseManager {
 
                 // Update subscription status
                 await checkSubscriptionStatus()
-
-                print("🔄 Transaction updated: \(transaction.productID)")
             } catch {
-                print("❌ Transaction update failed: \(error)")
+                print("❌ Transaction update failed: \(error.localizedDescription)")
             }
         }
     }
