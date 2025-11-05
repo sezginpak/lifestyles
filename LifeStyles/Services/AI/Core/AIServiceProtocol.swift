@@ -66,9 +66,9 @@ class AIServiceFactory {
             return ClaudeHaikuService.shared
 
         case .backend:
-            // Gelecekte BackendProxyService.shared döndürülecek
-            // return BackendProxyService.shared
-            fatalError("Backend service henüz implement edilmedi. Lütfen .directAPI kullanın.")
+            // Backend henüz implement edilmedi - directAPI'ye fallback
+            print("⚠️ Backend service henüz hazır değil - directAPI kullanılıyor")
+            return ClaudeHaikuService.shared
         }
     }
 }

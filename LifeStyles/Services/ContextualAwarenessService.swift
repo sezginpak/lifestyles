@@ -51,8 +51,6 @@ class ContextualAwarenessService {
 
         currentContext = newContext
         history.add(newContext)
-
-        print("🔄 Context güncellendi - Score: \(String(format: "%.2f", newContext.notificationScore))")
     }
 
     /// Konum context'ini güncelle

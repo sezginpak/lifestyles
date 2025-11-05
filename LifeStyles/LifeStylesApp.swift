@@ -301,10 +301,29 @@ struct LifeStylesApp: App {
 
                             print("⚠️ BOŞ CONTAINER - Veri işlemleri yapılamayacak")
                             return emptyContainer
-                        } catch {
-                            // Artık gerçekten yapılacak bir şey yok
-                            // Ama yine de fatalError yerine boş bir context döndürelim
-                            fatalError("❌ KRİTİK: ModelContainer oluşturulamadı. Uygulamayı yeniden yükleyin.")
+                        } catch let catastrophicError {
+                            // SON ÇARE: Boş schema ile container bile oluşturulamadı
+                            // Bu durumda bile fatalError kullanmıyoruz
+                            print("💀 KATASTROFİK HATA: Boş container bile oluşturulamadı")
+                            print("💀 Hata: \(catastrophicError.localizedDescription)")
+
+                            // Minimum working container - hiç catch bloğu olmadan
+                            let minimumSchema = Schema([])
+                            let minimumConfig = ModelConfiguration(
+                                schema: minimumSchema,
+                                isStoredInMemoryOnly: true,
+                                allowsSave: false
+                            )
+
+                            // Bu noktada try! kullanmak zorundayız çünkü boş schema ile container oluşturulamaması
+                            // teorik olarak imkansız. Eğer bu bile başarısız olursa, SwiftData frameworkü bozulmuştur.
+                            let minimumContainer = try! ModelContainer(
+                                for: minimumSchema,
+                                configurations: [minimumConfig]
+                            )
+
+                            print("⚠️ MİNİMUM CONTAINER - Sadece read-only, veri kaydedilemez")
+                            return minimumContainer
                         }
                     }
                 }

@@ -165,6 +165,9 @@ final class Goal {
         guard let milestones = milestones, !milestones.isEmpty else {
             return progress
         }
+        guard totalMilestonesCount > 0 else {
+            return progress // NaN önleme: sıfıra bölme
+        }
         return Double(completedMilestonesCount) / Double(totalMilestonesCount)
     }
 
