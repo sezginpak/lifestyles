@@ -2,8 +2,8 @@
 //  JournalListViewNew.swift
 //  LifeStyles
 //
-//  Created by Claude on 25.10.2025.
-//  Redesigned Journal List with glassmorphism, grid/list toggle, filters
+//  Modern journal list with masonry grid, calendar view, advanced analytics
+//  Completely redesigned on 05.11.2025
 //
 
 import SwiftUI
@@ -14,31 +14,40 @@ struct JournalListViewNew: View {
     @Environment(\.toastManager) private var toastManager
     @Bindable var viewModel: MoodJournalViewModel
 
-    // View state
-    @State private var viewMode: ViewMode = .list
-    @State private var showingFilters = false
-    @State private var filterType: JournalType?
-    @State private var filterFavorites = false
-    @State private var filterHasImage = false
+    // View mode
+    @State private var viewMode: ViewMode = .masonry
+    @State private var showingCalendar = false
+
+    // Search & Filter
+    @State private var searchText: String = ""
+    @FocusState private var searchFocused: Bool
+    @State private var selectedType: JournalType?
+    @State private var showOnlyFavorites = false
+    @State private var showOnlyWithImages = false
+
+    // Sort
     @State private var sortOrder: SortOrder = .dateDescending
 
-    enum ViewMode {
-        case list
-        case grid
-    }
+    // UI state
+    @State private var isLoading = false
+    @State private var showingStats = true
 
-    enum SortOrder {
-        case dateDescending
-        case dateAscending
-        case wordCount
+    enum ViewMode: String, CaseIterable {
+        case masonry = "Masonry"
+        case calendar = "Takvim"
 
-        var displayName: String {
+        var icon: String {
             switch self {
-            case .dateDescending: return "En Yeni"
-            case .dateAscending: return "En Eski"
-            case .wordCount: return "Kelime Sayısı"
+            case .masonry: return "square.grid.2x2"
+            case .calendar: return "calendar"
             }
         }
+    }
+
+    enum SortOrder: String, CaseIterable {
+        case dateDescending = "En Yeni"
+        case dateAscending = "En Eski"
+        case wordCount = "En Uzun"
 
         var icon: String {
             switch self {
@@ -50,74 +59,249 @@ struct JournalListViewNew: View {
     }
 
     var body: some View {
-        Group {
-            if filteredAndSortedEntries.isEmpty {
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
+
+            if isLoading {
+                loadingView
+            } else if filteredAndSortedEntries.isEmpty && searchText.isEmpty && !hasActiveFilters {
                 emptyState
             } else {
                 mainContent
             }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    // View Mode
-                    Section {
-                        Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                viewMode = .list
-                            }
-                        } label: {
-                            Label("Liste", systemImage: "list.bullet")
-                        }
-
-                        Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                viewMode = .grid
-                            }
-                        } label: {
-                            Label("Grid", systemImage: "square.grid.2x2")
-                        }
-                    }
-
-                    // Sort
-                    Section {
-                        ForEach([SortOrder.dateDescending, .dateAscending, .wordCount], id: \.self) { order in
-                            Button {
-                                sortOrder = order
-                            } label: {
-                                Label(order.displayName, systemImage: order.icon)
-                            }
-                        }
-                    }
-
-                    // Filters
-                    Section {
-                        Button {
-                            showingFilters.toggle()
-                        } label: {
-                            Label("Filtreler", systemImage: "line.3.horizontal.decrease.circle")
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.brandPrimary, .purple],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+            toolbarContent
+        }
+        .sheet(isPresented: $viewModel.showingJournalEditor) {
+            ModernJournalEditorView(viewModel: viewModel)
+        }
+        .sheet(item: $viewModel.selectedJournalForDetail) { entry in
+            JournalDetailView(viewModel: viewModel, entry: entry)
+        }
+        .onAppear {
+            // Simulate loading for smooth transition
+            if viewModel.journalEntries.isEmpty {
+                isLoading = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isLoading = false
                 }
             }
+        }
+    }
 
-            ToolbarItem(placement: .topBarTrailing) {
+    // MARK: - Loading View
+
+    var loadingView: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                MasonrySkeletonGrid()
+            }
+        }
+    }
+
+    // MARK: - Empty State
+
+    var emptyState: some View {
+        EnhancedEmptyState(
+            title: "Henüz Journal Yok",
+            message: "İlk journal'ını yazmaya başla ve düşüncelerini kaydet",
+            icon: "book.closed.fill",
+            actionLabel: "Yeni Journal",
+            action: {
+                viewModel.showingJournalEditor = true
+            }
+        )
+    }
+
+    // MARK: - Main Content
+
+    var mainContent: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Stats header (toggle edilebilir)
+                if showingStats {
+                    JournalStatsHeader(
+                        entries: viewModel.journalEntries,
+                        currentMood: viewModel.currentMood
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                // Search bar
+                JournalSearchBar(
+                    searchText: $searchText,
+                    isFocused: $searchFocused
+                )
+                .padding(.horizontal)
+
+                // Filter chips
+                FilterChipGroup(
+                    selectedType: $selectedType,
+                    showOnlyFavorites: $showOnlyFavorites,
+                    showOnlyWithImages: $showOnlyWithImages
+                )
+
+                // Content based on view mode
+                if viewMode == .calendar {
+                    CalendarJournalView(
+                        entries: filteredAndSortedEntries,
+                        onTap: { entry in
+                            viewModel.selectedJournalForDetail = entry
+                        },
+                        onToggleFavorite: { entry in
+                            toggleFavorite(entry)
+                        }
+                    )
+                } else {
+                    // Search results or empty filter state
+                    if filteredAndSortedEntries.isEmpty {
+                        searchEmptyState
+                    } else {
+                        masonryGrid
+                    }
+                }
+            }
+            .padding(.bottom, 20)
+        }
+        .refreshable {
+            await refreshJournals()
+        }
+    }
+
+    // MARK: - Masonry Grid
+
+    var masonryGrid: some View {
+        MasonryGridLayout(
+            entries: filteredAndSortedEntries,
+            columns: 2,
+            spacing: 12,
+            onTap: { entry in
+                viewModel.selectedJournalForDetail = entry
+            },
+            onToggleFavorite: { entry in
+                toggleFavorite(entry)
+            },
+            onDelete: { entry in
+                deleteEntry(entry)
+            }
+        )
+        .padding(.horizontal)
+    }
+
+    // MARK: - Search Empty State
+
+    var searchEmptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 56))
+                .foregroundColor(.secondary.opacity(0.5))
+
+            VStack(spacing: 8) {
+                Text("Sonuç Bulunamadı")
+                    .font(.system(size: 18, weight: .semibold))
+
+                Text("Arama kriterlerinizi değiştirin veya filtreleri temizleyin")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if hasActiveFilters {
+                Button {
+                    clearAllFilters()
+                } label: {
+                    Text("Filtreleri Temizle")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(
+                            Capsule()
+                                .fill(Color.brandPrimary)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 60)
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    var toolbarContent: some ToolbarContent {
+        // Leading: View mode toggle
+        ToolbarItem(placement: .topBarLeading) {
+            Menu {
+                ForEach(ViewMode.allCases, id: \.self) { mode in
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            viewMode = mode
+                        }
+                        HapticFeedback.light()
+                    } label: {
+                        Label(mode.rawValue, systemImage: mode.icon)
+                    }
+                }
+
+                Divider()
+
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        showingStats.toggle()
+                    }
+                } label: {
+                    Label(
+                        showingStats ? "İstatistikleri Gizle" : "İstatistikleri Göster",
+                        systemImage: showingStats ? "eye.slash" : "eye"
+                    )
+                }
+            } label: {
+                Image(systemName: viewMode.icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.brandPrimary, .purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+        }
+
+        // Trailing: Sort + New
+        ToolbarItem(placement: .topBarTrailing) {
+            HStack(spacing: 12) {
+                // Sort menu (sadece masonry mode'da)
+                if viewMode == .masonry {
+                    Menu {
+                        ForEach(SortOrder.allCases, id: \.self) { order in
+                            Button {
+                                sortOrder = order
+                                HapticFeedback.light()
+                            } label: {
+                                Label(order.rawValue, systemImage: order.icon)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                // New journal button
                 Button {
                     HapticFeedback.medium()
                     viewModel.showingJournalEditor = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+                        .font(.system(size: 22))
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [.success, .green],
@@ -128,297 +312,9 @@ struct JournalListViewNew: View {
                 }
             }
         }
-        .sheet(isPresented: $viewModel.showingJournalEditor) {
-            NewJournalEditorView(viewModel: viewModel)
-        }
-        .sheet(item: $viewModel.selectedJournalForDetail) { entry in
-            JournalDetailView(viewModel: viewModel, entry: entry)
-        }
-        .sheet(isPresented: $showingFilters) {
-            FilterSheet(
-                filterType: $filterType,
-                filterFavorites: $filterFavorites,
-                filterHasImage: $filterHasImage
-            )
-            .presentationDetents([.medium])
-        }
-    }
-
-    // MARK: - Empty State
-
-    private var emptyState: some View {
-        MoodEmptyState(
-            icon: "book.closed.fill",
-            title: "Henüz journal yok",
-            message: activeFiltersCount > 0 ? "Filtrelerinize uygun journal bulunamadı" : "İlk journal'ını yazmaya başla",
-            actionLabel: "Yeni Journal",
-            action: {
-                viewModel.showingJournalEditor = true
-            }
-        )
-    }
-
-    // MARK: - Main Content
-
-    private var mainContent: some View {
-        ScrollView {
-            VStack(spacing: Spacing.large) {
-                // Active Filters Bar
-                if activeFiltersCount > 0 {
-                    activeFiltersBar
-                }
-
-                // Hero Card (En son journal)
-                if let latestEntry = filteredAndSortedEntries.first,
-                   sortOrder == .dateDescending && activeFiltersCount == 0 {
-                    heroCard(latestEntry)
-                }
-
-                // Content Grid/List
-                if viewMode == .grid {
-                    gridView
-                } else {
-                    listView
-                }
-            }
-            .padding(Spacing.large)
-        }
-    }
-
-    // MARK: - Active Filters Bar
-
-    private var activeFiltersBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.small) {
-                // Filter count
-                Text("\(activeFiltersCount) Filtre Aktif")
-                    .font(.caption2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.secondary)
-
-                // Type filter
-                if let type = filterType {
-                    JournalFilterChip(
-                        label: type.displayName,
-                        icon: type.icon,
-                        color: type.color,
-                        onRemove: {
-                            filterType = nil
-                        }
-                    )
-                }
-
-                // Favorites filter
-                if filterFavorites {
-                    JournalFilterChip(
-                        label: "Favoriler",
-                        icon: "star.fill",
-                        color: .yellow,
-                        onRemove: {
-                            filterFavorites = false
-                        }
-                    )
-                }
-
-                // Has image filter
-                if filterHasImage {
-                    JournalFilterChip(
-                        label: "Fotoğraflı",
-                        icon: "photo.fill",
-                        color: .blue,
-                        onRemove: {
-                            filterHasImage = false
-                        }
-                    )
-                }
-
-                // Clear all
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        clearAllFilters()
-                    }
-                } label: {
-                    Text("Temizle")
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.red)
-                        .padding(.horizontal, Spacing.small)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.red.opacity(0.1))
-                        )
-                }
-            }
-        }
-        .padding(.horizontal, Spacing.large)
-        .padding(.vertical, Spacing.small)
-        .background(.ultraThinMaterial)
-        .cornerRadius(CornerRadius.medium)
-    }
-
-    // MARK: - Hero Card
-
-    private func heroCard(_ entry: JournalEntry) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
-            HStack {
-                Text(String(localized: "mood.last.journal", comment: "LAST JOURNAL"))
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
-                    .tracking(1)
-
-                Spacer()
-
-                Image(systemName: "sparkles")
-                    .font(.caption)
-                    .foregroundStyle(entry.journalType.color)
-            }
-
-            ModernJournalCard(
-                entry: entry,
-                onTap: {
-                    viewModel.selectedJournalForDetail = entry
-                },
-                onToggleFavorite: {
-                    entry.toggleFavorite()
-                    HapticFeedback.success()
-                    toastManager.success(
-                        title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
-                        message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
-                    )
-                }
-            )
-        }
-    }
-
-    // MARK: - Grid View
-
-    private var gridView: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: Spacing.medium),
-                GridItem(.flexible(), spacing: Spacing.medium)
-            ],
-            spacing: Spacing.medium
-        ) {
-            ForEach(filteredAndSortedEntries, id: \.id) { entry in
-                ModernJournalCard(
-                    entry: entry,
-                    onTap: {
-                        viewModel.selectedJournalForDetail = entry
-                    },
-                    onToggleFavorite: {
-                        entry.toggleFavorite()
-                        HapticFeedback.success()
-                        toastManager.success(
-                            title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
-                            message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
-                        )
-                    }
-                )
-                .contextMenu {
-                    contextMenuButtons(for: entry)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    deleteButton(for: entry)
-                }
-                .swipeActions(edge: .leading) {
-                    favoriteButton(for: entry)
-                }
-            }
-        }
-    }
-
-    // MARK: - List View
-
-    private var listView: some View {
-        LazyVStack(spacing: Spacing.medium) {
-            ForEach(filteredAndSortedEntries, id: \.id) { entry in
-                ModernJournalCard(
-                    entry: entry,
-                    onTap: {
-                        viewModel.selectedJournalForDetail = entry
-                    },
-                    onToggleFavorite: {
-                        entry.toggleFavorite()
-                        HapticFeedback.success()
-                        toastManager.success(
-                            title: entry.isFavorite ? "Favorilere Eklendi" : "Favorilerden Çıkarıldı",
-                            message: entry.isFavorite ? "Journal favorilere eklendi" : "Journal favorilerden çıkarıldı"
-                        )
-                    }
-                )
-                .contextMenu {
-                    contextMenuButtons(for: entry)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    deleteButton(for: entry)
-                }
-                .swipeActions(edge: .leading) {
-                    favoriteButton(for: entry)
-                }
-            }
-        }
-    }
-
-    // MARK: - Context Menu & Swipe Actions
-
-    @ViewBuilder
-    private func contextMenuButtons(for entry: JournalEntry) -> some View {
-        Button {
-            viewModel.startEditingJournal(entry)
-        } label: {
-            Label("Düzenle", systemImage: "pencil")
-        }
-
-        Button {
-            toggleFavorite(entry)
-        } label: {
-            Label(entry.isFavorite ? "Favoriden Çıkar" : "Favorilere Ekle", systemImage: entry.isFavorite ? "star.slash.fill" : "star.fill")
-        }
-
-        Divider()
-
-        Button(role: .destructive) {
-            deleteEntry(entry)
-        } label: {
-            Label("Sil", systemImage: "trash")
-        }
-    }
-
-    private func deleteButton(for entry: JournalEntry) -> some View {
-        Button(role: .destructive) {
-            deleteEntry(entry)
-        } label: {
-            Label("Sil", systemImage: "trash")
-        }
-    }
-
-    private func favoriteButton(for entry: JournalEntry) -> some View {
-        Button {
-            toggleFavorite(entry)
-        } label: {
-            Label(entry.isFavorite ? "Çıkar" : "Favori", systemImage: entry.isFavorite ? "star.slash" : "star.fill")
-        }
-        .tint(.yellow)
     }
 
     // MARK: - Actions
-
-    private func deleteEntry(_ entry: JournalEntry) {
-        HapticFeedback.warning()
-
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
-            viewModel.deleteJournalEntry(entry, context: modelContext)
-        }
-
-        toastManager.warning(
-            title: "Journal Silindi",
-            message: "Journal başarıyla silindi",
-            emoji: "🗑️"
-        )
-    }
 
     private func toggleFavorite(_ entry: JournalEntry) {
         let wasFavorite = entry.isFavorite
@@ -436,39 +332,73 @@ struct JournalListViewNew: View {
         )
     }
 
+    private func deleteEntry(_ entry: JournalEntry) {
+        HapticFeedback.warning()
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+            viewModel.deleteJournalEntry(entry, context: modelContext)
+        }
+
+        toastManager.warning(
+            title: "Journal Silindi",
+            message: "Journal başarıyla silindi",
+            emoji: "🗑️"
+        )
+    }
+
     private func clearAllFilters() {
-        filterType = nil
-        filterFavorites = false
-        filterHasImage = false
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            selectedType = nil
+            showOnlyFavorites = false
+            showOnlyWithImages = false
+            searchText = ""
+        }
+        HapticFeedback.light()
+    }
+
+    private func refreshJournals() async {
+        HapticFeedback.light()
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        await MainActor.run {
+            viewModel.loadAllData(context: modelContext)
+        }
     }
 
     // MARK: - Computed Properties
 
-    private var activeFiltersCount: Int {
-        var count = 0
-        if filterType != nil { count += 1 }
-        if filterFavorites { count += 1 }
-        if filterHasImage { count += 1 }
-        return count
+    var hasActiveFilters: Bool {
+        selectedType != nil || showOnlyFavorites || showOnlyWithImages || !searchText.isEmpty
     }
 
-    private var filteredAndSortedEntries: [JournalEntry] {
+    var filteredAndSortedEntries: [JournalEntry] {
         var entries = viewModel.journalEntries
 
-        // Apply filters
-        if let type = filterType {
+        // Search filter
+        if !searchText.isEmpty {
+            let lowercasedSearch = searchText.lowercased()
+            entries = entries.filter { entry in
+                (entry.title?.lowercased().contains(lowercasedSearch) ?? false) ||
+                entry.content.lowercased().contains(lowercasedSearch) ||
+                entry.tags.contains { $0.lowercased().contains(lowercasedSearch) }
+            }
+        }
+
+        // Type filter
+        if let type = selectedType {
             entries = entries.filter { $0.journalType == type }
         }
 
-        if filterFavorites {
+        // Favorites filter
+        if showOnlyFavorites {
             entries = entries.filter { $0.isFavorite }
         }
 
-        if filterHasImage {
+        // Images filter
+        if showOnlyWithImages {
             entries = entries.filter { $0.hasImage }
         }
 
-        // Apply sort
+        // Sort
         switch sortOrder {
         case .dateDescending:
             entries = entries.sorted { $0.date > $1.date }
@@ -482,76 +412,20 @@ struct JournalListViewNew: View {
     }
 }
 
-// MARK: - Journal Filter Chip
+// MARK: - Preview
 
-struct JournalFilterChip: View {
-    let label: String
-    let icon: String
-    let color: Color
-    let onRemove: () -> Void
+#Preview {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(
+        for: JournalEntry.self, MoodEntry.self,
+        configurations: config
+    )
 
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption2)
-            Text(label)
-                .font(.caption2)
-                .fontWeight(.medium)
-            Button {
-                onRemove()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.caption2)
-            }
-        }
-        .foregroundStyle(color)
-        .padding(.horizontal, Spacing.small)
-        .padding(.vertical, 4)
-        .background(
-            Capsule()
-                .fill(color.opacity(0.15))
-        )
+    let viewModel = MoodJournalViewModel()
+
+    return NavigationStack {
+        JournalListViewNew(viewModel: viewModel)
+            .navigationTitle("Journal")
     }
-}
-
-// MARK: - Filter Sheet
-
-struct FilterSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var filterType: JournalType?
-    @Binding var filterFavorites: Bool
-    @Binding var filterHasImage: Bool
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Journal Tipi") {
-                    Picker("Tip", selection: $filterType) {
-                        Text(String(localized: "journal.all", comment: "All")).tag(nil as JournalType?)
-                        ForEach(JournalType.allCases, id: \.self) { type in
-                            HStack {
-                                Text(type.emoji)
-                                Text(type.displayName)
-                            }
-                            .tag(type as JournalType?)
-                        }
-                    }
-                }
-
-                Section("Diğer Filtreler") {
-                    Toggle("Sadece Favoriler", isOn: $filterFavorites)
-                    Toggle("Fotoğraflı Journal'lar", isOn: $filterHasImage)
-                }
-            }
-            .navigationTitle("Filtreler")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
+    .modelContainer(container)
 }
