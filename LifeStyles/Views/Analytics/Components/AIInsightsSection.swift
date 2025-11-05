@@ -210,8 +210,14 @@ struct AIInsightsSection: View {
                         )
                     )
                     .frame(width: 44, height: 44)
-                    .background(.blue.opacity(0.15))
-                    .clipShape(Circle())
+                    .background(
+                        LinearGradient(
+                            colors: [.blue.opacity(0.15), .purple.opacity(0.15)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(prediction.prediction)
@@ -225,41 +231,31 @@ struct AIInsightsSection: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
-                    // Recommendation
-                    HStack(alignment: .top, spacing: 8) {
-                        Image(systemName: "lightbulb.fill")
-                            .font(.caption)
-                            .foregroundStyle(.yellow)
-
-                        Text(prediction.recommendation)
-                            .font(.caption)
-                            .foregroundStyle(.primary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.top, 4)
                 }
+
+                Spacer()
+            }
+
+            // Recommendation (diğer kartlar gibi ayrı box)
+            if !prediction.recommendation.isEmpty {
+                HStack(spacing: 8) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.caption)
+                        .foregroundStyle(.yellow)
+
+                    Text(prediction.recommendation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.yellow.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
         .padding()
-        .background(
-            LinearGradient(
-                colors: [.blue.opacity(0.05), .purple.opacity(0.05)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    LinearGradient(
-                        colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        )
+        .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
