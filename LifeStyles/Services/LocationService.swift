@@ -8,6 +8,8 @@
 import Foundation
 import CoreLocation
 import SwiftData
+import UIKit
+import UserNotifications
 
 @Observable
 class LocationService: NSObject, CLLocationManagerDelegate {
@@ -27,12 +29,15 @@ class LocationService: NSObject, CLLocationManagerDelegate {
 
     // Periyodik konum kayıt sistemi
     private var locationTimer: Timer?
-    private let locationTrackingInterval: TimeInterval = 30 * 60 // 30 dakika (CloudKit quota için - yarı yarıya azaltılmış)
+    private let locationTrackingInterval: TimeInterval = 10 * 60 // 10 dakika - Timer arka planda çalışmaz, yedek sistem
     private let locationDistanceThreshold: Double = 20 // 20 metre - Bu mesafe içindeyse aynı yer sayılır
     private var modelContext: ModelContext?
     private var _isPeriodicTrackingActive: Bool = false
     private(set) var lastRecordedLocation: Date?
     private(set) var totalLocationsRecorded: Int = 0
+
+    // Arka plan task yönetimi
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     // Thread-safe isPeriodicTrackingActive accessor
     var isPeriodicTrackingActive: Bool {
@@ -47,20 +52,26 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     override private init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.pausesLocationUpdatesAutomatically = false
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer // Pil dostu
+        locationManager.activityType = .other // iOS power management için
+        locationManager.pausesLocationUpdatesAutomatically = false // Manuel kontrol
+        locationManager.showsBackgroundLocationIndicator = true // iOS 11+ şeffaflık
         loadTrackingState()
     }
 
     deinit {
-        // Timer'ı main thread'de güvenli şekilde temizle
-        DispatchQueue.main.sync {
+        // Timer'ı güvenli şekilde temizle - DEADLOCK ÖNLEMİ
+        if Thread.isMainThread {
             locationTimer?.invalidate()
             locationTimer = nil
+        } else {
+            DispatchQueue.main.async { [weak locationTimer] in
+                locationTimer?.invalidate()
+            }
         }
         // Location updates'i durdur
         locationManager.stopUpdatingLocation()
+        locationManager.stopMonitoringSignificantLocationChanges()
     }
 
     // İzin durumunu kontrol et
@@ -148,6 +159,25 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         }
 
         lastLocationUpdate = Date()
+
+        // Arka planda da kayıt yap (Significant location change tetiklendiyse)
+        if isPeriodicTrackingActive {
+            // Son kayıttan bu yana yeterli zaman geçmişse kaydet
+            let shouldRecord: Bool
+            if let lastRecorded = lastRecordedLocation {
+                let timeSinceLastRecord = Date().timeIntervalSince(lastRecorded)
+                shouldRecord = timeSinceLastRecord >= (5 * 60) // 5 dakikada bir minimum
+            } else {
+                shouldRecord = true // İlk kayıt
+            }
+
+            if shouldRecord {
+                Task { @MainActor in
+                    await recordCurrentLocation()
+                    print("📍 Arka plan konum güncellemesi kaydedildi")
+                }
+            }
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
@@ -164,7 +194,70 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        // İzin durumu değiştiğinde yapılacak işlemler
+        let status = manager.authorizationStatus
+        print("🔐 Konum izin durumu değişti: \(status.rawValue)")
+
+        switch status {
+        case .notDetermined:
+            print("ℹ️ Konum izni henüz belirlenmedi")
+        case .restricted:
+            print("⚠️ Konum servisi kısıtlı (Parental Controls)")
+            sendLocationErrorNotification(message: "Konum servisi kısıtlı. Ayarları kontrol edin.")
+        case .denied:
+            print("❌ Konum izni reddedildi")
+            sendLocationErrorNotification(message: "Konum izni reddedildi. Lütfen Ayarlar > Gizlilik > Konum Servisleri'nden izin verin.")
+        case .authorizedWhenInUse:
+            print("✅ Konum izni verildi (Sadece kullanırken)")
+            print("⚠️ Arka plan konum takibi için 'Always' izni gerekli")
+        case .authorizedAlways:
+            print("✅ Konum izni verildi (Her zaman)")
+            // Tracking aktifse ve daha önce başlatılmışsa tekrar başlat
+            if isPeriodicTrackingActive {
+                locationManager.allowsBackgroundLocationUpdates = true
+            }
+        @unknown default:
+            print("⚠️ Bilinmeyen izin durumu")
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("❌ Konum servisi hatası: \(error.localizedDescription)")
+
+        if let clError = error as? CLError {
+            switch clError.code {
+            case .denied:
+                print("❌ Konum servisi izin hatası")
+                sendLocationErrorNotification(message: "Konum izni reddedildi")
+            case .locationUnknown:
+                print("⚠️ Konum belirlenemiyor (GPS sinyal sorunu)")
+            case .network:
+                print("⚠️ Ağ bağlantısı sorunu")
+            default:
+                print("⚠️ Diğer konum hatası: \(clError.code.rawValue)")
+            }
+        }
+    }
+
+    // Konum hata bildirimi gönder
+    private func sendLocationErrorNotification(message: String) {
+        Task { @MainActor in
+            let content = UNMutableNotificationContent()
+            content.title = "Konum Servisi Uyarısı"
+            content.body = message
+            content.sound = .default
+
+            let request = UNNotificationRequest(
+                identifier: "location_error_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: nil // Hemen gönder
+            )
+
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+            } catch {
+                print("❌ Bildirim gönderilemedi: \(error.localizedDescription)")
+            }
+        }
     }
 
     // MARK: - Periyodik Konum Takibi
@@ -191,7 +284,24 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             return
         }
 
-        // Konum güncellemelerini başlat (her durumda)
+        // İzin kontrolü - ALWAYS izni gerekli
+        guard locationManager.authorizationStatus == .authorizedAlways else {
+            print("❌ Arka plan konum izni yok! 'Always' izni gerekli.")
+            syncQueue.sync {
+                _isPeriodicTrackingActive = false
+            }
+            return
+        }
+
+        // Arka plan güncellemelerini etkinleştir
+        locationManager.allowsBackgroundLocationUpdates = true
+
+        // ARKA PLAN İÇİN EN ÖNEMLİ: Significant Location Changes
+        // Bu, arka planda sürekli çalışır ve kullanıcı ~500m hareket edince tetiklenir
+        locationManager.startMonitoringSignificantLocationChanges()
+        print("✅ Significant Location Changes başlatıldı (Arka plan için)")
+
+        // Normal konum güncellemelerini de başlat (uygulama açıkken daha sık)
         locationManager.startUpdatingLocation()
 
         saveTrackingState()
@@ -201,7 +311,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             await recordCurrentLocation()
         }
 
-        // Timer'ı main thread'de oluştur
+        // Timer - Sadece uygulama açıkken çalışır (yedek sistem)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else {
                 print("❌ Self deallocated during timer creation")
@@ -212,7 +322,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             self.locationTimer?.invalidate()
             self.locationTimer = nil
 
-            // Timer'ı başlat
+            // Timer'ı başlat (sadece foreground için)
             self.locationTimer = Timer.scheduledTimer(
                 withTimeInterval: self.locationTrackingInterval,
                 repeats: true
@@ -223,16 +333,12 @@ class LocationService: NSObject, CLLocationManagerDelegate {
                 }
             }
 
-            // Timer'ı RunLoop'a ekle (force unwrap yerine guard)
+            // Timer'ı RunLoop'a ekle
             if let timer = self.locationTimer {
                 RunLoop.main.add(timer, forMode: .common)
-                print("✅ Periyodik konum takibi başlatıldı (30 dakikada bir)")
+                print("✅ Timer başlatıldı (10 dakikada bir - sadece foreground)")
             } else {
                 print("❌ Timer oluşturulamadı")
-                // Timer başarısız olursa flag'i geri al
-                self.syncQueue.sync {
-                    self._isPeriodicTrackingActive = false
-                }
             }
         }
     }
@@ -253,6 +359,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
 
         // Konum güncellemelerini durdur
         locationManager.stopUpdatingLocation()
+        locationManager.stopMonitoringSignificantLocationChanges()
 
         saveTrackingState()
         print("⏹️ Periyodik konum takibi durduruldu")
@@ -261,6 +368,15 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     // Mevcut konumu kaydet - Akıllı süre takibi ile
     @MainActor
     private func recordCurrentLocation() async {
+        // Background task başlat - iOS suspend etmesin
+        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.endBackgroundTask()
+        }
+
+        defer {
+            endBackgroundTask()
+        }
+
         // Debug: Kontrolleri ayrı ayrı yap
         guard let context = modelContext else {
             print("⚠️ HATA: ModelContext yok! setModelContext() çağrıldı mı?")
@@ -287,6 +403,8 @@ class LocationService: NSObject, CLLocationManagerDelegate {
                 let timeDiff = Date().timeIntervalSince(lastLog.timestamp)
                 let minutesDiff = Int(timeDiff / 60)
 
+                // Timestamp'i güncelle - son görüldüğü zaman
+                lastLog.timestamp = Date()
                 lastLog.durationInMinutes += minutesDiff
 
                 do {
@@ -304,12 +422,13 @@ class LocationService: NSObject, CLLocationManagerDelegate {
         }
 
         // Yeni kayıt oluştur (ya ilk kayıt ya da yeni konum)
+        // Başlangıç süresi 0 - Her güncellemede artar
         let log = LocationLog(
             timestamp: Date(),
             latitude: loc.coordinate.latitude,
             longitude: loc.coordinate.longitude,
             locationType: locationType,
-            durationInMinutes: 10, // İlk süre 10 dakika (tracking interval)
+            durationInMinutes: 0, // İlk süre 0, her güncellemede artacak
             accuracy: loc.horizontalAccuracy,
             altitude: loc.altitude
         )
@@ -327,6 +446,14 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             await reverseGeocodeLocation(log: log, context: context)
         } catch {
             print("❌ Konum kaydetme hatası: \(error.localizedDescription)")
+        }
+    }
+
+    // Background task'i temizle
+    private func endBackgroundTask() {
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
         }
     }
 

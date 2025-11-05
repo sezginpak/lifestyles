@@ -13,14 +13,14 @@ struct JournalStatsHeader: View {
     let currentMood: MoodEntry?
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 6) {
             // Stats grid
             LazyVGrid(
                 columns: [
-                    GridItem(.flexible(), spacing: 12),
-                    GridItem(.flexible(), spacing: 12)
+                    GridItem(.flexible(), spacing: 6),
+                    GridItem(.flexible(), spacing: 6)
                 ],
-                spacing: 12
+                spacing: 6
             ) {
                 // Bu ay yazılan
                 JournalStatCard(
@@ -69,17 +69,17 @@ struct JournalStatsHeader: View {
                 typeDistributionView
             }
         }
-        .padding(20)
+        .padding(8)
         .background(
             ZStack {
                 // Animated gradient background
                 AnimatedGradientBackground()
 
                 // Glassmorphism overlay
-                RoundedRectangle(cornerRadius: 24)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(.ultraThinMaterial)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24)
+                        RoundedRectangle(cornerRadius: 12)
                             .strokeBorder(
                                 LinearGradient(
                                     colors: [
@@ -89,40 +89,40 @@ struct JournalStatsHeader: View {
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 ),
-                                lineWidth: 1
+                                lineWidth: 0.5
                             )
                     )
             }
         )
-        .cornerRadius(24)
-        .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
     }
 
     // MARK: - Type Distribution
 
     var typeDistributionView: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Image(systemName: "chart.pie")
-                    .font(.system(size: 14))
+                    .font(.system(size: 10))
                     .foregroundStyle(.secondary)
 
                 Text("Journal Dağılımı")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.secondary)
 
                 Spacer()
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 4) {
                 ForEach(typeDistribution, id: \.type) { dist in
                     if dist.count > 0 {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 3) {
                             Text(dist.type.emoji)
-                                .font(.system(size: 20))
+                                .font(.system(size: 14))
 
                             Text("\(dist.count)")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(dist.type.color)
 
                             // Progress bar
@@ -143,16 +143,16 @@ struct JournalStatsHeader: View {
                                         .frame(height: geo.size.height * dist.percentage)
                                 }
                             }
-                            .frame(height: 40)
+                            .frame(height: 20)
                         }
                         .frame(maxWidth: .infinity)
                     }
                 }
             }
         }
-        .padding(16)
+        .padding(8)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color.primary.opacity(0.02))
         )
     }
@@ -269,10 +269,10 @@ struct JournalStatCard: View {
     let color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Image(systemName: icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: 12))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [color, color.opacity(0.7)],
@@ -285,24 +285,24 @@ struct JournalStatCard: View {
             }
 
             Text(title)
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.primary)
 
             Text(label)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 9, weight: .medium))
                 .foregroundColor(.secondary)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
+        .padding(8)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 8)
                         .strokeBorder(
                             color.opacity(0.3),
-                            lineWidth: 1
+                            lineWidth: 0.5
                         )
                 )
         )
@@ -327,7 +327,7 @@ struct AnimatedGradientBackground: View {
             startPoint: animateGradient ? .topLeading : .bottomTrailing,
             endPoint: animateGradient ? .bottomTrailing : .topLeading
         )
-        .cornerRadius(24)
+        .cornerRadius(12)
         .onAppear {
             withAnimation(
                 .easeInOut(duration: 5.0)

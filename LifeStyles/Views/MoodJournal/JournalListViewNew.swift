@@ -63,9 +63,8 @@ struct JournalListViewNew: View {
             Color(.systemGroupedBackground)
                 .ignoresSafeArea()
 
-            if isLoading {
-                loadingView
-            } else if filteredAndSortedEntries.isEmpty && searchText.isEmpty && !hasActiveFilters {
+            // BUG FIX: Loading state'ini kaldır, direkt content göster
+            if filteredAndSortedEntries.isEmpty && searchText.isEmpty && !hasActiveFilters {
                 emptyState
             } else {
                 mainContent
@@ -81,12 +80,9 @@ struct JournalListViewNew: View {
             JournalDetailView(viewModel: viewModel, entry: entry)
         }
         .onAppear {
-            // Simulate loading for smooth transition
+            // Journal'lar yüklenmemişse tekrar dene
             if viewModel.journalEntries.isEmpty {
-                isLoading = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isLoading = false
-                }
+                viewModel.loadAllData(context: modelContext)
             }
         }
     }
@@ -119,7 +115,7 @@ struct JournalListViewNew: View {
 
     var mainContent: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 12) {
                 // Stats header (toggle edilebilir)
                 if showingStats {
                     JournalStatsHeader(
@@ -127,7 +123,7 @@ struct JournalListViewNew: View {
                         currentMood: viewModel.currentMood
                     )
                     .padding(.horizontal)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -157,12 +153,30 @@ struct JournalListViewNew: View {
                         }
                     )
                 } else {
-                    // Search results or empty filter state
-                    if filteredAndSortedEntries.isEmpty {
-                        searchEmptyState
-                    } else {
-                        masonryGrid
+                    // Geliştirilmiş Kart Listesi
+                    LazyVStack(spacing: 12) {
+                        ForEach(filteredAndSortedEntries) { entry in
+                            EnhancedJournalCard(
+                                entry: entry,
+                                onTap: {
+                                    HapticFeedback.light()
+                                    viewModel.selectedJournalForDetail = entry
+                                },
+                                onToggleFavorite: {
+                                    toggleFavorite(entry)
+                                }
+                            )
+                            .transition(.scale.combined(with: .opacity))
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    deleteEntry(entry)
+                                } label: {
+                                    Label("Sil", systemImage: "trash")
+                                }
+                            }
+                        }
                     }
+                    .padding(.horizontal)
                 }
             }
             .padding(.bottom, 20)

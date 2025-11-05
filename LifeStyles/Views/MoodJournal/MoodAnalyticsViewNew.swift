@@ -86,8 +86,8 @@ struct MoodAnalyticsViewNew: View {
                 // Premium paywall for 30+ days analytics
                 premiumPaywallSection
             } else {
-                VStack(spacing: Spacing.large) {
-                    // Hero AI Insight Card
+                VStack(spacing: Spacing.small) {
+                    // Hero AI Insight Card - ULTRA KOMPAKT
                     MoodAIInsightCard(
                         analysis: viewModel.aiAnalysis,
                         isLoading: viewModel.isLoadingAnalysis,
@@ -101,21 +101,16 @@ struct MoodAnalyticsViewNew: View {
                         }
                     )
 
-                    // Mood Trend Chart
+                    // Mood Trend Chart - ULTRA KOMPAKT
                     MoodTrendChart(entries: entries)
+                        .frame(height: 120) // Daha da küçült
 
-                    // Pattern Recognition
-                    PatternRecognitionCard(entries: entries)
-
-                    // Interactive Heatmap
-                    InteractiveHeatmap(entries: entries)
-
-                    // Detailed AI Insights (if available)
+                    // Detailed AI Insights (if available) - ULTRA KOMPAKT
                     if let analysis = viewModel.aiAnalysis, !viewModel.isLoadingAnalysis {
                         detailedInsightsSection(analysis)
                     }
                 }
-                .padding(Spacing.large)
+                .padding(Spacing.small)
             }
         }
         .background(Color(.systemGroupedBackground))
@@ -162,141 +157,133 @@ struct MoodAnalyticsViewNew: View {
     // MARK: - Detailed Insights Section
 
     private func detailedInsightsSection(_ analysis: MoodAnalysis) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.large) {
-            // Section header
+        VStack(alignment: .leading, spacing: 4) {
+            // Section header - ULTRA KOMPAKT
             HStack {
-                Text(String(localized: "analytics.detailed.analysis", comment: "Detailed Analysis"))
-                    .font(.title2)
+                Text("Detaylı Analiz")
+                    .font(.caption)
                     .fontWeight(.bold)
 
                 Spacer()
 
                 Text(analysis.generatedAt.formatted(.relative(presentation: .named)))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
             }
 
-            // Insights cards
+            // Insights cards - ULTRA KOMPAKT (Max 2)
             if !analysis.insights.isEmpty {
-                VStack(alignment: .leading, spacing: Spacing.medium) {
-                    Text(String(localized: "analytics.featured.insights", comment: "Featured Insights"))
-                        .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Öne Çıkanlar")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
 
-                    ForEach(analysis.insights) { insight in
+                    ForEach(analysis.insights.prefix(2)) { insight in
                         insightDetailCard(insight)
                     }
                 }
             }
 
-            // Patterns cards
+            // Patterns cards - ULTRA KOMPAKT (Max 1)
             if !analysis.patterns.isEmpty {
-                VStack(alignment: .leading, spacing: Spacing.medium) {
-                    Text(String(localized: "mood.patterns.detected", comment: "Detected Patterns"))
-                        .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Pattern")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
 
-                    ForEach(analysis.patterns) { pattern in
+                    ForEach(analysis.patterns.prefix(1)) { pattern in
                         patternDetailCard(pattern)
                     }
                 }
             }
 
-            // Recommendations
+            // Recommendations - ULTRA KOMPAKT (Max 2)
             if !analysis.recommendations.isEmpty {
-                VStack(alignment: .leading, spacing: Spacing.medium) {
-                    Text(String(localized: "analytics.recommendations", comment: "Recommendations"))
-                        .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Öneriler")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
 
-                    ForEach(analysis.recommendations) { recommendation in
+                    ForEach(analysis.recommendations.prefix(2)) { recommendation in
                         recommendationDetailCard(recommendation)
                     }
                 }
             }
         }
-        .padding(Spacing.large)
+        .padding(Spacing.small)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.relaxed, style: .continuous)
+            RoundedRectangle(cornerRadius: CornerRadius.small, style: .continuous)
                 .fill(Color(.systemBackground))
         )
-        .cardShadow()
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 
     private func insightDetailCard(_ insight: AIInsight) -> some View {
-        HStack(alignment: .top, spacing: Spacing.medium) {
-            // Icon
+        HStack(alignment: .top, spacing: 6) {
+            // Icon - ULTRA KOMPAKT
             Image(systemName: insight.icon)
-                .font(.title2)
+                .font(.system(size: 10))
                 .foregroundStyle(Color(hex: insight.color) ?? .purple)
-                .frame(width: 40, height: 40)
+                .frame(width: 20, height: 20)
                 .background(
                     Circle()
                         .fill((Color(hex: insight.color) ?? .purple).opacity(0.1))
                 )
 
-            // Content
-            VStack(alignment: .leading, spacing: Spacing.micro) {
-                if !insight.title.isEmpty && insight.title != "Insight" {
-                    Text(insight.title)
-                        .font(.callout)
-                        .fontWeight(.semibold)
-                }
-
-                Text(insight.description)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-            }
+            // Content - ULTRA KOMPAKT
+            Text(insight.description)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
 
             Spacer()
         }
-        .padding(Spacing.medium)
+        .padding(6)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(.tertiarySystemBackground))
         )
     }
 
     private func patternDetailCard(_ pattern: MoodPattern) -> some View {
-        HStack(alignment: .top, spacing: Spacing.medium) {
-            // Emoji
+        HStack(alignment: .top, spacing: 6) {
+            // Emoji - ULTRA KOMPAKT
             Text(pattern.emoji)
-                .font(.largeTitle)
+                .font(.body)
 
-            // Content
-            VStack(alignment: .leading, spacing: Spacing.small) {
+            // Content - ULTRA KOMPAKT
+            VStack(alignment: .leading, spacing: 2) {
                 Text(pattern.title)
-                    .font(.callout)
+                    .font(.caption2)
                     .fontWeight(.semibold)
 
                 Text(pattern.description)
-                    .font(.callout)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
-
-                HStack {
-                    Label(pattern.frequency, systemImage: "clock")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-
-                    Spacer()
-
-                    impactBadge(pattern.impact)
-                }
+                    .lineLimit(1)
             }
 
             Spacer()
+
+            impactBadge(pattern.impact)
         }
-        .padding(Spacing.medium)
+        .padding(6)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(.tertiarySystemBackground))
         )
     }
 
     private func recommendationDetailCard(_ recommendation: ActionSuggestion) -> some View {
-        HStack(spacing: Spacing.medium) {
-            // Icon
+        HStack(spacing: 6) {
+            // Icon - ULTRA KOMPAKT
             Image(systemName: recommendation.icon)
-                .font(.title3)
+                .font(.system(size: 10))
                 .foregroundStyle(.white)
-                .frame(width: 36, height: 36)
+                .frame(width: 18, height: 18)
                 .background(
                     Circle()
                         .fill(
@@ -308,42 +295,37 @@ struct MoodAnalyticsViewNew: View {
                         )
                 )
 
-            // Content
-            VStack(alignment: .leading, spacing: 2) {
-                Text(recommendation.title)
-                    .font(.callout)
-                    .fontWeight(.semibold)
-
-                Text(recommendation.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            // Content - ULTRA KOMPAKT
+            Text(recommendation.title)
+                .font(.caption2)
+                .fontWeight(.semibold)
+                .lineLimit(1)
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+                .font(.system(size: 8))
+                .foregroundStyle(.quaternary)
         }
-        .padding(Spacing.medium)
+        .padding(6)
         .background(
-            RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color(.tertiarySystemBackground))
         )
     }
 
     private func impactBadge(_ impact: MoodPattern.PatternImpact) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 1) {
             Circle()
                 .fill(impactColor(impact))
-                .frame(width: 6, height: 6)
+                .frame(width: 3, height: 3)
 
             Text(impactText(impact))
-                .font(.caption2)
+                .font(.system(size: 9))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
         .background(
             Capsule()
                 .fill(impactColor(impact).opacity(0.1))

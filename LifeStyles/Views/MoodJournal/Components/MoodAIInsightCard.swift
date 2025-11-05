@@ -21,7 +21,7 @@ struct MoodAIInsightCard: View {
     @State private var isAnimating: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
+        VStack(alignment: .leading, spacing: Spacing.small) {
             // Header
             header
 
@@ -34,33 +34,32 @@ struct MoodAIInsightCard: View {
                 emptyState
             }
         }
-        .padding(Spacing.large)
-        .glassmorphismCard(
-            cornerRadius: CornerRadius.relaxed
+        .padding(Spacing.small)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
+                .fill(.ultraThinMaterial)
         )
         .overlay(
-            // Gradient border animation
-            RoundedRectangle(cornerRadius: CornerRadius.relaxed, style: .continuous)
+            RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
                 .strokeBorder(
                     LinearGradient(
-                        colors: [.purple.opacity(0.5), .blue.opacity(0.5), .purple.opacity(0.5)],
+                        colors: [.purple.opacity(0.3), .blue.opacity(0.3)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: 1
+                    lineWidth: isLoading ? 1 : 0.5
                 )
-                .opacity(isLoading ? 1 : 0)
         )
-        .cardShadow()
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 
     // MARK: - Header
 
     private var header: some View {
         HStack {
-            HStack(spacing: Spacing.small) {
+            HStack(spacing: 4) {
                 Image(systemName: "sparkles")
-                    .font(.title3)
+                    .font(.caption)
                     .foregroundStyle(
                         LinearGradient(
                             colors: [.purple, .blue, .pink],
@@ -71,19 +70,20 @@ struct MoodAIInsightCard: View {
                     .symbolEffect(.variableColor.iterative, isActive: isLoading)
 
                 Text(String(localized: "ai.analysis", comment: "AI Analysis"))
-                    .cardTitle()
+                    .font(.caption)
+                    .fontWeight(.semibold)
             }
 
             Spacer()
 
             // Action buttons
             if analysis != nil && !isLoading {
-                HStack(spacing: Spacing.small) {
+                HStack(spacing: 4) {
                     Button(action: onShare) {
                         Image(systemName: "square.and.arrow.up")
-                            .font(.callout)
+                            .font(.caption2)
                             .foregroundStyle(.secondary)
-                            .padding(8)
+                            .padding(4)
                             .background(
                                 Circle()
                                     .fill(Color.gray.opacity(0.1))
@@ -92,9 +92,9 @@ struct MoodAIInsightCard: View {
 
                     Button(action: onRegenerate) {
                         Image(systemName: "arrow.clockwise")
-                            .font(.callout)
+                            .font(.caption2)
                             .foregroundStyle(.purple)
-                            .padding(8)
+                            .padding(4)
                             .background(
                                 Circle()
                                     .fill(Color.purple.opacity(0.1))
@@ -108,20 +108,19 @@ struct MoodAIInsightCard: View {
     // MARK: - Content View
 
     private func contentView(analysis: MoodAnalysis) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.medium) {
+        VStack(alignment: .leading, spacing: 6) {
             // Summary with streaming effect
-            VStack(alignment: .leading, spacing: Spacing.small) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(isAnimating ? displayedText : analysis.summary)
-                    .font(.body)
+                    .font(.caption)
                     .fontWeight(.medium)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(2)
 
                 Text(analysis.weeklyTrend)
-                    .font(.callout)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding(Spacing.medium)
+            .padding(6)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: CornerRadius.normal, style: .continuous)
@@ -145,7 +144,7 @@ struct MoodAIInsightCard: View {
             }
 
             // Timestamp
-            HStack {
+            HStack(spacing: 2) {
                 Image(systemName: "clock")
                     .font(.caption2)
                 Text(String(format: NSLocalizedString("mood.generated.time", comment: "Generated time"), analysis.generatedAt.formatted(.relative(presentation: .named))))
@@ -163,14 +162,14 @@ struct MoodAIInsightCard: View {
     // MARK: - Insights Section
 
     private func insightsSection(_ insights: [AIInsight]) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(String(localized: "mood.highlights", comment: "Highlights"))
-                .font(.subheadline)
+                .font(.caption2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
 
-            VStack(spacing: Spacing.small) {
-                ForEach(insights.prefix(3)) { insight in
+            VStack(spacing: 4) {
+                ForEach(insights.prefix(2)) { insight in
                     insightRow(insight)
                 }
             }
@@ -178,32 +177,32 @@ struct MoodAIInsightCard: View {
     }
 
     private func insightRow(_ insight: AIInsight) -> some View {
-        HStack(alignment: .top, spacing: Spacing.small) {
+        HStack(alignment: .top, spacing: 4) {
             Image(systemName: insight.icon)
-                .font(.callout)
+                .font(.caption2)
                 .foregroundStyle(Color(hex: insight.color) ?? .purple)
-                .frame(width: 24, height: 24)
+                .frame(width: 16, height: 16)
                 .background(
                     Circle()
                         .fill((Color(hex: insight.color) ?? .purple).opacity(0.1))
                 )
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 if !insight.title.isEmpty && insight.title != "Insight" {
                     Text(insight.title)
-                        .font(.caption)
+                        .font(.caption2)
                         .fontWeight(.semibold)
                 }
 
                 Text(insight.description)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(1)
             }
 
             Spacer()
         }
-        .padding(Spacing.small)
+        .padding(4)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.compact, style: .continuous)
                 .fill(Color(.systemBackground).opacity(0.5))
@@ -213,14 +212,14 @@ struct MoodAIInsightCard: View {
     // MARK: - Recommendations Section
 
     private func recommendationsSection(_ recommendations: [ActionSuggestion]) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.small) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(String(localized: "mood.recommendations", comment: "Recommendations"))
-                .font(.subheadline)
+                .font(.caption2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
 
-            VStack(spacing: Spacing.small) {
-                ForEach(recommendations.prefix(3)) { recommendation in
+            VStack(spacing: 4) {
+                ForEach(recommendations.prefix(2)) { recommendation in
                     recommendationRow(recommendation)
                 }
             }
@@ -228,23 +227,23 @@ struct MoodAIInsightCard: View {
     }
 
     private func recommendationRow(_ recommendation: ActionSuggestion) -> some View {
-        HStack(spacing: Spacing.small) {
+        HStack(spacing: 4) {
             Image(systemName: recommendation.icon)
-                .font(.body)
+                .font(.caption2)
                 .foregroundStyle(.purple)
 
             Text(recommendation.title)
-                .font(.callout)
+                .font(.caption2)
                 .lineLimit(1)
 
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.caption)
+                .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
-        .padding(.horizontal, Spacing.medium)
-        .padding(.vertical, Spacing.small)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
         .background(
             RoundedRectangle(cornerRadius: CornerRadius.compact, style: .continuous)
                 .fill(Color.purple.opacity(0.05))
@@ -254,37 +253,31 @@ struct MoodAIInsightCard: View {
     // MARK: - Loading State
 
     private var loadingState: some View {
-        VStack(spacing: Spacing.large) {
+        VStack(spacing: 6) {
             // Animated sparkles
-            HStack(spacing: Spacing.small) {
+            HStack(spacing: 4) {
                 ForEach(0..<3) { index in
                     Image(systemName: "sparkle")
-                        .font(.title2)
+                        .font(.caption)
                         .foregroundStyle(.purple.opacity(0.7))
                         .symbolEffect(.pulse)
                         .animation(.easeInOut(duration: 1).repeatForever().delay(Double(index) * 0.2), value: isLoading)
                 }
             }
 
-            VStack(spacing: Spacing.small) {
-                Text(String(localized: "ai.analyzing", comment: "AI Analyzing"))
-                    .font(.callout)
-                    .fontWeight(.medium)
-
-                Text(String(localized: "mood.data.evaluating", comment: "Your mood data is being evaluated"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text(String(localized: "ai.analyzing", comment: "AI Analyzing"))
+                .font(.caption2)
+                .fontWeight(.medium)
 
             // Loading bars
-            VStack(spacing: Spacing.micro) {
-                ForEach(0..<3) { index in
+            VStack(spacing: 2) {
+                ForEach(0..<2) { index in
                     loadingBar(delay: Double(index) * 0.3)
                 }
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 200)
+        .frame(height: 80)
     }
 
     private func loadingBar(delay: Double) -> some View {
@@ -311,27 +304,29 @@ struct MoodAIInsightCard: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: Spacing.medium) {
+        VStack(spacing: 6) {
             Image(systemName: "brain.head.profile")
-                .font(.system(size: 40))
+                .font(.system(size: 24))
                 .foregroundStyle(.purple.opacity(0.7))
 
             Text(String(localized: "mood.ai.analysis.ready", comment: "AI Analysis Ready"))
-                .font(.callout)
+                .font(.caption2)
                 .fontWeight(.medium)
 
-            Text(String(localized: "ai.analyze.mood", comment: "Let's analyze your mood data"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            Button("Analiz Oluştur") {
+            Button {
                 onRegenerate()
+            } label: {
+                Text("Analiz Oluştur")
+                    .font(.caption2)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
             }
             .buttonStyle(.borderedProminent)
             .tint(.purple)
+            .controlSize(.mini)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 200)
+        .frame(height: 80)
     }
 
     // MARK: - Streaming Animation

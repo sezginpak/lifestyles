@@ -41,7 +41,8 @@ struct MoodJournalView: View {
             }
             .navigationTitle(String(localized: "mood.journal.title", comment: "Mood & Journal"))
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
+            .task {
+                // Her açılışta veriyi yenile
                 viewModel.loadAllData(context: modelContext)
             }
         }
