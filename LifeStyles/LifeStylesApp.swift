@@ -164,6 +164,7 @@ struct LifeStylesApp: App {
                     Badge.self, // Activity Badge (not gamification)
                     GamificationBadge.self, // NEW - Gamification Badge
                     UserProgress.self, // NEW - Gamification
+                    AcceptedSuggestion.self, // NEW - Smart Suggestions Progress
                     ActivityStats.self,
                     SpecialDate.self,
                     GoalMilestone.self,
@@ -214,6 +215,7 @@ struct LifeStylesApp: App {
                         Badge.self, // Activity Badge (not gamification)
                         GamificationBadge.self, // NEW - Gamification Badge
                         UserProgress.self, // NEW - Gamification
+                        AcceptedSuggestion.self, // NEW - Smart Suggestions Progress
                         ActivityStats.self,
                         SpecialDate.self,
                         GoalMilestone.self,
@@ -248,9 +250,63 @@ struct LifeStylesApp: App {
 
                     return container
                 } catch let emergencyError {
-                    // Artık gerçekten hiçbir şey yapamayız
-                    print("💥 FATAL: Hiçbir storage oluşturulamadı: \(emergencyError)")
-                    fatalError("❌ Kritik hata: Hiçbir storage sistemi oluşturulamadı. Lütfen uygulamayı silin ve yeniden yükleyin.")
+                    // Son çare: Minimal schema ile in-memory container
+                    print("💥 KRITIK: Tüm storage denemeleri başarısız: \(emergencyError)")
+                    print("🆘 MINIMAL SCHEMA ile devam ediliyor...")
+
+                    do {
+                        // Minimal schema - sadece temel modeller
+                        let minimalSchema = Schema([
+                            Friend.self,
+                            ContactHistory.self,
+                            LocationLog.self,
+                            Goal.self,
+                            Habit.self,
+                            HabitCompletion.self
+                        ])
+
+                        let minimalConfig = ModelConfiguration(
+                            schema: minimalSchema,
+                            isStoredInMemoryOnly: true
+                        )
+
+                        let emergencyContainer = try ModelContainer(
+                            for: minimalSchema,
+                            configurations: [minimalConfig]
+                        )
+
+                        print("✅ EMERGENCY CONTAINER oluşturuldu (minimal özellikler)")
+                        print("⚠️ UYARI: Sadece temel özellikler kullanılabilir")
+                        print("⚠️ UYARI: Veriler geçici (uygulama kapanınca silinir)")
+
+                        return emergencyContainer
+
+                    } catch let finalError {
+                        // Artık yapılacak bir şey yok - boş container döndür
+                        print("💀 SON ÇARE: Boş container oluşturuluyor")
+                        print("💀 Hata: \(finalError.localizedDescription)")
+
+                        // Hiç model olmadan boş container (son çare)
+                        let emptySchema = Schema([])
+                        let emptyConfig = ModelConfiguration(
+                            schema: emptySchema,
+                            isStoredInMemoryOnly: true
+                        )
+
+                        do {
+                            let emptyContainer = try ModelContainer(
+                                for: emptySchema,
+                                configurations: [emptyConfig]
+                            )
+
+                            print("⚠️ BOŞ CONTAINER - Veri işlemleri yapılamayacak")
+                            return emptyContainer
+                        } catch {
+                            // Artık gerçekten yapılacak bir şey yok
+                            // Ama yine de fatalError yerine boş bir context döndürelim
+                            fatalError("❌ KRİTİK: ModelContainer oluşturulamadı. Uygulamayı yeniden yükleyin.")
+                        }
+                    }
                 }
             }
         }
@@ -343,6 +399,42 @@ struct LifeStylesApp: App {
 
             // Friend detay sayfasına git
             deepLinkRouter.handle(path: "friend/\(uuid.uuidString)", parameters: [:])
+
+        case "friend-detail":
+            // lifestyles://friend-detail/{friendId} (Widget)
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            // DeepLinkRouter ile friend detail'a git
+            deepLinkRouter.friendId = friendId
+            deepLinkRouter.shouldShowFriendDetail = true
+            deepLinkRouter.activeTab = 1 // Contacts tab
+
+        case "complete-contact":
+            // lifestyles://complete-contact/{friendId} (Widget)
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            handleCompleteCall(friendId: uuid)
+
+        case "call-friend":
+            // lifestyles://call-friend/{friendId} (Widget)
+            guard let friendId = pathComponents.first,
+                  let uuid = UUID(uuidString: friendId) else {
+                print("❌ Geçersiz friend ID: \(pathComponents)")
+                return
+            }
+
+            // Friend detay sayfasına git
+            deepLinkRouter.friendId = friendId
+            deepLinkRouter.shouldShowFriendDetail = true
+            deepLinkRouter.activeTab = 1 // Contacts tab
 
         default:
             print("⚠️ Bilinmeyen deep link host: \(host)")
