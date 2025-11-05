@@ -77,22 +77,44 @@ class DashboardViewModel {
     private let notificationService = NotificationService.shared
     private let goalService = GoalService.shared
 
+    // MARK: - Phase 1 Services
+    private let statsService = DashboardStatsService()
+    private let contactAnalytics = ContactAnalyticsService()
+
     init() {
         checkLocationStatus()
     }
 
     @MainActor
     func loadDashboardDataAsync(context: ModelContext) async {
-        // Temel veriler
-        loadBasicStats(context: context)
+        // PHASE 1: Service-based loading
+        do {
+            // 1. Temel istatistikler (DashboardStatsService)
+            try await statsService.loadBasicStats(context: context)
+            // Service'ten verileri al
+            totalContacts = statsService.totalContacts
+            contactsNeedingAttention = statsService.contactsNeedingAttention
+            activeGoals = statsService.activeGoals
+            currentStreak = statsService.currentStreak
+
+            // 2. İletişim trendleri (ContactAnalyticsService)
+            let trends = try await contactAnalytics.analyzeContactTrends(context: context)
+            contactsThisWeek = trends.thisWeekCount
+            lastContactMood = trends.lastMood
+            contactTrendPercentage = trends.trendPercentage
+
+        } catch {
+            print("❌ [DashboardVM] Service loading hatası: \(error)")
+            fetchErrors["services"] = error.localizedDescription
+            partialDataLoaded = true
+        }
 
         // GoalService'i ayarla ve istatistikleri yükle
         goalService.setModelContext(context)
         loadGoalStatistics(context: context)
 
-        // Diğer istatistikler
+        // Diğer istatistikler (henüz service'e taşınmadı)
         loadHabitPerformance(context: context)
-        loadContactTrends(context: context)
         loadMobilityData(context: context)
         loadSmartSuggestions(context: context)
 
@@ -110,63 +132,11 @@ class DashboardViewModel {
         }
     }
 
+    // DEPRECATED: Phase 1'de DashboardStatsService'e taşındı
+    // Geriye dönük uyumluluk için bırakıldı, kullanılmıyor
     private func loadBasicStats(context: ModelContext) {
-        var hasErrors = false
-
-        // Toplam arkadaş sayısı
-        do {
-            let friendDescriptor = FetchDescriptor<Friend>()
-            totalContacts = try context.fetchCount(friendDescriptor)
-        } catch {
-            print("❌ [DashboardVM] Friend count fetch hatası: \(error.localizedDescription)")
-            fetchErrors["friends_count"] = error.localizedDescription
-            totalContacts = 0
-            hasErrors = true
-        }
-
-        // İletişim gereken arkadaşlar
-        do {
-            let friendsDescriptor = FetchDescriptor<Friend>()
-            let friends = try context.fetch(friendsDescriptor)
-            contactsNeedingAttention = friends.filter { $0.needsContact }.count
-        } catch {
-            print("❌ [DashboardVM] Friends needing attention fetch hatası: \(error.localizedDescription)")
-            fetchErrors["friends_attention"] = error.localizedDescription
-            contactsNeedingAttention = 0
-            hasErrors = true
-        }
-
-        // Aktif hedefler
-        do {
-            let goalDescriptor = FetchDescriptor<Goal>(
-                predicate: #Predicate { !$0.isCompleted }
-            )
-            activeGoals = try context.fetchCount(goalDescriptor)
-        } catch {
-            print("❌ [DashboardVM] Active goals fetch hatası: \(error.localizedDescription)")
-            fetchErrors["active_goals"] = error.localizedDescription
-            activeGoals = 0
-            hasErrors = true
-        }
-
-        // En uzun alışkanlık serisi
-        do {
-            let habitDescriptor = FetchDescriptor<Habit>(
-                predicate: #Predicate { $0.isActive }
-            )
-            let habits = try context.fetch(habitDescriptor)
-            currentStreak = habits.map { $0.currentStreak }.max() ?? 0
-        } catch {
-            print("❌ [DashboardVM] Habits streak fetch hatası: \(error.localizedDescription)")
-            fetchErrors["habit_streak"] = error.localizedDescription
-            currentStreak = 0
-            hasErrors = true
-        }
-
-        if hasErrors {
-            partialDataLoaded = true
-            errorMessage = "Bazı veriler yüklenemedi. Lütfen daha sonra tekrar deneyin."
-        }
+        // Bu metod artık kullanılmıyor - DashboardStatsService kullan
+        print("⚠️ [DashboardVM] loadBasicStats() DEPRECATED - DashboardStatsService kullanın")
     }
 
     private func loadGoalStatistics(context: ModelContext) {
@@ -263,50 +233,11 @@ class DashboardViewModel {
         }
     }
 
+    // DEPRECATED: Phase 1'de ContactAnalyticsService'e taşındı
+    // Geriye dönük uyumluluk için bırakıldı, kullanılmıyor
     private func loadContactTrends(context: ModelContext) {
-        let calendar = Calendar.current
-        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
-            print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
-            fetchErrors["contact_trends_date"] = "Tarih hesaplama hatası"
-            return
-        }
-
-        // Bu hafta iletişim kurulan arkadaşlar
-        do {
-            let historyDescriptor = FetchDescriptor<ContactHistory>(
-                predicate: #Predicate { history in
-                    history.date >= sevenDaysAgo
-                },
-                sortBy: [SortDescriptor(\.date, order: .reverse)]
-            )
-
-            let histories = try context.fetch(historyDescriptor)
-            contactsThisWeek = Set(histories.compactMap { $0.friend?.id }).count
-
-            // Son iletişimin mood'u
-            if let lastHistory = histories.first, let mood = lastHistory.mood {
-                lastContactMood = mood.emoji
-            }
-
-            // Önceki haftayla karşılaştır
-            guard let fourteenDaysAgo = calendar.date(byAdding: .day, value: -14, to: Date()) else {
-                print("⚠️ [DashboardVM] İki haftalık tarih hesaplanamadı")
-                return
-            }
-            let previousWeekHistories = histories.filter { $0.date < sevenDaysAgo && $0.date >= fourteenDaysAgo }
-            let previousWeekCount = Set(previousWeekHistories.compactMap { $0.friend?.id }).count
-
-            if previousWeekCount > 0 {
-                contactTrendPercentage = ((Double(contactsThisWeek) - Double(previousWeekCount)) / Double(previousWeekCount)) * 100
-            }
-        } catch {
-            print("❌ [DashboardVM] Contact trends fetch hatası: \(error.localizedDescription)")
-            fetchErrors["contact_trends"] = error.localizedDescription
-            contactsThisWeek = 0
-            lastContactMood = ""
-            contactTrendPercentage = 0.0
-            partialDataLoaded = true
-        }
+        // Bu metod artık kullanılmıyor - ContactAnalyticsService kullanın
+        print("⚠️ [DashboardVM] loadContactTrends() DEPRECATED - ContactAnalyticsService kullanın")
     }
 
     private func loadMobilityData(context: ModelContext) {
@@ -686,23 +617,12 @@ class DashboardViewModel {
     }
 
     /// İletişim skoru hesapla (0-100)
+    /// Phase 1: ContactAnalyticsService'e delegate edildi
     func calculateSocialScore() -> Int {
-        // Eğer hiç arkadaş yoksa, 0 puan
-        guard totalContacts > 0 else { return 0 }
-
-        print("💬 İletişim Debug:")
-        print("   Total arkadaş: \(totalContacts)")
-        print("   Bu hafta iletişim: \(contactsThisWeek)")
-        print("   İletişim gereken: \(contactsNeedingAttention)")
-
-        // Bu haftaki iletişim sayısı - ANA AĞIRLIK %100
-        // 0 iletişim = 0 puan, 5+ iletişim = 100 puan
-        let contactScore = min(Double(contactsThisWeek) / 5.0, 1.0) * 100
-
-        print("   İletişim Skoru: \(Int(contactScore))")
-        print("   ---")
-
-        return Int(contactScore)
+        return contactAnalytics.calculateSocialScore(
+            totalContacts: totalContacts,
+            weeklyContacts: contactsThisWeek
+        )
     }
 
     /// Mobilite skoru döndür (zaten hesaplanıyor)
@@ -929,39 +849,20 @@ class DashboardViewModel {
     }
 
     /// İletişim sayısı trendi (son 7 gün)
+    /// Phase 1: ContactAnalyticsService'e delegate edildi
     func getContactsTrendData(context: ModelContext) -> [Double] {
-        let calendar = Calendar.current
-        var trendData: [Double] = []
-
-        do {
-            for dayOffset in (0...6).reversed() {
-                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
-                    print("⚠️ [DashboardVM] Contacts trend tarih hesaplanamadı: dayOffset \(dayOffset)")
-                    continue
-                }
-                let dayStart = calendar.startOfDay(for: targetDate)
-                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
-                    print("⚠️ [DashboardVM] Contacts trend gün sonu hesaplanamadı")
-                    continue
-                }
-
-                let historyDescriptor = FetchDescriptor<ContactHistory>(
-                    predicate: #Predicate { history in
-                        history.date >= dayStart && history.date < dayEnd
-                    }
-                )
-
-                let contacts = try context.fetch(historyDescriptor)
-                trendData.append(Double(contacts.count))
+        Task { @MainActor in
+            do {
+                return try await contactAnalytics.getDailyContactTrend(context: context)
+            } catch {
+                print("❌ [DashboardVM] Contacts trend data fetch hatası: \(error.localizedDescription)")
+                fetchErrors["contacts_trend"] = error.localizedDescription
+                partialDataLoaded = true
+                return [0.0]
             }
-
-            return trendData.isEmpty ? [0.0] : trendData
-        } catch {
-            print("❌ [DashboardVM] Contacts trend data fetch hatası: \(error.localizedDescription)")
-            fetchErrors["contacts_trend"] = error.localizedDescription
-            partialDataLoaded = true
-            return [0.0]
         }
+        // Async beklerken geçici değer döndür
+        return [0.0]
     }
 
     /// Mobilite skoru trendi (son 7 gün)
@@ -1113,12 +1014,30 @@ class DashboardViewModel {
         // Kısa gecikme ile UI'ın render olmasını sağla
         try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 saniye
 
-        // Tüm verileri yeniden yükle (async)
-        loadBasicStats(context: context)
+        // PHASE 1: Service-based loading
+        do {
+            // 1. Temel istatistikler (DashboardStatsService)
+            try await statsService.loadBasicStats(context: context)
+            totalContacts = statsService.totalContacts
+            contactsNeedingAttention = statsService.contactsNeedingAttention
+            activeGoals = statsService.activeGoals
+            currentStreak = statsService.currentStreak
+
+            // 2. İletişim trendleri (ContactAnalyticsService)
+            let trends = try await contactAnalytics.analyzeContactTrends(context: context)
+            contactsThisWeek = trends.thisWeekCount
+            lastContactMood = trends.lastMood
+            contactTrendPercentage = trends.trendPercentage
+        } catch {
+            print("❌ [DashboardVM] Service refresh hatası: \(error)")
+            fetchErrors["services_refresh"] = error.localizedDescription
+            partialDataLoaded = true
+        }
+
+        // Diğer istatistikler
         goalService.setModelContext(context)
         loadGoalStatistics(context: context)
         loadHabitPerformance(context: context)
-        loadContactTrends(context: context)
         loadMobilityData(context: context)
         loadSmartSuggestions(context: context)
         motivationalMessage = goalService.getMotivationalMessage()

@@ -59,11 +59,14 @@ class GoalsViewModel {
     private let notificationService = NotificationService.shared
     private let goalService = GoalService.shared
     private let achievementService = AchievementService.shared
-    private var modelContext: ModelContext?
+    private weak var modelContext: ModelContext?
 
     func loadGoals(context: ModelContext) {
-        self.modelContext = context
-        goalService.setModelContext(context)
+        // Sadece context değişmişse set et
+        if self.modelContext !== context {
+            self.modelContext = context
+            goalService.setModelContext(context)
+        }
 
         let goalDescriptor = FetchDescriptor<Goal>(sortBy: [SortDescriptor(\.targetDate)])
         goals = (try? context.fetch(goalDescriptor)) ?? []

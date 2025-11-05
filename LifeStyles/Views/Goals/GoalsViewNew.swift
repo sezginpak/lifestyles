@@ -12,6 +12,12 @@ import SwiftData
 struct GoalsViewNew: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = GoalsViewModel()
+    @State private var hasLoadedData = false
+
+    // Achievement service'i lazy olarak oluştur
+    private var achievementService: AchievementService {
+        AchievementService.shared
+    }
 
     var body: some View {
         NavigationStack {
@@ -164,14 +170,30 @@ struct GoalsViewNew: View {
             .sheet(isPresented: $viewModel.showingAddHabit) {
                 AddHabitView(viewModel: viewModel, modelContext: modelContext)
             }
-            .onAppear {
-                viewModel.loadGoals(context: modelContext)
-                viewModel.loadHabits(context: modelContext)
+            .task {
+                // Sadece ilk kez veri yükle
+                if !hasLoadedData {
+                    viewModel.loadGoals(context: modelContext)
+                    viewModel.loadHabits(context: modelContext)
+                    hasLoadedData = true
+                }
+            }
+            .refreshable {
+                // Refresh için güvenli yeniden yükleme
+                await refreshData()
             }
         }
     }
 
-    private let achievementService = AchievementService.shared
+    // MARK: - Refresh Helper
+    @MainActor
+    private func refreshData() async {
+        // Stats'ı güncelle, model context'i tekrar set etme
+        viewModel.calculateWeeklyStats()
+        viewModel.calculateMonthlyStats()
+        viewModel.updateCombinedStats()
+        viewModel.checkAndAwardAchievements()
+    }
 }
 
 #Preview {
