@@ -255,7 +255,7 @@ struct JournalListView: View {
                 VStack(alignment: .leading, spacing: Spacing.small) {
                     // Tags (if exists)
                     if !entry.tags.isEmpty {
-                        compactJournalTags(entry.tags, typeColor: entry.journalType.color)
+                        CompactJournalTags(tags: entry.tags, typeColor: entry.journalType.color)
                     }
 
                     // Footer Metadata
@@ -322,55 +322,6 @@ struct JournalListView: View {
         }
     }
 
-    // MARK: - Compact Tags Helper
-
-    private func compactJournalTags(_ tags: [String], typeColor: Color) -> some View {
-        HStack(spacing: 4) {
-            ForEach(tags.prefix(3), id: \.self) { tag in
-                HStack(spacing: 2) {
-                    Image(systemName: "tag.fill")
-                        .font(.system(size: 8))
-                    Text(tag)
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                }
-                .foregroundStyle(typeColor)
-                .padding(.horizontal, Spacing.small)
-                .padding(.vertical, 3)
-                .background(
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    typeColor.opacity(0.12),
-                                    typeColor.opacity(0.06)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                )
-                .overlay(
-                    Capsule()
-                        .strokeBorder(typeColor.opacity(0.2), lineWidth: 0.5)
-                )
-            }
-
-            if tags.count > 3 {
-                Text(String(format: NSLocalizedString("mood.more.tags", comment: "More tags count"), tags.count - 3))
-                    .font(.caption2)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(typeColor.opacity(0.6))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(
-                        Capsule()
-                            .fill(typeColor.opacity(0.08))
-                    )
-            }
-        }
-    }
-
     // MARK: - Actions with Feedback
 
     private func deleteWithFeedback(_ entry: JournalEntry) {
@@ -401,75 +352,6 @@ struct JournalListView: View {
             message: wasFavorite ? "Journal favorilerden çıkarıldı" : "Journal favorilere eklendi",
             emoji: wasFavorite ? "⭐" : "⭐"
         )
-    }
-}
-
-// MARK: - Journal Step Enum
-
-enum JournalStep: Int, CaseIterable {
-    case type = 0
-    case title = 1
-    case content = 2
-    case tags = 3
-    case review = 4
-
-    var title: String {
-        switch self {
-        case .type: return String(localized: "journal.step.type", defaultValue: "Journal Tipi", comment: "Step: Journal Type")
-        case .title: return String(localized: "journal.step.title", defaultValue: "Başlık", comment: "Step: Title")
-        case .content: return String(localized: "journal.step.content", defaultValue: "İçerik", comment: "Step: Content")
-        case .tags: return String(localized: "journal.step.tags", defaultValue: "Etiketler", comment: "Step: Tags")
-        case .review: return String(localized: "journal.step.review", defaultValue: "Önizleme", comment: "Step: Review")
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .type: return "doc.text"
-        case .title: return "text.cursor"
-        case .content: return "pencil.line"
-        case .tags: return "tag"
-        case .review: return "checkmark.circle"
-        }
-    }
-
-    var canSkip: Bool {
-        switch self {
-        case .title, .tags: return true
-        default: return false
-        }
-    }
-}
-
-// MARK: - OLD Step Progress Bar (Kept for backward compatibility)
-
-struct OldStepProgressBar: View {
-    let currentStep: JournalStep
-    let totalSteps: Int
-
-    var body: some View {
-        VStack(spacing: Spacing.small) {
-            // Progress dots
-            HStack(spacing: 8) {
-                ForEach(JournalStep.allCases, id: \.self) { step in
-                    Circle()
-                        .fill(step.rawValue <= currentStep.rawValue ? Color.brandPrimary : Color.gray.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                        .scaleEffect(step == currentStep ? 1.2 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStep)
-                }
-            }
-
-            // Current step title
-            Text(currentStep.title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .animation(.none, value: currentStep)
-        }
-        .padding(.vertical, Spacing.medium)
-        .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial)
     }
 }
 
@@ -509,7 +391,7 @@ struct JournalEditorView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Progress Bar
-                OldStepProgressBar(currentStep: currentStep, totalSteps: JournalStep.allCases.count)
+                StepProgressBar(currentStep: currentStep)
 
                 // Step Content with TabView for smooth sliding
                 TabView(selection: $currentStep) {

@@ -22,7 +22,7 @@ class NotificationService {
 
     // MARK: - Language Support
 
-    private var currentLanguage: AppLanguage {
+    var currentLanguage: AppLanguage {
         languageManager.currentLanguage
     }
 

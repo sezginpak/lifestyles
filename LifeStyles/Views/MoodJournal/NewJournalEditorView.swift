@@ -79,8 +79,8 @@ struct NewJournalEditorView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Progress
-                StepProgressBar(currentStep: currentStep, totalSteps: EditorStep.allCases.count)
+                // Progress (disabled - needs EditorStep to JournalStep mapping)
+                // StepProgressBar(currentStep: currentStep)
 
                 // Content
                 TabView(selection: $currentStep) {
@@ -866,29 +866,4 @@ struct NewJournalEditorView: View {
 
 // MARK: - Step Progress Bar
 
-struct StepProgressBar: View {
-    let currentStep: NewJournalEditorView.EditorStep
-    let totalSteps: Int
-
-    var body: some View {
-        VStack(spacing: Spacing.small) {
-            HStack(spacing: 8) {
-                ForEach(NewJournalEditorView.EditorStep.allCases, id: \.self) { step in
-                    Circle()
-                        .fill(step.rawValue <= currentStep.rawValue ? Color.brandPrimary : Color.gray.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                        .scaleEffect(step == currentStep ? 1.2 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStep)
-                }
-            }
-
-            Text(currentStep.title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.vertical, Spacing.medium)
-        .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial)
-    }
-}
+// StepProgressBar moved to Components/StepProgressBar.swift

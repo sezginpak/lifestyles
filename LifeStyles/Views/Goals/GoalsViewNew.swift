@@ -79,6 +79,10 @@ struct GoalsViewNew: View {
                         }
                     }
 
+                    // 5.5. Premium Analytics Card
+                    PremiumAnalyticsCard()
+                        .padding(.horizontal)
+
                     // 6. Achievements
                     if !viewModel.achievements.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
