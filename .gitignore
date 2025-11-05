@@ -4,6 +4,8 @@
 
 ## User settings
 xcuserdata/
+*.xcuserstate
+*.xcschememanagement.plist
 
 ## Compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
 *.xcscmblueprint
@@ -91,6 +93,7 @@ iOSInjectionProject/
 
 # macOS
 .DS_Store
+**/.DS_Store
 
 # SwiftData
 *.store
