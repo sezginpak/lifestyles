@@ -155,6 +155,16 @@ class MoodJournalViewModel {
             .sorted { $0.date > $1.date } // En yeni önce
     }
 
+    /// Yeni mood eklendiğinde incremental update (filter yerine)
+    private func addTodaysMood(_ mood: MoodEntry) {
+        // Önce array'e ekle
+        todaysMoods.insert(mood, at: 0) // En başa ekle (en yeni)
+
+        // Sadece bugünün mood'larını tut (eski tarihli olanları temizle)
+        todaysMoods = todaysMoods.filter { $0.isToday }
+            .sorted { $0.date > $1.date }
+    }
+
     /// En son kaydedilen mood (computed property)
     var currentMood: MoodEntry? {
         todaysMoods.first
@@ -222,7 +232,9 @@ class MoodJournalViewModel {
 
             // Sadece save başarılıysa state'i güncelle
             moodEntries.insert(entry, at: 0)
-            loadTodaysMoods()
+
+            // ✅ PERFORMANCE FIX: Gereksiz filter yerine incremental update
+            addTodaysMood(entry)
 
             HapticFeedback.success()
 
@@ -257,7 +269,9 @@ class MoodJournalViewModel {
 
             // State güncelle
             moodEntries.removeAll { $0.id == entry.id }
-            loadTodaysMoods()
+
+            // ✅ PERFORMANCE FIX: Direkt remove (filter yerine)
+            todaysMoods.removeAll { $0.id == entry.id }
 
             HapticFeedback.success()
         } catch {
@@ -295,7 +309,9 @@ class MoodJournalViewModel {
 
             // Save ve state güncelle
             try context.save()
-            loadTodaysMoods()
+
+            // ✅ PERFORMANCE FIX: SwiftData otomatik update ediyor, gereksiz filter yok
+            // todaysMoods array'i zaten @Observable olduğu için değişikliği algılıyor
 
             HapticFeedback.success()
         } catch {

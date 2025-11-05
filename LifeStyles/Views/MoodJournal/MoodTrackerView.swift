@@ -222,12 +222,10 @@ struct MoodTrackerView: View {
 
     private func modernLatestMoodCard(mood: MoodEntry) -> some View {
         HStack(spacing: 16) {
-            // Giant emoji with animation
+            // Giant emoji (animation kaldırıldı - performance için)
             Text(mood.moodType.emoji)
                 .font(.system(size: 72))
                 .shadow(color: mood.moodType.color.opacity(0.3), radius: 10)
-                .scaleEffect(1.0)
-                .animation(.spring(response: 0.6, dampingFraction: 0.6).repeatCount(1), value: mood.id)
 
             VStack(alignment: .leading, spacing: 8) {
                 // Mood name

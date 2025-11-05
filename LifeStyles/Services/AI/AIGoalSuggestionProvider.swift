@@ -42,6 +42,7 @@ class AIGoalSuggestionProvider {
 
     // MARK: - Private Methods
 
+    @MainActor
     private func gatherActivitySummary(context: ModelContext) async -> ActivitySummary {
         let calendar = Calendar.current
         let now = Date()

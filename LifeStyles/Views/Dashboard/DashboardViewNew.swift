@@ -96,31 +96,16 @@ struct DashboardViewNew: View {
                 .padding(.vertical)
             }
             .refreshable {
-                print("🔄🔄🔄 [DashboardView] REFRESH BAŞLADI 🔄🔄🔄")
-                // Tüm işlemleri main thread'de sıralı olarak yap
-                print("🔄 [DashboardView] viewModel.refreshAll çağrılıyor...")
                 await viewModel.refreshAll(context: modelContext)
-                print("✅ [DashboardView] viewModel.refreshAll tamamlandı")
 
                 // Computed data'ları güncelle - refreshAll tamamlandıktan sonra
-                print("🔄 [DashboardView] Computed data'lar güncelleniyor...")
                 await MainActor.run {
-                    print("🔄 [DashboardView] getDashboardSummary çağrılıyor...")
                     dashboardSummary = viewModel.getDashboardSummary(context: modelContext)
-                    print("✅ [DashboardView] getDashboardSummary tamamlandı")
-
-                    print("🔄 [DashboardView] getPartnerInfo çağrılıyor...")
                     partnerInfo = viewModel.getPartnerInfo(context: modelContext)
-                    print("✅ [DashboardView] getPartnerInfo tamamlandı")
-
-                    print("🔄 [DashboardView] getStreakInfo çağrılıyor...")
                     streakInfo = viewModel.getStreakInfo(context: modelContext)
-                    print("✅ [DashboardView] getStreakInfo tamamlandı")
                 }
-                print("✅ [DashboardView] Computed data'lar güncellendi")
 
                 HapticFeedback.success()
-                print("✅✅✅ [DashboardView] REFRESH TAMAMLANDI ✅✅✅")
             }
             .background(Color(.systemGroupedBackground))
             .overlay(alignment: .bottomTrailing) {

@@ -264,7 +264,6 @@ class DashboardViewModel {
     }
 
     private func loadContactTrends(context: ModelContext) {
-        print("📞 [DashboardVM] loadContactTrends BAŞLADI")
         let calendar = Calendar.current
         guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
             print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
@@ -274,7 +273,6 @@ class DashboardViewModel {
 
         // Bu hafta iletişim kurulan arkadaşlar
         do {
-            print("📞 [DashboardVM] ContactHistory descriptor oluşturuluyor...")
             let historyDescriptor = FetchDescriptor<ContactHistory>(
                 predicate: #Predicate { history in
                     history.date >= sevenDaysAgo
@@ -282,9 +280,7 @@ class DashboardViewModel {
                 sortBy: [SortDescriptor(\.date, order: .reverse)]
             )
 
-            print("📞 [DashboardVM] ContactHistory fetch yapılıyor... (THREAD: \(Thread.current.isMainThread ? "MAIN" : "BACKGROUND"))")
             let histories = try context.fetch(historyDescriptor)
-            print("✅ [DashboardVM] ContactHistory fetch tamamlandı: \(histories.count) adet")
             contactsThisWeek = Set(histories.compactMap { $0.friend?.id }).count
 
             // Son iletişimin mood'u
@@ -568,19 +564,15 @@ class DashboardViewModel {
     /// Sevgili/Partner bilgilerini getir
     @MainActor
     func getPartnerInfo(context: ModelContext) -> PartnerInfo? {
-        print("💑 [DashboardVM] getPartnerInfo BAŞLADI")
         do {
             let partnerDescriptor = FetchDescriptor<Friend>(
                 predicate: #Predicate { $0.relationshipTypeRaw == "partner" }
             )
 
-            print("💑 [DashboardVM] Partner fetch yapılıyor...")
             let partners = try context.fetch(partnerDescriptor)
             guard let partner = partners.first else {
-                print("ℹ️ [DashboardVM] Partner bulunamadı")
                 return nil
             }
-            print("✅ [DashboardVM] Partner bulundu: \(partner.name)")
 
             // Son iletişim tarihini hesapla
             let lastContactDays: Int
@@ -609,11 +601,9 @@ class DashboardViewModel {
                 loveLanguage: partner.loveLanguage?.displayName,
                 phoneNumber: partner.phoneNumber
             )
-            print("✅ [DashboardVM] getPartnerInfo TAMAMLANDI")
             return partnerInfo
         } catch {
             print("❌ [DashboardVM] Partner info fetch hatası: \(error.localizedDescription)")
-            print("   Error details: \(error)")
             fetchErrors["partner_info"] = error.localizedDescription
             partialDataLoaded = true
             return nil
@@ -623,12 +613,8 @@ class DashboardViewModel {
     /// Dashboard için 4 ring verisi - YENİ: İletişim, Mobilite, Ruh Hali, Günlük
     @MainActor
     func getDashboardSummary(context: ModelContext) -> DashboardSummary {
-        print("📊 [DashboardVM] getDashboardSummary BAŞLADI")
-
         // 1. Social Ring (İletişim skoru 0-100)
-        print("📊 [DashboardVM] calculateSocialScore çağrılıyor...")
         let socialScore = calculateSocialScore()
-        print("✅ [DashboardVM] calculateSocialScore tamamlandı: \(socialScore)")
         let socialRing = DashboardRingData(
             completed: socialScore,
             total: 100,
@@ -638,9 +624,7 @@ class DashboardViewModel {
         )
 
         // 2. Activity Ring (Mobilite skoru 0-100)
-        print("📊 [DashboardVM] calculateActivityScore çağrılıyor...")
         let activityScore = calculateActivityScore()
-        print("✅ [DashboardVM] calculateActivityScore tamamlandı: \(activityScore)")
         let activityRing = DashboardRingData(
             completed: activityScore,
             total: 100,
@@ -650,9 +634,7 @@ class DashboardViewModel {
         )
 
         // 3. Mood Ring (Ruh Hali skoru 0-100)
-        print("📊 [DashboardVM] calculateMoodScore çağrılıyor...")
         let moodScore = calculateMoodScore(context: context)
-        print("✅ [DashboardVM] calculateMoodScore tamamlandı: \(moodScore)")
         let moodRing = DashboardRingData(
             completed: moodScore,
             total: 100,
@@ -662,9 +644,7 @@ class DashboardViewModel {
         )
 
         // 4. Journal Ring (Günlük skoru 0-100)
-        print("📊 [DashboardVM] calculateJournalScore çağrılıyor...")
         let journalScore = calculateJournalScore(context: context)
-        print("✅ [DashboardVM] calculateJournalScore tamamlandı: \(journalScore)")
         let journalRing = DashboardRingData(
             completed: journalScore,
             total: 100,
@@ -675,7 +655,6 @@ class DashboardViewModel {
 
         // Overall Score - Yeni ring'lere göre hesapla
         let overallScore = Int((Double(socialScore) * 0.3 + Double(activityScore) * 0.25 + Double(moodScore) * 0.25 + Double(journalScore) * 0.2))
-        print("📊 [DashboardVM] overallScore hesaplandı: \(overallScore)")
 
         // Motivasyon mesajı - RUH HALİNE GÖRE
         let message: String
@@ -696,7 +675,6 @@ class DashboardViewModel {
             message = "Kendine iyi bak!"
         }
 
-        print("✅ [DashboardVM] getDashboardSummary TAMAMLANDI")
         return DashboardSummary(
             goalsRing: socialRing,
             habitsRing: activityRing,
@@ -735,48 +713,36 @@ class DashboardViewModel {
     /// Ruh Hali skoru hesapla (0-100) - Son 7 günün ortalaması
     @MainActor
     func calculateMoodScore(context: ModelContext) -> Int {
-        print("😊 [DashboardVM] calculateMoodScore BAŞLADI")
         let calendar = Calendar.current
         guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
             print("⚠️ [DashboardVM] Mood score için tarih hesaplanamadı")
             fetchErrors["mood_score_date"] = "Tarih hesaplama hatası"
             return 50 // Varsayılan orta değer
         }
-        print("😊 [DashboardVM] 7 gün öncesi tarihi: \(sevenDaysAgo)")
 
         do {
-            print("😊 [DashboardVM] MoodEntry descriptor oluşturuluyor...")
             let moodDescriptor = FetchDescriptor<MoodEntry>(
                 predicate: #Predicate { entry in
                     entry.date >= sevenDaysAgo
                 }
             )
 
-            print("😊 [DashboardVM] MoodEntry fetch yapılıyor...")
             let moods = try context.fetch(moodDescriptor)
-            print("😊 [DashboardVM] MoodEntry fetch tamamlandı: \(moods.count) adet")
 
             guard !moods.isEmpty else {
-                print("ℹ️ [DashboardVM] MoodEntry bulunamadı, varsayılan değer kullanılıyor")
                 return 50 // Varsayılan orta değer - Bu hata değil, normal durum
             }
 
             // Ortalama mood skoru hesapla (score: -2 ile +2 arası, normalize to 0-100)
-            print("😊 [DashboardVM] Mood skoru hesaplanıyor...")
             let avgScore = moods.map { $0.score }.reduce(0, +) / Double(moods.count)
-            print("😊 [DashboardVM] Ortalama mood score: \(avgScore)")
             // -2...+2 -> 0...100'e dönüştür
             let normalizedScore = ((avgScore + 2) / 4) * 100
-            print("✅ [DashboardVM] calculateMoodScore tamamlandı: \(Int(normalizedScore))")
             return Int(normalizedScore)
         } catch {
             print("❌ [DashboardVM] MoodEntry fetch hatası: \(error.localizedDescription)")
-            print("   Error details: \(error)")
-            print("   Error type: \(type(of: error))")
             if let nsError = error as NSError? {
                 print("   NSError domain: \(nsError.domain)")
                 print("   NSError code: \(nsError.code)")
-                print("   NSError userInfo: \(nsError.userInfo)")
             }
             fetchErrors["mood_score"] = error.localizedDescription
             partialDataLoaded = true
@@ -787,44 +753,31 @@ class DashboardViewModel {
     /// Günlük skoru hesapla (0-100) - Son 7 günde yazılan günlük sayısı
     @MainActor
     func calculateJournalScore(context: ModelContext) -> Int {
-        print("📝 [DashboardVM] calculateJournalScore BAŞLADI")
         let calendar = Calendar.current
         guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
             print("⚠️ [DashboardVM] Journal score için tarih hesaplanamadı")
             fetchErrors["journal_score_date"] = "Tarih hesaplama hatası"
             return 50 // Varsayılan orta değer
         }
-        print("📝 [DashboardVM] 7 gün öncesi tarihi: \(sevenDaysAgo)")
 
         // JournalEntry fetch - güvenli hata yönetimi ile
         do {
-            print("📝 [DashboardVM] JournalEntry descriptor oluşturuluyor...")
             let journalDescriptor = FetchDescriptor<JournalEntry>(
                 predicate: #Predicate { entry in
                     entry.createdAt >= sevenDaysAgo
                 }
             )
 
-            print("📝 [DashboardVM] JournalEntry fetchCount yapılıyor...")
             let journalCount = try context.fetchCount(journalDescriptor)
-            print("📝 [DashboardVM] JournalEntry fetchCount tamamlandı: \(journalCount) adet")
-
-            if journalCount == 0 {
-                print("ℹ️ [DashboardVM] JournalEntry bulunamadı, varsayılan değer kullanılıyor")
-            }
 
             // 7 günlük hedef: günde 1 yazı = 7 yazı (100%)
             let score = min(Int((Double(journalCount) / 7.0) * 100), 100)
-            print("✅ [DashboardVM] calculateJournalScore tamamlandı: \(score)")
             return score
         } catch {
             print("❌ [DashboardVM] JournalEntry fetch hatası: \(error.localizedDescription)")
-            print("   Error details: \(error)")
-            print("   Error type: \(type(of: error))")
             if let nsError = error as NSError? {
                 print("   NSError domain: \(nsError.domain)")
                 print("   NSError code: \(nsError.code)")
-                print("   NSError userInfo: \(nsError.userInfo)")
             }
             fetchErrors["journal_score"] = error.localizedDescription
             partialDataLoaded = true
@@ -835,7 +788,6 @@ class DashboardViewModel {
     /// Streak ve Achievement bilgisi
     @MainActor
     func getStreakInfo(context: ModelContext) -> StreakInfo {
-        print("🔥 [DashboardVM] getStreakInfo BAŞLADI")
         var currentStreak = 0
         var bestStreak = 0
         var habits: [Habit] = []
@@ -843,30 +795,24 @@ class DashboardViewModel {
 
         // En uzun streak'i bul
         do {
-            print("🔥 [DashboardVM] Habits fetch yapılıyor...")
             let habitDescriptor = FetchDescriptor<Habit>(
                 predicate: #Predicate { $0.isActive }
             )
             habits = try context.fetch(habitDescriptor)
             currentStreak = habits.map { $0.currentStreak }.max() ?? 0
             bestStreak = habits.map { $0.longestStreak }.max() ?? 0
-            print("✅ [DashboardVM] Habits fetch tamamlandı: \(habits.count) habit")
         } catch {
             print("❌ [DashboardVM] Streak info habits fetch hatası: \(error.localizedDescription)")
-            print("   Error details: \(error)")
             fetchErrors["streak_habits"] = error.localizedDescription
             partialDataLoaded = true
         }
 
         // Son kazanılan achievement'ları al
         do {
-            print("🔥 [DashboardVM] Goals fetch yapılıyor...")
             let goalDescriptor = FetchDescriptor<Goal>()
             goals = try context.fetch(goalDescriptor)
-            print("✅ [DashboardVM] Goals fetch tamamlandı: \(goals.count) goal")
         } catch {
             print("❌ [DashboardVM] Streak info goals fetch hatası: \(error.localizedDescription)")
-            print("   Error details: \(error)")
             fetchErrors["streak_goals"] = error.localizedDescription
             partialDataLoaded = true
         }
@@ -887,7 +833,6 @@ class DashboardViewModel {
         let totalEarned = allAchievements.filter { $0.isEarned }.count
         let totalAchievements = allAchievements.count
 
-        print("✅ [DashboardVM] getStreakInfo TAMAMLANDI - currentStreak: \(currentStreak), totalAchievements: \(totalEarned)/\(totalAchievements)")
         return StreakInfo(
             currentStreak: currentStreak,
             bestStreak: bestStreak,
@@ -1107,6 +1052,7 @@ class DashboardViewModel {
     }
 
     /// AI ile yeni öneriler yükle (async)
+    @MainActor
     func loadAISuggestions(context: ModelContext) async {
         // UserProgress al
         let progressDescriptor = FetchDescriptor<UserProgress>()
@@ -1122,15 +1068,17 @@ class DashboardViewModel {
                 count: 2
             )
 
-            // Mevcut önerilerle birleştir
-            DispatchQueue.main.async {
-                self.smartGoalSuggestions.append(contentsOf: aiSuggestions)
-                // Relevance'a göre sırala
-                self.smartGoalSuggestions.sort { $0.relevanceScore > $1.relevanceScore }
-                print("🤖 AI önerileri eklendi: \(aiSuggestions.count) adet")
-            }
+            // Mevcut önerilerle birleştir (zaten MainActor'dayız)
+            smartGoalSuggestions.append(contentsOf: aiSuggestions)
+            // Relevance'a göre sırala
+            smartGoalSuggestions.sort { $0.relevanceScore > $1.relevanceScore }
+
         } catch {
-            print("❌ AI önerileri yüklenemedi: \(error)")
+            print("❌ [DashboardVM] AI önerileri yüklenemedi: \(error)")
+            if let nsError = error as NSError? {
+                print("   Error domain: \(nsError.domain)")
+                print("   Error code: \(nsError.code)")
+            }
         }
     }
 
@@ -1162,57 +1110,26 @@ class DashboardViewModel {
     /// Dashboard'daki tüm verileri yenile (Pull-to-refresh için optimize edilmiş)
     @MainActor
     func refreshAll(context: ModelContext) async {
-        print("🔄 [DashboardVM] refreshAll BAŞLADI")
-
         // Kısa gecikme ile UI'ın render olmasını sağla
         try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 saniye
 
         // Tüm verileri yeniden yükle (async)
-        print("🔄 [DashboardVM] loadBasicStats çağrılıyor...")
         loadBasicStats(context: context)
-        print("✅ [DashboardVM] loadBasicStats tamamlandı")
-
-        print("🔄 [DashboardVM] goalService.setModelContext çağrılıyor...")
         goalService.setModelContext(context)
-        print("✅ [DashboardVM] goalService.setModelContext tamamlandı")
-
-        print("🔄 [DashboardVM] loadGoalStatistics çağrılıyor...")
         loadGoalStatistics(context: context)
-        print("✅ [DashboardVM] loadGoalStatistics tamamlandı")
-
-        print("🔄 [DashboardVM] loadHabitPerformance çağrılıyor...")
         loadHabitPerformance(context: context)
-        print("✅ [DashboardVM] loadHabitPerformance tamamlandı")
-
-        print("🔄 [DashboardVM] loadContactTrends çağrılıyor...")
         loadContactTrends(context: context)
-        print("✅ [DashboardVM] loadContactTrends tamamlandı")
-
-        print("🔄 [DashboardVM] loadMobilityData çağrılıyor...")
         loadMobilityData(context: context)
-        print("✅ [DashboardVM] loadMobilityData tamamlandı")
-
-        print("🔄 [DashboardVM] loadSmartSuggestions çağrılıyor...")
         loadSmartSuggestions(context: context)
-        print("✅ [DashboardVM] loadSmartSuggestions tamamlandı")
-
-        print("🔄 [DashboardVM] motivationalMessage alınıyor...")
         motivationalMessage = goalService.getMotivationalMessage()
-        print("✅ [DashboardVM] motivationalMessage tamamlandı")
 
         // Daily Insight yenile (eğer iOS 26+ ise)
         if #available(iOS 26.0, *) {
-            print("🔄 [DashboardVM] loadDailyInsight çağrılıyor...")
             await loadDailyInsight(context: context)
-            print("✅ [DashboardVM] loadDailyInsight tamamlandı")
         }
 
         // AI Suggestions yenile
-        print("🔄 [DashboardVM] loadAISuggestions çağrılıyor...")
         await loadAISuggestions(context: context)
-        print("✅ [DashboardVM] loadAISuggestions tamamlandı")
-
-        print("✅ [DashboardVM] refreshAll TAMAMLANDI")
     }
 }
 
