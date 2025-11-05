@@ -112,32 +112,37 @@ final class ActivityStats {
 
     // Streak güncelle
     func updateStreak(completedToday: Bool) {
-        let today = Calendar.current.startOfDay(for: Date())
-
-        if completedToday {
-            if let lastDate = lastActivityDate {
-                let lastDay = Calendar.current.startOfDay(for: lastDate)
-                let daysDifference = Calendar.current.dateComponents([.day], from: lastDay, to: today).day ?? 0
-
-                if daysDifference == 0 {
-                    // Bugün zaten tamamlandı
-                    return
-                } else if daysDifference == 1 {
-                    // Ardışık gün
-                    currentStreak += 1
-                } else {
-                    // Streak koptu
-                    currentStreak = 1
-                }
-            } else {
-                // İlk aktivite
-                currentStreak = 1
-            }
-
-            lastActivityDate = Date()
-            longestStreak = max(longestStreak, currentStreak)
+        guard completedToday else {
+            lastUpdated = Date()
+            return
         }
 
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        if let lastDate = lastActivityDate {
+            let lastDay = calendar.startOfDay(for: lastDate)
+            let components = calendar.dateComponents([.day], from: lastDay, to: today)
+            let daysDifference = components.day ?? 0
+
+            switch daysDifference {
+            case 0:
+                // Bugün zaten tamamlandı
+                return
+            case 1:
+                // Ardışık gün
+                currentStreak += 1
+            default:
+                // Streak koptu
+                currentStreak = 1
+            }
+        } else {
+            // İlk aktivite
+            currentStreak = 1
+        }
+
+        lastActivityDate = Date()
+        longestStreak = max(longestStreak, currentStreak)
         lastUpdated = Date()
     }
 
@@ -185,11 +190,20 @@ final class ActivityStats {
         let calendar = Calendar.current
         let now = Date()
 
-        // Bu haftanın başlangıcı
-        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
+        // Bu haftanın başlangıcı kontrolü
+        let weekComponents = calendar.dateComponents(
+            [.yearForWeekOfYear, .weekOfYear],
+            from: now
+        )
+        guard calendar.date(from: weekComponents) != nil else {
+            return
+        }
 
-        // Bu ayın başlangıcı
-        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
+        // Bu ayın başlangıcı kontrolü
+        let monthComponents = calendar.dateComponents([.year, .month], from: now)
+        guard calendar.date(from: monthComponents) != nil else {
+            return
+        }
 
         // Not: Gerçek implementasyonda ActivityCompletion modelinden çekmek gerekir
         // Şimdilik sadece increment yapıyoruz

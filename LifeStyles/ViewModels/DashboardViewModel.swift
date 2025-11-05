@@ -30,6 +30,12 @@ class DashboardViewModel {
     var showLimitReachedSheet: Bool = false
     var limitReachedType: LimitType?
 
+    // Error State Management
+    var errorMessage: String?
+    var showError: Bool = false
+    var partialDataLoaded: Bool = false  // Bazı veriler yüklendi ama hata var
+    var fetchErrors: [String: String] = [:]  // Hangi fetch'te hata olduğunu takip et
+
     // Temel İstatistikler
     var totalContacts: Int = 0
     var contactsNeedingAttention: Int = 0
@@ -105,33 +111,70 @@ class DashboardViewModel {
     }
 
     private func loadBasicStats(context: ModelContext) {
+        var hasErrors = false
+
         // Toplam arkadaş sayısı
-        let friendDescriptor = FetchDescriptor<Friend>()
-        totalContacts = (try? context.fetchCount(friendDescriptor)) ?? 0
+        do {
+            let friendDescriptor = FetchDescriptor<Friend>()
+            totalContacts = try context.fetchCount(friendDescriptor)
+        } catch {
+            print("❌ [DashboardVM] Friend count fetch hatası: \(error.localizedDescription)")
+            fetchErrors["friends_count"] = error.localizedDescription
+            totalContacts = 0
+            hasErrors = true
+        }
 
         // İletişim gereken arkadaşlar
-        let friendsDescriptor = FetchDescriptor<Friend>()
-        if let friends = try? context.fetch(friendsDescriptor) {
+        do {
+            let friendsDescriptor = FetchDescriptor<Friend>()
+            let friends = try context.fetch(friendsDescriptor)
             contactsNeedingAttention = friends.filter { $0.needsContact }.count
+        } catch {
+            print("❌ [DashboardVM] Friends needing attention fetch hatası: \(error.localizedDescription)")
+            fetchErrors["friends_attention"] = error.localizedDescription
+            contactsNeedingAttention = 0
+            hasErrors = true
         }
 
         // Aktif hedefler
-        let goalDescriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { !$0.isCompleted }
-        )
-        activeGoals = (try? context.fetchCount(goalDescriptor)) ?? 0
+        do {
+            let goalDescriptor = FetchDescriptor<Goal>(
+                predicate: #Predicate { !$0.isCompleted }
+            )
+            activeGoals = try context.fetchCount(goalDescriptor)
+        } catch {
+            print("❌ [DashboardVM] Active goals fetch hatası: \(error.localizedDescription)")
+            fetchErrors["active_goals"] = error.localizedDescription
+            activeGoals = 0
+            hasErrors = true
+        }
 
         // En uzun alışkanlık serisi
-        let habitDescriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate { $0.isActive }
-        )
-        if let habits = try? context.fetch(habitDescriptor) {
+        do {
+            let habitDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate { $0.isActive }
+            )
+            let habits = try context.fetch(habitDescriptor)
             currentStreak = habits.map { $0.currentStreak }.max() ?? 0
+        } catch {
+            print("❌ [DashboardVM] Habits streak fetch hatası: \(error.localizedDescription)")
+            fetchErrors["habit_streak"] = error.localizedDescription
+            currentStreak = 0
+            hasErrors = true
+        }
+
+        if hasErrors {
+            partialDataLoaded = true
+            errorMessage = "Bazı veriler yüklenemedi. Lütfen daha sonra tekrar deneyin."
         }
     }
 
     private func loadGoalStatistics(context: ModelContext) {
-        guard let stats = goalService.statistics else { return }
+        guard let stats = goalService.statistics else {
+            print("⚠️ [DashboardVM] GoalService statistics mevcut değil")
+            fetchErrors["goal_statistics"] = "GoalService statistics yüklenemedi"
+            return
+        }
 
         goalCompletionRate = stats.completionRate
         overdueGoals = stats.overdueGoals
@@ -142,73 +185,103 @@ class DashboardViewModel {
         }
 
         // Bu ay tamamlanan hedefleri hesapla
-        let goalDescriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { goal in
-                goal.isCompleted
-            }
-        )
+        do {
+            let goalDescriptor = FetchDescriptor<Goal>(
+                predicate: #Predicate { goal in
+                    goal.isCompleted
+                }
+            )
 
-        if let goals = try? context.fetch(goalDescriptor) {
+            let goals = try context.fetch(goalDescriptor)
             let calendar = Calendar.current
-            let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!
+            guard let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) else {
+                completedGoalsThisMonth = 0
+                print("⚠️ [DashboardVM] Ay başlangıç tarihi hesaplanamadı")
+                return
+            }
             completedGoalsThisMonth = goals.filter { goal in
                 goal.targetDate >= startOfMonth
             }.count
+        } catch {
+            print("❌ [DashboardVM] Completed goals fetch hatası: \(error.localizedDescription)")
+            fetchErrors["completed_goals"] = error.localizedDescription
+            completedGoalsThisMonth = 0
+            partialDataLoaded = true
         }
     }
 
     private func loadHabitPerformance(context: ModelContext) {
-        let habitDescriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate { $0.isActive }
-        )
+        do {
+            let habitDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate { $0.isActive }
+            )
 
-        guard let habits = try? context.fetch(habitDescriptor) else { return }
+            let habits = try context.fetch(habitDescriptor)
 
-        activeHabits = habits.count
-        totalHabitsToday = habits.count
-        completedHabitsToday = habits.filter { $0.isCompletedToday() }.count
+            activeHabits = habits.count
+            totalHabitsToday = habits.count
+            completedHabitsToday = habits.filter { $0.isCompletedToday() }.count
 
-        // Haftalık tamamlama oranı
-        let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
-
-        var totalCompletions = 0
-        var totalPossible = 0
-
-        for habit in habits {
-            if let completions = habit.completions {
-                let filtered = completions.filter { $0.completedAt >= sevenDaysAgo }
-                totalCompletions += filtered.count
+            // Haftalık tamamlama oranı
+            let calendar = Calendar.current
+            guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+                print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
+                weeklyHabitCompletionRate = 0.0
+                return
             }
 
-            // Her alışkanlık için haftalık hedef sayısını hesapla
-            switch habit.frequency {
-            case .daily:
-                totalPossible += 7
-            case .weekly:
-                totalPossible += 1
-            case .monthly:
-                totalPossible += 1
+            var totalCompletions = 0
+            var totalPossible = 0
+
+            for habit in habits {
+                if let completions = habit.completions {
+                    let filtered = completions.filter { $0.completedAt >= sevenDaysAgo }
+                    totalCompletions += filtered.count
+                }
+
+                // Her alışkanlık için haftalık hedef sayısını hesapla
+                switch habit.frequency {
+                case .daily:
+                    totalPossible += 7
+                case .weekly:
+                    totalPossible += 1
+                case .monthly:
+                    totalPossible += 1
+                }
             }
+
+            weeklyHabitCompletionRate = totalPossible > 0 ? Double(totalCompletions) / Double(totalPossible) : 0.0
+
+        } catch {
+            print("❌ [DashboardVM] Habit performance fetch hatası: \(error.localizedDescription)")
+            fetchErrors["habit_performance"] = error.localizedDescription
+            activeHabits = 0
+            totalHabitsToday = 0
+            completedHabitsToday = 0
+            weeklyHabitCompletionRate = 0.0
+            partialDataLoaded = true
         }
-
-        weeklyHabitCompletionRate = totalPossible > 0 ? Double(totalCompletions) / Double(totalPossible) : 0.0
     }
 
     private func loadContactTrends(context: ModelContext) {
         let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+            print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
+            fetchErrors["contact_trends_date"] = "Tarih hesaplama hatası"
+            return
+        }
 
         // Bu hafta iletişim kurulan arkadaşlar
-        let historyDescriptor = FetchDescriptor<ContactHistory>(
-            predicate: #Predicate { history in
-                history.date >= sevenDaysAgo
-            },
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
+        do {
+            let historyDescriptor = FetchDescriptor<ContactHistory>(
+                predicate: #Predicate { history in
+                    history.date >= sevenDaysAgo
+                },
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
 
-        if let histories = try? context.fetch(historyDescriptor) {
-            contactsThisWeek = Set(histories.map { $0.friend?.id }).count
+            let histories = try context.fetch(historyDescriptor)
+            contactsThisWeek = Set(histories.compactMap { $0.friend?.id }).count
 
             // Son iletişimin mood'u
             if let lastHistory = histories.first, let mood = lastHistory.mood {
@@ -216,80 +289,119 @@ class DashboardViewModel {
             }
 
             // Önceki haftayla karşılaştır
-            let fourteenDaysAgo = calendar.date(byAdding: .day, value: -14, to: Date())!
+            guard let fourteenDaysAgo = calendar.date(byAdding: .day, value: -14, to: Date()) else {
+                print("⚠️ [DashboardVM] İki haftalık tarih hesaplanamadı")
+                return
+            }
             let previousWeekHistories = histories.filter { $0.date < sevenDaysAgo && $0.date >= fourteenDaysAgo }
-            let previousWeekCount = Set(previousWeekHistories.map { $0.friend?.id }).count
+            let previousWeekCount = Set(previousWeekHistories.compactMap { $0.friend?.id }).count
 
             if previousWeekCount > 0 {
                 contactTrendPercentage = ((Double(contactsThisWeek) - Double(previousWeekCount)) / Double(previousWeekCount)) * 100
             }
+        } catch {
+            print("❌ [DashboardVM] Contact trends fetch hatası: \(error.localizedDescription)")
+            fetchErrors["contact_trends"] = error.localizedDescription
+            contactsThisWeek = 0
+            lastContactMood = ""
+            contactTrendPercentage = 0.0
+            partialDataLoaded = true
         }
     }
 
     private func loadMobilityData(context: ModelContext) {
         let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
-
-        let locationDescriptor = FetchDescriptor<LocationLog>(
-            predicate: #Predicate { log in
-                log.timestamp >= sevenDaysAgo
-            }
-        )
-
-        if let logs = try? context.fetch(locationDescriptor) {
-            // Debug: Toplam log sayısı
-            print("   Total logs (7 gün): \(logs.count)")
-
-            // Benzersiz lokasyon sayısı - DÜZELTİLDİ: 200m hassasiyet (daha geniş bölgeler)
-            // latitude * 5 = 200 metre hassasiyet (GPS kayması aynı yer olarak sayılır)
-            let uniqueCoordinates = Set(logs.map { "\(Int($0.latitude * 5)),\(Int($0.longitude * 5))" })
-            uniqueLocationsThisWeek = uniqueCoordinates.count
-            print("   Benzersiz lokasyonlar (200m): \(uniqueLocationsThisWeek)")
-
-            // Dışarıda geçirilen süre
-            let outsideLogs = logs.filter { $0.locationType != .home }
-            hoursOutsideThisWeek = Double(outsideLogs.count) * 0.5 // Her log ~30dk
-            print("   Dışarıda log sayısı: \(outsideLogs.count)")
-            print("   Dışarıda saat: \(String(format: "%.1f", hoursOutsideThisWeek))")
-
-            // Mobilite skoru (0-100) - GERÇEKÇİ FORMÜL
-            // 2-3 yer (ev, iş) = 20-30 puan
-            // 5-7 yer (+ market, cafe) = 40-50 puan
-            // 10-12 yer (aktif sosyal hayat) = 70-80 puan
-            // 15+ yer (çok hareketli) = 90-100 puan
-
-            let locationDiversity = min(Double(uniqueLocationsThisWeek) / 15.0, 1.0) // 15 yer = 100%
-            let locationScore = Int(locationDiversity * 100)
-
-            mobilityScore = locationScore
-            print("   Mobilite Skoru: \(mobilityScore)")
-            print("   ---")
-        } else {
-            mobilityScore = 0
+        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+            handleMobilityDateError()
+            return
         }
+
+        do {
+            let logs = try fetchLocationLogs(from: sevenDaysAgo, context: context)
+            calculateMobilityMetrics(from: logs)
+        } catch {
+            handleMobilityFetchError(error)
+        }
+    }
+
+    private func handleMobilityDateError() {
+        print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
+        fetchErrors["mobility_date"] = "Tarih hesaplama hatası"
+        mobilityScore = 0
+    }
+
+    private func fetchLocationLogs(from date: Date, context: ModelContext) throws -> [LocationLog] {
+        let descriptor = FetchDescriptor<LocationLog>(
+            predicate: #Predicate { log in log.timestamp >= date }
+        )
+        return try context.fetch(descriptor)
+    }
+
+    private func calculateMobilityMetrics(from logs: [LocationLog]) {
+        print("   Total logs (7 gün): \(logs.count)")
+
+        // Benzersiz lokasyon sayısı - 200m hassasiyet
+        let coordinates = logs.map { "\(Int($0.latitude * 5)),\(Int($0.longitude * 5))" }
+        uniqueLocationsThisWeek = Set(coordinates).count
+        print("   Benzersiz lokasyonlar (200m): \(uniqueLocationsThisWeek)")
+
+        // Dışarıda geçirilen süre
+        let outsideLogs = logs.filter { $0.locationType != .home }
+        hoursOutsideThisWeek = Double(outsideLogs.count) * 0.5
+        print("   Dışarıda log sayısı: \(outsideLogs.count)")
+        print("   Dışarıda saat: \(String(format: "%.1f", hoursOutsideThisWeek))")
+
+        // Mobilite skoru (0-100)
+        // 15 yer = 100%, gerçekçi formül
+        let locationDiversity = min(Double(uniqueLocationsThisWeek) / 15.0, 1.0)
+        mobilityScore = Int(locationDiversity * 100)
+        print("   Mobilite Skoru: \(mobilityScore)")
+        print("   ---")
+    }
+
+    private func handleMobilityFetchError(_ error: Error) {
+        print("❌ [DashboardVM] Mobility data fetch hatası: \(error.localizedDescription)")
+        fetchErrors["mobility_data"] = error.localizedDescription
+        mobilityScore = 0
+        uniqueLocationsThisWeek = 0
+        hoursOutsideThisWeek = 0
+        partialDataLoaded = true
     }
 
     private func loadSmartSuggestions(context: ModelContext) {
         // Verileri topla
-        let friendDescriptor = FetchDescriptor<Friend>()
-        let friends = (try? context.fetch(friendDescriptor)) ?? []
+        do {
+            let friendDescriptor = FetchDescriptor<Friend>()
+            let friends = try context.fetch(friendDescriptor)
 
-        let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
-        let locationDescriptor = FetchDescriptor<LocationLog>(
-            predicate: #Predicate { $0.timestamp >= sevenDaysAgo }
-        )
-        let locationLogs = (try? context.fetch(locationDescriptor)) ?? []
+            let calendar = Calendar.current
+            guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+                print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
+                fetchErrors["smart_suggestions_date"] = "Tarih hesaplama hatası"
+                smartGoalSuggestions = []
+                return
+            }
 
-        let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
-        let habits = (try? context.fetch(habitDescriptor)) ?? []
+            let locationDescriptor = FetchDescriptor<LocationLog>(
+                predicate: #Predicate { $0.timestamp >= sevenDaysAgo }
+            )
+            let locationLogs = try context.fetch(locationDescriptor)
 
-        // Smart önerileri oluştur
-        smartGoalSuggestions = goalService.generateSmartSuggestions(
-            friends: friends,
-            locationLogs: locationLogs,
-            habits: habits
-        )
+            let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
+            let habits = try context.fetch(habitDescriptor)
+
+            // Smart önerileri oluştur
+            smartGoalSuggestions = goalService.generateSmartSuggestions(
+                friends: friends,
+                locationLogs: locationLogs,
+                habits: habits
+            )
+        } catch {
+            print("❌ [DashboardVM] Smart suggestions fetch hatası: \(error.localizedDescription)")
+            fetchErrors["smart_suggestions"] = error.localizedDescription
+            smartGoalSuggestions = []
+            partialDataLoaded = true
+        }
     }
 
     func checkLocationStatus() {
@@ -452,41 +564,50 @@ class DashboardViewModel {
     /// Sevgili/Partner bilgilerini getir
     @MainActor
     func getPartnerInfo(context: ModelContext) -> PartnerInfo? {
-        let partnerDescriptor = FetchDescriptor<Friend>(
-            predicate: #Predicate { $0.relationshipTypeRaw == "partner" }
-        )
+        do {
+            let partnerDescriptor = FetchDescriptor<Friend>(
+                predicate: #Predicate { $0.relationshipTypeRaw == "partner" }
+            )
 
-        guard let partner = try? context.fetch(partnerDescriptor).first else {
+            let partners = try context.fetch(partnerDescriptor)
+            guard let partner = partners.first else {
+                print("ℹ️ [DashboardVM] Partner bulunamadı")
+                return nil
+            }
+
+            // Son iletişim tarihini hesapla
+            let lastContactDays: Int
+            if let lastDate = partner.lastContactDate {
+                lastContactDays = Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
+            } else {
+                lastContactDays = 999 // Hiç iletişim yok
+            }
+
+            // İlişki süresini hesapla
+            let duration: (years: Int, months: Int, days: Int)
+            if let relationshipDays = partner.relationshipDays {
+                duration = partner.relationshipDuration ?? (0, 0, relationshipDays)
+            } else {
+                duration = (0, 0, 0)
+            }
+
+            return PartnerInfo(
+                name: partner.name,
+                emoji: partner.avatarEmoji,
+                relationshipDays: partner.relationshipDays ?? 0,
+                relationshipDuration: duration,
+                lastContactDays: lastContactDays,
+                daysUntilAnniversary: partner.daysUntilAnniversary,
+                anniversaryDate: partner.anniversaryDate,
+                loveLanguage: partner.loveLanguage?.displayName,
+                phoneNumber: partner.phoneNumber
+            )
+        } catch {
+            print("❌ [DashboardVM] Partner info fetch hatası: \(error.localizedDescription)")
+            fetchErrors["partner_info"] = error.localizedDescription
+            partialDataLoaded = true
             return nil
         }
-
-        // Son iletişim tarihini hesapla
-        let lastContactDays: Int
-        if let lastDate = partner.lastContactDate {
-            lastContactDays = Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
-        } else {
-            lastContactDays = 999 // Hiç iletişim yok
-        }
-
-        // İlişki süresini hesapla
-        let duration: (years: Int, months: Int, days: Int)
-        if let relationshipDays = partner.relationshipDays {
-            duration = partner.relationshipDuration ?? (0, 0, relationshipDays)
-        } else {
-            duration = (0, 0, 0)
-        }
-
-        return PartnerInfo(
-            name: partner.name,
-            emoji: partner.avatarEmoji,
-            relationshipDays: partner.relationshipDays ?? 0,
-            relationshipDuration: duration,
-            lastContactDays: lastContactDays,
-            daysUntilAnniversary: partner.daysUntilAnniversary,
-            anniversaryDate: partner.anniversaryDate,
-            loveLanguage: partner.loveLanguage?.displayName,
-            phoneNumber: partner.phoneNumber
-        )
     }
 
     /// Dashboard için 4 ring verisi - YENİ: İletişim, Mobilite, Ruh Hali, Günlük
@@ -593,7 +714,11 @@ class DashboardViewModel {
     @MainActor
     func calculateMoodScore(context: ModelContext) -> Int {
         let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+            print("⚠️ [DashboardVM] Mood score için tarih hesaplanamadı")
+            fetchErrors["mood_score_date"] = "Tarih hesaplama hatası"
+            return 50 // Varsayılan orta değer
+        }
 
         do {
             let moodDescriptor = FetchDescriptor<MoodEntry>(
@@ -605,7 +730,8 @@ class DashboardViewModel {
             let moods = try context.fetch(moodDescriptor)
 
             guard !moods.isEmpty else {
-                return 50 // Varsayılan orta değer
+                print("ℹ️ [DashboardVM] MoodEntry bulunamadı, varsayılan değer kullanılıyor")
+                return 50 // Varsayılan orta değer - Bu hata değil, normal durum
             }
 
             // Ortalama mood skoru hesapla (score: -2 ile +2 arası, normalize to 0-100)
@@ -614,7 +740,10 @@ class DashboardViewModel {
             let normalizedScore = ((avgScore + 2) / 4) * 100
             return Int(normalizedScore)
         } catch {
-            print("⚠️ Mood score hesaplanamadı: \(error.localizedDescription)")
+            print("❌ [DashboardVM] MoodEntry fetch hatası: \(error.localizedDescription)")
+            print("   Error details: \(error)")
+            fetchErrors["mood_score"] = error.localizedDescription
+            partialDataLoaded = true
             return 50 // Varsayılan orta değer
         }
     }
@@ -623,7 +752,11 @@ class DashboardViewModel {
     @MainActor
     func calculateJournalScore(context: ModelContext) -> Int {
         let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+            print("⚠️ [DashboardVM] Journal score için tarih hesaplanamadı")
+            fetchErrors["journal_score_date"] = "Tarih hesaplama hatası"
+            return 50 // Varsayılan orta değer
+        }
 
         // JournalEntry fetch - güvenli hata yönetimi ile
         do {
@@ -634,11 +767,19 @@ class DashboardViewModel {
             )
 
             let journalCount = try context.fetchCount(journalDescriptor)
+
+            if journalCount == 0 {
+                print("ℹ️ [DashboardVM] JournalEntry bulunamadı, varsayılan değer kullanılıyor")
+            }
+
             // 7 günlük hedef: günde 1 yazı = 7 yazı (100%)
             let score = min(Int((Double(journalCount) / 7.0) * 100), 100)
             return score
         } catch {
-            print("⚠️ Journal score hesaplanamadı: \(error.localizedDescription)")
+            print("❌ [DashboardVM] JournalEntry fetch hatası: \(error.localizedDescription)")
+            print("   Error details: \(error)")
+            fetchErrors["journal_score"] = error.localizedDescription
+            partialDataLoaded = true
             return 50 // Varsayılan orta değer
         }
     }
@@ -646,18 +787,34 @@ class DashboardViewModel {
     /// Streak ve Achievement bilgisi
     @MainActor
     func getStreakInfo(context: ModelContext) -> StreakInfo {
-        // En uzun streak'i bul
-        let habitDescriptor = FetchDescriptor<Habit>(
-            predicate: #Predicate { $0.isActive }
-        )
-        let habits = (try? context.fetch(habitDescriptor)) ?? []
+        var currentStreak = 0
+        var bestStreak = 0
+        var habits: [Habit] = []
+        var goals: [Goal] = []
 
-        let currentStreak = habits.map { $0.currentStreak }.max() ?? 0
-        let bestStreak = habits.map { $0.longestStreak }.max() ?? 0
+        // En uzun streak'i bul
+        do {
+            let habitDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate { $0.isActive }
+            )
+            habits = try context.fetch(habitDescriptor)
+            currentStreak = habits.map { $0.currentStreak }.max() ?? 0
+            bestStreak = habits.map { $0.longestStreak }.max() ?? 0
+        } catch {
+            print("❌ [DashboardVM] Streak info habits fetch hatası: \(error.localizedDescription)")
+            fetchErrors["streak_habits"] = error.localizedDescription
+            partialDataLoaded = true
+        }
 
         // Son kazanılan achievement'ları al
-        let goalDescriptor = FetchDescriptor<Goal>()
-        let goals = (try? context.fetch(goalDescriptor)) ?? []
+        do {
+            let goalDescriptor = FetchDescriptor<Goal>()
+            goals = try context.fetch(goalDescriptor)
+        } catch {
+            print("❌ [DashboardVM] Streak info goals fetch hatası: \(error.localizedDescription)")
+            fetchErrors["streak_goals"] = error.localizedDescription
+            partialDataLoaded = true
+        }
 
         let achievementService = AchievementService.shared
         let allAchievements = achievementService.getAllAchievements(
@@ -688,23 +845,32 @@ class DashboardViewModel {
 
     /// Hedef tamamlanma oranı trendi (son 7 gün)
     func getGoalsTrendData(context: ModelContext) -> [Double] {
-        // Tüm hedefleri al
-        let goalDescriptor = FetchDescriptor<Goal>()
-        guard let goals = try? context.fetch(goalDescriptor), !goals.isEmpty else {
+        do {
+            // Tüm hedefleri al
+            let goalDescriptor = FetchDescriptor<Goal>()
+            let goals = try context.fetch(goalDescriptor)
+
+            guard !goals.isEmpty else {
+                return [0.0]
+            }
+
+            // Basit trend: Son 7 gün için simulated data (her gün progress ortalamas)
+            var trendData: [Double] = []
+            let currentRate = Double(goals.filter { $0.isCompleted }.count) / Double(goals.count)
+
+            for _ in 0..<7 {
+                // Slight variation for visual interest
+                let variation = Double.random(in: -0.1...0.1)
+                trendData.append(max(0, min(1.0, currentRate + variation)))
+            }
+
+            return trendData
+        } catch {
+            print("❌ [DashboardVM] Goals trend data fetch hatası: \(error.localizedDescription)")
+            fetchErrors["goals_trend"] = error.localizedDescription
+            partialDataLoaded = true
             return [0.0]
         }
-
-        // Basit trend: Son 7 gün için simulated data (her gün progress ortalamas)
-        var trendData: [Double] = []
-        let currentRate = Double(goals.filter { $0.isCompleted }.count) / Double(goals.count)
-
-        for _ in 0..<7 {
-            // Slight variation for visual interest
-            let variation = Double.random(in: -0.1...0.1)
-            trendData.append(max(0, min(1.0, currentRate + variation)))
-        }
-
-        return trendData
     }
 
     /// Alışkanlık tamamlanma trendi (son 7 gün)
@@ -712,38 +878,53 @@ class DashboardViewModel {
         let calendar = Calendar.current
         var trendData: [Double] = []
 
-        for dayOffset in (0...6).reversed() {
-            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
-            let dayStart = calendar.startOfDay(for: targetDate)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+        do {
+            for dayOffset in (0...6).reversed() {
+                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
+                    print("⚠️ [DashboardVM] Habits trend tarih hesaplanamadı: dayOffset \(dayOffset)")
+                    continue
+                }
+                let dayStart = calendar.startOfDay(for: targetDate)
+                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
+                    print("⚠️ [DashboardVM] Habits trend gün sonu hesaplanamadı")
+                    continue
+                }
 
-            let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
-            guard let habits = try? context.fetch(habitDescriptor), !habits.isEmpty else {
-                trendData.append(0.0)
-                continue
-            }
+                let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
+                let habits = try context.fetch(habitDescriptor)
 
-            var completedCount = 0
-            for habit in habits {
-                guard let habitCompletions = habit.completions else { continue }
-                // Manual filtering to avoid SwiftData Predicate requirement
-                var hasCompletionInRange = false
-                for completion in habitCompletions {
-                    if completion.completedAt >= dayStart && completion.completedAt < dayEnd {
-                        hasCompletionInRange = true
-                        break
+                guard !habits.isEmpty else {
+                    trendData.append(0.0)
+                    continue
+                }
+
+                var completedCount = 0
+                for habit in habits {
+                    guard let habitCompletions = habit.completions else { continue }
+                    // Manual filtering to avoid SwiftData Predicate requirement
+                    var hasCompletionInRange = false
+                    for completion in habitCompletions {
+                        if completion.completedAt >= dayStart && completion.completedAt < dayEnd {
+                            hasCompletionInRange = true
+                            break
+                        }
+                    }
+                    if hasCompletionInRange {
+                        completedCount += 1
                     }
                 }
-                if hasCompletionInRange {
-                    completedCount += 1
-                }
+
+                let rate = Double(completedCount) / Double(habits.count)
+                trendData.append(rate)
             }
 
-            let rate = Double(completedCount) / Double(habits.count)
-            trendData.append(rate)
+            return trendData.isEmpty ? [0.0] : trendData
+        } catch {
+            print("❌ [DashboardVM] Habits trend data fetch hatası: \(error.localizedDescription)")
+            fetchErrors["habits_trend"] = error.localizedDescription
+            partialDataLoaded = true
+            return [0.0]
         }
-
-        return trendData.isEmpty ? [0.0] : trendData
     }
 
     /// İletişim sayısı trendi (son 7 gün)
@@ -751,25 +932,35 @@ class DashboardViewModel {
         let calendar = Calendar.current
         var trendData: [Double] = []
 
-        for dayOffset in (0...6).reversed() {
-            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
-            let dayStart = calendar.startOfDay(for: targetDate)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
-
-            let historyDescriptor = FetchDescriptor<ContactHistory>(
-                predicate: #Predicate { history in
-                    history.date >= dayStart && history.date < dayEnd
+        do {
+            for dayOffset in (0...6).reversed() {
+                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
+                    print("⚠️ [DashboardVM] Contacts trend tarih hesaplanamadı: dayOffset \(dayOffset)")
+                    continue
                 }
-            )
+                let dayStart = calendar.startOfDay(for: targetDate)
+                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
+                    print("⚠️ [DashboardVM] Contacts trend gün sonu hesaplanamadı")
+                    continue
+                }
 
-            if let contacts = try? context.fetch(historyDescriptor) {
+                let historyDescriptor = FetchDescriptor<ContactHistory>(
+                    predicate: #Predicate { history in
+                        history.date >= dayStart && history.date < dayEnd
+                    }
+                )
+
+                let contacts = try context.fetch(historyDescriptor)
                 trendData.append(Double(contacts.count))
-            } else {
-                trendData.append(0.0)
             }
-        }
 
-        return trendData.isEmpty ? [0.0] : trendData
+            return trendData.isEmpty ? [0.0] : trendData
+        } catch {
+            print("❌ [DashboardVM] Contacts trend data fetch hatası: \(error.localizedDescription)")
+            fetchErrors["contacts_trend"] = error.localizedDescription
+            partialDataLoaded = true
+            return [0.0]
+        }
     }
 
     /// Mobilite skoru trendi (son 7 gün)
@@ -777,27 +968,37 @@ class DashboardViewModel {
         let calendar = Calendar.current
         var trendData: [Double] = []
 
-        for dayOffset in (0...6).reversed() {
-            guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else { continue }
-            let dayStart = calendar.startOfDay(for: targetDate)
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
-
-            let locationDescriptor = FetchDescriptor<LocationLog>(
-                predicate: #Predicate { log in
-                    log.timestamp >= dayStart && log.timestamp < dayEnd
+        do {
+            for dayOffset in (0...6).reversed() {
+                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
+                    print("⚠️ [DashboardVM] Mobility trend tarih hesaplanamadı: dayOffset \(dayOffset)")
+                    continue
                 }
-            )
+                let dayStart = calendar.startOfDay(for: targetDate)
+                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
+                    print("⚠️ [DashboardVM] Mobility trend gün sonu hesaplanamadı")
+                    continue
+                }
 
-            if let logs = try? context.fetch(locationDescriptor) {
+                let locationDescriptor = FetchDescriptor<LocationLog>(
+                    predicate: #Predicate { log in
+                        log.timestamp >= dayStart && log.timestamp < dayEnd
+                    }
+                )
+
+                let logs = try context.fetch(locationDescriptor)
                 let uniqueCoords = Set(logs.map { "\(Int($0.latitude * 100)),\(Int($0.longitude * 100))" })
                 let score = min(Double(uniqueCoords.count) * 10.0, 100.0)
                 trendData.append(score)
-            } else {
-                trendData.append(0.0)
             }
-        }
 
-        return trendData.isEmpty ? [0.0] : trendData
+            return trendData.isEmpty ? [0.0] : trendData
+        } catch {
+            print("❌ [DashboardVM] Mobility trend data fetch hatası: \(error.localizedDescription)")
+            fetchErrors["mobility_trend"] = error.localizedDescription
+            partialDataLoaded = true
+            return [0.0]
+        }
     }
 
     // MARK: - Smart Suggestions Actions

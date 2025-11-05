@@ -54,6 +54,10 @@ class MoodJournalViewModel {
     var editingJournalEntry: JournalEntry?
     var selectedJournalForDetail: JournalEntry? // Detay görüntüleme için
 
+    // State - Error Handling
+    var errorMessage: String?
+    var showError: Bool = false
+
     enum Tab: String, CaseIterable {
         case mood = "Mood"
         case journal = "Journal"
@@ -115,7 +119,10 @@ class MoodJournalViewModel {
         moodStats = analyticsService.calculateMoodStats(entries: last30Days)
 
         // Heatmap
-        heatmapData = analyticsService.generateHeatmapData(entries: moodEntries, days: 30)
+        heatmapData = analyticsService.generateHeatmapData(
+            entries: moodEntries,
+            days: 30
+        )
 
         // Correlations
         let goalCorrelations = analyticsService.calculateGoalCorrelations(
@@ -140,7 +147,6 @@ class MoodJournalViewModel {
             moodEntries: last30Days,
             context: context
         )
-
     }
 
     /// Bugünün tüm mood'larını yükle
@@ -182,9 +188,20 @@ class MoodJournalViewModel {
         relatedLocation: LocationLog? = nil,
         context: ModelContext
     ) {
+        // ModelContext nil kontrolü
+        guard context.container != nil else {
+            print("❌ ModelContext is invalid")
+            errorMessage = "Veri kaydedilemedi. Lütfen uygulamayı yeniden başlatın."
+            showError = true
+            HapticFeedback.error()
+            return
+        }
+
         // Günde max 5 kontrol
         guard canAddMood else {
             print("⚠️ Cannot add mood: Daily limit reached (5)")
+            errorMessage = "Günlük mood sınırına ulaştınız. Günde en fazla 5 mood kaydedebilirsiniz."
+            showError = true
             HapticFeedback.warning()
             return
         }
@@ -196,26 +213,46 @@ class MoodJournalViewModel {
             relatedLocation: relatedLocation
         )
 
-        context.insert(entry)
-
         do {
+            // Önce insert yap
+            context.insert(entry)
+
+            // Save işlemini dene
             try context.save()
 
-            // State güncelle
+            // Sadece save başarılıysa state'i güncelle
             moodEntries.insert(entry, at: 0)
             loadTodaysMoods()
 
             HapticFeedback.success()
+
+            print("✅ Mood successfully logged: \(moodType.rawValue)")
         } catch {
             print("❌ Failed to log mood: \(error)")
+
+            // Kullanıcıya anlaşılır hata mesajı göster
+            if let nsError = error as NSError? {
+                if nsError.domain == "NSCocoaErrorDomain" {
+                    errorMessage = "Veritabanı hatası. Lütfen tekrar deneyin."
+                } else {
+                    errorMessage = "Mood kaydedilirken bir hata oluştu: \(nsError.localizedDescription)"
+                }
+            } else {
+                errorMessage = "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
+            }
+
+            showError = true
+            HapticFeedback.error()
+
+            // Insert'i geri al (eğer mümkünse)
+            context.delete(entry)
         }
     }
 
     /// Mood sil
     func deleteMood(_ entry: MoodEntry, context: ModelContext) {
-        context.delete(entry)
-
         do {
+            context.delete(entry)
             try context.save()
 
             // State güncelle
@@ -225,6 +262,9 @@ class MoodJournalViewModel {
             HapticFeedback.success()
         } catch {
             print("❌ Failed to delete mood: \(error)")
+            errorMessage = "Mood silinirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
     }
 
@@ -241,23 +281,28 @@ class MoodJournalViewModel {
         note: String? = nil,
         context: ModelContext
     ) {
-        if let moodType = moodType {
-            entry.moodType = moodType
-        }
-        if let intensity = intensity {
-            entry.intensity = intensity
-        }
-        if note != nil {
-            entry.note = note
-        }
-
         do {
+            // Önce değişiklikleri yap
+            if let moodType = moodType {
+                entry.moodType = moodType
+            }
+            if let intensity = intensity {
+                entry.intensity = intensity
+            }
+            if note != nil {
+                entry.note = note
+            }
+
+            // Save ve state güncelle
             try context.save()
             loadTodaysMoods()
 
             HapticFeedback.success()
         } catch {
             print("❌ Failed to update mood: \(error)")
+            errorMessage = "Mood güncellenirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
     }
 
@@ -274,17 +319,21 @@ class MoodJournalViewModel {
     ) {
         let moodLink = linkToTodaysMood ? currentMood : nil
 
-        journalService.createEntry(
-            content: content,
-            journalType: journalType,
-            title: title,
-            tags: tags,
-            moodEntry: moodLink,
-            context: context
-        )
+        do {
+            try journalService.createEntry(
+                content: content,
+                journalType: journalType,
+                title: title,
+                tags: tags,
+                moodEntry: moodLink,
+                context: context
+            )
 
-        // Reload
-        loadJournalEntries(context: context)
+            // Reload
+            loadJournalEntries(context: context)
+        } catch {
+            print("❌ Journal oluşturma hatası: \(error)")
+        }
         HapticFeedback.success()
     }
 
@@ -316,9 +365,10 @@ class MoodJournalViewModel {
 
         // Search filter
         if !searchQuery.isEmpty {
-            filtered = filtered.filter {
-                $0.content.lowercased().contains(searchQuery.lowercased()) ||
-                ($0.title?.lowercased().contains(searchQuery.lowercased()) ?? false)
+            let query = searchQuery.lowercased()
+            filtered = filtered.filter { entry in
+                entry.content.lowercased().contains(query) ||
+                (entry.title?.lowercased().contains(query) ?? false)
             }
         }
 

@@ -39,7 +39,9 @@ class PermissionManager {
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 saniye
 
         let status = LocationService.shared.checkPermission()
-        locationPermissionStatus = convertCLAuthorizationStatus(status)
+        await MainActor.run {
+            locationPermissionStatus = convertCLAuthorizationStatus(status)
+        }
 
         // Eğer "Kullanım sırasında" izni verilmişse, kullanıcıyı bilgilendir
         if status == .authorizedWhenInUse {
@@ -87,10 +89,15 @@ class PermissionManager {
         let store = CNContactStore()
         do {
             let granted = try await store.requestAccess(for: .contacts)
-            contactsPermissionStatus = granted ? .authorized : .denied
+            await MainActor.run {
+                contactsPermissionStatus = granted ? .authorized : .denied
+            }
             return granted
         } catch {
-            contactsPermissionStatus = .denied
+            print("❌ Contacts permission error: \(error.localizedDescription)")
+            await MainActor.run {
+                contactsPermissionStatus = .denied
+            }
             return false
         }
     }
@@ -117,10 +124,15 @@ class PermissionManager {
     func requestNotificationsPermission() async -> Bool {
         do {
             let granted = try await NotificationService.shared.requestPermission()
-            notificationsPermissionStatus = granted ? .authorized : .denied
+            await MainActor.run {
+                notificationsPermissionStatus = granted ? .authorized : .denied
+            }
             return granted
         } catch {
-            notificationsPermissionStatus = .denied
+            print("❌ Notifications permission error: \(error.localizedDescription)")
+            await MainActor.run {
+                notificationsPermissionStatus = .denied
+            }
             return false
         }
     }

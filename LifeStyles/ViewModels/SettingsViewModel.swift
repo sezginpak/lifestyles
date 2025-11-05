@@ -158,6 +158,7 @@ class SettingsViewModel {
         await checkPermissions()
     }
 
+    @MainActor
     func toggleLocationTracking(_ enabled: Bool, context: ModelContext) {
         if enabled {
             locationService.setModelContext(context)
@@ -209,38 +210,37 @@ class SettingsViewModel {
         // Async yapıp yield vererek UI'ı bloke etmeden hesapla
         await Task.yield()
 
-        // Arkadaşlar
-        let friendsDescriptor = FetchDescriptor<Friend>()
-        let friendsCount = (try? context.fetch(friendsDescriptor).count) ?? 0
+        let counts = await fetchCounts(context: context)
 
-        await Task.yield()
-
-        // Konum kayıtları
-        let logsDescriptor = FetchDescriptor<LocationLog>()
-        let logsCount = (try? context.fetch(logsDescriptor).count) ?? 0
-
-        await Task.yield()
-
-        // Hedefler
-        let goalsDescriptor = FetchDescriptor<Goal>()
-        let goalsCount = (try? context.fetch(goalsDescriptor).count) ?? 0
-
-        await Task.yield()
-
-        // Alışkanlıklar
-        let habitsDescriptor = FetchDescriptor<Habit>()
-        let habitsCount = (try? context.fetch(habitsDescriptor).count) ?? 0
-
-        // UI güncelle
-        totalFriends = friendsCount
-        totalLocationLogs = logsCount
-        totalGoals = goalsCount
-        totalHabits = habitsCount
+        totalFriends = counts.friends
+        totalLocationLogs = counts.locations
+        totalGoals = counts.goals
+        totalHabits = counts.habits
 
         // Depolama hesapla (yaklaşık)
-        let totalItems = friendsCount + logsCount + goalsCount + habitsCount
+        let totalItems = counts.friends + counts.locations + counts.goals + counts.habits
         let estimatedSize = Double(totalItems) * 0.5 // Yaklaşık 0.5 KB per item
         storageUsed = String(format: "%.1f MB", estimatedSize / 1024)
+    }
+
+    private func fetchCounts(context: ModelContext) async -> (
+        friends: Int,
+        locations: Int,
+        goals: Int,
+        habits: Int
+    ) {
+        let friendsCount = (try? context.fetch(FetchDescriptor<Friend>()).count) ?? 0
+        await Task.yield()
+
+        let logsCount = (try? context.fetch(FetchDescriptor<LocationLog>()).count) ?? 0
+        await Task.yield()
+
+        let goalsCount = (try? context.fetch(FetchDescriptor<Goal>()).count) ?? 0
+        await Task.yield()
+
+        let habitsCount = (try? context.fetch(FetchDescriptor<Habit>()).count) ?? 0
+
+        return (friendsCount, logsCount, goalsCount, habitsCount)
     }
 
     // MARK: - Veri Yönetimi
@@ -364,8 +364,9 @@ class SettingsViewModel {
         try context.save()
 
         // UserDefaults'ı temizle
-        let domain = Bundle.main.bundleIdentifier!
-        UserDefaults.standard.removePersistentDomain(forName: domain)
+        if let domain = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: domain)
+        }
 
         // Bildirimleri iptal et
         notificationService.cancelAllNotifications()

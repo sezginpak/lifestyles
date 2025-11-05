@@ -115,29 +115,55 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 
     /// "Şimdi Ara" action'ını handle et
     private func handleCallNowAction(userInfo: [AnyHashable: Any]) {
-        guard let phoneNumber = userInfo["phoneNumber"] as? String, !phoneNumber.isEmpty else {
+        guard let phoneNumber = userInfo["phoneNumber"] as? String,
+              !phoneNumber.isEmpty else {
             print("❌ Telefon numarası bulunamadı")
             return
         }
 
-        // Telefon numarasını temizle
-        let cleanPhone = phoneNumber.replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "-", with: "")
-            .replacingOccurrences(of: "(", with: "")
-            .replacingOccurrences(of: ")", with: "")
+        // Telefon numarasını güvenli şekilde validate et ve temizle
+        let cleanPhone = sanitizePhoneNumber(phoneNumber)
 
-        // Telefon uygulamasını aç
-        if let url = URL(string: "tel:\(cleanPhone)") {
-            DispatchQueue.main.async {
-                UIApplication.shared.open(url) { success in
-                    if success {
-                        print("✅ Telefon uygulaması açıldı: \(cleanPhone)")
-                    } else {
-                        print("❌ Telefon uygulaması açılamadı")
-                    }
+        // Güvenlik: Sadece sayı ve + karakteri kabul et (regex validation)
+        let phoneRegex = "^[+]?[0-9]+$"
+        let phonePredicate = NSPredicate(format: "SELF MATCHES %@", phoneRegex)
+
+        guard phonePredicate.evaluate(with: cleanPhone) else {
+            print("❌ [SECURITY] Invalid phone number format detected: \(phoneNumber)")
+            print("⚠️ Phone number must contain only digits and optional + prefix")
+            return
+        }
+
+        // Ek güvenlik: Minimum ve maksimum uzunluk kontrolü
+        guard cleanPhone.count >= 7 && cleanPhone.count <= 20 else {
+            print("❌ [SECURITY] Phone number length invalid: \(cleanPhone.count) digits")
+            return
+        }
+
+        // Güvenli URL oluşturma
+        guard let url = URL(string: "tel:\(cleanPhone)"),
+              url.scheme == "tel" else {
+            print("❌ [SECURITY] Failed to create secure tel: URL")
+            return
+        }
+
+        DispatchQueue.main.async {
+            UIApplication.shared.open(url) { success in
+                if success {
+                    print("✅ Telefon uygulaması açıldı: \(cleanPhone)")
+                } else {
+                    print("❌ Telefon uygulaması açılamadı")
                 }
             }
         }
+    }
+
+    /// Telefon numarasını güvenli şekilde temizle
+    private func sanitizePhoneNumber(_ phoneNumber: String) -> String {
+        // Whitelist approach: Sadece sayılar ve + karakterini koru
+        let allowedCharacters = CharacterSet(charactersIn: "+0123456789")
+        let filtered = phoneNumber.unicodeScalars.filter { allowedCharacters.contains($0) }
+        return String(String.UnicodeScalarView(filtered))
     }
 
     /// "10dk Ertele" action'ını handle et
@@ -186,26 +212,44 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 
     /// "Mesaj Gönder" action'ını handle et
     private func handleSendMessageAction(userInfo: [AnyHashable: Any]) {
-        guard let phoneNumber = userInfo["phoneNumber"] as? String, !phoneNumber.isEmpty else {
+        guard let phoneNumber = userInfo["phoneNumber"] as? String,
+              !phoneNumber.isEmpty else {
             print("❌ Telefon numarası bulunamadı")
             return
         }
 
-        // Telefon numarasını temizle
-        let cleanPhone = phoneNumber.replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "-", with: "")
-            .replacingOccurrences(of: "(", with: "")
-            .replacingOccurrences(of: ")", with: "")
+        // Telefon numarasını güvenli şekilde validate et ve temizle
+        let cleanPhone = sanitizePhoneNumber(phoneNumber)
 
-        // Mesaj uygulamasını aç
-        if let url = URL(string: "sms:\(cleanPhone)") {
-            DispatchQueue.main.async {
-                UIApplication.shared.open(url) { success in
-                    if success {
-                        print("✅ Mesaj uygulaması açıldı: \(cleanPhone)")
-                    } else {
-                        print("❌ Mesaj uygulaması açılamadı")
-                    }
+        // Güvenlik: Sadece sayı ve + karakteri kabul et (regex validation)
+        let phoneRegex = "^[+]?[0-9]+$"
+        let phonePredicate = NSPredicate(format: "SELF MATCHES %@", phoneRegex)
+
+        guard phonePredicate.evaluate(with: cleanPhone) else {
+            print("❌ [SECURITY] Invalid phone number format detected: \(phoneNumber)")
+            print("⚠️ Phone number must contain only digits and optional + prefix")
+            return
+        }
+
+        // Ek güvenlik: Minimum ve maksimum uzunluk kontrolü
+        guard cleanPhone.count >= 7 && cleanPhone.count <= 20 else {
+            print("❌ [SECURITY] Phone number length invalid: \(cleanPhone.count) digits")
+            return
+        }
+
+        // Güvenli URL oluşturma
+        guard let url = URL(string: "sms:\(cleanPhone)"),
+              url.scheme == "sms" else {
+            print("❌ [SECURITY] Failed to create secure sms: URL")
+            return
+        }
+
+        DispatchQueue.main.async {
+            UIApplication.shared.open(url) { success in
+                if success {
+                    print("✅ Mesaj uygulaması açıldı: \(cleanPhone)")
+                } else {
+                    print("❌ Mesaj uygulaması açılamadı")
                 }
             }
         }
@@ -251,6 +295,8 @@ class DeepLinkRouter {
     var friendId: String?
     var goalId: String?
     var habitId: String?
+    var shouldShowFriendDetail: Bool = false
+    var shouldCompleteContact: Bool = false
 
     /// Deep link'i handle et ve ilgili view'a yönlendir
     func handle(path: String, parameters: [String: String]) {
@@ -278,11 +324,55 @@ class DeepLinkRouter {
         }
     }
 
+    /// Widget deep link'ini handle et (URL scheme ile)
+    func handleWidgetURL(_ url: URL) {
+        print("🔗 Widget URL: \(url)")
+
+        // URL format: lifestyles://friend-detail/{friendId}
+        guard url.scheme == "lifestyles" else { return }
+
+        let path = url.host ?? ""
+        let components = url.pathComponents.filter { $0 != "/" }
+
+        switch path {
+        case "friend-detail":
+            // Friend detail sayfasına git
+            if let friendId = components.first {
+                print("👤 Opening friend detail: \(friendId)")
+                self.friendId = friendId
+                self.shouldShowFriendDetail = true
+                self.activeTab = 1 // Contacts tab
+            }
+
+        case "complete-contact":
+            // İletişim tamamlama aksiyonu
+            if let friendId = components.first {
+                print("✅ Completing contact: \(friendId)")
+                self.friendId = friendId
+                self.shouldCompleteContact = true
+                self.activeTab = 1 // Contacts tab
+            }
+
+        case "call-friend":
+            // Arkadaşı ara (telefon uygulaması açılacak)
+            if let friendId = components.first {
+                print("📞 Calling friend: \(friendId)")
+                self.friendId = friendId
+                self.activeTab = 1 // Contacts tab
+            }
+
+        default:
+            print("❓ Unknown widget URL path: \(path)")
+        }
+    }
+
     /// Deep link'i temizle
     func clearDeepLink() {
         friendId = nil
         goalId = nil
         habitId = nil
+        shouldShowFriendDetail = false
+        shouldCompleteContact = false
     }
 }
 

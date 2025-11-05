@@ -76,47 +76,60 @@ final class Habit {
 
     /// Haftalık completion rate (son 7 gün)
     var weeklyCompletionRate: Double {
-        guard let completions = completions else { return 0.0 }
+        guard let completions = completions, !completions.isEmpty else {
+            return 0.0
+        }
 
         let calendar = Calendar.current
         let last7Days = (0..<7).compactMap {
             calendar.date(byAdding: .day, value: -$0, to: Date())
         }
 
-        let completedDays = last7Days.filter { date in
+        let completedDaysCount = last7Days.filter { date in
             completions.contains { calendar.isDate($0.completedAt, inSameDayAs: date) }
-        }
+        }.count
 
-        return Double(completedDays.count) / 7.0
+        return Double(completedDaysCount) / 7.0
     }
 
     /// Aylık completion rate (son 30 gün)
     var monthlyCompletionRate: Double {
-        guard let completions = completions else { return 0.0 }
+        guard let completions = completions, !completions.isEmpty else {
+            return 0.0
+        }
 
         let calendar = Calendar.current
         let last30Days = (0..<30).compactMap {
             calendar.date(byAdding: .day, value: -$0, to: Date())
         }
 
-        let completedDays = last30Days.filter { date in
+        let completedDaysCount = last30Days.filter { date in
             completions.contains { calendar.isDate($0.completedAt, inSameDayAs: date) }
-        }
+        }.count
 
-        return Double(completedDays.count) / 30.0
+        return Double(completedDaysCount) / 30.0
     }
 
     /// Calendar heatmap için son 30 günün durumu
     func getLast30DaysStatus() -> [Bool] {
-        guard let completions = completions else { return Array(repeating: false, count: 30) }
+        guard let completions = completions, !completions.isEmpty else {
+            return Array(repeating: false, count: 30)
+        }
 
         let calendar = Calendar.current
-        return (0..<30).map { dayOffset in
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
+        let statuses = (0..<30).map { dayOffset in
+            guard let date = calendar.date(
+                byAdding: .day,
+                value: -dayOffset,
+                to: Date()
+            ) else {
                 return false
             }
-            return completions.contains { calendar.isDate($0.completedAt, inSameDayAs: date) }
-        }.reversed() // Eskiden yeniye doğru
+            return completions.contains {
+                calendar.isDate($0.completedAt, inSameDayAs: date)
+            }
+        }
+        return statuses.reversed() // Eskiden yeniye doğru
     }
 }
 

@@ -69,10 +69,14 @@ class PurchaseManager {
     @MainActor
     func loadProducts() async {
         do {
-            let fetchedProducts = try await Product.products(for: ProductID.allProducts)
+            let fetchedProducts = try await Product.products(
+                for: ProductID.allProducts
+            )
             products = fetchedProducts.sorted(by: { $0.price < $1.price })
+            print("✅ \(products.count) product loaded successfully")
         } catch {
             print("❌ Failed to load products: \(error.localizedDescription)")
+            products = [] // Reset to empty array on error
         }
     }
 
@@ -80,12 +84,21 @@ class PurchaseManager {
 
     @MainActor
     func purchase(_ product: Product) async throws -> Bool {
-        let result = try await product.purchase()
+        print("🛒 Starting purchase for: \(product.displayName)")
+
+        let result: Product.PurchaseResult
+        do {
+            result = try await product.purchase()
+        } catch {
+            print("❌ Purchase error: \(error.localizedDescription)")
+            throw error
+        }
 
         switch result {
         case .success(let verification):
             // Verify the transaction
             let transaction = try checkVerified(verification)
+            print("✅ Purchase verified: \(transaction.productID)")
 
             // Update subscription status
             await checkSubscriptionStatus()
@@ -96,12 +109,15 @@ class PurchaseManager {
             return true
 
         case .userCancelled:
+            print("⚠️ Purchase cancelled by user")
             return false
 
         case .pending:
+            print("⏳ Purchase pending (e.g., parental approval)")
             return false
 
         @unknown default:
+            print("❓ Unknown purchase result")
             return false
         }
     }
@@ -109,12 +125,15 @@ class PurchaseManager {
     // MARK: - Restore Purchases
 
     @MainActor
-    func restorePurchases() async {
+    func restorePurchases() async throws {
+        print("🔄 Restoring purchases...")
         do {
             try await AppStore.sync()
             await checkSubscriptionStatus()
+            print("✅ Purchases restored successfully")
         } catch {
             print("❌ Restore failed: \(error.localizedDescription)")
+            throw error
         }
     }
 

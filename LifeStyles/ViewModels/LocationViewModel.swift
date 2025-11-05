@@ -36,6 +36,10 @@ class LocationViewModel {
     var aiActivityRecommendations: [ActivityRecommendationWrapper] = []
     var isLoadingAI: Bool = false
 
+    // Error Handling
+    var errorMessage: String?
+    var showError: Bool = false
+
     @available(iOS 26.0, *)
     private var activityAIService: ActivityAIService {
         ActivityAIService.shared
@@ -106,57 +110,81 @@ class LocationViewModel {
     }
 
     func generateActivitySuggestions(context: ModelContext) {
-        // Önceki önerileri temizle
         suggestedActivities.removeAll()
 
-        if hoursAtHome >= 4 {
-            // Dışarı çık önerileri
-            let activities: [(String, String, ActivityType)] = [
-                (String(localized: "activity.suggestion.walk.title", comment: "Walk"), String(localized: "activity.suggestion.walk.desc", comment: "Walk desc"), .outdoor),
-                (String(localized: "activity.suggestion.exercise.title", comment: "Exercise"), String(localized: "activity.suggestion.exercise.desc", comment: "Exercise desc"), .exercise),
-                (String(localized: "activity.suggestion.cafe.title", comment: "Cafe"), String(localized: "activity.suggestion.cafe.desc", comment: "Cafe desc"), .social),
-                (String(localized: "activity.suggestion.shopping.title", comment: "Shopping"), String(localized: "activity.suggestion.shopping.desc", comment: "Shopping desc"), .outdoor),
-                (String(localized: "activity.suggestion.bookstore.title", comment: "Bookstore"), String(localized: "activity.suggestion.bookstore.desc", comment: "Bookstore desc"), .learning)
-            ]
+        let activities = hoursAtHome >= 4 ?
+            getOutdoorActivities() : getIndoorActivities()
 
-            for (title, description, type) in activities.prefix(3) {
-                let suggestion = ActivitySuggestion(
-                    title: title,
-                    activityDescription: description,
-                    type: type
-                )
-                context.insert(suggestion)
-                suggestedActivities.append(suggestion)
-            }
-        } else {
-            // Ev içi aktiviteler
-            let activities: [(String, String, ActivityType)] = [
-                (String(localized: "activity.suggestion.meditation.title", comment: "Meditation"), String(localized: "activity.suggestion.meditation.desc", comment: "Meditation desc"), .relax),
-                (String(localized: "activity.suggestion.learn.title", comment: "Learn"), String(localized: "activity.suggestion.learn.desc", comment: "Learn desc"), .learning),
-                (String(localized: "activity.suggestion.creative.title", comment: "Creative"), String(localized: "activity.suggestion.creative.desc", comment: "Creative desc"), .creative)
-            ]
-
-            for (title, description, type) in activities.prefix(2) {
-                let suggestion = ActivitySuggestion(
-                    title: title,
-                    activityDescription: description,
-                    type: type
-                )
-                context.insert(suggestion)
-                suggestedActivities.append(suggestion)
-            }
+        for (title, description, type) in activities {
+            let suggestion = ActivitySuggestion(
+                title: title,
+                activityDescription: description,
+                type: type
+            )
+            context.insert(suggestion)
+            suggestedActivities.append(suggestion)
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            print("❌ Failed to save activity suggestions: \(error)")
+            errorMessage = "Aktivite önerileri kaydedilirken bir hata oluştu."
+            showError = true
+        }
+    }
+
+    private func getOutdoorActivities() -> [(String, String, ActivityType)] {
+        let activities: [(String, String, ActivityType)] = [
+            (String(localized: "activity.suggestion.walk.title", comment: "Walk"),
+             String(localized: "activity.suggestion.walk.desc", comment: "Walk desc"),
+             .outdoor),
+            (String(localized: "activity.suggestion.exercise.title", comment: "Exercise"),
+             String(localized: "activity.suggestion.exercise.desc", comment: "Exercise desc"),
+             .exercise),
+            (String(localized: "activity.suggestion.cafe.title", comment: "Cafe"),
+             String(localized: "activity.suggestion.cafe.desc", comment: "Cafe desc"),
+             .social),
+            (String(localized: "activity.suggestion.shopping.title", comment: "Shopping"),
+             String(localized: "activity.suggestion.shopping.desc", comment: "Shopping desc"),
+             .outdoor),
+            (String(localized: "activity.suggestion.bookstore.title", comment: "Bookstore"),
+             String(localized: "activity.suggestion.bookstore.desc", comment: "Bookstore desc"),
+             .learning)
+        ]
+        return Array(activities.prefix(3))
+    }
+
+    private func getIndoorActivities() -> [(String, String, ActivityType)] {
+        let activities: [(String, String, ActivityType)] = [
+            (String(localized: "activity.suggestion.meditation.title", comment: "Meditation"),
+             String(localized: "activity.suggestion.meditation.desc", comment: "Meditation desc"),
+             .relax),
+            (String(localized: "activity.suggestion.learn.title", comment: "Learn"),
+             String(localized: "activity.suggestion.learn.desc", comment: "Learn desc"),
+             .learning),
+            (String(localized: "activity.suggestion.creative.title", comment: "Creative"),
+             String(localized: "activity.suggestion.creative.desc", comment: "Creative desc"),
+             .creative)
+        ]
+        return Array(activities.prefix(2))
     }
 
     func completeActivity(_ activity: ActivitySuggestion, context: ModelContext) {
-        activity.isCompleted = true
-        activity.completedAt = Date()
-        try? context.save()
+        do {
+            activity.isCompleted = true
+            activity.completedAt = Date()
+            try context.save()
 
-        // Tebrik bildirimi
-        notificationService.sendMotivationalMessage()
+            // Tebrik bildirimi
+            notificationService.sendMotivationalMessage()
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to complete activity: \(error)")
+            errorMessage = "Aktivite tamamlanırken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
+        }
     }
 
     func logLocation(context: ModelContext) {
@@ -170,8 +198,14 @@ class LocationViewModel {
             locationType: locationType
         )
 
-        context.insert(log)
-        try? context.save()
+        do {
+            context.insert(log)
+            try context.save()
+        } catch {
+            print("❌ Failed to log location: \(error)")
+            errorMessage = "Konum kaydedilirken bir hata oluştu."
+            showError = true
+        }
     }
 
     // MARK: - Periyodik Takip Fonksiyonları

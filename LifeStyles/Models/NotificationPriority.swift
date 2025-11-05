@@ -187,35 +187,43 @@ class PriorityCalculator {
 
         // VIP factor
         if isVIP {
-            factors.append(PriorityFactorScore(
-                factor: .vipContact,
-                value: 1.0,
-                weight: PriorityFactor.vipContact.weight
-            ))
+            factors.append(
+                PriorityFactorScore(
+                    factor: .vipContact,
+                    value: 1.0,
+                    weight: PriorityFactor.vipContact.weight
+                )
+            )
         }
 
-        // Days overdue factor
-        let overdueScore = min(1.0, Double(daysOverdue) / 14.0) // 14 gün = max
-        factors.append(PriorityFactorScore(
-            factor: .daysOverdue,
-            value: overdueScore,
-            weight: PriorityFactor.daysOverdue.weight
-        ))
+        // Days overdue factor (14 gün = max)
+        let overdueScore = min(1.0, Double(daysOverdue) / 14.0)
+        factors.append(
+            PriorityFactorScore(
+                factor: .daysOverdue,
+                value: overdueScore,
+                weight: PriorityFactor.daysOverdue.weight
+            )
+        )
 
         // Frequency factor
         let frequencyScore = frequency.priorityScore
-        factors.append(PriorityFactorScore(
-            factor: .contactFrequency,
-            value: frequencyScore,
-            weight: PriorityFactor.contactFrequency.weight
-        ))
+        factors.append(
+            PriorityFactorScore(
+                factor: .contactFrequency,
+                value: frequencyScore,
+                weight: PriorityFactor.contactFrequency.weight
+            )
+        )
 
         // Engagement factor
-        factors.append(PriorityFactorScore(
-            factor: .userEngagement,
-            value: lastEngagement,
-            weight: PriorityFactor.userEngagement.weight
-        ))
+        factors.append(
+            PriorityFactorScore(
+                factor: .userEngagement,
+                value: lastEngagement,
+                weight: PriorityFactor.userEngagement.weight
+            )
+        )
 
         // Calculate total score
         let totalScore = factors.reduce(0.0) { $0 + $1.contribution }
@@ -232,11 +240,12 @@ class PriorityCalculator {
             level = .low
         }
 
+        let expiresAt = Date().addingTimeInterval(86400) // 24 saat geçerli
         return NotificationPriority(
             level: level,
             score: totalScore,
             factors: factors,
-            expiresAt: Date().addingTimeInterval(86400) // 24 saat geçerli
+            expiresAt: expiresAt
         )
     }
 

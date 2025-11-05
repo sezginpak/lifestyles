@@ -487,7 +487,7 @@ struct PlaceEmojiPickerView: View {
                 .font(.headline)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 50))], spacing: Spacing.medium) {
-                ForEach(emojisByCategory[category] ?? emojisByCategory[.custom]!, id: \.self) { emoji in
+                ForEach(emojisByCategory[category] ?? emojisByCategory[.custom] ?? ["📍"], id: \.self) { emoji in
                     Text(emoji)
                         .font(.largeTitle)
                         .frame(width: 50, height: 50)

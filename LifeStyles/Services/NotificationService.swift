@@ -46,15 +46,28 @@ class NotificationService {
             }
 
             let content = UNMutableNotificationContent()
-            content.title = String(localized: "notification.contact.reminder.title", comment: "Contact reminder title")
-            content.body = String(format: NSLocalizedString("notification.contact.reminder.body", comment: "Contact reminder body"), contactName, daysSince)
+            content.title = String(
+                localized: "notification.contact.reminder.title",
+                comment: "Contact reminder title"
+            )
+            content.body = String(
+                format: NSLocalizedString(
+                    "notification.contact.reminder.body",
+                    comment: "Contact reminder body"
+                ),
+                contactName,
+                daysSince
+            )
             content.sound = .default
             content.categoryIdentifier = "CONTACT_REMINDER"
 
             // TODO: ML Scheduler ile optimal zamanda gönderilecek
             // Geçici olarak rastgele saat dilimine zamanla
             let randomSeconds = TimeInterval.random(in: 3600...14400) // 1-4 saat arası
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: randomSeconds, repeats: false)
+            let trigger = UNTimeIntervalNotificationTrigger(
+                timeInterval: randomSeconds,
+                repeats: false
+            )
             let request = UNNotificationRequest(
                 identifier: "contact-\(contactName)-\(UUID().uuidString)",
                 content: content,
@@ -65,7 +78,7 @@ class NotificationService {
                 try await center.add(request)
                 print("✅ Hatırlatıcı eklendi: \(contactName)")
             } catch {
-                print("❌ Hatırlatıcı eklenemedi: \(error)")
+                print("❌ Hatırlatıcı eklenemedi: \(error.localizedDescription)")
             }
         }
     }
@@ -84,7 +97,8 @@ class NotificationService {
             if let lastSent = UserDefaults.standard.object(forKey: lastSentKey) as? Date {
                 let hoursSinceLastNotification = Date().timeIntervalSince(lastSent) / 3600
                 if hoursSinceLastNotification < 1 {
-                    print("⏳ Aktivite önerisi bildirimi cooldown'da")
+                    let minutesRemaining = Int((1 - hoursSinceLastNotification) * 60)
+                    print("⏳ Aktivite önerisi cooldown'da (\(minutesRemaining) dk kaldı)")
                     return
                 }
             }

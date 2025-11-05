@@ -201,15 +201,30 @@ class ClaudeHaikuService: AIServiceProtocol {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue(APIConfig.claudeAPIKey, forHTTPHeaderField: "x-api-key")
-        urlRequest.setValue(APIConfig.anthropicVersion, forHTTPHeaderField: "anthropic-version")
+        urlRequest.setValue(
+            APIConfig.anthropicVersion,
+            forHTTPHeaderField: "anthropic-version"
+        )
         urlRequest.setValue("application/json", forHTTPHeaderField: "content-type")
+        urlRequest.timeoutInterval = 30 // 30 saniye timeout
 
         // Encode request body
         let encoder = JSONEncoder()
-        urlRequest.httpBody = try encoder.encode(request)
+        do {
+            urlRequest.httpBody = try encoder.encode(request)
+        } catch {
+            print("❌ Request encoding error: \(error.localizedDescription)")
+            throw ClaudeError.networkError("Request encoding failed")
+        }
 
-        // Send request
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        // Send request with timeout
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: urlRequest)
+        } catch {
+            print("❌ Network request error: \(error.localizedDescription)")
+            throw ClaudeError.networkError(error.localizedDescription)
+        }
 
         // Check HTTP status
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -222,13 +237,19 @@ class ClaudeHaikuService: AIServiceProtocol {
                 throw ClaudeError.rateLimited
             }
 
-            if let errorData = try? JSONDecoder().decode([String: AnyCodable].self, from: data),
+            if let errorData = try? JSONDecoder().decode(
+                [String: AnyCodable].self,
+                from: data
+            ),
                let errorMessage = errorData["error"]?.value as? [String: Any],
                let message = errorMessage["message"] as? String {
+                print("❌ API error: \(message)")
                 throw ClaudeError.apiError(httpResponse.statusCode, message)
             }
 
-            throw ClaudeError.apiError(httpResponse.statusCode, "Unknown error")
+            let errorMsg = "HTTP \(httpResponse.statusCode)"
+            print("❌ Unknown API error: \(errorMsg)")
+            throw ClaudeError.apiError(httpResponse.statusCode, errorMsg)
         }
 
         // Decode response
@@ -237,9 +258,9 @@ class ClaudeHaikuService: AIServiceProtocol {
             let claudeResponse = try decoder.decode(ClaudeResponse.self, from: data)
             return claudeResponse
         } catch {
-            print("❌ Decode error: \(error)")
+            print("❌ Response decode error: \(error.localizedDescription)")
             if let jsonString = String(data: data, encoding: .utf8) {
-                print("Response: \(jsonString)")
+                print("Response preview: \(jsonString.prefix(200))...")
             }
             throw ClaudeError.invalidResponse
         }

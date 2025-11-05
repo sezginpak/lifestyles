@@ -35,6 +35,12 @@ struct DashboardViewNew: View {
                     // 1. Hero Stats Card (4 Ring)
                     HeroStatsCard(summary: dashboardSummary)
                         .padding(.horizontal)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityLabel("Dashboard özet kartı")
+
+                    // 1.5. Trial Countdown Widget (if trial active)
+                    TrialCountdownWidget()
+                        .padding(.horizontal)
 
                     // 2. Mood Widget
                     DashboardMoodWidget()
@@ -163,6 +169,111 @@ struct DashboardViewNew: View {
         }
     }
 
+    // MARK: - Computed Properties for Card Data
+
+    private var goalsCardData: CompactStatData {
+        CompactStatData(
+            icon: "target",
+            title: String(localized: "dashboard.stats.goals", comment: "Goals"),
+            color: "667EEA",
+            mainValue: "%\(Int(viewModel.goalCompletionRate * 100))",
+            subValue: String(
+                localized: "dashboard.stats.completion",
+                comment: "Completion"
+            ),
+            progressValue: viewModel.goalCompletionRate,
+            badge: viewModel.overdueGoals > 0
+                ? String(
+                    format: NSLocalizedString(
+                        "dashboard.stats.overdue.format",
+                        comment: "X overdue"
+                    ),
+                    viewModel.overdueGoals
+                )
+                : nil,
+            trendData: viewModel.getGoalsTrendData(context: modelContext),
+            destination: .goals,
+            quickActions: [
+                QuickAction(icon: "plus", color: "667EEA", action: .addGoal)
+            ]
+        )
+    }
+
+    private var communicationCardData: CompactStatData {
+        CompactStatData(
+            icon: "person.2.fill",
+            title: String(
+                localized: "dashboard.stats.communication",
+                comment: "Communication"
+            ),
+            color: "3498DB",
+            mainValue: "\(viewModel.contactsThisWeek)",
+            subValue: String(
+                localized: "dashboard.stats.this.week",
+                comment: "This week"
+            ),
+            progressValue: nil,
+            badge: viewModel.contactTrendPercentage != 0
+                ? "\(viewModel.contactTrendPercentage >= 0 ? "+" : "")\(Int(viewModel.contactTrendPercentage))%"
+                : nil,
+            trendData: viewModel.getContactsTrendData(context: modelContext),
+            destination: .friends,
+            quickActions: partnerInfo != nil
+                ? [QuickAction(icon: "phone.fill", color: "3498DB", action: .callPartner)]
+                : nil
+        )
+    }
+
+    private var habitsCardData: CompactStatData {
+        let completionRate = viewModel.totalHabitsToday > 0
+            ? Double(viewModel.completedHabitsToday) / Double(viewModel.totalHabitsToday)
+            : 0
+
+        return CompactStatData(
+            icon: "flame.fill",
+            title: String(localized: "dashboard.stats.habits", comment: "Habits"),
+            color: "E74C3C",
+            mainValue: "\(viewModel.completedHabitsToday)/\(viewModel.totalHabitsToday)",
+            subValue: String(localized: "dashboard.stats.today", comment: "Today"),
+            progressValue: completionRate,
+            badge: String(
+                format: NSLocalizedString(
+                    "dashboard.stats.weekly.format",
+                    comment: "X% weekly"
+                ),
+                Int(viewModel.weeklyHabitCompletionRate * 100)
+            ),
+            trendData: viewModel.getHabitsTrendData(context: modelContext),
+            destination: .habits,
+            quickActions: [
+                QuickAction(icon: "checkmark", color: "E74C3C", action: .completeHabit)
+            ]
+        )
+    }
+
+    private var mobilityCardData: CompactStatData {
+        CompactStatData(
+            icon: "location.fill",
+            title: String(localized: "dashboard.stats.mobility", comment: "Mobility"),
+            color: "2ECC71",
+            mainValue: "\(viewModel.mobilityScore)",
+            subValue: String(localized: "dashboard.stats.score", comment: "Score"),
+            progressValue: Double(viewModel.mobilityScore) / 100.0,
+            badge: String(
+                format: NSLocalizedString(
+                    "dashboard.stats.locations.format",
+                    comment: "X locations"
+                ),
+                viewModel.uniqueLocationsThisWeek
+            ),
+            trendData: viewModel.getMobilityTrendData(context: modelContext),
+            destination: .location,
+            quickActions: [
+                QuickAction(icon: "mappin.and.ellipse", color: "2ECC71", action: .logLocation)
+            ]
+        )
+    }
+
     // MARK: - Compact Stats Grid
 
     var compactStatsGrid: some View {
@@ -174,20 +285,7 @@ struct DashboardViewNew: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 // Hedefler
                 DashboardCompactStatCard(
-                    data: CompactStatData(
-                        icon: "target",
-                        title: String(localized: "dashboard.stats.goals", comment: "Goals"),
-                        color: "667EEA",
-                        mainValue: "%\(Int(viewModel.goalCompletionRate * 100))",
-                        subValue: String(localized: "dashboard.stats.completion", comment: "Completion"),
-                        progressValue: viewModel.goalCompletionRate,
-                        badge: viewModel.overdueGoals > 0 ? String(format: NSLocalizedString("dashboard.stats.overdue.format", comment: "X overdue"), viewModel.overdueGoals) : nil,
-                        trendData: viewModel.getGoalsTrendData(context: modelContext),
-                        destination: .goals,
-                        quickActions: [
-                            QuickAction(icon: "plus", color: "667EEA", action: .addGoal)
-                        ]
-                    ),
+                    data: goalsCardData,
                     onTap: {
                         selectedTab = 3 // Goals tab
                     },
@@ -198,20 +296,7 @@ struct DashboardViewNew: View {
 
                 // İletişim
                 DashboardCompactStatCard(
-                    data: CompactStatData(
-                        icon: "person.2.fill",
-                        title: String(localized: "dashboard.stats.communication", comment: "Communication"),
-                        color: "3498DB",
-                        mainValue: "\(viewModel.contactsThisWeek)",
-                        subValue: String(localized: "dashboard.stats.this.week", comment: "This week"),
-                        progressValue: nil,
-                        badge: viewModel.contactTrendPercentage != 0 ? "\(viewModel.contactTrendPercentage >= 0 ? "+" : "")\(Int(viewModel.contactTrendPercentage))%" : nil,
-                        trendData: viewModel.getContactsTrendData(context: modelContext),
-                        destination: .friends,
-                        quickActions: partnerInfo != nil ? [
-                            QuickAction(icon: "phone.fill", color: "3498DB", action: .callPartner)
-                        ] : nil
-                    ),
+                    data: communicationCardData,
                     onTap: {
                         selectedTab = 1 // Friends tab
                     },
@@ -222,20 +307,7 @@ struct DashboardViewNew: View {
 
                 // Alışkanlıklar
                 DashboardCompactStatCard(
-                    data: CompactStatData(
-                        icon: "flame.fill",
-                        title: String(localized: "dashboard.stats.habits", comment: "Habits"),
-                        color: "E74C3C",
-                        mainValue: "\(viewModel.completedHabitsToday)/\(viewModel.totalHabitsToday)",
-                        subValue: String(localized: "dashboard.stats.today", comment: "Today"),
-                        progressValue: viewModel.totalHabitsToday > 0 ? Double(viewModel.completedHabitsToday) / Double(viewModel.totalHabitsToday) : 0,
-                        badge: String(format: NSLocalizedString("dashboard.stats.weekly.format", comment: "X% weekly"), Int(viewModel.weeklyHabitCompletionRate * 100)),
-                        trendData: viewModel.getHabitsTrendData(context: modelContext),
-                        destination: .habits,
-                        quickActions: [
-                            QuickAction(icon: "checkmark", color: "E74C3C", action: .completeHabit)
-                        ]
-                    ),
+                    data: habitsCardData,
                     onTap: {
                         selectedTab = 3 // Goals tab (habits are there)
                     },
@@ -246,20 +318,7 @@ struct DashboardViewNew: View {
 
                 // Mobilite
                 DashboardCompactStatCard(
-                    data: CompactStatData(
-                        icon: "location.fill",
-                        title: String(localized: "dashboard.stats.mobility", comment: "Mobility"),
-                        color: "2ECC71",
-                        mainValue: "\(viewModel.mobilityScore)",
-                        subValue: String(localized: "dashboard.stats.score", comment: "Score"),
-                        progressValue: Double(viewModel.mobilityScore) / 100.0,
-                        badge: String(format: NSLocalizedString("dashboard.stats.locations.format", comment: "X locations"), viewModel.uniqueLocationsThisWeek),
-                        trendData: viewModel.getMobilityTrendData(context: modelContext),
-                        destination: .location,
-                        quickActions: [
-                            QuickAction(icon: "mappin.and.ellipse", color: "2ECC71", action: .logLocation)
-                        ]
-                    ),
+                    data: mobilityCardData,
                     onTap: {
                         selectedTab = 2 // Location tab
                     },

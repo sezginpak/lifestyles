@@ -15,6 +15,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 // MARK: - Relationship Type
 
@@ -48,6 +49,48 @@ enum RelationshipType: String, CaseIterable, Codable {
         case .partner: return "pink"
         case .family: return "green"
         case .colleague: return "purple"
+        }
+    }
+
+    var accentColor: Color {
+        switch self {
+        case .friend: return .blue
+        case .partner: return .pink
+        case .family: return .green
+        case .colleague: return .purple
+        }
+    }
+
+    var gradientColors: [Color] {
+        switch self {
+        case .partner:
+            return [
+                Color.pink.opacity(0.4),
+                Color.red.opacity(0.3),
+                Color.purple.opacity(0.2),
+                Color.clear
+            ]
+        case .family:
+            return [
+                Color.green.opacity(0.4),
+                Color.mint.opacity(0.3),
+                Color.teal.opacity(0.2),
+                Color.clear
+            ]
+        case .colleague:
+            return [
+                Color.purple.opacity(0.4),
+                Color.indigo.opacity(0.3),
+                Color.blue.opacity(0.2),
+                Color.clear
+            ]
+        case .friend:
+            return [
+                Color.blue.opacity(0.4),
+                Color.cyan.opacity(0.3),
+                Color.teal.opacity(0.2),
+                Color.clear
+            ]
         }
     }
 }

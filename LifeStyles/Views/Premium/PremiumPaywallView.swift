@@ -16,15 +16,29 @@ struct PremiumPaywallView: View {
     @State private var showError = false
     @State private var errorMessage = ""
 
+    // MARK: - Computed Properties
+
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [.purple, .pink, .orange],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var purchaseGradient: LinearGradient {
+        LinearGradient(
+            colors: [.yellow, .orange],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
     var body: some View {
         ZStack {
             // Background gradient
-            LinearGradient(
-                colors: [.purple, .pink, .orange],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            backgroundGradient
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 30) {
@@ -54,10 +68,20 @@ struct PremiumPaywallView: View {
                     }
                     .padding(.horizontal, 24)
 
+                    // Trial Banner (if not started trial yet)
+                    if !purchaseManager.hasUserStartedTrial() && !purchaseManager.isInTrial {
+                        TrialHighlightBanner()
+                            .padding(.horizontal, 24)
+                    }
+
                     // Pricing Card
                     if let product = purchaseManager.getMonthlyProduct() {
-                        SubscriptionCard(product: product)
-                            .padding(.horizontal, 24)
+                        SubscriptionCard(
+                            product: product,
+                            isInTrial: purchaseManager.isInTrial,
+                            trialDaysRemaining: purchaseManager.trialDaysRemaining
+                        )
+                        .padding(.horizontal, 24)
                     } else {
                         // Fallback pricing
                         SubscriptionPlaceholderCard()
@@ -75,20 +99,20 @@ struct PremiumPaywallView: View {
                                     .progressViewStyle(.circular)
                                     .tint(.white)
                             } else {
-                                Image(systemName: "crown.fill")
-                                Text(String(localized: "premium.upgrade", comment: "Upgrade to Premium"))
-                                    .font(.headline)
+                                if !purchaseManager.hasUserStartedTrial() {
+                                    Image(systemName: "sparkles")
+                                    Text(String(localized: "premium.trial.3days"))
+                                        .font(.headline)
+                                } else {
+                                    Image(systemName: "crown.fill")
+                                    Text(String(localized: "premium.upgrade", comment: "Upgrade to Premium"))
+                                        .font(.headline)
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(
-                            LinearGradient(
-                                colors: [.yellow, .orange],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .background(purchaseGradient)
                         .foregroundStyle(.white)
                         .cornerRadius(16)
                         .shadow(color: .yellow.opacity(0.5), radius: 10, y: 5)
@@ -173,13 +197,18 @@ struct PremiumPaywallView: View {
 
     private func restorePurchases() {
         Task {
-            await purchaseManager.restorePurchases()
+            do {
+                try await purchaseManager.restorePurchases()
 
-            if purchaseManager.isPremium {
-                HapticFeedback.success()
-                dismiss()
-            } else {
-                errorMessage = "Aktif abonelik bulunamadı."
+                if purchaseManager.isPremium {
+                    HapticFeedback.success()
+                    dismiss()
+                } else {
+                    errorMessage = "Aktif abonelik bulunamadı."
+                    showError = true
+                }
+            } catch {
+                errorMessage = "Geri yükleme başarısız: \(error.localizedDescription)"
                 showError = true
             }
         }
@@ -188,7 +217,7 @@ struct PremiumPaywallView: View {
 
 // MARK: - Feature Row
 
-struct PremiumFeatureRow: View {
+private struct PremiumFeatureRow: View {
     let feature: SubscriptionFeature
 
     var body: some View {
@@ -231,9 +260,28 @@ struct PremiumFeatureRow: View {
 
 struct SubscriptionCard: View {
     let product: Product
+    let isInTrial: Bool
+    let trialDaysRemaining: Int
 
     var body: some View {
         VStack(spacing: 12) {
+            // Trial Info (if active)
+            if isInTrial {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                    Text(String(localized: "premium.trial.countdown").replacingOccurrences(of: "%d", with: "\(trialDaysRemaining)"))
+                        .font(.caption.bold())
+                }
+                .foregroundStyle(.yellow)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(.yellow.opacity(0.2))
+                )
+            }
+
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "premium.monthly.subscription", comment: "Monthly Subscription"))
@@ -289,7 +337,7 @@ struct SubscriptionPlaceholderCard: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("₺39.99")
+                    Text("$0.99")
                         .font(.title.bold())
                         .foregroundStyle(.white)
 
@@ -306,6 +354,56 @@ struct SubscriptionPlaceholderCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .strokeBorder(.white.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Trial Highlight Banner
+
+struct TrialHighlightBanner: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "gift.fill")
+                    .font(.title3)
+                    .foregroundStyle(.yellow)
+
+                Text(String(localized: "premium.trial.3days"))
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
+
+            Text(String(localized: "premium.price.after.trial"))
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.9))
+
+            Text(String(localized: "premium.cancel.before.charged"))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        colors: [.yellow.opacity(0.3), .orange.opacity(0.3)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [.yellow, .orange],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 2
                 )
         )
     }

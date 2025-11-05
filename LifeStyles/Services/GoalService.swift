@@ -289,6 +289,7 @@ class GoalService {
     /// Hedef istatistiklerini hesapla ve güncelle
     func updateStatistics() {
         guard let context = modelContext else {
+            print("⚠️ ModelContext not set, cannot update statistics")
             statistics = nil
             return
         }
@@ -297,6 +298,21 @@ class GoalService {
 
         do {
             let allGoals = try context.fetch(descriptor)
+            guard !allGoals.isEmpty else {
+                // İlk kullanım, boş istatistik oluştur
+                statistics = GoalStatistics(
+                    totalGoals: 0,
+                    completedGoals: 0,
+                    activeGoals: 0,
+                    overdueGoals: 0,
+                    completionRate: 0,
+                    averageCompletionTime: 0,
+                    mostSuccessfulCategory: nil,
+                    currentStreak: 0,
+                    totalPoints: 0
+                )
+                return
+            }
 
             let total = allGoals.count
             let completed = allGoals.filter { $0.isCompleted }.count
@@ -311,12 +327,23 @@ class GoalService {
 
             for goal in completedGoals {
                 // createdAt'ten targetDate'e kadar olan süre (yaklaşık)
-                // Not: Goal modeline createdAt eklenmeli, şimdilik targetDate - 30 gün kullanıyoruz
-                let estimatedStartDate = Calendar.current.date(byAdding: .day, value: -30, to: goal.targetDate) ?? goal.targetDate
-                totalCompletionTime += goal.targetDate.timeIntervalSince(estimatedStartDate)
+                // Not: Goal modeline createdAt eklenmeli
+                // Şimdilik targetDate - 30 gün kullanıyoruz
+                guard let estimatedStartDate = Calendar.current.date(
+                    byAdding: .day,
+                    value: -30,
+                    to: goal.targetDate
+                ) else {
+                    continue
+                }
+                totalCompletionTime += goal.targetDate.timeIntervalSince(
+                    estimatedStartDate
+                )
             }
 
-            let avgCompletionTime = completedGoals.isEmpty ? 0 : totalCompletionTime / Double(completedGoals.count)
+            let avgCompletionTime = completedGoals.isEmpty
+                ? 0
+                : totalCompletionTime / Double(completedGoals.count)
 
             // En başarılı kategoriyi bul
             let categoryGroups = Dictionary(grouping: completedGoals, by: { $0.category })

@@ -22,14 +22,27 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     private var lastLocationUpdate: Date?
     private let homeRadiusMeters: Double = 100 // Ev yarıçapı (metre)
 
+    // Thread safety için serial queue
+    private let syncQueue = DispatchQueue(label: "com.lifestyles.locationservice.sync")
+
     // Periyodik konum kayıt sistemi
     private var locationTimer: Timer?
     private let locationTrackingInterval: TimeInterval = 30 * 60 // 30 dakika (CloudKit quota için - yarı yarıya azaltılmış)
     private let locationDistanceThreshold: Double = 20 // 20 metre - Bu mesafe içindeyse aynı yer sayılır
     private var modelContext: ModelContext?
-    private(set) var isPeriodicTrackingActive: Bool = false
+    private var _isPeriodicTrackingActive: Bool = false
     private(set) var lastRecordedLocation: Date?
     private(set) var totalLocationsRecorded: Int = 0
+
+    // Thread-safe isPeriodicTrackingActive accessor
+    var isPeriodicTrackingActive: Bool {
+        get {
+            syncQueue.sync { _isPeriodicTrackingActive }
+        }
+        set {
+            syncQueue.sync { _isPeriodicTrackingActive = newValue }
+        }
+    }
 
     override private init() {
         super.init()
@@ -41,9 +54,11 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     }
 
     deinit {
-        // Timer'ı temizle
-        locationTimer?.invalidate()
-        locationTimer = nil
+        // Timer'ı main thread'de güvenli şekilde temizle
+        DispatchQueue.main.sync {
+            locationTimer?.invalidate()
+            locationTimer = nil
+        }
         // Location updates'i durdur
         locationManager.stopUpdatingLocation()
     }
@@ -155,83 +170,106 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     // MARK: - Periyodik Konum Takibi
 
     // ModelContext'i ayarla (ViewModel'den çağrılmalı)
+    @MainActor
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
     }
 
     // Periyodik takibi başlat
     func startPeriodicTracking() {
-        // Konum güncellemelerini başlat (her durumda)
-        locationManager.startUpdatingLocation()
+        // Thread-safe flag kontrolü
+        let alreadyActive = syncQueue.sync { () -> Bool in
+            if _isPeriodicTrackingActive {
+                return true
+            }
+            _isPeriodicTrackingActive = true
+            return false
+        }
 
-        // Eğer zaten aktifse ve Timer varsa, çıkış yap
-        if isPeriodicTrackingActive && locationTimer != nil {
+        if alreadyActive {
+            print("⚠️ Periodic tracking already active")
             return
         }
 
-        isPeriodicTrackingActive = true
+        // Konum güncellemelerini başlat (her durumda)
+        locationManager.startUpdatingLocation()
+
         saveTrackingState()
 
         // İlk kaydı hemen yap
-        recordCurrentLocation()
+        Task { @MainActor in
+            await recordCurrentLocation()
+        }
 
         // Timer'ı main thread'de oluştur
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard let self = self else {
+                print("❌ Self deallocated during timer creation")
+                return
+            }
+
+            // Eski timer varsa önce temizle
+            self.locationTimer?.invalidate()
+            self.locationTimer = nil
 
             // Timer'ı başlat
             self.locationTimer = Timer.scheduledTimer(
                 withTimeInterval: self.locationTrackingInterval,
                 repeats: true
             ) { [weak self] _ in
-                self?.recordCurrentLocation()
+                guard let self = self else { return }
+                Task { @MainActor in
+                    await self.recordCurrentLocation()
+                }
             }
 
             // Timer'ı RunLoop'a ekle (force unwrap yerine guard)
             if let timer = self.locationTimer {
                 RunLoop.main.add(timer, forMode: .common)
-                print("✅ Periyodik konum takibi başlatıldı (10 dakikada bir)")
+                print("✅ Periyodik konum takibi başlatıldı (30 dakikada bir)")
             } else {
                 print("❌ Timer oluşturulamadı")
+                // Timer başarısız olursa flag'i geri al
+                self.syncQueue.sync {
+                    self._isPeriodicTrackingActive = false
+                }
             }
         }
     }
 
     // Periyodik takibi durdur
     func stopPeriodicTracking() {
+        // Thread-safe flag güncelleme
+        syncQueue.sync {
+            _isPeriodicTrackingActive = false
+        }
+
         // Timer'ı main thread'de durdur
         DispatchQueue.main.async { [weak self] in
-            self?.locationTimer?.invalidate()
-            self?.locationTimer = nil
+            guard let self = self else { return }
+            self.locationTimer?.invalidate()
+            self.locationTimer = nil
         }
 
         // Konum güncellemelerini durdur
         locationManager.stopUpdatingLocation()
 
-        isPeriodicTrackingActive = false
         saveTrackingState()
         print("⏹️ Periyodik konum takibi durduruldu")
     }
 
     // Mevcut konumu kaydet - Akıllı süre takibi ile
-    private func recordCurrentLocation() {
+    @MainActor
+    private func recordCurrentLocation() async {
         // Debug: Kontrolleri ayrı ayrı yap
-        if modelContext == nil {
+        guard let context = modelContext else {
             print("⚠️ HATA: ModelContext yok! setModelContext() çağrıldı mı?")
             return
         }
 
         // currentLocation yoksa locationManager.location'ı kullan
-        let location = currentLocation ?? locationManager.location
-
-        if location == nil {
+        guard let loc = currentLocation ?? locationManager.location else {
             print("⚠️ HATA: Konum alınamadı! GPS kapalı olabilir.")
-            return
-        }
-
-        guard let context = modelContext,
-              let loc = location else {
-            print("⚠️ Konum kaydedilemedi: Context veya konum yok")
             return
         }
 
@@ -286,9 +324,7 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             print("✅ Yeni konum kaydedildi: \(log.formattedDate) - \(locationType.rawValue)")
 
             // Arka planda reverse geocoding yap
-            Task {
-                await reverseGeocodeLocation(log: log, context: context)
-            }
+            await reverseGeocodeLocation(log: log, context: context)
         } catch {
             print("❌ Konum kaydetme hatası: \(error.localizedDescription)")
         }
@@ -340,9 +376,14 @@ class LocationService: NSObject, CLLocationManagerDelegate {
                 // Log'u güncelle
                 log.address = address.isEmpty ? "Bilinmeyen Konum" : address
 
-                try? context.save()
+                do {
+                    try context.save()
+                } catch {
+                    print("❌ Address save error: \(error.localizedDescription)")
+                }
             }
         } catch {
+            print("❌ Reverse geocoding error: \(error.localizedDescription)")
             log.address = "Adres alınamadı"
             try? context.save()
         }
@@ -350,14 +391,18 @@ class LocationService: NSObject, CLLocationManagerDelegate {
 
     // Takip durumunu kaydet
     private func saveTrackingState() {
-        UserDefaults.standard.set(isPeriodicTrackingActive, forKey: "periodicTrackingActive")
+        let isActive = syncQueue.sync { _isPeriodicTrackingActive }
+        UserDefaults.standard.set(isActive, forKey: "periodicTrackingActive")
         UserDefaults.standard.set(lastRecordedLocation, forKey: "lastRecordedLocation")
         UserDefaults.standard.set(totalLocationsRecorded, forKey: "totalLocationsRecorded")
     }
 
     // Takip durumunu yükle
     private func loadTrackingState() {
-        isPeriodicTrackingActive = UserDefaults.standard.bool(forKey: "periodicTrackingActive")
+        let isActive = UserDefaults.standard.bool(forKey: "periodicTrackingActive")
+        syncQueue.sync {
+            _isPeriodicTrackingActive = isActive
+        }
         lastRecordedLocation = UserDefaults.standard.object(forKey: "lastRecordedLocation") as? Date
         totalLocationsRecorded = UserDefaults.standard.integer(forKey: "totalLocationsRecorded")
     }
@@ -370,7 +415,10 @@ class LocationService: NSObject, CLLocationManagerDelegate {
             // Belirli bir güne ait kayıtları getir
             let calendar = Calendar.current
             let startOfDay = calendar.startOfDay(for: date)
-            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+            guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+                print("❌ Failed to calculate end of day")
+                return []
+            }
 
             descriptor = FetchDescriptor<LocationLog>(
                 predicate: #Predicate { log in
@@ -396,7 +444,10 @@ class LocationService: NSObject, CLLocationManagerDelegate {
     // Son N günün konum sayısını getir
     func getLocationCountForLastDays(_ days: Int, context: ModelContext) -> Int {
         let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: Date()) else {
+            print("❌ Failed to calculate start date")
+            return 0
+        }
 
         let descriptor = FetchDescriptor<LocationLog>(
             predicate: #Predicate { log in

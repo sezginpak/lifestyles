@@ -132,7 +132,8 @@ final class NotificationTiming {
         updateHourlyEngagement(hour: hour, success: true)
 
         // Günlük engagement'ı güncelle
-        let weekday = Calendar.current.component(.weekday, from: openedAt) - 1
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: openedAt) - 1
         updateWeekdayEngagement(day: weekday, success: true)
 
         // Metrikleri güncelle
@@ -150,7 +151,8 @@ final class NotificationTiming {
         updateHourlyEngagement(hour: hour, success: false)
 
         // Günlük engagement'ı olumsuz güncelle
-        let weekday = Calendar.current.component(.weekday, from: dismissedAt) - 1
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: dismissedAt) - 1
         updateWeekdayEngagement(day: weekday, success: false)
 
         // Metrikleri güncelle

@@ -42,6 +42,10 @@ class GoalsViewModel {
     var selectedGoalForAI: Goal?
     var selectedHabitForAI: Habit?
 
+    // Error Handling
+    var errorMessage: String?
+    var showError: Bool = false
+
     @available(iOS 26.0, *)
     private var goalAIService: GoalAIService {
         GoalAIService.shared
@@ -99,23 +103,30 @@ class GoalsViewModel {
     /// Bir öneriyi gerçek hedefe dönüştür
     func acceptSuggestion(_ suggestion: GoalSuggestion, context: ModelContext) {
         let goal = goalService.createGoalFromSuggestion(suggestion)
-        context.insert(goal)
-        goals.append(goal)
 
-        try? context.save()
+        do {
+            context.insert(goal)
+            try context.save()
 
-        // Hatırlatıcı kur
-        if goal.reminderEnabled {
-            notificationService.scheduleGoalReminder(
-                goalTitle: goal.title,
-                daysLeft: goal.daysRemaining
-            )
+            // Başarılıysa state güncelle
+            goals.append(goal)
+            goalSuggestions.removeAll { $0.id == suggestion.id }
+
+            // Hatırlatıcı kur
+            if goal.reminderEnabled {
+                notificationService.scheduleGoalReminder(
+                    goalTitle: goal.title,
+                    daysLeft: goal.daysRemaining
+                )
+            }
+
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to accept suggestion: \(error)")
+            errorMessage = "Öneri kabul edilirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
-
-        // Öneriyi listeden kaldır
-        goalSuggestions.removeAll { $0.id == suggestion.id }
-
-        HapticFeedback.success()
     }
 
     // MARK: - İstatistikler
@@ -142,25 +153,32 @@ class GoalsViewModel {
             targetDate: targetDate
         )
 
-        context.insert(goal)
-        goals.append(goal)
+        do {
+            context.insert(goal)
+            try context.save()
 
-        try? context.save()
+            // Başarılıysa state güncelle
+            goals.append(goal)
 
-        // Hatırlatıcı kur
-        if goal.reminderEnabled {
-            notificationService.scheduleGoalReminder(
-                goalTitle: title,
-                daysLeft: goal.daysRemaining
-            )
+            // Hatırlatıcı kur
+            if goal.reminderEnabled {
+                notificationService.scheduleGoalReminder(
+                    goalTitle: title,
+                    daysLeft: goal.daysRemaining
+                )
+            }
+
+            // Success feedback
+            HapticFeedback.success()
+
+            // Draft temizle
+            DraftManager.shared.clearDraftGoal()
+        } catch {
+            print("❌ Failed to add goal: \(error)")
+            errorMessage = "Hedef eklenirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
-
-        // Success feedback
-        HapticFeedback.success()
-
-        // Draft temizle
-        DraftManager.shared.clearDraftGoal()
-
     }
 
     func updateGoalProgress(goal: Goal, progress: Double) {
@@ -180,9 +198,19 @@ class GoalsViewModel {
     }
 
     func deleteGoal(_ goal: Goal, context: ModelContext) {
-        context.delete(goal)
-        goals.removeAll { $0.id == goal.id }
-        try? context.save()
+        do {
+            context.delete(goal)
+            try context.save()
+
+            // Başarılıysa state güncelle
+            goals.removeAll { $0.id == goal.id }
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to delete goal: \(error)")
+            errorMessage = "Hedef silinirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
+        }
     }
 
     // MARK: - Habits
@@ -203,58 +231,83 @@ class GoalsViewModel {
             reminderTime: reminderTime
         )
 
-        context.insert(habit)
-        habits.append(habit)
+        do {
+            context.insert(habit)
+            try context.save()
 
-        try? context.save()
+            // Başarılıysa state güncelle
+            habits.append(habit)
 
-        // Hatırlatıcı kur
-        if let reminderTime = reminderTime {
-            notificationService.scheduleHabitReminder(habitName: name, at: reminderTime)
+            // Hatırlatıcı kur
+            if let reminderTime = reminderTime {
+                notificationService.scheduleHabitReminder(habitName: name, at: reminderTime)
+            }
+
+            // Success feedback
+            HapticFeedback.success()
+
+            // Draft temizle
+            DraftManager.shared.clearDraftHabit()
+        } catch {
+            print("❌ Failed to add habit: \(error)")
+            errorMessage = "Alışkanlık eklenirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
-
-        // Success feedback
-        HapticFeedback.success()
-
-        // Draft temizle
-        DraftManager.shared.clearDraftHabit()
-
     }
 
     func toggleHabitCompletion(habit: Habit, context: ModelContext) {
-        if habit.isCompletedToday() {
-            // Bugünkü completion'ı kaldır
-            if let completion = habit.completions?.first(where: {
-                Calendar.current.isDateInToday($0.completedAt)
-            }) {
-                context.delete(completion)
-                habit.currentStreak = max(0, habit.currentStreak - 1)
-            }
-        } else {
-            // Yeni completion ekle
-            let completion = HabitCompletion(completedAt: Date())
-            completion.habit = habit
-            context.insert(completion)
+        do {
+            if habit.isCompletedToday() {
+                // Bugünkü completion'ı kaldır
+                if let completion = habit.completions?.first(where: {
+                    Calendar.current.isDateInToday($0.completedAt)
+                }) {
+                    context.delete(completion)
+                    habit.currentStreak = max(0, habit.currentStreak - 1)
+                }
+            } else {
+                // Yeni completion ekle
+                let completion = HabitCompletion(completedAt: Date())
+                completion.habit = habit
+                context.insert(completion)
 
-            // Seriyi güncelle
-            habit.currentStreak += 1
-            if habit.currentStreak > habit.longestStreak {
-                habit.longestStreak = habit.currentStreak
+                // Seriyi güncelle
+                habit.currentStreak += 1
+                if habit.currentStreak > habit.longestStreak {
+                    habit.longestStreak = habit.currentStreak
+                }
+
+                // Motivasyon bildirimi
+                if habit.currentStreak % 7 == 0 { // Her 7 günde bir
+                    notificationService.sendMotivationalMessage()
+                }
             }
 
-            // Motivasyon bildirimi
-            if habit.currentStreak % 7 == 0 { // Her 7 günde bir
-                notificationService.sendMotivationalMessage()
-            }
+            try context.save()
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to toggle habit completion: \(error)")
+            errorMessage = "Alışkanlık durumu güncellenirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
         }
-
-        try? context.save()
     }
 
     func deleteHabit(_ habit: Habit, context: ModelContext) {
-        context.delete(habit)
-        habits.removeAll { $0.id == habit.id }
-        try? context.save()
+        do {
+            context.delete(habit)
+            try context.save()
+
+            // Başarılıysa state güncelle
+            habits.removeAll { $0.id == habit.id }
+            HapticFeedback.success()
+        } catch {
+            print("❌ Failed to delete habit: \(error)")
+            errorMessage = "Alışkanlık silinirken bir hata oluştu. Lütfen tekrar deneyin."
+            showError = true
+            HapticFeedback.error()
+        }
     }
 
     // Filtrelenmiş hedefler
@@ -347,35 +400,34 @@ class GoalsViewModel {
     // MARK: - Stats Calculation (NEW)
 
     func calculateWeeklyStats() {
+        calculateWeeklyGoalStats()
+        calculateWeeklyHabitStats()
+    }
+
+    private func calculateWeeklyGoalStats() {
         let calendar = Calendar.current
         let today = Date()
 
-        // Goals Weekly Stats
         var dailyGoalCompletions = Array(repeating: 0, count: 7)
         var weeklyCompletedGoals = 0
-        var weeklyTotalGoals = activeGoals.count
-        var weeklyProgressSum = 0.0
 
         for dayOffset in 0..<7 {
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else {
+                continue
+            }
 
-            // Bu günde tamamlanan hedefleri say
             let completedThisDay = goals.filter { goal in
-                guard goal.isCompleted else { return false }
-                return calendar.isDate(goal.createdAt, inSameDayAs: date) // Basitleştirilmiş
+                goal.isCompleted && calendar.isDate(goal.createdAt, inSameDayAs: date)
             }.count
 
             dailyGoalCompletions[6 - dayOffset] = completedThisDay
             weeklyCompletedGoals += completedThisDay
         }
 
-        // Average progress
-        if !activeGoals.isEmpty {
-            weeklyProgressSum = activeGoals.reduce(0.0) { $0 + $1.progress }
-            weeklyProgressSum /= Double(activeGoals.count)
-        }
-
-        let weeklyCompletionRate = weeklyTotalGoals > 0 ? Double(weeklyCompletedGoals) / Double(weeklyTotalGoals) : 0.0
+        let weeklyTotalGoals = activeGoals.count
+        let weeklyProgressSum = calculateAverageProgress()
+        let weeklyCompletionRate = weeklyTotalGoals > 0 ?
+            Double(weeklyCompletedGoals) / Double(weeklyTotalGoals) : 0.0
         let bestDay = WeeklyGoalStats.calculateBestDay(from: dailyGoalCompletions)
 
         weeklyGoalStats = WeeklyGoalStats(
@@ -387,18 +439,26 @@ class GoalsViewModel {
             averageProgress: weeklyProgressSum,
             streak: currentStreak
         )
+    }
 
-        // Habits Weekly Stats
+    private func calculateWeeklyHabitStats() {
+        let calendar = Calendar.current
+        let today = Date()
+
         var dailyHabitCompletions = Array(repeating: 0, count: 7)
         var weeklyCompletedDays = 0
 
         for dayOffset in 0..<7 {
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else {
+                continue
+            }
 
             var dayCompleted = false
             for habit in activeHabits {
                 if let completions = habit.completions,
-                   completions.contains(where: { calendar.isDate($0.completedAt, inSameDayAs: date) }) {
+                   completions.contains(where: {
+                       calendar.isDate($0.completedAt, inSameDayAs: date)
+                   }) {
                     dailyHabitCompletions[6 - dayOffset] += 1
                     dayCompleted = true
                 }
@@ -422,43 +482,69 @@ class GoalsViewModel {
         )
     }
 
+    private func calculateAverageProgress() -> Double {
+        guard !activeGoals.isEmpty else { return 0.0 }
+        let sum = activeGoals.reduce(0.0) { $0 + $1.progress }
+        return sum / Double(activeGoals.count)
+    }
+
     func calculateMonthlyStats() {
-        // Goals Monthly Stats
+        calculateMonthlyGoalStats()
+        calculateMonthlyHabitStats()
+    }
+
+    private func calculateMonthlyGoalStats() {
         let completedGoalsCount = completedGoals.count
         let activeGoalsCount = activeGoals.count
         let overdueCount = overdueGoals.count
 
         var categoriesBreakdown: [String: Int] = [:]
         for goal in completedGoals {
-            let categoryName = goal.category.displayName
-            categoriesBreakdown[categoryName, default: 0] += 1
+            categoriesBreakdown[goal.category.displayName, default: 0] += 1
         }
 
-        let averageProgress = activeGoals.isEmpty ? 0.0 : activeGoals.reduce(0.0) { $0 + $1.progress } / Double(activeGoals.count)
+        let averageProgress = calculateAverageProgress()
+        let totalGoals = activeGoalsCount + completedGoalsCount
+        let completionRate = totalGoals > 0 ?
+            Double(completedGoalsCount) / Double(totalGoals) : 0.0
 
         monthlyGoalStats = MonthlyGoalStats(
-            completionRate: activeGoalsCount > 0 ? Double(completedGoalsCount) / Double(activeGoalsCount + completedGoalsCount) : 0.0,
+            completionRate: completionRate,
             totalCompleted: completedGoalsCount,
             totalActive: activeGoalsCount,
             categoriesBreakdown: categoriesBreakdown,
             averageProgress: averageProgress,
             overdueCount: overdueCount,
-            weeklyTrend: [] // Basitleştirilmiş, gerçek hesaplama gerektirir
+            weeklyTrend: []
         )
+    }
 
-        // Habits Monthly Stats
-        let totalHabitCompletions = habits.reduce(0) { $0 + ($1.completions?.count ?? 0) }
-        let averageStreak = habits.isEmpty ? 0.0 : Double(habits.reduce(0) { $0 + $1.currentStreak }) / Double(habits.count)
+    private func calculateMonthlyHabitStats() {
+        let totalCompletions = habits.reduce(0) { $0 + ($1.completions?.count ?? 0) }
+        let averageStreak = calculateAverageHabitStreak()
         let longestStreak = habits.map { $0.longestStreak }.max() ?? 0
+        let completionRate = calculateHabitCompletionRate()
 
         monthlyHabitStats = MonthlyHabitStats(
-            completionRate: habits.isEmpty ? 0.0 : habits.reduce(0.0) { $0 + $1.monthlyCompletionRate } / Double(habits.count),
-            totalCompletions: totalHabitCompletions,
+            completionRate: completionRate,
+            totalCompletions: totalCompletions,
             totalHabits: habits.count,
             averageStreak: averageStreak,
             longestStreak: longestStreak,
             weeklyTrend: []
         )
+    }
+
+    private func calculateAverageHabitStreak() -> Double {
+        guard !habits.isEmpty else { return 0.0 }
+        let totalStreak = habits.reduce(0) { $0 + $1.currentStreak }
+        return Double(totalStreak) / Double(habits.count)
+    }
+
+    private func calculateHabitCompletionRate() -> Double {
+        guard !habits.isEmpty else { return 0.0 }
+        let totalRate = habits.reduce(0.0) { $0 + $1.monthlyCompletionRate }
+        return totalRate / Double(habits.count)
     }
 
     func updateCombinedStats() {

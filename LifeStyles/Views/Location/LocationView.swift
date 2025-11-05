@@ -19,6 +19,32 @@ struct LocationView: View {
     @State private var selectedActivity: ActivitySuggestion?
     @State private var showingActivityDetail = false
 
+    // MARK: - Computed Properties
+
+    private var brandGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.brandPrimary, Color.purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var greenGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.green, Color.mint],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
+    private var warningGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.orange, Color.red],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -95,13 +121,7 @@ struct LocationView: View {
                             HStack(spacing: 8) {
                                 ZStack {
                                     Circle()
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [Color.brandPrimary, Color.purple],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
+                                        .fill(brandGradient)
                                         .frame(width: 28, height: 28)
 
                                     Image(systemName: "lightbulb.fill")
@@ -109,16 +129,13 @@ struct LocationView: View {
                                         .foregroundStyle(.white)
                                 }
 
-                                Text(String(localized: "suggested.activities", comment: "Suggested activities section title"))
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            colors: [Color.brandPrimary, Color.purple],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
+                                Text(String(
+                                    localized: "suggested.activities",
+                                    comment: "Suggested activities section title"
+                                ))
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundStyle(brandGradient)
 
                                 Spacer()
 
@@ -129,13 +146,7 @@ struct LocationView: View {
                                     .foregroundStyle(.white)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color.brandPrimary, Color.purple],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
+                                    .background(brandGradient)
                                     .clipShape(Capsule())
                             }
                             .padding(.horizontal)
@@ -181,13 +192,7 @@ struct LocationView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.green, Color.mint],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .background(greenGradient)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                         .shadow(color: Color.green.opacity(0.25), radius: 8, x: 0, y: 4)
                     }
@@ -200,13 +205,7 @@ struct LocationView: View {
                                 // Icon
                                 ZStack {
                                     Circle()
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [Color.orange, Color.red],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
+                                        .fill(warningGradient)
                                         .frame(width: 50, height: 50)
                                         .glowEffect(color: .orange, radius: 8)
 
@@ -216,21 +215,21 @@ struct LocationView: View {
                                 }
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(String(localized: "home.location.not.set", comment: "Home location not set warning"))
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(
-                                            LinearGradient(
-                                                colors: [Color.orange, Color.red],
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        )
+                                    Text(String(
+                                        localized: "home.location.not.set",
+                                        comment: "Home location not set warning"
+                                    ))
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(warningGradient)
 
-                                    Text(String(localized: "set.home.location.for.suggestions", comment: "Set home location for suggestions message"))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .fixedSize(horizontal: false, vertical: true)
+                                    Text(String(
+                                        localized: "set.home.location.for.suggestions",
+                                        comment: "Set home location for suggestions message"
+                                    ))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
                                 }
 
                                 Spacer()

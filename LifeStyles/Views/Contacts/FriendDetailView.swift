@@ -34,6 +34,20 @@ struct FriendDetailView: View {
     // Transaction State
     @State var showingAddTransaction = false
 
+    // MARK: - Computed Properties
+
+    private var relationshipGradientColors: [Color] {
+        friend.relationshipType.gradientColors
+    }
+
+    private var relationshipAccentColor: Color {
+        friend.relationshipType.accentColor
+    }
+
+    private var availableTabs: [DetailTab] {
+        DetailTab.tabs(for: friend)
+    }
+
     enum DetailTab: String {
         case overview = "Genel"
         case history = "Geçmiş"
@@ -57,13 +71,14 @@ struct FriendDetailView: View {
 
                 // Segmented Control
                 Picker("", selection: $selectedTab) {
-                    ForEach(DetailTab.tabs(for: friend), id: \.self) { tab in
+                    ForEach(availableTabs, id: \.self) { tab in
                         Text(tab.rawValue).tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 .padding(.vertical, 12)
+                .accessibilityLabel("Detay sekmesi")
 
                 // Content based on selected tab
                 Group {
@@ -345,50 +360,6 @@ struct FriendDetailView: View {
             }
             .padding(.top, 12)
             .padding(.bottom, 16)
-        }
-    }
-
-    // MARK: - Relationship Colors
-
-    var relationshipGradientColors: [Color] {
-        switch friend.relationshipType {
-        case .partner:
-            return [
-                Color.pink.opacity(0.4),
-                Color.red.opacity(0.3),
-                Color.purple.opacity(0.2),
-                Color.clear
-            ]
-        case .family:
-            return [
-                Color.green.opacity(0.4),
-                Color.mint.opacity(0.3),
-                Color.teal.opacity(0.2),
-                Color.clear
-            ]
-        case .colleague:
-            return [
-                Color.purple.opacity(0.4),
-                Color.indigo.opacity(0.3),
-                Color.blue.opacity(0.2),
-                Color.clear
-            ]
-        case .friend:
-            return [
-                Color.blue.opacity(0.4),
-                Color.cyan.opacity(0.3),
-                Color.teal.opacity(0.2),
-                Color.clear
-            ]
-        }
-    }
-
-    var relationshipAccentColor: Color {
-        switch friend.relationshipType {
-        case .partner: return .pink
-        case .family: return .green
-        case .colleague: return .purple
-        case .friend: return .blue
         }
     }
 

@@ -185,6 +185,21 @@ class FriendAnalyticsViewModel {
         let monthNames = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
                           "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 
+        // Güvenli array erişimi
+        let mostActiveDayName: String?
+        if let dayNum = mostActiveDayNum, dayNum >= 0 && dayNum < dayNames.count {
+            mostActiveDayName = dayNames[dayNum]
+        } else {
+            mostActiveDayName = nil
+        }
+
+        let mostActiveMonthName: String?
+        if let monthNum = mostActiveMonthNum, monthNum >= 0 && monthNum < monthNames.count {
+            mostActiveMonthName = monthNames[monthNum]
+        } else {
+            mostActiveMonthName = nil
+        }
+
         return TimingAnalytics(
             hourlyDistribution: hourly,
             weekdayDistribution: weekday,
@@ -192,8 +207,8 @@ class FriendAnalyticsViewModel {
             weekdayCount: weekdayCount,
             weekendCount: weekendCount,
             mostActiveHour: mostActiveHour,
-            mostActiveDay: mostActiveDayNum != nil ? dayNames[mostActiveDayNum!] : nil,
-            mostActiveMonth: mostActiveMonthNum != nil ? monthNames[mostActiveMonthNum!] : nil
+            mostActiveDay: mostActiveDayName,
+            mostActiveMonth: mostActiveMonthName
         )
     }
 
@@ -246,6 +261,8 @@ class FriendAnalyticsViewModel {
         let dayNames = ["1 Aylık Arkadaşlık", "100 Günlük Arkadaşlık", "1 Yıllık Arkadaşlık",
                        "2 Yıllık Arkadaşlık", "3 Yıllık Arkadaşlık"]
         for (index, target) in dayTargets.enumerated() where friendshipDays < target {
+            // Güvenli array erişimi
+            guard index >= 0 && index < dayNames.count else { continue }
             milestones.append(Milestone(
                 title: dayNames[index],
                 description: "\(target) gün arkadaşlık",
@@ -275,6 +292,8 @@ class FriendAnalyticsViewModel {
             let partnerTargets = [100, 365, 730, 1000]
             let partnerNames = ["100 Günlük Aşk", "1. Yıl Dönümü", "2. Yıl Dönümü", "1000 Gün Birlikte"]
             for (index, target) in partnerTargets.enumerated() where relationshipDays < target {
+                // Güvenli array erişimi
+                guard index >= 0 && index < partnerNames.count else { continue }
                 milestones.append(Milestone(
                     title: partnerNames[index],
                     description: "İlişkinizin \(target). günü",
@@ -496,11 +515,15 @@ class FriendAnalyticsViewModel {
                     break
                 }
             }
-            currentStreak = MoodStreak(
-                type: firstMood,
-                count: count,
-                startDate: reversedMoods[min(count - 1, reversedMoods.count - 1)].date
-            )
+            // Güvenli array erişimi
+            let startIndex = min(count - 1, reversedMoods.count - 1)
+            if startIndex >= 0 && startIndex < reversedMoods.count {
+                currentStreak = MoodStreak(
+                    type: firstMood,
+                    count: count,
+                    startDate: reversedMoods[startIndex].date
+                )
+            }
         }
 
         // Weekday distribution
@@ -511,12 +534,19 @@ class FriendAnalyticsViewModel {
         for contact in moodHistory {
             guard let mood = contact.mood else { continue }
             let weekday = calendar.component(.weekday, from: contact.date) - 1 // 0-6
+
+            // Güvenli array erişimi
+            guard weekday >= 0 && weekday < dayNames.count else { continue }
             let dayName = dayNames[weekday]
 
             if weekdayDist[dayName] == nil {
                 weekdayDist[dayName] = [:]
             }
-            weekdayDist[dayName]![mood, default: 0] += 1
+            // Güvenli dictionary erişimi
+            if var moodCounts = weekdayDist[dayName] {
+                moodCounts[mood, default: 0] += 1
+                weekdayDist[dayName] = moodCounts
+            }
         }
 
         // Overall trend (son 10 vs önceki 10)

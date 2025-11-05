@@ -14,6 +14,20 @@ struct DashboardMoodWidget: View {
     @State private var todaysMood: MoodEntry?
     @State private var showingMoodPicker = false
 
+    // MARK: - Computed Properties
+
+    private var quickMoodGridColumns: [GridItem] {
+        [
+            GridItem(.flexible()),
+            GridItem(.flexible()),
+            GridItem(.flexible())
+        ]
+    }
+
+    private var quickMoodOptions: [MoodType] {
+        [.happy, .neutral, .sad, .anxious, .excited, .grateful]
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if let mood = todaysMood {
@@ -203,36 +217,12 @@ struct DashboardMoodWidget: View {
                     }
 
                     // Quick mood selection - dengeli grid
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 12) {
-                        ForEach([MoodType.happy, .neutral, .sad, .anxious, .excited, .grateful], id: \.self) { moodType in
-                            Button {
+                    LazyVGrid(columns: quickMoodGridColumns, spacing: 12) {
+                        ForEach(quickMoodOptions, id: \.self) { moodType in
+                            QuickMoodButton(moodType: moodType) {
                                 HapticFeedback.medium()
                                 quickSaveMood(moodType: moodType)
-                            } label: {
-                                VStack(spacing: 6) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(moodType.color.opacity(0.15))
-                                            .frame(width: 50, height: 50)
-
-                                        Text(moodType.emoji)
-                                            .font(.system(size: 28))
-                                    }
-
-                                    Text(moodType.displayName)
-                                        .font(.caption2)
-                                        .fontWeight(.medium)
-                                        .foregroundStyle(.primary)
-                                        .lineLimit(1)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
 
@@ -274,7 +264,10 @@ struct DashboardMoodWidget: View {
     private func loadTodaysMood() {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: Date())
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            print("❌ Failed to calculate end of day")
+            return
+        }
 
         let predicate = #Predicate<MoodEntry> { entry in
             entry.date >= startOfDay && entry.date < endOfDay
@@ -309,6 +302,39 @@ struct DashboardMoodWidget: View {
         } catch {
             print("❌ Failed to save mood: \(error)")
         }
+    }
+}
+
+// MARK: - Quick Mood Button (Helper View)
+
+struct QuickMoodButton: View {
+    let moodType: MoodType
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .fill(moodType.color.opacity(0.15))
+                        .frame(width: 50, height: 50)
+
+                    Text(moodType.emoji)
+                        .font(.system(size: 28))
+                }
+
+                Text(moodType.displayName)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(moodType.displayName) ruh hali")
+        .accessibilityHint("Ruh halinizi kaydetmek için dokunun")
     }
 }
 

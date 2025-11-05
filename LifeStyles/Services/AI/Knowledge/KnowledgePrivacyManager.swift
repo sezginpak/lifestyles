@@ -218,10 +218,11 @@ class KnowledgePrivacyManager {
         var clean = context
 
         // Email'leri maskele
-        let emailRegex = try! NSRegularExpression(
+        guard let emailRegex = try? NSRegularExpression(
             pattern: "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}",
             options: []
-        )
+        ) else { return clean }
+
         clean = emailRegex.stringByReplacingMatches(
             in: clean,
             options: [],
@@ -230,10 +231,11 @@ class KnowledgePrivacyManager {
         )
 
         // Telefon numaralarını maskele
-        let phoneRegex = try! NSRegularExpression(
+        guard let phoneRegex = try? NSRegularExpression(
             pattern: "\\b\\d{10,11}\\b",
             options: []
-        )
+        ) else { return clean }
+
         clean = phoneRegex.stringByReplacingMatches(
             in: clean,
             options: [],
@@ -242,10 +244,11 @@ class KnowledgePrivacyManager {
         )
 
         // Kredi kartı numaralarını maskele (16 digit)
-        let cardRegex = try! NSRegularExpression(
+        guard let cardRegex = try? NSRegularExpression(
             pattern: "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b",
             options: []
-        )
+        ) else { return clean }
+
         clean = cardRegex.stringByReplacingMatches(
             in: clean,
             options: [],

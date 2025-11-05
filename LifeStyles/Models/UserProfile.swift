@@ -71,15 +71,17 @@ final class UserProfile {
         var filledFields = 0
         let totalFields = 10
 
-        if name != nil && !name!.isEmpty { filledFields += 1 }
+        if let name = name, !name.isEmpty { filledFields += 1 }
         if age != nil { filledFields += 1 }
-        if occupation != nil && !occupation!.isEmpty { filledFields += 1 }
-        if bio != nil && !bio!.isEmpty { filledFields += 1 }
+        if let occupation = occupation, !occupation.isEmpty { filledFields += 1 }
+        if let bio = bio, !bio.isEmpty { filledFields += 1 }
         if !hobbies.isEmpty { filledFields += 1 }
         if !interests.isEmpty { filledFields += 1 }
-        if workSchedule != nil && !workSchedule!.isEmpty { filledFields += 1 }
-        if livingArrangement != nil && !livingArrangement!.isEmpty { filledFields += 1 }
-        if lifeGoals != nil && !lifeGoals!.isEmpty { filledFields += 1 }
+        if let schedule = workSchedule, !schedule.isEmpty { filledFields += 1 }
+        if let arrangement = livingArrangement, !arrangement.isEmpty {
+            filledFields += 1
+        }
+        if let goals = lifeGoals, !goals.isEmpty { filledFields += 1 }
         if !coreValues.isEmpty { filledFields += 1 }
 
         return Double(filledFields) / Double(totalFields)

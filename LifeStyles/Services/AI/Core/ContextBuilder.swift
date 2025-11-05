@@ -163,7 +163,9 @@ class MoodContextBuilder {
 
     static func buildTrend(modelContext: ModelContext, days: Int = 7) async -> MoodTrend? {
         let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: Date()) else {
+            return nil
+        }
 
         let descriptor = FetchDescriptor<MoodEntry>(
             predicate: #Predicate { entry in
@@ -284,7 +286,15 @@ class LocationContextBuilder {
         let calendar = Calendar.current
         let now = Date()
         let startOfDay = calendar.startOfDay(for: now)
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
+        guard let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)) else {
+            return LocationPattern(
+                hoursAtHomeToday: 0,
+                hoursAtHomeThisWeek: 0,
+                lastOutdoorActivity: nil,
+                mostVisitedPlaces: [],
+                savedPlaces: []
+            )
+        }
 
         // Today's logs
         let todayDescriptor = FetchDescriptor<LocationLog>(
@@ -355,7 +365,9 @@ class LocationContextBuilder {
 class JournalContextBuilder {
     static func buildRecent(modelContext: ModelContext, days: Int = 7) async -> [JournalSnapshot] {
         let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -days, to: Date())!
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: Date()) else {
+            return []
+        }
 
         let descriptor = FetchDescriptor<JournalEntry>(
             predicate: #Predicate { entry in

@@ -341,12 +341,16 @@ struct MoodTrendChart: View {
     private func generateTrendData(range: TimeRange) -> [MoodTrendPoint] {
         let calendar = Calendar.current
         let endDate = calendar.startOfDay(for: Date())
-        let startDate = calendar.date(byAdding: .day, value: -range.days + 1, to: endDate)!
+        guard let startDate = calendar.date(byAdding: .day, value: -range.days + 1, to: endDate) else {
+            return []
+        }
 
         var points: [MoodTrendPoint] = []
 
         for dayOffset in 0..<range.days {
-            let date = calendar.date(byAdding: .day, value: dayOffset, to: startDate)!
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startDate) else {
+                continue
+            }
             let dayEntries = entries.filter { calendar.isDate($0.date, inSameDayAs: date) }
 
             if !dayEntries.isEmpty {

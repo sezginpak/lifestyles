@@ -100,7 +100,11 @@ final class Friend {
     // İlişki süresi (yıl, ay, gün formatında)
     var relationshipDuration: (years: Int, months: Int, days: Int)? {
         guard let startDate = relationshipStartDate else { return nil }
-        let components = Calendar.current.dateComponents([.year, .month, .day], from: startDate, to: Date())
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day],
+            from: startDate,
+            to: Date()
+        )
         return (components.year ?? 0, components.month ?? 0, components.day ?? 0)
     }
 
@@ -115,11 +119,18 @@ final class Friend {
         var components = calendar.dateComponents([.month, .day], from: anniversary)
         components.year = calendar.component(.year, from: today)
 
-        guard var thisYearAnniversary = calendar.date(from: components) else { return nil }
+        guard var thisYearAnniversary = calendar.date(from: components) else {
+            return nil
+        }
 
         // Eğer bu yılki yıldönümü geçtiyse, gelecek yılki tarihi hesapla
         if thisYearAnniversary < today {
-            thisYearAnniversary = calendar.date(byAdding: .year, value: 1, to: thisYearAnniversary) ?? thisYearAnniversary
+            let nextYear = calendar.date(
+                byAdding: .year,
+                value: 1,
+                to: thisYearAnniversary
+            )
+            thisYearAnniversary = nextYear ?? thisYearAnniversary
         }
 
         return calendar.dateComponents([.day], from: today, to: thisYearAnniversary).day
@@ -130,27 +141,32 @@ final class Friend {
         guard let lastDate = lastContactDate else {
             return Date()
         }
-        return Calendar.current.date(byAdding: .day, value: frequency.days, to: lastDate) ?? Date()
+        let nextDate = Calendar.current.date(
+            byAdding: .day,
+            value: frequency.days,
+            to: lastDate
+        )
+        return nextDate ?? Date()
     }
 
     // Gecikme günü
     var daysOverdue: Int {
         let today = Date()
         let next = nextContactDate
-        if today > next {
-            return Calendar.current.dateComponents([.day], from: next, to: today).day ?? 0
-        }
-        return 0
+        guard today > next else { return 0 }
+
+        let components = Calendar.current.dateComponents([.day], from: next, to: today)
+        return components.day ?? 0
     }
 
     // Kalan gün
     var daysRemaining: Int {
         let today = Date()
         let next = nextContactDate
-        if next > today {
-            return Calendar.current.dateComponents([.day], from: today, to: next).day ?? 0
-        }
-        return 0
+        guard next > today else { return 0 }
+
+        let components = Calendar.current.dateComponents([.day], from: today, to: next)
+        return components.day ?? 0
     }
 
     // İletişim gerekli mi?
@@ -194,9 +210,11 @@ final class Friend {
         formatter.locale = Locale(identifier: "tr_TR")
 
         if balance > 0 {
-            return "+ \(formatter.string(from: balance as NSDecimalNumber) ?? "₺\(balance)")"
+            let formatted = formatter.string(from: balance as NSDecimalNumber)
+            return "+ \(formatted ?? "₺\(balance)")"
         } else if balance < 0 {
-            return "- \(formatter.string(from: abs(balance) as NSDecimalNumber) ?? "₺\(abs(balance))")"
+            let formatted = formatter.string(from: abs(balance) as NSDecimalNumber)
+            return "- \(formatted ?? "₺\(abs(balance))")"
         } else {
             return "Dengede"
         }
@@ -218,7 +236,10 @@ final class Friend {
     var upcomingDueTransactions: [Transaction] {
         guard let transactions = transactions else { return [] }
         return transactions.filter { transaction in
-            guard let days = transaction.daysUntilDue, !transaction.isPaid else { return false }
+            guard let days = transaction.daysUntilDue,
+                  !transaction.isPaid else {
+                return false
+            }
             return days >= 0 && days <= 7
         }
     }
@@ -226,7 +247,8 @@ final class Friend {
     // Son transaction'lar (son 5)
     var recentTransactions: [Transaction] {
         guard let transactions = transactions else { return [] }
-        return Array(transactions.sorted { $0.date > $1.date }.prefix(5))
+        let sorted = transactions.sorted { $0.date > $1.date }
+        return Array(sorted.prefix(5))
     }
 
     init(

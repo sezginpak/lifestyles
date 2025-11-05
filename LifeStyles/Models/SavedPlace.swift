@@ -189,7 +189,9 @@ final class SavedPlace {
 
     /// Average visit duration (formatted)
     var averageVisitDuration: String {
-        guard visitCount > 0 else { return "Henüz ziyaret yok" }
+        guard visitCount > 0 else {
+            return "Henüz ziyaret yok"
+        }
         let average = totalTimeSpent / Double(visitCount)
         return formatDuration(average)
     }
@@ -243,7 +245,11 @@ final class SavedPlace {
     }
 
     /// Update location
-    func updateLocation(latitude: Double, longitude: Double, address: String?) {
+    func updateLocation(
+        latitude: Double,
+        longitude: Double,
+        address: String?
+    ) {
         self.latitude = latitude
         self.longitude = longitude
         self.address = address

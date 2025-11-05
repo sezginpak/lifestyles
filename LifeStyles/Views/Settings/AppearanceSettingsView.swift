@@ -371,7 +371,7 @@ struct AppearanceSettingsView: View {
         let totalFields = 9
 
         if profile.name?.isEmpty == false { filledFields += 1 }
-        if profile.age != nil && profile.age! > 0 { filledFields += 1 }
+        if let age = profile.age, age > 0 { filledFields += 1 }
         if profile.occupation?.isEmpty == false { filledFields += 1 }
         if profile.bio?.isEmpty == false { filledFields += 1 }
         if !profile.hobbies.isEmpty { filledFields += 1 }

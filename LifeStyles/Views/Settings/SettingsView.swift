@@ -22,19 +22,46 @@ struct SettingsView: View {
     @State private var usageManager = AIUsageManager.shared
     @State private var showPaywall = false
 
+    // MARK: - Computed Properties
+
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.backgroundPrimary, Color.backgroundSecondary],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var premiumGradient: LinearGradient {
+        LinearGradient(
+            colors: [.blue, .purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var premiumBackgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
+    private var premiumBorderGradient: LinearGradient {
+        LinearGradient(
+            colors: [.blue.opacity(0.3), .purple.opacity(0.3)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
                 // Background gradient
-                LinearGradient(
-                    colors: [
-                        Color.backgroundPrimary,
-                        Color.backgroundSecondary
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                backgroundGradient
+                    .ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: AppConstants.Spacing.large) {
@@ -93,7 +120,71 @@ struct SettingsView: View {
 
                             // Premium
                             SettingsSection(title: String(localized: "settings.premium.title", comment: "Premium")) {
-                                if purchaseManager.isPremium {
+                                if purchaseManager.isInTrial {
+                                    // Trial user - Show trial status
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        HStack {
+                                            Image(systemName: "sparkles")
+                                                .foregroundStyle(premiumGradient)
+                                            Text(String(localized: "premium.trial.active"))
+                                                .font(.headline)
+                                            Spacer()
+                                            Text(String(format: NSLocalizedString("premium.trial.days.remaining", comment: "%d days left"), purchaseManager.trialDaysRemaining))
+                                                .font(.subheadline)
+                                                .foregroundStyle(purchaseManager.trialDaysRemaining > 1 ? .blue : .orange)
+                                        }
+
+                                        Text("Deneme süresi bitince otomatik olarak \(purchaseManager.monthlyPrice)/ay abonelik başlayacak.")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+
+                                        // Usage stats - trial users have unlimited access
+                                        let stats = usageManager.getUsageStats()
+                                        VStack(spacing: 8) {
+                                            HStack {
+                                                Text(String(localized: "settings.premium.ai.messages.today", comment: "AI messages used today:"))
+                                                    .font(.caption)
+                                                Spacer()
+                                                Text("\(stats.todayCount) (Sınırsız)")
+                                                    .font(.caption.bold())
+                                                    .foregroundStyle(.green)
+                                            }
+
+                                            HStack {
+                                                Text(String(localized: "settings.premium.total.messages", comment: "Total messages:"))
+                                                    .font(.caption)
+                                                Spacer()
+                                                Text(String(format: NSLocalizedString("settings.premium.messages.count", comment: "X messages"), stats.totalAllTime))
+                                                    .font(.caption.bold())
+                                            }
+                                        }
+                                        .padding(.top, 8)
+
+                                        // Manage subscription button
+                                        Button {
+                                            HapticFeedback.light()
+                                            showPaywall = true
+                                        } label: {
+                                            HStack {
+                                                Text("Aboneliği Yönet")
+                                                    .font(.subheadline.bold())
+                                                Spacer()
+                                                Image(systemName: "chevron.right")
+                                            }
+                                            .foregroundStyle(.blue)
+                                        }
+                                        .padding(.top, 8)
+                                    }
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(premiumBackgroundGradient)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(premiumBorderGradient, lineWidth: 1)
+                                    )
+                                } else if purchaseManager.isPremium {
                                     // Premium user - Show status and manage
                                     VStack(alignment: .leading, spacing: 12) {
                                         HStack {
@@ -206,7 +297,7 @@ struct SettingsView: View {
 
                             // Veri Yönetimi
                             SettingsSection(title: String(localized: "settings.data.management.title", comment: "Data Management")) {
-                                ShareLink(item: exportDataURL ?? URL(string: "about:blank")!) {
+                                ShareLink(item: exportDataURL ?? URL(string: "about:blank") ?? URL(fileURLWithPath: "/")) {
                                     SettingsRow(
                                         icon: "square.and.arrow.up.fill",
                                         title: viewModel.isExporting ? String(localized: "settings.data.exporting", comment: "Exporting...") : String(localized: "settings.data.export", comment: "Export Data"),
@@ -293,20 +384,24 @@ struct SettingsView: View {
                                 .padding(AppConstants.Spacing.medium)
                                 .cardStyle()
 
-                                Link(destination: URL(string: "https://sezginpak.github.io/lifestyles/privacy.html")!) {
-                                    SettingsRow(
-                                        icon: "hand.raised.fill",
-                                        title: String(localized: "settings.privacy.policy", comment: "Privacy Policy"),
-                                        color: .secondary
-                                    )
+                                if let privacyURL = URL(string: "https://sezginpak.github.io/lifestyles/privacy.html") {
+                                    Link(destination: privacyURL) {
+                                        SettingsRow(
+                                            icon: "hand.raised.fill",
+                                            title: String(localized: "settings.privacy.policy", comment: "Privacy Policy"),
+                                            color: .secondary
+                                        )
+                                    }
                                 }
 
-                                Link(destination: URL(string: "https://sezginpak.github.io/lifestyles/terms.html")!) {
-                                    SettingsRow(
-                                        icon: "doc.text.fill",
-                                        title: String(localized: "settings.terms.of.use", comment: "Terms of Use"),
-                                        color: .secondary
-                                    )
+                                if let termsURL = URL(string: "https://sezginpak.github.io/lifestyles/terms.html") {
+                                    Link(destination: termsURL) {
+                                        SettingsRow(
+                                            icon: "doc.text.fill",
+                                            title: String(localized: "settings.terms.of.use", comment: "Terms of Use"),
+                                            color: .secondary
+                                        )
+                                    }
                                 }
                             }
 

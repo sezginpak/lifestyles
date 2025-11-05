@@ -16,19 +16,41 @@ struct PremiumOnboardingPage: View {
     @State private var showError = false
     @State private var errorMessage = ""
 
+    // MARK: - Computed Properties
+
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color.backgroundPrimary,
+                Color.purple.opacity(0.1),
+                Color.blue.opacity(0.1)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var crownGradient: LinearGradient {
+        LinearGradient(
+            colors: [.yellow, .orange],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    private var actionGradient: LinearGradient {
+        LinearGradient(
+            colors: [.purple, .blue],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
     var body: some View {
         ZStack {
             // Background Gradient
-            LinearGradient(
-                colors: [
-                    Color.backgroundPrimary,
-                    Color.purple.opacity(0.1),
-                    Color.blue.opacity(0.1)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            backgroundGradient
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 32) {
@@ -38,13 +60,7 @@ struct PremiumOnboardingPage: View {
                     // Crown Icon
                     ZStack {
                         Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [.yellow, .orange],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                            .fill(crownGradient)
                             .frame(width: 140, height: 140)
                             .shadow(color: .yellow.opacity(0.4), radius: 20, x: 0, y: 10)
 
@@ -53,6 +69,7 @@ struct PremiumOnboardingPage: View {
                             .foregroundStyle(.white)
                     }
                     .bounce()
+                    .accessibilityLabel("Premium üyelik ikonu")
 
                     // Title & Subtitle
                     VStack(spacing: 12) {
@@ -72,7 +89,7 @@ struct PremiumOnboardingPage: View {
                     // Premium Features
                     VStack(spacing: 16) {
                         ForEach(SubscriptionFeature.allCases, id: \.self) { feature in
-                            PremiumFeatureRow(feature: feature)
+                            PremiumFeatureRowOnboarding(feature: feature)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -124,13 +141,7 @@ struct PremiumOnboardingPage: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(
-                            LinearGradient(
-                                colors: [.purple, .blue],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .background(actionGradient)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 5)
                     }
@@ -201,9 +212,9 @@ struct PremiumOnboardingPage: View {
 
                 if success {
                     HapticFeedback.success()
+                    // Trial başarıyla başlatıldı
+                    await purchaseManager.startTrial()
                     await MainActor.run {
-                        // Trial başarıyla başlatıldı
-                        await purchaseManager.startTrial()
                         didStartTrial = true
                         withAnimation {
                             isPresented = false
@@ -225,9 +236,9 @@ struct PremiumOnboardingPage: View {
     }
 }
 
-// MARK: - Premium Feature Row
+// MARK: - Premium Feature Row (Onboarding Style)
 
-struct PremiumFeatureRow: View {
+private struct PremiumFeatureRowOnboarding: View {
     let feature: SubscriptionFeature
 
     var body: some View {
@@ -264,7 +275,7 @@ struct PremiumFeatureRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.cardBackground)
+        .background(Color(.secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

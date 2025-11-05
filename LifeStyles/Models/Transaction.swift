@@ -110,7 +110,8 @@ extension Transaction {
         formatter.numberStyle = .currency
         formatter.currencyCode = currency
         formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
+        let formatted = formatter.string(from: amount as NSDecimalNumber)
+        return formatted ?? "\(amount) \(currency)"
     }
 
     var formattedRemainingAmount: String {
@@ -118,7 +119,8 @@ extension Transaction {
         formatter.numberStyle = .currency
         formatter.currencyCode = currency
         formatter.locale = Locale(identifier: "tr_TR")
-        return formatter.string(from: remainingAmount as NSDecimalNumber) ?? "\(remainingAmount) \(currency)"
+        let formatted = formatter.string(from: remainingAmount as NSDecimalNumber)
+        return formatted ?? "\(remainingAmount) \(currency)"
     }
 
     var formattedDate: String {

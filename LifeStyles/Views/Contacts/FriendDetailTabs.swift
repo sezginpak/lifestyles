@@ -1170,7 +1170,7 @@ extension FriendDetailView {
         let calendar = Calendar.current
         let grouped = Dictionary(grouping: history) { contact in
             let components = calendar.dateComponents([.year, .month], from: contact.date)
-            return calendar.date(from: components)!
+            return calendar.date(from: components) ?? contact.date
         }
 
         let sorted = grouped.sorted { $0.key < $1.key }

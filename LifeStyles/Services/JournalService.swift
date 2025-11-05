@@ -25,7 +25,12 @@ class JournalService {
         tags: [String] = [],
         moodEntry: MoodEntry? = nil,
         context: ModelContext
-    ) {
+    ) throws {
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            print("⚠️ Cannot create journal entry with empty content")
+            throw JournalError.emptyContent
+        }
+
         let entry = JournalEntry(
             title: title,
             content: content,
@@ -40,7 +45,8 @@ class JournalService {
             try context.save()
             print("✅ Journal entry created: \(journalType.displayName)")
         } catch {
-            print("❌ Failed to create journal entry: \(error)")
+            print("❌ Failed to create journal entry: \(error.localizedDescription)")
+            throw JournalError.saveFailed
         }
     }
 
@@ -174,13 +180,19 @@ class JournalService {
 
     /// Entry'leri text olarak export et
     func exportAsText(entries: [JournalEntry]) -> String {
+        guard !entries.isEmpty else {
+            return "# LifeStyles Journal Export\n\nNo entries to export.\n"
+        }
+
         var text = "# LifeStyles Journal Export\n\n"
         text += "Export Date: \(Date().formatted())\n"
         text += "Total Entries: \(entries.count)\n\n"
         text += "---\n\n"
 
-        for entry in entries.sorted(by: { $0.date > $1.date }) {
-            text += "## \(entry.journalType.emoji) \(entry.title ?? entry.journalType.displayName)\n"
+        let sortedEntries = entries.sorted(by: { $0.date > $1.date })
+        for entry in sortedEntries {
+            let titleText = entry.title ?? entry.journalType.displayName
+            text += "## \(entry.journalType.emoji) \(titleText)\n"
             text += "Date: \(entry.formattedDate)\n"
             text += "Type: \(entry.journalType.displayName)\n"
             if !entry.tags.isEmpty {
@@ -191,5 +203,27 @@ class JournalService {
         }
 
         return text
+    }
+}
+
+// MARK: - Error Types
+
+enum JournalError: LocalizedError {
+    case emptyContent
+    case saveFailed
+    case deleteFailed
+    case updateFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyContent:
+            return "Journal içeriği boş olamaz"
+        case .saveFailed:
+            return "Journal kaydedilemedi"
+        case .deleteFailed:
+            return "Journal silinemedi"
+        case .updateFailed:
+            return "Journal güncellenemedi"
+        }
     }
 }

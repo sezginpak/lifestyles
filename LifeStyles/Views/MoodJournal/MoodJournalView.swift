@@ -55,6 +55,16 @@ struct JournalListView: View {
     @Environment(\.toastManager) private var toastManager
     @Bindable var viewModel: MoodJournalViewModel
 
+    // MARK: - Computed Properties
+
+    private var brandGradient: LinearGradient {
+        LinearGradient(
+            colors: [.brandPrimary, .purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
     var body: some View {
         Group {
             if viewModel.filteredJournalEntries.isEmpty {
@@ -128,13 +138,7 @@ struct JournalListView: View {
                 } label: {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.brandPrimary, .purple],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .foregroundStyle(brandGradient)
                 }
                 .scaleEffect(viewModel.showingJournalEditor ? 0.95 : 1.0)
                 .animation(.spring(response: 0.25, dampingFraction: 0.75), value: viewModel.showingJournalEditor)

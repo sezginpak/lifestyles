@@ -28,7 +28,7 @@ final class MoodEntry {
     @Relationship(deleteRule: .nullify, inverse: \LocationLog.relatedMood)
     var relatedLocation: LocationLog?
 
-    @Relationship(deleteRule: .cascade, inverse: \JournalEntry.moodEntry)
+    @Relationship(deleteRule: .nullify)
     var journalEntry: JournalEntry?
 
     init(
