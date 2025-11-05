@@ -13,10 +13,15 @@ struct GoalsViewNew: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = GoalsViewModel()
     @State private var hasLoadedData = false
+    @State private var showingPremiumSheet = false
 
-    // Achievement service'i lazy olarak oluştur
+    // Services
     private var achievementService: AchievementService {
         AchievementService.shared
+    }
+
+    private var premiumManager: PremiumManager {
+        PremiumManager.shared
     }
 
     var body: some View {
@@ -34,6 +39,12 @@ struct GoalsViewNew: View {
 
                         MonthlyProgressRing(monthlyStats: viewModel.monthlyGoalStats)
                             .frame(width: 140)
+                            .premiumLocked(
+                                !premiumManager.isPremium,
+                                title: String(localized: "premium.feature.trend.analysis")
+                            ) {
+                                showingPremiumSheet = true
+                            }
                     }
                     .padding(.horizontal)
 
@@ -106,8 +117,22 @@ struct GoalsViewNew: View {
 
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 12) {
-                                    ForEach(viewModel.achievements.prefix(10)) { achievement in
+                                    // İlk 3 achievement'ı göster
+                                    ForEach(viewModel.achievements.prefix(3)) { achievement in
                                         AchievementBadgeCard(achievement: achievement)
+                                    }
+
+                                    // Geri kalanı premium
+                                    if viewModel.achievements.count > 3 {
+                                        ForEach(viewModel.achievements.dropFirst(3).prefix(7)) { achievement in
+                                            AchievementBadgeCard(achievement: achievement)
+                                                .premiumLocked(
+                                                    !premiumManager.isPremium,
+                                                    title: String(localized: "premium.achievements.unlock")
+                                                ) {
+                                                    showingPremiumSheet = true
+                                                }
+                                        }
                                     }
                                 }
                                 .padding(.horizontal)
@@ -115,10 +140,16 @@ struct GoalsViewNew: View {
                         }
                     }
 
-                    // 7. AI Coaching (iOS 26+)
+                    // 7. AI Coaching (iOS 26+) - Premium Feature
                     if #available(iOS 26.0, *) {
                         AICoachingCard(coaching: "Bugün Health kategorisine odaklan. 3 hedefin deadline yaklaşıyor!")
                             .padding(.horizontal)
+                            .premiumLocked(
+                                !premiumManager.isPremium,
+                                title: String(localized: "premium.feature.ai.insights")
+                            ) {
+                                showingPremiumSheet = true
+                            }
                     }
 
                     // Empty States
@@ -169,6 +200,9 @@ struct GoalsViewNew: View {
             }
             .sheet(isPresented: $viewModel.showingAddHabit) {
                 AddHabitView(viewModel: viewModel, modelContext: modelContext)
+            }
+            .sheet(isPresented: $showingPremiumSheet) {
+                PremiumSubscriptionView()
             }
             .task {
                 // Sadece ilk kez veri yükle

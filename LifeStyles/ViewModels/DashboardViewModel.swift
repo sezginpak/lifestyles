@@ -81,17 +81,22 @@ class DashboardViewModel {
     private let statsService = DashboardStatsService()
     private let contactAnalytics = ContactAnalyticsService()
 
+    // MARK: - Phase 2 Services
+    private let habitAnalytics = HabitAnalyticsService()
+    private let mobilityAnalytics = MobilityAnalyticsService()
+    private let goalAnalytics = GoalAnalyticsService()
+    private let suggestionService = SmartSuggestionService()
+
     init() {
         checkLocationStatus()
     }
 
     @MainActor
     func loadDashboardDataAsync(context: ModelContext) async {
-        // PHASE 1: Service-based loading
+        // PHASE 1 & 2: Service-based loading
         do {
             // 1. Temel istatistikler (DashboardStatsService)
             try await statsService.loadBasicStats(context: context)
-            // Service'ten verileri al
             totalContacts = statsService.totalContacts
             contactsNeedingAttention = statsService.contactsNeedingAttention
             activeGoals = statsService.activeGoals
@@ -103,20 +108,58 @@ class DashboardViewModel {
             lastContactMood = trends.lastMood
             contactTrendPercentage = trends.trendPercentage
 
+            // 3. Hedef analitiği (GoalAnalyticsService)
+            goalService.setModelContext(context)
+            let goalStats = try await goalAnalytics.loadStatistics(context: context)
+            goalCompletionRate = goalStats.completionRate
+            overdueGoals = goalStats.overdueGoals
+            totalPoints = goalStats.totalPoints
+            mostSuccessfulCategory = goalStats.mostSuccessfulCategory
+            completedGoalsThisMonth = goalStats.completedThisMonth
+
+            // 4. Alışkanlık analitiği (HabitAnalyticsService)
+            let habitPerf = try await habitAnalytics.analyzePerformance(context: context)
+            activeHabits = habitPerf.activeCount
+            completedHabitsToday = habitPerf.completedToday
+            totalHabitsToday = habitPerf.totalToday
+            weeklyHabitCompletionRate = habitPerf.weeklyCompletionRate
+
+            // 5. Mobilite analitiği (MobilityAnalyticsService)
+            let mobilityMetrics = try await mobilityAnalytics.analyzeMobility(context: context)
+            uniqueLocationsThisWeek = mobilityMetrics.uniqueLocations
+            hoursOutsideThisWeek = mobilityMetrics.hoursOutside
+            mobilityScore = mobilityMetrics.mobilityScore
+
+            // 6. Smart öneriler (SmartSuggestionService)
+            let friendDescriptor = FetchDescriptor<Friend>()
+            let friends = try context.fetch(friendDescriptor)
+
+            let calendar = Calendar.current
+            guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
+                throw NSError(domain: "DashboardVM", code: -1, userInfo: [NSLocalizedDescriptionKey: "Tarih hesaplama hatası"])
+            }
+
+            let locationDescriptor = FetchDescriptor<LocationLog>(
+                predicate: #Predicate { $0.timestamp >= sevenDaysAgo }
+            )
+            let locationLogs = try context.fetch(locationDescriptor)
+
+            let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
+            let habits = try context.fetch(habitDescriptor)
+
+            try await suggestionService.loadSuggestions(
+                context: context,
+                friends: friends,
+                locations: locationLogs,
+                habits: habits
+            )
+            smartGoalSuggestions = suggestionService.suggestions
+
         } catch {
             print("❌ [DashboardVM] Service loading hatası: \(error)")
             fetchErrors["services"] = error.localizedDescription
             partialDataLoaded = true
         }
-
-        // GoalService'i ayarla ve istatistikleri yükle
-        goalService.setModelContext(context)
-        loadGoalStatistics(context: context)
-
-        // Diğer istatistikler (henüz service'e taşınmadı)
-        loadHabitPerformance(context: context)
-        loadMobilityData(context: context)
-        loadSmartSuggestions(context: context)
 
         // Motivasyon mesajı
         motivationalMessage = goalService.getMotivationalMessage()
@@ -139,98 +182,14 @@ class DashboardViewModel {
         print("⚠️ [DashboardVM] loadBasicStats() DEPRECATED - DashboardStatsService kullanın")
     }
 
+    // DEPRECATED: Phase 2'de GoalAnalyticsService'e taşındı
     private func loadGoalStatistics(context: ModelContext) {
-        guard let stats = goalService.statistics else {
-            print("⚠️ [DashboardVM] GoalService statistics mevcut değil")
-            fetchErrors["goal_statistics"] = "GoalService statistics yüklenemedi"
-            return
-        }
-
-        goalCompletionRate = stats.completionRate
-        overdueGoals = stats.overdueGoals
-        totalPoints = stats.totalPoints
-
-        if let category = stats.mostSuccessfulCategory {
-            mostSuccessfulCategory = "\(category.emoji) \(category.rawValue)"
-        }
-
-        // Bu ay tamamlanan hedefleri hesapla
-        do {
-            let goalDescriptor = FetchDescriptor<Goal>(
-                predicate: #Predicate { goal in
-                    goal.isCompleted
-                }
-            )
-
-            let goals = try context.fetch(goalDescriptor)
-            let calendar = Calendar.current
-            guard let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) else {
-                completedGoalsThisMonth = 0
-                print("⚠️ [DashboardVM] Ay başlangıç tarihi hesaplanamadı")
-                return
-            }
-            completedGoalsThisMonth = goals.filter { goal in
-                goal.targetDate >= startOfMonth
-            }.count
-        } catch {
-            print("❌ [DashboardVM] Completed goals fetch hatası: \(error.localizedDescription)")
-            fetchErrors["completed_goals"] = error.localizedDescription
-            completedGoalsThisMonth = 0
-            partialDataLoaded = true
-        }
+        print("⚠️ [DashboardVM] loadGoalStatistics() DEPRECATED - GoalAnalyticsService kullanın")
     }
 
+    // DEPRECATED: Phase 2'de HabitAnalyticsService'e taşındı
     private func loadHabitPerformance(context: ModelContext) {
-        do {
-            let habitDescriptor = FetchDescriptor<Habit>(
-                predicate: #Predicate { $0.isActive }
-            )
-
-            let habits = try context.fetch(habitDescriptor)
-
-            activeHabits = habits.count
-            totalHabitsToday = habits.count
-            completedHabitsToday = habits.filter { $0.isCompletedToday() }.count
-
-            // Haftalık tamamlama oranı
-            let calendar = Calendar.current
-            guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
-                print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
-                weeklyHabitCompletionRate = 0.0
-                return
-            }
-
-            var totalCompletions = 0
-            var totalPossible = 0
-
-            for habit in habits {
-                if let completions = habit.completions {
-                    let filtered = completions.filter { $0.completedAt >= sevenDaysAgo }
-                    totalCompletions += filtered.count
-                }
-
-                // Her alışkanlık için haftalık hedef sayısını hesapla
-                switch habit.frequency {
-                case .daily:
-                    totalPossible += 7
-                case .weekly:
-                    totalPossible += 1
-                case .monthly:
-                    totalPossible += 1
-                }
-            }
-
-            weeklyHabitCompletionRate = totalPossible > 0 ? Double(totalCompletions) / Double(totalPossible) : 0.0
-
-        } catch {
-            print("❌ [DashboardVM] Habit performance fetch hatası: \(error.localizedDescription)")
-            fetchErrors["habit_performance"] = error.localizedDescription
-            activeHabits = 0
-            totalHabitsToday = 0
-            completedHabitsToday = 0
-            weeklyHabitCompletionRate = 0.0
-            partialDataLoaded = true
-        }
+        print("⚠️ [DashboardVM] loadHabitPerformance() DEPRECATED - HabitAnalyticsService kullanın")
     }
 
     // DEPRECATED: Phase 1'de ContactAnalyticsService'e taşındı
@@ -240,99 +199,14 @@ class DashboardViewModel {
         print("⚠️ [DashboardVM] loadContactTrends() DEPRECATED - ContactAnalyticsService kullanın")
     }
 
+    // DEPRECATED: Phase 2'de MobilityAnalyticsService'e taşındı
     private func loadMobilityData(context: ModelContext) {
-        let calendar = Calendar.current
-        guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
-            handleMobilityDateError()
-            return
-        }
-
-        do {
-            let logs = try fetchLocationLogs(from: sevenDaysAgo, context: context)
-            calculateMobilityMetrics(from: logs)
-        } catch {
-            handleMobilityFetchError(error)
-        }
+        print("⚠️ [DashboardVM] loadMobilityData() DEPRECATED - MobilityAnalyticsService kullanın")
     }
 
-    private func handleMobilityDateError() {
-        print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
-        fetchErrors["mobility_date"] = "Tarih hesaplama hatası"
-        mobilityScore = 0
-    }
-
-    private func fetchLocationLogs(from date: Date, context: ModelContext) throws -> [LocationLog] {
-        let descriptor = FetchDescriptor<LocationLog>(
-            predicate: #Predicate { log in log.timestamp >= date }
-        )
-        return try context.fetch(descriptor)
-    }
-
-    private func calculateMobilityMetrics(from logs: [LocationLog]) {
-        print("   Total logs (7 gün): \(logs.count)")
-
-        // Benzersiz lokasyon sayısı - 200m hassasiyet
-        let coordinates = logs.map { "\(Int($0.latitude * 5)),\(Int($0.longitude * 5))" }
-        uniqueLocationsThisWeek = Set(coordinates).count
-        print("   Benzersiz lokasyonlar (200m): \(uniqueLocationsThisWeek)")
-
-        // Dışarıda geçirilen süre
-        let outsideLogs = logs.filter { $0.locationType != .home }
-        hoursOutsideThisWeek = Double(outsideLogs.count) * 0.5
-        print("   Dışarıda log sayısı: \(outsideLogs.count)")
-        print("   Dışarıda saat: \(String(format: "%.1f", hoursOutsideThisWeek))")
-
-        // Mobilite skoru (0-100)
-        // 15 yer = 100%, gerçekçi formül
-        let locationDiversity = min(Double(uniqueLocationsThisWeek) / 15.0, 1.0)
-        mobilityScore = Int(locationDiversity * 100)
-        print("   Mobilite Skoru: \(mobilityScore)")
-        print("   ---")
-    }
-
-    private func handleMobilityFetchError(_ error: Error) {
-        print("❌ [DashboardVM] Mobility data fetch hatası: \(error.localizedDescription)")
-        fetchErrors["mobility_data"] = error.localizedDescription
-        mobilityScore = 0
-        uniqueLocationsThisWeek = 0
-        hoursOutsideThisWeek = 0
-        partialDataLoaded = true
-    }
-
+    // DEPRECATED: Phase 2'de SmartSuggestionService'e taşındı
     private func loadSmartSuggestions(context: ModelContext) {
-        // Verileri topla
-        do {
-            let friendDescriptor = FetchDescriptor<Friend>()
-            let friends = try context.fetch(friendDescriptor)
-
-            let calendar = Calendar.current
-            guard let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) else {
-                print("⚠️ [DashboardVM] Haftalık tarih hesaplanamadı")
-                fetchErrors["smart_suggestions_date"] = "Tarih hesaplama hatası"
-                smartGoalSuggestions = []
-                return
-            }
-
-            let locationDescriptor = FetchDescriptor<LocationLog>(
-                predicate: #Predicate { $0.timestamp >= sevenDaysAgo }
-            )
-            let locationLogs = try context.fetch(locationDescriptor)
-
-            let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
-            let habits = try context.fetch(habitDescriptor)
-
-            // Smart önerileri oluştur
-            smartGoalSuggestions = goalService.generateSmartSuggestions(
-                friends: friends,
-                locationLogs: locationLogs,
-                habits: habits
-            )
-        } catch {
-            print("❌ [DashboardVM] Smart suggestions fetch hatası: \(error.localizedDescription)")
-            fetchErrors["smart_suggestions"] = error.localizedDescription
-            smartGoalSuggestions = []
-            partialDataLoaded = true
-        }
+        print("⚠️ [DashboardVM] loadSmartSuggestions() DEPRECATED - SmartSuggestionService kullanın")
     }
 
     func checkLocationStatus() {
@@ -765,87 +639,37 @@ class DashboardViewModel {
     // MARK: - Trend Data (Son 7 gün)
 
     /// Hedef tamamlanma oranı trendi (son 7 gün)
+    /// Phase 2: GoalAnalyticsService'e delegate edildi
     func getGoalsTrendData(context: ModelContext) -> [Double] {
-        do {
-            // Tüm hedefleri al
-            let goalDescriptor = FetchDescriptor<Goal>()
-            let goals = try context.fetch(goalDescriptor)
-
-            guard !goals.isEmpty else {
+        Task { @MainActor in
+            do {
+                return try await goalAnalytics.calculateGoalCompletionTrend(context: context)
+            } catch {
+                print("❌ [DashboardVM] Goals trend data fetch hatası: \(error.localizedDescription)")
+                fetchErrors["goals_trend"] = error.localizedDescription
+                partialDataLoaded = true
                 return [0.0]
             }
-
-            // Basit trend: Son 7 gün için simulated data (her gün progress ortalamas)
-            var trendData: [Double] = []
-            let currentRate = Double(goals.filter { $0.isCompleted }.count) / Double(goals.count)
-
-            for _ in 0..<7 {
-                // Slight variation for visual interest
-                let variation = Double.random(in: -0.1...0.1)
-                trendData.append(max(0, min(1.0, currentRate + variation)))
-            }
-
-            return trendData
-        } catch {
-            print("❌ [DashboardVM] Goals trend data fetch hatası: \(error.localizedDescription)")
-            fetchErrors["goals_trend"] = error.localizedDescription
-            partialDataLoaded = true
-            return [0.0]
         }
+        // Async beklerken geçici değer döndür
+        return [0.0]
     }
 
     /// Alışkanlık tamamlanma trendi (son 7 gün)
+    /// Phase 2: HabitAnalyticsService'e delegate edildi
     func getHabitsTrendData(context: ModelContext) -> [Double] {
-        let calendar = Calendar.current
-        var trendData: [Double] = []
-
-        do {
-            for dayOffset in (0...6).reversed() {
-                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
-                    print("⚠️ [DashboardVM] Habits trend tarih hesaplanamadı: dayOffset \(dayOffset)")
-                    continue
-                }
-                let dayStart = calendar.startOfDay(for: targetDate)
-                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
-                    print("⚠️ [DashboardVM] Habits trend gün sonu hesaplanamadı")
-                    continue
-                }
-
-                let habitDescriptor = FetchDescriptor<Habit>(predicate: #Predicate { $0.isActive })
-                let habits = try context.fetch(habitDescriptor)
-
-                guard !habits.isEmpty else {
-                    trendData.append(0.0)
-                    continue
-                }
-
-                var completedCount = 0
-                for habit in habits {
-                    guard let habitCompletions = habit.completions else { continue }
-                    // Manual filtering to avoid SwiftData Predicate requirement
-                    var hasCompletionInRange = false
-                    for completion in habitCompletions {
-                        if completion.completedAt >= dayStart && completion.completedAt < dayEnd {
-                            hasCompletionInRange = true
-                            break
-                        }
-                    }
-                    if hasCompletionInRange {
-                        completedCount += 1
-                    }
-                }
-
-                let rate = Double(completedCount) / Double(habits.count)
-                trendData.append(rate)
+        Task { @MainActor in
+            do {
+                return try await habitAnalytics.calculateDailyCompletionTrend(context: context)
+            } catch {
+                print("❌ [DashboardVM] Habits trend data fetch hatası: \(error.localizedDescription)")
+                fetchErrors["habits_trend"] = error.localizedDescription
+                partialDataLoaded = true
+                return [0.0]
             }
-
-            return trendData.isEmpty ? [0.0] : trendData
-        } catch {
-            print("❌ [DashboardVM] Habits trend data fetch hatası: \(error.localizedDescription)")
-            fetchErrors["habits_trend"] = error.localizedDescription
-            partialDataLoaded = true
-            return [0.0]
         }
+        // Async beklerken geçici değer döndür
+        return [0.0]
     }
 
     /// İletişim sayısı trendi (son 7 gün)
@@ -866,144 +690,65 @@ class DashboardViewModel {
     }
 
     /// Mobilite skoru trendi (son 7 gün)
+    /// Phase 2: MobilityAnalyticsService'e delegate edildi
     func getMobilityTrendData(context: ModelContext) -> [Double] {
-        let calendar = Calendar.current
-        var trendData: [Double] = []
-
-        do {
-            for dayOffset in (0...6).reversed() {
-                guard let targetDate = calendar.date(byAdding: .day, value: -dayOffset, to: Date()) else {
-                    print("⚠️ [DashboardVM] Mobility trend tarih hesaplanamadı: dayOffset \(dayOffset)")
-                    continue
-                }
-                let dayStart = calendar.startOfDay(for: targetDate)
-                guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
-                    print("⚠️ [DashboardVM] Mobility trend gün sonu hesaplanamadı")
-                    continue
-                }
-
-                let locationDescriptor = FetchDescriptor<LocationLog>(
-                    predicate: #Predicate { log in
-                        log.timestamp >= dayStart && log.timestamp < dayEnd
-                    }
-                )
-
-                let logs = try context.fetch(locationDescriptor)
-                let uniqueCoords = Set(logs.map { "\(Int($0.latitude * 100)),\(Int($0.longitude * 100))" })
-                let score = min(Double(uniqueCoords.count) * 10.0, 100.0)
-                trendData.append(score)
+        Task { @MainActor in
+            do {
+                return try await mobilityAnalytics.calculateDailyMobilityTrend(context: context)
+            } catch {
+                print("❌ [DashboardVM] Mobility trend data fetch hatası: \(error.localizedDescription)")
+                fetchErrors["mobility_trend"] = error.localizedDescription
+                partialDataLoaded = true
+                return [0.0]
             }
-
-            return trendData.isEmpty ? [0.0] : trendData
-        } catch {
-            print("❌ [DashboardVM] Mobility trend data fetch hatası: \(error.localizedDescription)")
-            fetchErrors["mobility_trend"] = error.localizedDescription
-            partialDataLoaded = true
-            return [0.0]
         }
+        // Async beklerken geçici değer döndür
+        return [0.0]
     }
 
     // MARK: - Smart Suggestions Actions
 
     /// Öneriyi kabul et ve Goal'a dönüştür
+    /// Phase 2: SmartSuggestionService'e delegate edildi
     func acceptSuggestion(_ suggestion: GoalSuggestion, context: ModelContext) {
-        // Goal oluştur
-        let goal = Goal(
-            title: suggestion.title,
-            goalDescription: suggestion.description,
-            category: suggestion.category,
-            targetDate: suggestion.suggestedTargetDate
-        )
-
-        context.insert(goal)
-
-        // AcceptedSuggestion kaydı oluştur
-        let accepted = AcceptedSuggestion(
-            from: suggestion,
-            convertedGoalId: goal.id
-        )
-        context.insert(accepted)
-
-        // Listeden kaldır
-        smartGoalSuggestions.removeAll { $0.id == suggestion.id }
-
         do {
-            try context.save()
+            try suggestionService.acceptSuggestion(suggestion, context: context)
+            smartGoalSuggestions = suggestionService.suggestions
         } catch {
-            print("❌ Öneri kabul edilirken hata: \(error)")
+            print("❌ [DashboardVM] Öneri kabul hatası: \(error)")
+            fetchErrors["accept_suggestion"] = error.localizedDescription
         }
     }
 
     /// Öneriyi reddet/dismiss et
+    /// Phase 2: SmartSuggestionService'e delegate edildi
     func dismissSuggestion(_ suggestion: GoalSuggestion, context: ModelContext) {
-        // AcceptedSuggestion olarak kaydet ama dismissed flag'i true
-        let dismissed = AcceptedSuggestion(from: suggestion)
-        dismissed.isDismissed = true
-        context.insert(dismissed)
-
-        // Listeden kaldır
-        smartGoalSuggestions.removeAll { $0.id == suggestion.id }
-
         do {
-            try context.save()
-            print("🚫 Öneri reddedildi: \(suggestion.title)")
+            try suggestionService.dismissSuggestion(suggestion, context: context)
+            smartGoalSuggestions = suggestionService.suggestions
         } catch {
-            print("❌ Öneri reddedilirken hata: \(error)")
+            print("❌ [DashboardVM] Öneri reddetme hatası: \(error)")
+            fetchErrors["dismiss_suggestion"] = error.localizedDescription
         }
     }
 
     /// AI ile yeni öneriler yükle (async)
+    /// Phase 2: SmartSuggestionService'e delegate edildi
     @MainActor
     func loadAISuggestions(context: ModelContext) async {
-        // UserProgress al
-        let progressDescriptor = FetchDescriptor<UserProgress>()
-        let userProgress = try? context.fetch(progressDescriptor).first
-
-        // AI provider ile öneriler üret
-        let aiProvider = AIGoalSuggestionProvider()
-
         do {
-            let aiSuggestions = try await aiProvider.generatePersonalizedSuggestions(
-                context: context,
-                userProgress: userProgress,
-                count: 2
-            )
-
-            // Mevcut önerilerle birleştir (zaten MainActor'dayız)
-            smartGoalSuggestions.append(contentsOf: aiSuggestions)
-            // Relevance'a göre sırala
-            smartGoalSuggestions.sort { $0.relevanceScore > $1.relevanceScore }
-
+            try await suggestionService.loadAISuggestions(context: context)
+            smartGoalSuggestions = suggestionService.suggestions
         } catch {
-            print("❌ [DashboardVM] AI önerileri yüklenemedi: \(error)")
-            if let nsError = error as NSError? {
-                print("   Error domain: \(nsError.domain)")
-                print("   Error code: \(nsError.code)")
-            }
+            print("❌ [DashboardVM] AI önerileri yükleme hatası: \(error)")
+            fetchErrors["ai_suggestions"] = error.localizedDescription
         }
     }
 
     /// Kabul edilen öneri için progress güncelle
+    /// Phase 2: SmartSuggestionService'e delegate edildi
     func getAcceptedSuggestionProgress(for suggestionTitle: String, context: ModelContext) -> Double? {
-        let descriptor = FetchDescriptor<AcceptedSuggestion>(
-            predicate: #Predicate { $0.suggestionTitle == suggestionTitle && !$0.isDismissed }
-        )
-
-        guard let accepted = try? context.fetch(descriptor).first,
-              let goalId = accepted.convertedGoalId else {
-            return nil
-        }
-
-        // Goal'un progress'ini al
-        let goalDescriptor = FetchDescriptor<Goal>(
-            predicate: #Predicate { $0.id == goalId }
-        )
-
-        guard let goal = try? context.fetch(goalDescriptor).first else {
-            return nil
-        }
-
-        return goal.progress
+        return suggestionService.getAcceptedSuggestionProgress(for: suggestionTitle, context: context)
     }
 
     // MARK: - Refresh
@@ -1014,7 +759,7 @@ class DashboardViewModel {
         // Kısa gecikme ile UI'ın render olmasını sağla
         try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 saniye
 
-        // PHASE 1: Service-based loading
+        // PHASE 1 & 2: Service-based refresh
         do {
             // 1. Temel istatistikler (DashboardStatsService)
             try await statsService.loadBasicStats(context: context)
@@ -1028,18 +773,40 @@ class DashboardViewModel {
             contactsThisWeek = trends.thisWeekCount
             lastContactMood = trends.lastMood
             contactTrendPercentage = trends.trendPercentage
+
+            // 3. Hedef analitiği (GoalAnalyticsService)
+            goalService.setModelContext(context)
+            let goalStats = try await goalAnalytics.loadStatistics(context: context)
+            goalCompletionRate = goalStats.completionRate
+            overdueGoals = goalStats.overdueGoals
+            totalPoints = goalStats.totalPoints
+            mostSuccessfulCategory = goalStats.mostSuccessfulCategory
+            completedGoalsThisMonth = goalStats.completedThisMonth
+
+            // 4. Alışkanlık analitiği (HabitAnalyticsService)
+            let habitPerf = try await habitAnalytics.analyzePerformance(context: context)
+            activeHabits = habitPerf.activeCount
+            completedHabitsToday = habitPerf.completedToday
+            totalHabitsToday = habitPerf.totalToday
+            weeklyHabitCompletionRate = habitPerf.weeklyCompletionRate
+
+            // 5. Mobilite analitiği (MobilityAnalyticsService)
+            let mobilityMetrics = try await mobilityAnalytics.analyzeMobility(context: context)
+            uniqueLocationsThisWeek = mobilityMetrics.uniqueLocations
+            hoursOutsideThisWeek = mobilityMetrics.hoursOutside
+            mobilityScore = mobilityMetrics.mobilityScore
+
+            // 6. Smart öneriler (SmartSuggestionService)
+            try await suggestionService.refreshAllSuggestions(context: context)
+            smartGoalSuggestions = suggestionService.suggestions
+
         } catch {
             print("❌ [DashboardVM] Service refresh hatası: \(error)")
             fetchErrors["services_refresh"] = error.localizedDescription
             partialDataLoaded = true
         }
 
-        // Diğer istatistikler
-        goalService.setModelContext(context)
-        loadGoalStatistics(context: context)
-        loadHabitPerformance(context: context)
-        loadMobilityData(context: context)
-        loadSmartSuggestions(context: context)
+        // Motivasyon mesajı
         motivationalMessage = goalService.getMotivationalMessage()
 
         // Daily Insight yenile (eğer iOS 26+ ise)

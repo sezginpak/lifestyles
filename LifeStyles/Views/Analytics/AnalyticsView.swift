@@ -12,6 +12,11 @@ import SwiftData
 struct AnalyticsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = AnalyticsViewModel()
+    @State private var showingPremiumSheet = false
+
+    private var premiumManager: PremiumManager {
+        PremiumManager.shared
+    }
 
     var body: some View {
         NavigationStack {
@@ -67,6 +72,9 @@ struct AnalyticsView: View {
             }
             .sheet(isPresented: $viewModel.showExportSheet) {
                 exportSheet
+            }
+            .sheet(isPresented: $showingPremiumSheet) {
+                PremiumSubscriptionView()
             }
             .task {
                 if viewModel.viewState == .loading {
@@ -128,12 +136,18 @@ struct AnalyticsView: View {
                     locationSection(location)
                 }
 
-                // Correlations
+                // Correlations - PREMIUM
                 if let correlations = viewModel.correlationData {
                     correlationSection(correlations)
+                        .premiumLocked(
+                            !premiumManager.isPremium,
+                            title: String(localized: "premium.feature.trend.analysis")
+                        ) {
+                            showingPremiumSheet = true
+                        }
                 }
 
-                // AI Insights (iOS 26+)
+                // AI Insights (iOS 26+) - PREMIUM
                 if viewModel.isAIAvailable {
                     if #available(iOS 26.0, *) {
                         AIInsightsSection(
@@ -143,6 +157,12 @@ struct AnalyticsView: View {
                             friendCorrelations: viewModel.friendMoodCorrelations
                         )
                         .padding(.horizontal)
+                        .premiumLocked(
+                            !premiumManager.isPremium,
+                            title: String(localized: "premium.feature.ai.insights")
+                        ) {
+                            showingPremiumSheet = true
+                        }
                     }
                 }
 

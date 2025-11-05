@@ -94,50 +94,6 @@ struct FriendDetailOverviewTab: View {
         .padding(.vertical)
     }
 
-    // MARK: - Notes Section (Inline)
-
-    private var modernNotesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Notlar")
-                .font(.headline)
-                .foregroundStyle(.primary)
-
-            TextEditor(text: $noteText)
-                .frame(height: 100)
-                .padding(12)
-                .background(Color(.tertiarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            if noteText != (friend.notes ?? "") {
-                Button {
-                    saveNotes()
-                } label: {
-                    HStack {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("Kaydet")
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        LinearGradient(
-                            colors: [.blue, .cyan],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
-    }
-
     // MARK: - Helper Properties
 
     private var achievementBadges: [FriendAchievement] {
@@ -240,4 +196,63 @@ struct FriendDetailOverviewTab: View {
     private var daysSinceCreation: Int {
         Calendar.current.dateComponents([.day], from: friend.createdAt, to: Date()).day ?? 0
     }
+
+    // MARK: - Notes Section (Inline)
+
+    private var modernNotesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Notlar")
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            TextEditor(text: $noteText)
+                .frame(height: 100)
+                .padding(12)
+                .background(Color(.tertiarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            if noteText != (friend.notes ?? "") {
+                Button {
+                    saveNotes()
+                } label: {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Kaydet")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .cyan],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+    }
+
+}
+
+#Preview {
+    FriendDetailOverviewTab(
+        friend: .preview,
+        showingAddTransaction: .constant(false),
+        showingAISuggestion: .constant(false),
+        noteText: .constant(""),
+        markTransactionAsPaid: { _ in },
+        markTransactionAsUnpaid: { _ in },
+        deleteTransaction: { _ in },
+        saveNotes: { }
+    )
+    .modelContainer(for: [Friend.self, Transaction.self])
 }
