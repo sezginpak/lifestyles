@@ -90,7 +90,8 @@ class MoodAnalyticsService {
 
     // MARK: - Mood-Goal Correlation
 
-    /// Goal tamamlama sonrası mood değişimi
+    /// Goal tamamlama sonrası mood değişimi (Tarih bazlı eşleştirme)
+    /// Goal tamamlandıktan sonra (aynı gün veya sonraki gün) kaydedilen mood'ları analiz eder
     func calculateGoalCorrelations(moodEntries: [MoodEntry], context: ModelContext) -> [MoodGoalCorrelation] {
         do {
             // Tüm goal'ları çek
@@ -98,26 +99,63 @@ class MoodAnalyticsService {
             let goals = try context.fetch(goalDescriptor)
 
             var correlations: [MoodGoalCorrelation] = []
+            let calendar = Calendar.current
 
             for goal in goals {
-                // Bu goal ile ilişkili mood'ları filtrele
-                let relatedMoods = moodEntries.filter { mood in
-                    mood.relatedGoals?.contains(where: { $0.id == goal.id }) ?? false
+                // Sadece tamamlanmış goal'ları analiz et
+                guard goal.isCompleted else { continue }
+
+                // Goal tamamlama tarihi (targetDate veya completedAt)
+                let completionDate = goal.targetDate
+                let completionDay = calendar.startOfDay(for: completionDate)
+
+                // Tamamlanma tarihinden sonraki 2 gün içinde kaydedilen mood'ları bul
+                guard let nextDay = calendar.date(byAdding: .day, value: 2, to: completionDay) else {
+                    continue
                 }
 
-                guard relatedMoods.count >= 3 else { continue } // En az 3 veri noktası gerekli
+                // Goal tamamlandıktan sonraki mood'lar
+                let moodsAfterGoal = moodEntries.filter { mood in
+                    mood.date >= completionDay && mood.date < nextDay
+                }
 
-                // Korelasyon hesapla
-                let correlation = calculateCorrelation(
-                    moodScores: relatedMoods.map { $0.score },
-                    baseline: moodEntries.map { $0.score }
+                // En az 1 mood olmalı
+                guard !moodsAfterGoal.isEmpty else { continue }
+
+                // Baseline: goal tamamlanmadan önceki mood'lar
+                let moodsBeforeGoal = moodEntries.filter { mood in
+                    mood.date < completionDay
+                }
+
+                // Baseline en az 3 olmalı
+                guard moodsBeforeGoal.count >= 3 else {
+                    // Yeterli baseline yoksa genel ortalama ile karşılaştır
+                    let correlation = calculateCorrelationWithBaseline(
+                        moodScores: moodsAfterGoal.map { $0.score },
+                        baseline: moodEntries.map { $0.score }
+                    )
+
+                    correlations.append(MoodGoalCorrelation(
+                        goal: goal,
+                        correlationScore: correlation,
+                        sampleSize: moodsAfterGoal.count
+                    ))
+                    continue
+                }
+
+                // Korelasyon hesapla: tamamlama sonrası mood'lar vs önceki mood'lar
+                let correlation = calculateCorrelationWithBaseline(
+                    moodScores: moodsAfterGoal.map { $0.score },
+                    baseline: moodsBeforeGoal.map { $0.score }
                 )
 
                 correlations.append(MoodGoalCorrelation(
                     goal: goal,
                     correlationScore: correlation,
-                    sampleSize: relatedMoods.count
+                    sampleSize: moodsAfterGoal.count
                 ))
+
+                print("🎯 [MoodAnalytics] \(goal.title): Korelasyon=\(String(format: "%.2f", correlation)), n=\(moodsAfterGoal.count)")
             }
 
             // Korelasyon skoru en yüksek olandan sırala
@@ -131,7 +169,8 @@ class MoodAnalyticsService {
 
     // MARK: - Mood-Friend Correlation
 
-    /// Friend iletişimi sonrası mood değişimi
+    /// Friend iletişimi sonrası mood değişimi (Tarih bazlı eşleştirme)
+    /// Arkadaş ile iletişim kurulduktan sonra (aynı gün veya sonraki gün) kaydedilen mood'ları analiz eder
     func calculateFriendCorrelations(moodEntries: [MoodEntry], context: ModelContext) -> [MoodFriendCorrelation] {
         do {
             // Tüm friend'leri çek
@@ -139,26 +178,76 @@ class MoodAnalyticsService {
             let friends = try context.fetch(friendDescriptor)
 
             var correlations: [MoodFriendCorrelation] = []
+            let calendar = Calendar.current
 
             for friend in friends {
-                // Bu friend ile ilişkili mood'ları filtrele
-                let relatedMoods = moodEntries.filter { mood in
-                    mood.relatedFriends?.contains(where: { $0.id == friend.id }) ?? false
+                // Bu arkadaşla olan tüm iletişim geçmişini al
+                guard let contactHistories = friend.contactHistory, !contactHistories.isEmpty else {
+                    continue
                 }
 
-                guard relatedMoods.count >= 3 else { continue }
+                // İletişim tarihlerine göre mood'ları eşleştir
+                var relatedMoodScores: [Double] = []
 
-                // Korelasyon hesapla
-                let correlation = calculateCorrelation(
-                    moodScores: relatedMoods.map { $0.score },
-                    baseline: moodEntries.map { $0.score }
+                for history in contactHistories {
+                    // İletişim tarihinden sonraki 24 saat içinde kaydedilen mood'ları bul
+                    let contactDate = calendar.startOfDay(for: history.date)
+                    guard let nextDay = calendar.date(byAdding: .day, value: 2, to: contactDate) else {
+                        continue
+                    }
+
+                    // İletişim günü veya sonraki gün kaydedilen mood'lar
+                    let moodsAfterContact = moodEntries.filter { mood in
+                        mood.date >= contactDate && mood.date < nextDay
+                    }
+
+                    // Bu mood'ların skorlarını ekle
+                    relatedMoodScores.append(contentsOf: moodsAfterContact.map { $0.score })
+                }
+
+                // En az 3 veri noktası gerekli
+                guard relatedMoodScores.count >= 3 else { continue }
+
+                // Bu arkadaşla iletişim olmayan günlerdeki mood'ları baseline olarak kullan
+                let contactDates = Set(contactHistories.map { calendar.startOfDay(for: $0.date) })
+
+                // Baseline: iletişim olmayan günlerdeki tüm mood'lar
+                let baselineMoods = moodEntries.filter { mood in
+                    let moodDay = calendar.startOfDay(for: mood.date)
+                    // İletişim günü değil ve sonraki gün de değil
+                    return !contactDates.contains(moodDay) &&
+                           !contactDates.contains(calendar.date(byAdding: .day, value: -1, to: moodDay) ?? moodDay)
+                }
+
+                // Baseline en az 3 olmalı
+                guard baselineMoods.count >= 3 else {
+                    // Yeterli baseline yoksa genel ortalama ile karşılaştır
+                    let correlation = calculateCorrelationWithBaseline(
+                        moodScores: relatedMoodScores,
+                        baseline: moodEntries.map { $0.score }
+                    )
+
+                    correlations.append(MoodFriendCorrelation(
+                        friend: friend,
+                        correlationScore: correlation,
+                        sampleSize: relatedMoodScores.count
+                    ))
+                    continue
+                }
+
+                // Korelasyon hesapla: iletişim sonrası mood'lar vs baseline mood'lar
+                let correlation = calculateCorrelationWithBaseline(
+                    moodScores: relatedMoodScores,
+                    baseline: baselineMoods.map { $0.score }
                 )
 
                 correlations.append(MoodFriendCorrelation(
                     friend: friend,
                     correlationScore: correlation,
-                    sampleSize: relatedMoods.count
+                    sampleSize: relatedMoodScores.count
                 ))
+
+                print("👥 [MoodAnalytics] \(friend.name): Korelasyon=\(String(format: "%.2f", correlation)), n=\(relatedMoodScores.count)")
             }
 
             // Korelasyon skoru en yüksek olandan sırala
@@ -168,6 +257,25 @@ class MoodAnalyticsService {
             print("❌ Friend correlation error: \(error)")
             return []
         }
+    }
+
+    /// Mood skorları ile baseline arasında karşılaştırma yap
+    /// Pozitif değer: iletişim sonrası mood daha iyi
+    /// Negatif değer: iletişim sonrası mood daha kötü
+    private func calculateCorrelationWithBaseline(moodScores: [Double], baseline: [Double]) -> Double {
+        guard !moodScores.isEmpty, !baseline.isEmpty else { return 0 }
+
+        let moodAvg = moodScores.reduce(0, +) / Double(moodScores.count)
+        let baselineAvg = baseline.reduce(0, +) / Double(baseline.count)
+
+        // Ortalamalar arasındaki fark
+        let difference = moodAvg - baselineAvg
+
+        // -1.0 ile +1.0 arası normalize et
+        // MoodEntry.score range: -2.0...+2.0, maksimum fark: 4.0
+        let normalized = max(-1.0, min(1.0, difference / 2.0))
+
+        return normalized
     }
 
     /// Basit korelasyon hesaplama (normalized)

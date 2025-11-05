@@ -128,10 +128,10 @@ class AIAnalyticsService {
                 continue
             }
 
+            // İletişim sonrası mood skorlarını topla (MoodEntry.score kullan: -2...+2)
+            var contactMoodScores: [Double] = []
             var positiveCount = 0
             var negativeCount = 0
-            var moodSum = 0.0
-            var moodCount = 0
 
             // Her contact sonrası mood'a bak (aynı gün veya sonraki gün)
             for history in histories {
@@ -145,9 +145,10 @@ class AIAnalyticsService {
                 }
 
                 for mood in relevantMoods {
-                    moodSum += Double(mood.intensity)
-                    moodCount += 1
+                    // Score kullan (-2...+2 arası)
+                    contactMoodScores.append(mood.score)
 
+                    // Pozitif/negatif sayımı için intensity kullan
                     if mood.intensity >= 4 {
                         positiveCount += 1
                     } else if mood.intensity <= 2 {
@@ -156,13 +157,26 @@ class AIAnalyticsService {
                 }
             }
 
-            let avgMood = moodCount > 0 ? moodSum / Double(moodCount) : 3.0
+            // İletişim olmayan günlerdeki mood'lar (baseline)
+            let contactDates = Set(histories.map { calendar.startOfDay(for: $0.date) })
+            let baselineMoods = moods.filter { mood in
+                let moodDay = calendar.startOfDay(for: mood.date)
+                return !contactDates.contains(moodDay) &&
+                       !contactDates.contains(calendar.date(byAdding: .day, value: -1, to: moodDay) ?? moodDay)
+            }
 
-            // Korelasyon skoru hesapla (basit versiyon)
-            let totalInteractions = positiveCount + negativeCount
-            let correlationScore = totalInteractions > 0
-                ? (Double(positiveCount) - Double(negativeCount)) / Double(totalInteractions)
-                : 0.0
+            let baselineScores = baselineMoods.map { $0.score }
+
+            // Ortalama hesapla
+            let contactAvg = contactMoodScores.isEmpty ? 0.0 : contactMoodScores.reduce(0, +) / Double(contactMoodScores.count)
+            let baselineAvg = baselineScores.isEmpty ? 0.0 : baselineScores.reduce(0, +) / Double(baselineScores.count)
+            let avgMood = contactMoodScores.isEmpty ? 3.0 : (contactAvg + 2.0) * 1.25 // -2...+2 → 1...5
+
+            // Korelasyon skoru: iletişim sonrası mood - baseline mood
+            // -1.0 ile +1.0 arası normalize et (max fark 4.0 olabilir)
+            let correlationScore = contactMoodScores.isEmpty ? 0.0 : max(-1.0, min(1.0, (contactAvg - baselineAvg) / 2.0))
+
+            print("🔍 [AIAnalytics] \(friend.name): contact=\(contactAvg), baseline=\(baselineAvg), correlation=\(String(format: "%.2f", correlationScore))")
 
             // İçgörü oluştur
             let insight: String
@@ -230,6 +244,8 @@ class AIAnalyticsService {
             return nil
         }
 
+        guard moods.count >= 14 else { return nil } // En az 2 haftalık veri gerekli
+
         let calendar = Calendar.current
         var weekdayMoods: [Int: [Double]] = [:] // 1=Pazar, 2=Pazartesi, ...
 
@@ -238,29 +254,75 @@ class AIAnalyticsService {
             weekdayMoods[weekday, default: []].append(Double(mood.intensity))
         }
 
-        // Her gün için ortalama hesapla
-        var averages: [(weekday: Int, avg: Double)] = []
-        for (weekday, values) in weekdayMoods {
+        // Her gün için ortalama ve variance hesapla
+        var dailyStats: [(weekday: Int, avg: Double, variance: Double, count: Int)] = []
+        var allAvgs: [Double] = []
+
+        for (weekday, values) in weekdayMoods where values.count >= 2 {
             let avg = values.reduce(0, +) / Double(values.count)
-            averages.append((weekday: weekday, avg: avg))
+            // Variance: ortalamadan sapmaların karelerinin ortalaması
+            let variance = values.map { pow($0 - avg, 2) }.reduce(0, +) / Double(values.count)
+            dailyStats.append((weekday: weekday, avg: avg, variance: variance, count: values.count))
+            allAvgs.append(avg)
         }
 
-        guard averages.count >= 5 else { return nil }
+        guard dailyStats.count >= 5 else { return nil }
+
+        // Genel ortalama ve standart sapma
+        let overallAvg = allAvgs.reduce(0, +) / Double(allAvgs.count)
+        let overallVariance = allAvgs.map { pow($0 - overallAvg, 2) }.reduce(0, +) / Double(allAvgs.count)
+        let stdDev = sqrt(overallVariance)
+
+        // Pattern gücü: günler arası farklılığın ne kadar belirgin olduğu
+        // Yüksek variance = güçlü pattern
+        let patternStrength = min(stdDev / 2.0, 1.0) // 0-1 arası normalize
+
+        // Sadece belirgin pattern'ler için döndür
+        guard patternStrength > 0.3 else { return nil }
 
         // En iyi ve en kötü günleri bul
-        let sorted = averages.sorted { $0.avg > $1.avg }
-        let bestDay = weekdayName(sorted.first?.weekday ?? 1)
-        let worstDay = weekdayName(sorted.last?.weekday ?? 1)
+        let sorted = dailyStats.sorted { $0.avg > $1.avg }
+        let bestDays = sorted.prefix(2)
+        let worstDays = sorted.suffix(2)
+
+        let bestDayNames = bestDays.map { weekdayName($0.weekday) }.joined(separator: ", ")
+        let worstDayNames = worstDays.map { weekdayName($0.weekday) }.joined(separator: ", ")
+
+        // En tutarlı gün (en düşük variance)
+        let mostConsistentDay = dailyStats.min(by: { $0.variance < $1.variance })
+        let consistentDayName = weekdayName(mostConsistentDay?.weekday ?? 1)
+
+        var examples: [String] = []
+        examples.append("En iyi günleriniz: \(bestDayNames) (Ort: \(String(format: "%.1f", bestDays.first?.avg ?? 0))/5)")
+        examples.append("Zorlayıcı günleriniz: \(worstDayNames) (Ort: \(String(format: "%.1f", worstDays.last?.avg ?? 0))/5)")
+        examples.append("En tutarlı gününüz: \(consistentDayName)")
+
+        // Hafta sonu vs hafta içi karşılaştırması
+        let weekendDays = dailyStats.filter { $0.weekday == 1 || $0.weekday == 7 } // Pazar=1, Cumartesi=7
+        let weekdayDays = dailyStats.filter { $0.weekday >= 2 && $0.weekday <= 6 }
+
+        if !weekendDays.isEmpty && !weekdayDays.isEmpty {
+            let weekendAvg = weekendDays.map { $0.avg }.reduce(0, +) / Double(weekendDays.count)
+            let weekdayAvg = weekdayDays.map { $0.avg }.reduce(0, +) / Double(weekdayDays.count)
+            let diff = weekendAvg - weekdayAvg
+
+            if abs(diff) > 0.5 {
+                if diff > 0 {
+                    examples.append("Hafta sonları ruh haliniz %\(Int(abs(diff) * 20)) daha iyi")
+                } else {
+                    examples.append("Hafta içi daha enerjiksiniz")
+                }
+            }
+        }
+
+        print("📊 [AIAnalytics] Weekly mood pattern: strength=\(String(format: "%.2f", patternStrength)), stdDev=\(String(format: "%.2f", stdDev))")
 
         return AnalyticsDetectedPattern(
             patternType: .weeklyMoodCycle,
-            description: String(localized: "analytics.pattern.weekly_mood_cycle_desc", defaultValue: "Haftalık ruh hali döngüsü tespit edildi", comment: "Weekly mood cycle pattern description"),
-            frequency: String(localized: "analytics.pattern.frequency_weekly", defaultValue: "Haftalık", comment: "Weekly frequency"),
-            strength: 0.75,
-            examples: [
-                String(localized: "analytics.pattern.best_days", defaultValue: "En iyi günleriniz: \(bestDay)", comment: "Best days example"),
-                String(localized: "analytics.pattern.worst_days", defaultValue: "En zorlu günleriniz: \(worstDay)", comment: "Worst days example")
-            ]
+            description: "Haftalık ruh hali döngüsü tespit edildi",
+            frequency: "Haftalık",
+            strength: patternStrength,
+            examples: examples
         )
     }
 
@@ -305,18 +367,94 @@ class AIAnalyticsService {
         }
 
         let completedGoals = goals.filter { $0.isCompleted }
+        guard completedGoals.count >= 5 else { return nil }
 
-        guard completedGoals.count >= 3 else { return nil }
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Goal completion timing analizi
+        var lastMinuteCount = 0 // Son 3 gün içinde tamamlanan
+        var earlyCompletionCount = 0 // Deadline'dan 7+ gün önce
+        var completionHours: [Int] = [] // Tamamlanma saatleri
+
+        for goal in completedGoals {
+            // Created date yoksa targetDate'ten 30 gün önce olduğunu varsay
+            let estimatedCreated = calendar.date(byAdding: .day, value: -30, to: goal.targetDate) ?? goal.targetDate
+            let daysToComplete = calendar.dateComponents([.day], from: estimatedCreated, to: goal.targetDate).day ?? 0
+
+            if daysToComplete <= 3 {
+                lastMinuteCount += 1
+            } else if daysToComplete >= 7 {
+                earlyCompletionCount += 1
+            }
+
+            // Completion hour (eğer targetDate saati anlamlıysa)
+            let hour = calendar.component(.hour, from: goal.targetDate)
+            if hour >= 6 && hour <= 23 { // Geçerli saat aralığı
+                completionHours.append(hour)
+            }
+        }
+
+        // Habit consistency analizi
+        var totalHabitScore = 0.0
+        var habitCount = 0
+
+        for habit in habits {
+            if let completions = habit.completions, !completions.isEmpty {
+                let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: now) ?? now
+                let recentCompletions = completions.filter { $0.completedAt >= thirtyDaysAgo }
+                let completionRate = Double(recentCompletions.count) / 30.0
+                totalHabitScore += min(completionRate, 1.0)
+                habitCount += 1
+            }
+        }
+
+        let avgHabitCompletion = habitCount > 0 ? totalHabitScore / Double(habitCount) : 0.0
+
+        // Pattern strength hesapla
+        let lastMinuteRatio = Double(lastMinuteCount) / Double(completedGoals.count)
+        let earlyRatio = Double(earlyCompletionCount) / Double(completedGoals.count)
+        let patternStrength = max(lastMinuteRatio, earlyRatio, avgHabitCompletion)
+
+        guard patternStrength > 0.4 else { return nil }
+
+        // En produktif saat
+        var mostProductiveHour: Int?
+        if completionHours.count >= 3 {
+            let hourCounts = Dictionary(grouping: completionHours, by: { $0 })
+                .mapValues { $0.count }
+            mostProductiveHour = hourCounts.max(by: { $0.value < $1.value })?.key
+        }
+
+        // Examples oluştur
+        var examples: [String] = []
+
+        if lastMinuteRatio > 0.5 {
+            examples.append("Hedeflerin %\(Int(lastMinuteRatio * 100))'ını son dakikada tamamlıyorsunuz")
+            examples.append("💡 Öneri: Hedefleri küçük parçalara bölün")
+        } else if earlyRatio > 0.5 {
+            examples.append("Harika! Hedeflerinizi erken tamamlıyorsunuz (%\(Int(earlyRatio * 100)))")
+        }
+
+        if let hour = mostProductiveHour {
+            let timeStr = String(format: "%02d:00", hour)
+            examples.append("En produktif saatiniz: \(timeStr)")
+        }
+
+        if avgHabitCompletion > 0.7 {
+            examples.append("Alışkanlık tutarlılığınız yüksek (%\(Int(avgHabitCompletion * 100)))")
+        } else if avgHabitCompletion > 0 {
+            examples.append("Alışkanlıklarda daha düzenli olabilirsiniz")
+        }
+
+        print("📊 [AIAnalytics] Productivity pattern: lastMinute=\(Int(lastMinuteRatio*100))%, early=\(Int(earlyRatio*100))%, habit=\(Int(avgHabitCompletion*100))%")
 
         return AnalyticsDetectedPattern(
             patternType: .goalCompletionTiming,
-            description: String(localized: "analytics.pattern.goal_completion_desc", defaultValue: "Hedef tamamlama pattern'i", comment: "Goal completion pattern description"),
-            frequency: String(localized: "analytics.pattern.frequency_monthly", defaultValue: "Aylık", comment: "Monthly frequency"),
-            strength: 0.62,
-            examples: [
-                String(localized: "analytics.pattern.goal_last_minute", defaultValue: "Hedeflerinizi genellikle son dakikada tamamlıyorsunuz", comment: "Last minute goal completion example"),
-                String(localized: "analytics.pattern.goal_early_success", defaultValue: "Erken başlanan hedefler daha başarılı oluyor", comment: "Early start goal success example")
-            ]
+            description: "Üretkenlik pattern'i tespit edildi",
+            frequency: "Aylık",
+            strength: patternStrength,
+            examples: examples
         )
     }
 
@@ -379,8 +517,8 @@ class AIAnalyticsService {
             if analytics.wellnessScore > 75 {
                 generatedInsights.append(
                     AnalyticsAIInsight(
-                        title: String(localized: "analytics.ai.insight_wellness_high_title", defaultValue: "Harika Bir Dönemdesiniz! 🌟", comment: "High wellness insight title"),
-                        description: String(localized: "analytics.ai.insight_wellness_high_desc", defaultValue: "Genel wellness skorunuz %\(Int(analytics.wellnessScore)). Bu harika performansı sürdürün!", comment: "High wellness insight description"),
+                        title: "Harika Bir Dönemdesiniz! 🌟",
+                        description: "Genel wellness skorunuz %\(Int(analytics.wellnessScore)). Bu harika performansı sürdürün!",
                         category: .wellness,
                         confidence: 0.9,
                         actionable: false,
@@ -390,79 +528,380 @@ class AIAnalyticsService {
             } else if analytics.wellnessScore < 50 {
                 generatedInsights.append(
                     AnalyticsAIInsight(
-                        title: String(localized: "analytics.ai.insight_wellness_low_title", defaultValue: "Kendinize Zaman Ayırın", comment: "Low wellness insight title"),
-                        description: String(localized: "analytics.ai.insight_wellness_low_desc", defaultValue: "Son zamanlarda düşük performans gösteriyorsunuz. Kendinize daha fazla zaman ayırmayı deneyin.", comment: "Low wellness insight description"),
+                        title: "Kendinize Zaman Ayırın",
+                        description: "Son zamanlarda düşük performans gösteriyorsunuz. Kendinize daha fazla zaman ayırmayı deneyin.",
                         category: .wellness,
                         confidence: 0.85,
                         actionable: true,
-                        suggestedAction: String(localized: "analytics.ai.insight_wellness_low_action", defaultValue: "Self-care aktiviteleri planlayın", comment: "Low wellness suggested action")
+                        suggestedAction: "Self-care aktiviteleri planlayın"
                     )
                 )
             }
         }
 
-        await MainActor.run {
-            insights = generatedInsights
+        // Goal category success insights
+        if let goalAnalytics = AnalyticsService.shared.goalAnalytics {
+            let topCategory = goalAnalytics.successByCategory.max(by: { $0.value < $1.value })
+            let worstCategory = goalAnalytics.successByCategory.min(by: { $0.value < $1.value })
+
+            if let top = topCategory, top.value > 0.7, goalAnalytics.successByCategory.count > 1 {
+                let categoryEmoji = categoryEmojiFor(top.key)
+                generatedInsights.append(
+                    AnalyticsAIInsight(
+                        title: "\(categoryEmoji) \(top.key) Kategorisinde Başarılısınız",
+                        description: "Bu kategoride %\(Int(top.value * 100)) başarı oranınız var. Bu alandaki deneyiminizi diğer hedeflerinize de uygulayın!",
+                        category: .productivity,
+                        confidence: top.value,
+                        actionable: true,
+                        suggestedAction: "Başarılı stratejilerinizi not edin"
+                    )
+                )
+            }
+
+            if let worst = worstCategory, worst.value < 0.4, goalAnalytics.successByCategory.count > 1 {
+                generatedInsights.append(
+                    AnalyticsAIInsight(
+                        title: "\(worst.key) Hedeflerinde Zorluk",
+                        description: "Bu kategoride %\(Int(worst.value * 100)) başarı oranınız var. Hedefleri daha küçük adımlara bölebilirsiniz.",
+                        category: .productivity,
+                        confidence: 1.0 - worst.value,
+                        actionable: true,
+                        suggestedAction: "Daha küçük, ulaşılabilir hedefler belirleyin"
+                    )
+                )
+            }
         }
-    }
 
-    // MARK: - Predictions
+        // Habit streak insights
+        if let habitAnalytics = AnalyticsService.shared.habitAnalytics {
+            if habitAnalytics.bestStreak >= 7 {
+                generatedInsights.append(
+                    AnalyticsAIInsight(
+                        title: "🔥 Muhteşem Streak!",
+                        description: "\(habitAnalytics.bestStreak) günlük en uzun streak'iniz var! Bu tutarlılık harika.",
+                        category: .productivity,
+                        confidence: 0.95,
+                        actionable: true,
+                        suggestedAction: "Bu momentum'u sürdürün"
+                    )
+                )
+            }
 
-    /// Gelecek tahminleri oluştur
-    private func generatePredictions(context: ModelContext) async {
-        var generatedPredictions: [AnalyticsPredictiveInsight] = []
+            if habitAnalytics.averageCompletionRate > 0.8 {
+                generatedInsights.append(
+                    AnalyticsAIInsight(
+                        title: "✅ Alışkanlık Şampiyonu",
+                        description: "%\(Int(habitAnalytics.averageCompletionRate * 100)) tamamlama oranıyla alışkanlıklarınızda çok disiplinlisiniz!",
+                        category: .productivity,
+                        confidence: habitAnalytics.averageCompletionRate,
+                        actionable: false,
+                        suggestedAction: nil
+                    )
+                )
+            }
+        }
 
-        // Mood prediction
+        // Mood improvement insights (from correlations)
         if let moodAnalytics = AnalyticsService.shared.moodAnalytics {
-            let trend = moodAnalytics.moodTrend.suffix(7)
-            if trend.count >= 5 {
-                let recentAvg = trend.map { $0.value }.reduce(0, +) / Double(trend.count)
+            let recentTrend = moodAnalytics.moodTrend.suffix(7)
+            if recentTrend.count >= 5 {
+                let first3 = Array(recentTrend.prefix(3)).map { $0.value }.reduce(0, +) / 3.0
+                let last3 = Array(recentTrend.suffix(3)).map { $0.value }.reduce(0, +) / 3.0
+                let improvement = last3 - first3
 
-                if recentAvg > 3.5 {
-                    generatedPredictions.append(
-                        AnalyticsPredictiveInsight(
-                            prediction: String(localized: "analytics.prediction.mood_high", defaultValue: "Önümüzdeki hafta ruh halinizin yüksek kalması bekleniyor", comment: "High mood prediction"),
-                            confidence: 0.75,
-                            timeframe: String(localized: "analytics.prediction.timeframe_next_week", defaultValue: "Önümüzdeki hafta", comment: "Next week timeframe"),
-                            basedOn: [
-                                String(localized: "analytics.prediction.based_on_mood_trend", defaultValue: "Son 7 günlük mood trendi", comment: "Based on mood trend"),
-                                String(localized: "analytics.prediction.based_on_social_activity", defaultValue: "Sosyal aktivite düzeyi", comment: "Based on social activity")
-                            ],
-                            recommendation: String(localized: "analytics.prediction.mood_high_recommendation", defaultValue: "Bu pozitif enerjiyi yeni hedefler için kullanın!", comment: "High mood recommendation")
+                if improvement > 0.5 {
+                    generatedInsights.append(
+                        AnalyticsAIInsight(
+                            title: "📈 Ruh Haliniz İyileşiyor!",
+                            description: "Son günlerde ruh halinizde belirgin bir iyileşme var. Ne yaptığınızı sürdürün!",
+                            category: .mood,
+                            confidence: 0.85,
+                            actionable: false,
+                            suggestedAction: nil
+                        )
+                    )
+                }
+            }
+
+            if moodAnalytics.consistencyRate > 0.8 {
+                generatedInsights.append(
+                    AnalyticsAIInsight(
+                        title: "📝 Düzenli Takip",
+                        description: "Mood kayıtlarınızı düzenli tutuyorsunuz (%\(Int(moodAnalytics.consistencyRate * 100))). Bu harika bir alışkanlık!",
+                        category: .mood,
+                        confidence: 0.9,
+                        actionable: false,
+                        suggestedAction: nil
+                    )
+                )
+            }
+        }
+
+        // Social insights
+        if let socialAnalytics = AnalyticsService.shared.socialAnalytics {
+            if socialAnalytics.activeContacts > 0 && socialAnalytics.totalContacts > 0 {
+                let activeRatio = Double(socialAnalytics.activeContacts) / Double(socialAnalytics.totalContacts)
+
+                if activeRatio > 0.7 {
+                    generatedInsights.append(
+                        AnalyticsAIInsight(
+                            title: "👥 Sosyal Bağlarınız Güçlü",
+                            description: "Arkadaşlarınızın %\(Int(activeRatio * 100))'ıyla düzenli görüşüyorsunuz. Harika!",
+                            category: .social,
+                            confidence: 0.88,
+                            actionable: false,
+                            suggestedAction: nil
+                        )
+                    )
+                } else if activeRatio < 0.3 && socialAnalytics.needsAttentionCount > 2 {
+                    generatedInsights.append(
+                        AnalyticsAIInsight(
+                            title: "💬 Arkadaşlarınıza Zaman Ayırın",
+                            description: "\(socialAnalytics.needsAttentionCount) kişiyle görüşme zamanınız geçmiş. Haftasonu bir kahve planı yapabilirsiniz!",
+                            category: .social,
+                            confidence: 0.85,
+                            actionable: true,
+                            suggestedAction: "Bu hafta 1-2 arkadaşınıza mesaj gönderin"
                         )
                     )
                 }
             }
         }
 
-        // Social prediction
-        if let socialAnalytics = AnalyticsService.shared.socialAnalytics {
-            if socialAnalytics.needsAttentionCount > 3 {
+        await MainActor.run {
+            insights = generatedInsights
+            print("✅ [AIAnalytics] Generated \(generatedInsights.count) insights")
+        }
+    }
+
+    /// Kategori için emoji döndür
+    private func categoryEmojiFor(_ category: String) -> String {
+        switch category.lowercased() {
+        case "sağlık", "health", "fitness": return "💪"
+        case "kariyer", "career", "iş": return "💼"
+        case "kişisel", "personal": return "✨"
+        case "sosyal", "social": return "👥"
+        case "finans", "finance": return "💰"
+        case "eğitim", "education": return "📚"
+        default: return "🎯"
+        }
+    }
+
+    // MARK: - Predictions
+
+    /// Gelecek tahminleri oluştur (Linear Regression + Pattern-based)
+    private func generatePredictions(context: ModelContext) async {
+        var generatedPredictions: [AnalyticsPredictiveInsight] = []
+
+        // 1. Mood Trend Prediction (Linear Regression)
+        if let moodAnalytics = AnalyticsService.shared.moodAnalytics {
+            let trendData = moodAnalytics.moodTrend.suffix(14) // Son 14 gün
+
+            if trendData.count >= 7 {
+                // Linear regression ile trend tahmini
+                let (slope, intercept, r2) = calculateLinearRegression(data: Array(trendData))
+
+                // 7 gün sonrası için tahmin
+                let futureDay = Double(trendData.count + 7)
+                let predictedMood = slope * futureDay + intercept
+
+                // Confidence: R² değeri (0-1 arası, ne kadar yüksekse o kadar güvenilir)
+                let confidence = max(0.5, min(0.95, r2))
+
+                // Trend yönü
+                if slope > 0.1 {
+                    // Yükseliş trendi
+                    generatedPredictions.append(
+                        AnalyticsPredictiveInsight(
+                            prediction: "📈 Ruh haliniz gelecek hafta daha iyi olacak",
+                            confidence: confidence,
+                            timeframe: "Önümüzdeki 7 gün",
+                            basedOn: [
+                                "Son 14 günlük mood trendi (yükseliş)",
+                                "Tahmin edilen mood: \(String(format: "%.1f", predictedMood))/5",
+                                "Trend güvenilirliği: %\(Int(r2 * 100))"
+                            ],
+                            recommendation: "Pozitif enerjiyi yeni hedefler için kullanın!"
+                        )
+                    )
+                } else if slope < -0.1 {
+                    // Düşüş trendi
+                    generatedPredictions.append(
+                        AnalyticsPredictiveInsight(
+                            prediction: "⚠️ Ruh haliniz gelecek hafta düşebilir",
+                            confidence: confidence,
+                            timeframe: "Önümüzdeki 7 gün",
+                            basedOn: [
+                                "Son 14 günlük mood trendi (düşüş)",
+                                "Tahmin edilen mood: \(String(format: "%.1f", predictedMood))/5",
+                                "Trend güvenilirliği: %\(Int(r2 * 100))"
+                            ],
+                            recommendation: "Self-care aktivitelerine zaman ayırın, arkadaşlarınızla görüşün"
+                        )
+                    )
+                } else {
+                    // Stabil trend
+                    generatedPredictions.append(
+                        AnalyticsPredictiveInsight(
+                            prediction: "😌 Ruh haliniz gelecek hafta stabil kalacak",
+                            confidence: confidence,
+                            timeframe: "Önümüzdeki 7 gün",
+                            basedOn: [
+                                "Son 14 günlük mood trendi (stabil)",
+                                "Tahmin edilen mood: \(String(format: "%.1f", predictedMood))/5"
+                            ],
+                            recommendation: "Bu dengeyi korumak için rutininize sadık kalın"
+                        )
+                    )
+                }
+            }
+        }
+
+        // 2. Pattern-based Mood Prediction
+        // Eğer haftalık mood cycle pattern'i tespit edildiyse
+        let weeklyPattern = detectedPatterns.first { $0.patternType == .weeklyMoodCycle }
+        if let pattern = weeklyPattern, pattern.strength > 0.3 {
+            let calendar = Calendar.current
+            let today = calendar.component(.weekday, from: Date())
+
+            // Pattern description'dan düşük mood günleri çıkar
+            // Örnek: "En iyi gün: Cumartesi (4.2/5), En kötü gün: Pazartesi (2.8/5)"
+            if pattern.description.contains("En kötü gün: Pazartesi") && today == 7 { // Pazar
                 generatedPredictions.append(
                     AnalyticsPredictiveInsight(
-                        prediction: String(localized: "analytics.prediction.social_weak", defaultValue: "Yakında sosyal bağlantılarınız zayıflayabilir", comment: "Weak social connections prediction"),
-                        confidence: 0.82,
-                        timeframe: String(localized: "analytics.prediction.timeframe_two_weeks", defaultValue: "Önümüzdeki 2 hafta", comment: "Two weeks timeframe"),
-                        basedOn: [String(localized: "analytics.prediction.based_on_overdue_contacts", defaultValue: "\(socialAnalytics.needsAttentionCount) arkadaşla görüşme süresi doldu", comment: "Based on overdue contacts")],
-                        recommendation: String(localized: "analytics.prediction.social_weak_recommendation", defaultValue: "Bu hafta en az 2 arkadaşınızla iletişime geçin", comment: "Weak social connections recommendation")
+                        prediction: "⚠️ Yarın (Pazartesi) ruh haliniz düşük olabilir",
+                        confidence: 0.75,
+                        timeframe: "Yarın",
+                        basedOn: [
+                            "Haftalık mood cycle pattern'iniz",
+                            "Pazartesi günleri genelde düşük mood",
+                            "Pattern gücü: %\(Int(pattern.strength * 100))"
+                        ],
+                        recommendation: "Pazartesi için motivasyon artırıcı aktiviteler planlayın"
                     )
                 )
             }
         }
 
-        // Goal prediction
-        if let goalAnalytics = AnalyticsService.shared.goalAnalytics {
-            if goalAnalytics.completionRate < 0.5 && goalAnalytics.upcomingDeadlines > 2 {
+        // 3. Social Activity Prediction
+        if let socialAnalytics = AnalyticsService.shared.socialAnalytics {
+            // Trend analizi: son 30 gün vs önceki 30 gün
+            let recentContactRate = Double(socialAnalytics.activeContacts) / max(1.0, Double(socialAnalytics.totalContacts))
+
+            if socialAnalytics.needsAttentionCount > 3 {
+                let riskLevel = min(0.95, 0.6 + Double(socialAnalytics.needsAttentionCount) * 0.05)
+
                 generatedPredictions.append(
                     AnalyticsPredictiveInsight(
-                        prediction: String(localized: "analytics.prediction.goal_miss_deadline", defaultValue: "Önümüzdeki hafta hedef deadline'ları kaçırma riski yüksek", comment: "Goal deadline miss prediction"),
-                        confidence: 0.70,
-                        timeframe: String(localized: "analytics.prediction.timeframe_next_week", defaultValue: "Önümüzdeki hafta", comment: "Next week timeframe"),
+                        prediction: "👥 Sosyal bağlantılarınız zayıflıyor",
+                        confidence: riskLevel,
+                        timeframe: "Önümüzdeki 2 hafta",
                         basedOn: [
-                            String(localized: "analytics.prediction.based_on_upcoming_deadlines", defaultValue: "\(goalAnalytics.upcomingDeadlines) yaklaşan deadline", comment: "Based on upcoming deadlines"),
-                            String(localized: "analytics.prediction.based_on_low_completion", defaultValue: "Düşük tamamlanma oranı", comment: "Based on low completion rate")
+                            "\(socialAnalytics.needsAttentionCount) arkadaşla görüşme süresi doldu",
+                            "Aktif iletişim oranı: %\(Int(recentContactRate * 100))"
                         ],
-                        recommendation: String(localized: "analytics.prediction.goal_miss_recommendation", defaultValue: "Hedefleri önceliklendirin ve küçük adımlara bölün", comment: "Goal deadline miss recommendation")
+                        recommendation: "Bu hafta en az 2-3 arkadaşınızla iletişime geçin"
+                    )
+                )
+            } else if recentContactRate > 0.7 {
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "🌟 Sosyal hayatınız gelecek hafta da güçlü kalacak",
+                        confidence: 0.80,
+                        timeframe: "Önümüzdeki hafta",
+                        basedOn: [
+                            "Yüksek aktif iletişim oranı (%\(Int(recentContactRate * 100)))",
+                            "Düzenli görüşme alışkanlığınız var"
+                        ],
+                        recommendation: "Bu momentum'u sürdürün!"
+                    )
+                )
+            }
+        }
+
+        // 4. Goal Completion Risk
+        if let goalAnalytics = AnalyticsService.shared.goalAnalytics {
+            if goalAnalytics.completionRate < 0.5 && goalAnalytics.upcomingDeadlines > 2 {
+                let risk = 0.70 + min(0.25, Double(goalAnalytics.upcomingDeadlines) * 0.05)
+
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "🚨 Hedef deadline'ları kaçırma riski yüksek",
+                        confidence: risk,
+                        timeframe: "Önümüzdeki hafta",
+                        basedOn: [
+                            "\(goalAnalytics.upcomingDeadlines) yaklaşan deadline",
+                            "Tamamlanma oranı: %\(Int(goalAnalytics.completionRate * 100))",
+                            "Geçmiş performans düşük"
+                        ],
+                        recommendation: "Hedefleri önceliklendirin ve küçük adımlara bölün"
+                    )
+                )
+            } else if goalAnalytics.completionRate > 0.7 {
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "🎯 Hedeflerinizi başarıyla tamamlayacaksınız",
+                        confidence: 0.85,
+                        timeframe: "Önümüzdeki hafta",
+                        basedOn: [
+                            "Yüksek tamamlanma oranı (%\(Int(goalAnalytics.completionRate * 100)))",
+                            "Düzenli ilerleme kaydediyorsunuz"
+                        ],
+                        recommendation: "Momentum'u kaybetmeyin, yeni hedefler ekleyin"
+                    )
+                )
+            }
+        }
+
+        // 5. Habit Streak Prediction
+        if let habitAnalytics = AnalyticsService.shared.habitAnalytics {
+            if habitAnalytics.bestStreak >= 7 && habitAnalytics.averageCompletionRate > 0.7 {
+                let streakConfidence = min(0.90, 0.6 + habitAnalytics.averageCompletionRate * 0.3)
+
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "🔥 Streak'iniz gelecek hafta da devam edecek",
+                        confidence: streakConfidence,
+                        timeframe: "Önümüzdeki 7 gün",
+                        basedOn: [
+                            "Mevcut en uzun streak: \(habitAnalytics.bestStreak) gün",
+                            "Ortalama tamamlanma: %\(Int(habitAnalytics.averageCompletionRate * 100))",
+                            "Güçlü alışkanlık pattern'i"
+                        ],
+                        recommendation: "Her gün için hatırlatıcı kur, momentum'u koru"
+                    )
+                )
+            } else if habitAnalytics.averageCompletionRate < 0.4 {
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "⚠️ Alışkanlıklar risk altında",
+                        confidence: 0.75,
+                        timeframe: "Önümüzdeki hafta",
+                        basedOn: [
+                            "Düşük tamamlanma oranı (%\(Int(habitAnalytics.averageCompletionRate * 100)))",
+                            "Düzenli takip eksikliği"
+                        ],
+                        recommendation: "Alışkanlıkları daha küçük, kolay adımlara bölün"
+                    )
+                )
+            }
+        }
+
+        // 6. Productivity Pattern Prediction
+        let productivityPattern = detectedPatterns.first { $0.patternType == .goalCompletionTiming }
+        if let pattern = productivityPattern, pattern.strength > 0.4 {
+            if pattern.description.contains("son dakika") || pattern.description.contains("last-minute") {
+                generatedPredictions.append(
+                    AnalyticsPredictiveInsight(
+                        prediction: "⏰ Gelecek hafta da son dakika yetişme riski var",
+                        confidence: 0.78,
+                        timeframe: "Önümüzdeki hafta",
+                        basedOn: [
+                            "Son dakika tamamlama pattern'iniz güçlü",
+                            "Pattern gücü: %\(Int(pattern.strength * 100))",
+                            "Geçmiş davranış tekrarlanıyor"
+                        ],
+                        recommendation: "Hedeflere daha erken başlamayı deneyin, ara deadline'lar koyun"
                     )
                 )
             }
@@ -470,7 +909,48 @@ class AIAnalyticsService {
 
         await MainActor.run {
             predictions = generatedPredictions
+            print("🔮 [AI Analytics] \(generatedPredictions.count) tahmin oluşturuldu")
         }
+    }
+
+    /// Linear regression hesapla (slope, intercept, R²)
+    private func calculateLinearRegression(data: [MoodAnalytics.MoodPoint]) -> (slope: Double, intercept: Double, r2: Double) {
+        guard data.count >= 2 else { return (0, 0, 0) }
+
+        let n = Double(data.count)
+
+        // x: gün indexi (0, 1, 2, ...), y: mood değeri
+        let xValues = (0..<data.count).map { Double($0) }
+        let yValues = data.map { $0.value }
+
+        let sumX = xValues.reduce(0, +)
+        let sumY = yValues.reduce(0, +)
+        let sumXY = zip(xValues, yValues).map { $0 * $1 }.reduce(0, +)
+        let sumX2 = xValues.map { $0 * $0 }.reduce(0, +)
+        let sumY2 = yValues.map { $0 * $0 }.reduce(0, +)
+
+        // Slope (eğim): m = (n*ΣXY - ΣX*ΣY) / (n*ΣX² - (ΣX)²)
+        let numerator = n * sumXY - sumX * sumY
+        let denominator = n * sumX2 - sumX * sumX
+
+        guard denominator != 0 else { return (0, 0, 0) }
+
+        let slope = numerator / denominator
+
+        // Intercept (kesişim): b = (ΣY - m*ΣX) / n
+        let intercept = (sumY - slope * sumX) / n
+
+        // R² (coefficient of determination): ne kadar iyi fit olduğunu gösterir (0-1 arası)
+        let meanY = sumY / n
+        let ssTotal = yValues.map { pow($0 - meanY, 2) }.reduce(0.0, +)
+        let ssResidual = zip(xValues, yValues).map { x, y in
+            let predicted = slope * x + intercept
+            return pow(y - predicted, 2)
+        }.reduce(0.0, +)
+
+        let r2 = ssTotal > 0 ? max(0, 1 - (ssResidual / ssTotal)) : 0
+
+        return (slope, intercept, r2)
     }
 
     // MARK: - Helper Functions

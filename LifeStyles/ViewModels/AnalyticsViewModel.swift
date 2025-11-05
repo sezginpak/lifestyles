@@ -69,6 +69,11 @@ class AnalyticsViewModel {
     var locationData: LocationAnalytics?
     var correlationData: CorrelationData?
 
+    // Mood correlation data (non-AI)
+    var friendCorrelations: [MoodFriendCorrelation] = []
+    var goalCorrelations: [MoodGoalCorrelation] = []
+    var locationCorrelations: [MoodLocationCorrelation] = []
+
     // AI Data (iOS 26+)
     var aiInsights: [AnalyticsAIInsight] = []
     var detectedPatterns: [AnalyticsDetectedPattern] = []
@@ -123,6 +128,9 @@ class AnalyticsViewModel {
         // Load analytics data
         await analyticsService.loadAllAnalytics()
 
+        // Load mood correlations (non-AI)
+        await loadMoodCorrelations(context: context)
+
         // AI analytics (iOS 26+)
         if #available(iOS 26.0, *) {
             await aiAnalyticsService.runComprehensiveAnalysis(context: context)
@@ -147,6 +155,9 @@ class AnalyticsViewModel {
 
         await analyticsService.loadAllAnalytics()
 
+        // Load mood correlations (non-AI)
+        await loadMoodCorrelations(context: context)
+
         if #available(iOS 26.0, *) {
             await aiAnalyticsService.runComprehensiveAnalysis(context: context)
             updateAIData()
@@ -156,6 +167,46 @@ class AnalyticsViewModel {
 
         lastRefreshDate = Date()
         isRefreshing = false
+    }
+
+    /// Mood korelasyonlarını yükle (MoodAnalyticsService)
+    private func loadMoodCorrelations(context: ModelContext) async {
+        // Tüm mood kayıtlarını çek
+        guard let moods = try? context.fetch(FetchDescriptor<MoodEntry>()) else {
+            print("⚠️ [AnalyticsViewModel] Mood entries fetch failed")
+            return
+        }
+
+        let moodAnalyticsService = MoodAnalyticsService.shared
+
+        // Friend korelasyonlarını hesapla
+        let friends = moodAnalyticsService.calculateFriendCorrelations(
+            moodEntries: moods,
+            context: context
+        )
+
+        // Goal korelasyonlarını hesapla
+        let goals = moodAnalyticsService.calculateGoalCorrelations(
+            moodEntries: moods,
+            context: context
+        )
+
+        // Location korelasyonlarını hesapla
+        let locations = moodAnalyticsService.calculateLocationCorrelations(
+            moodEntries: moods,
+            context: context
+        )
+
+        await MainActor.run {
+            self.friendCorrelations = friends
+            self.goalCorrelations = goals
+            self.locationCorrelations = locations
+
+            print("✅ [AnalyticsViewModel] Mood correlations loaded:")
+            print("   - Friends: \(friends.count)")
+            print("   - Goals: \(goals.count)")
+            print("   - Locations: \(locations.count)")
+        }
     }
 
     /// Local data'yı service'lerden güncelle

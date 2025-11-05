@@ -121,6 +121,13 @@ struct AnalyticsView: View {
                         .padding(.horizontal)
                 }
 
+                // Mood Correlations (Friend, Goal, Location)
+                if !viewModel.friendCorrelations.isEmpty ||
+                   !viewModel.goalCorrelations.isEmpty ||
+                   !viewModel.locationCorrelations.isEmpty {
+                    moodCorrelationsSection
+                }
+
                 // Goal Analytics (mini version)
                 if let goals = viewModel.goalData {
                     goalSection(goals)
@@ -314,6 +321,38 @@ struct AnalyticsView: View {
             }
         }
         .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    private var moodCorrelationsSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Section header
+            HStack {
+                Image(systemName: "heart.text.square.fill")
+                    .foregroundStyle(.pink)
+                Text(String(localized: "analytics.mood.correlations_title", defaultValue: "Ruh Hali Korelasyonları", comment: "Mood correlations section title"))
+                    .font(.title2.weight(.bold))
+            }
+            .padding(.horizontal)
+
+            // Friend Correlations
+            if !viewModel.friendCorrelations.isEmpty {
+                FriendCorrelationSection(correlations: viewModel.friendCorrelations)
+                    .padding(.horizontal)
+            }
+
+            // Goal Correlations
+            if !viewModel.goalCorrelations.isEmpty {
+                GoalCorrelationSection(correlations: viewModel.goalCorrelations)
+                    .padding(.horizontal)
+            }
+
+            // Location Correlations
+            if !viewModel.locationCorrelations.isEmpty {
+                LocationCorrelationSection(correlations: viewModel.locationCorrelations)
+                    .padding(.horizontal)
+            }
+        }
     }
 
     @ViewBuilder

@@ -217,8 +217,9 @@ struct AIInsightsSection: View {
                     Text(prediction.prediction)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Label(prediction.timeframe, systemImage: "calendar")
                         Label(String(localized: "analytics.prediction.confidence_percent", defaultValue: "\(Int(prediction.confidence * 100))% güven", comment: "Prediction confidence percentage"), systemImage: "checkmark.seal.fill")
                     }
@@ -226,7 +227,7 @@ struct AIInsightsSection: View {
                     .foregroundStyle(.secondary)
 
                     // Recommendation
-                    HStack(spacing: 8) {
+                    HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "lightbulb.fill")
                             .font(.caption)
                             .foregroundStyle(.yellow)
@@ -234,11 +235,10 @@ struct AIInsightsSection: View {
                         Text(prediction.recommendation)
                             .font(.caption)
                             .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(.top, 4)
                 }
-
-                Spacer()
             }
         }
         .padding()

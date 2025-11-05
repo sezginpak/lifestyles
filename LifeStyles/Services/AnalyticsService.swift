@@ -630,67 +630,324 @@ class AnalyticsService {
     // MARK: - Correlations
 
     private func loadCorrelations(context: ModelContext) async {
-        // Basit korelasyon hesaplamaları
-        // Gerçek korelasyon hesabı için pearson correlation kullanılabilir
+        // Gerçek Pearson korelasyon hesaplamaları
 
         let moodVsContacts = await calculateMoodContactCorrelation(context: context)
         let moodVsGoals = await calculateMoodGoalCorrelation(context: context)
         let moodVsLocation = await calculateMoodLocationCorrelation(context: context)
+        let contactsVsMobility = await calculateContactMobilityCorrelation(context: context)
+        let goalsVsHabits = await calculateGoalsHabitsCorrelation(context: context)
 
         await MainActor.run {
             correlationData = CorrelationData(
                 moodVsContacts: moodVsContacts,
                 moodVsGoals: moodVsGoals,
                 moodVsLocation: moodVsLocation,
-                contactsVsMobility: 0.5, // Placeholder
-                goalsVsHabits: 0.7 // Placeholder
+                contactsVsMobility: contactsVsMobility,
+                goalsVsHabits: goalsVsHabits
             )
         }
     }
 
+    /// Pearson korelasyon katsayısı hesapla (-1 ile +1 arası)
+    private func calculatePearsonCorrelation(x: [Double], y: [Double]) -> Double {
+        guard x.count == y.count, x.count > 1 else { return 0.0 }
+
+        let n = Double(x.count)
+
+        // Ortalamalar
+        let meanX = x.reduce(0, +) / n
+        let meanY = y.reduce(0, +) / n
+
+        // Kovaryans ve standart sapmalar
+        var covariance = 0.0
+        var varianceX = 0.0
+        var varianceY = 0.0
+
+        for i in 0..<x.count {
+            let dx = x[i] - meanX
+            let dy = y[i] - meanY
+            covariance += dx * dy
+            varianceX += dx * dx
+            varianceY += dy * dy
+        }
+
+        // Standart sapma 0 ise korelasyon hesaplanamaz
+        guard varianceX > 0, varianceY > 0 else { return 0.0 }
+
+        let correlation = covariance / sqrt(varianceX * varianceY)
+
+        // -1 ile +1 arasında sınırla
+        return max(-1.0, min(1.0, correlation))
+    }
+
     private func calculateMoodContactCorrelation(context: ModelContext) async -> Double {
-        // Basit korelasyon: Aynı gündeki mood ve contact sayısını karşılaştır
+        // Günlük bazda mood skoru ve contact sayısı arasındaki korelasyon
         guard let moods = try? context.fetch(FetchDescriptor<MoodEntry>()),
               let friends = try? context.fetch(FetchDescriptor<Friend>()) else {
             return 0.0
         }
 
         let calendar = Calendar.current
-        var dailyData: [Date: (mood: Double, contacts: Int)] = [:]
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
 
-        for mood in moods {
+        // Günlük veri: her gün için mood skoru ve contact sayısı
+        var dailyData: [Date: (moodScores: [Double], contactCount: Int)] = [:]
+
+        // Mood'ları grupla
+        for mood in moods where mood.date >= thirtyDaysAgo {
             let dayStart = calendar.startOfDay(for: mood.date)
             if dailyData[dayStart] == nil {
-                dailyData[dayStart] = (mood: Double(mood.intensity), contacts: 0)
-            } else {
-                dailyData[dayStart]?.mood += Double(mood.intensity)
+                dailyData[dayStart] = (moodScores: [], contactCount: 0)
             }
+            // MoodEntry'nin score property'si kullanılıyor (-2 ile +2 arası)
+            dailyData[dayStart]?.moodScores.append(mood.score)
         }
 
+        // Contact'ları say
         for friend in friends {
             if let histories = friend.contactHistory {
-                for history in histories {
+                for history in histories where history.date >= thirtyDaysAgo {
                     let dayStart = calendar.startOfDay(for: history.date)
-                    if dailyData[dayStart] != nil {
-                        dailyData[dayStart]?.contacts += 1
-                    } else {
-                        dailyData[dayStart] = (mood: 0, contacts: 1)
+                    if dailyData[dayStart] == nil {
+                        dailyData[dayStart] = (moodScores: [], contactCount: 0)
                     }
+                    dailyData[dayStart]?.contactCount += 1
                 }
             }
         }
 
-        // Basit pozitif korelasyon varsayımı
-        return 0.65 // Placeholder
+        // En az 3 veri noktası gerekli
+        guard dailyData.count >= 3 else { return 0.0 }
+
+        // Sadece hem mood hem contact olan günleri al
+        let validDays = dailyData.filter { !$0.value.moodScores.isEmpty }
+        guard validDays.count >= 3 else { return 0.0 }
+
+        // X: günlük ortalama mood, Y: günlük contact sayısı
+        var moodValues: [Double] = []
+        var contactValues: [Double] = []
+
+        for (_, data) in validDays.sorted(by: { $0.key < $1.key }) {
+            let avgMood = data.moodScores.reduce(0, +) / Double(data.moodScores.count)
+            moodValues.append(avgMood)
+            contactValues.append(Double(data.contactCount))
+        }
+
+        let correlation = calculatePearsonCorrelation(x: moodValues, y: contactValues)
+
+        print("📊 [AnalyticsService] Mood-Contact Korelasyon: \(String(format: "%.2f", correlation)) (n=\(moodValues.count))")
+        return correlation
     }
 
     private func calculateMoodGoalCorrelation(context: ModelContext) async -> Double {
-        // Goal tamamlama ve mood arasındaki ilişki
-        return 0.72 // Placeholder
+        // Günlük goal tamamlama sayısı ve mood skoru arasındaki korelasyon
+        guard let moods = try? context.fetch(FetchDescriptor<MoodEntry>()),
+              let goals = try? context.fetch(FetchDescriptor<Goal>()) else {
+            return 0.0
+        }
+
+        let calendar = Calendar.current
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+
+        var dailyData: [Date: (moodScores: [Double], goalsCompleted: Int)] = [:]
+
+        // Mood'ları grupla
+        for mood in moods where mood.date >= thirtyDaysAgo {
+            let dayStart = calendar.startOfDay(for: mood.date)
+            if dailyData[dayStart] == nil {
+                dailyData[dayStart] = (moodScores: [], goalsCompleted: 0)
+            }
+            dailyData[dayStart]?.moodScores.append(mood.score)
+        }
+
+        // Tamamlanan goal'ları say
+        for goal in goals where goal.isCompleted {
+            let completionDate = goal.targetDate // Ya da completedAt varsa onu kullan
+            if completionDate >= thirtyDaysAgo {
+                let dayStart = calendar.startOfDay(for: completionDate)
+                if dailyData[dayStart] == nil {
+                    dailyData[dayStart] = (moodScores: [], goalsCompleted: 0)
+                }
+                dailyData[dayStart]?.goalsCompleted += 1
+            }
+        }
+
+        guard dailyData.count >= 3 else { return 0.0 }
+
+        let validDays = dailyData.filter { !$0.value.moodScores.isEmpty }
+        guard validDays.count >= 3 else { return 0.0 }
+
+        var moodValues: [Double] = []
+        var goalValues: [Double] = []
+
+        for (_, data) in validDays.sorted(by: { $0.key < $1.key }) {
+            let avgMood = data.moodScores.reduce(0, +) / Double(data.moodScores.count)
+            moodValues.append(avgMood)
+            goalValues.append(Double(data.goalsCompleted))
+        }
+
+        let correlation = calculatePearsonCorrelation(x: moodValues, y: goalValues)
+
+        print("📊 [AnalyticsService] Mood-Goal Korelasyon: \(String(format: "%.2f", correlation)) (n=\(moodValues.count))")
+        return correlation
     }
 
     private func calculateMoodLocationCorrelation(context: ModelContext) async -> Double {
-        // Dışarıda olma ve mood arasındaki ilişki
-        return 0.58 // Placeholder
+        // Mobilite (dışarıda olma) ve mood skoru arasındaki korelasyon
+        guard let moods = try? context.fetch(FetchDescriptor<MoodEntry>()),
+              let locations = try? context.fetch(FetchDescriptor<LocationLog>()) else {
+            return 0.0
+        }
+
+        let calendar = Calendar.current
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+
+        var dailyData: [Date: (moodScores: [Double], mobilityScore: Int)] = [:]
+
+        // Mood'ları grupla
+        for mood in moods where mood.date >= thirtyDaysAgo {
+            let dayStart = calendar.startOfDay(for: mood.date)
+            if dailyData[dayStart] == nil {
+                dailyData[dayStart] = (moodScores: [], mobilityScore: 0)
+            }
+            dailyData[dayStart]?.moodScores.append(mood.score)
+        }
+
+        // Günlük mobilite skoru: evde olmayan konum sayısı
+        for location in locations where location.timestamp >= thirtyDaysAgo {
+            let dayStart = calendar.startOfDay(for: location.timestamp)
+            if dailyData[dayStart] == nil {
+                dailyData[dayStart] = (moodScores: [], mobilityScore: 0)
+            }
+            // Evde değilse +1 mobilite puanı
+            if location.locationType != .home {
+                dailyData[dayStart]?.mobilityScore += 1
+            }
+        }
+
+        guard dailyData.count >= 3 else { return 0.0 }
+
+        let validDays = dailyData.filter { !$0.value.moodScores.isEmpty }
+        guard validDays.count >= 3 else { return 0.0 }
+
+        var moodValues: [Double] = []
+        var mobilityValues: [Double] = []
+
+        for (_, data) in validDays.sorted(by: { $0.key < $1.key }) {
+            let avgMood = data.moodScores.reduce(0, +) / Double(data.moodScores.count)
+            moodValues.append(avgMood)
+            mobilityValues.append(Double(data.mobilityScore))
+        }
+
+        let correlation = calculatePearsonCorrelation(x: moodValues, y: mobilityValues)
+
+        print("📊 [AnalyticsService] Mood-Location Korelasyon: \(String(format: "%.2f", correlation)) (n=\(moodValues.count))")
+        return correlation
+    }
+
+    private func calculateContactMobilityCorrelation(context: ModelContext) async -> Double {
+        // İletişim sayısı ve mobilite skoru arasındaki korelasyon
+        guard let friends = try? context.fetch(FetchDescriptor<Friend>()),
+              let locations = try? context.fetch(FetchDescriptor<LocationLog>()) else {
+            return 0.0
+        }
+
+        let calendar = Calendar.current
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+
+        var dailyData: [Date: (contactCount: Int, mobilityScore: Int)] = [:]
+
+        // Contact'ları say
+        for friend in friends {
+            if let histories = friend.contactHistory {
+                for history in histories where history.date >= thirtyDaysAgo {
+                    let dayStart = calendar.startOfDay(for: history.date)
+                    if dailyData[dayStart] == nil {
+                        dailyData[dayStart] = (contactCount: 0, mobilityScore: 0)
+                    }
+                    dailyData[dayStart]?.contactCount += 1
+                }
+            }
+        }
+
+        // Mobilite skorunu hesapla
+        for location in locations where location.timestamp >= thirtyDaysAgo {
+            let dayStart = calendar.startOfDay(for: location.timestamp)
+            if dailyData[dayStart] == nil {
+                dailyData[dayStart] = (contactCount: 0, mobilityScore: 0)
+            }
+            if location.locationType != .home {
+                dailyData[dayStart]?.mobilityScore += 1
+            }
+        }
+
+        guard dailyData.count >= 3 else { return 0.0 }
+
+        var contactValues: [Double] = []
+        var mobilityValues: [Double] = []
+
+        for (_, data) in dailyData.sorted(by: { $0.key < $1.key }) {
+            contactValues.append(Double(data.contactCount))
+            mobilityValues.append(Double(data.mobilityScore))
+        }
+
+        let correlation = calculatePearsonCorrelation(x: contactValues, y: mobilityValues)
+
+        print("📊 [AnalyticsService] Contact-Mobility Korelasyon: \(String(format: "%.2f", correlation)) (n=\(contactValues.count))")
+        return correlation
+    }
+
+    private func calculateGoalsHabitsCorrelation(context: ModelContext) async -> Double {
+        // Günlük goal tamamlama ve habit tamamlama arasındaki korelasyon
+        guard let goals = try? context.fetch(FetchDescriptor<Goal>()),
+              let habits = try? context.fetch(FetchDescriptor<Habit>()) else {
+            return 0.0
+        }
+
+        let calendar = Calendar.current
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+
+        var dailyData: [Date: (goalsCompleted: Int, habitsCompleted: Int)] = [:]
+
+        // Goal'ları say
+        for goal in goals where goal.isCompleted {
+            let completionDate = goal.targetDate
+            if completionDate >= thirtyDaysAgo {
+                let dayStart = calendar.startOfDay(for: completionDate)
+                if dailyData[dayStart] == nil {
+                    dailyData[dayStart] = (goalsCompleted: 0, habitsCompleted: 0)
+                }
+                dailyData[dayStart]?.goalsCompleted += 1
+            }
+        }
+
+        // Habit'leri say
+        for habit in habits {
+            if let completions = habit.completions {
+                for completion in completions where completion.completedAt >= thirtyDaysAgo {
+                    let dayStart = calendar.startOfDay(for: completion.completedAt)
+                    if dailyData[dayStart] == nil {
+                        dailyData[dayStart] = (goalsCompleted: 0, habitsCompleted: 0)
+                    }
+                    dailyData[dayStart]?.habitsCompleted += 1
+                }
+            }
+        }
+
+        guard dailyData.count >= 3 else { return 0.0 }
+
+        var goalValues: [Double] = []
+        var habitValues: [Double] = []
+
+        for (_, data) in dailyData.sorted(by: { $0.key < $1.key }) {
+            goalValues.append(Double(data.goalsCompleted))
+            habitValues.append(Double(data.habitsCompleted))
+        }
+
+        let correlation = calculatePearsonCorrelation(x: goalValues, y: habitValues)
+
+        print("📊 [AnalyticsService] Goals-Habits Korelasyon: \(String(format: "%.2f", correlation)) (n=\(goalValues.count))")
+        return correlation
     }
 }
