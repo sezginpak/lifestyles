@@ -1804,7 +1804,6 @@ Social relationships goal category */
 "home.location.not.set" = "Ev Konumu Ayarlanmadı";
 
 /* Hours spent at home format */
-"hours.at.home.format" = "%.1f saat evdesiniz";
 
 /* Could not generate insight */
 "insight.could.not.generate" = "Insight oluşturulamadı";
@@ -3193,10 +3192,8 @@ Notifications */
 "stats.records" = "Kayıt";
 
 /* User is at home status */
-"status.at.home" = "Evdesiniz";
 
 /* User is outside status */
-"status.outside" = "Dışarıdasınız";
 
 /* Streak message: Keep going */
 "streak.message.keep_going" = "Harika gidiyorsun! Devam et! 🔥";
@@ -4251,7 +4248,6 @@ Notifications */
 "search.activities" = "Aktivite ara...";
 
 /* Stats today */
-"stats.today" = "Bugün";
 
 /* Stats total */
 "stats.total" = "Toplam";
@@ -4410,7 +4406,6 @@ Notifications */
 "button.call" = "Ara";
 
 /* Add button */
-"button.add" = "Ekle";
 
 /* Close button */
 "button.close" = "Kapat";
@@ -4455,13 +4450,10 @@ Notifications */
 "location.records.count" = "%lld kayıt";
 
 /* Locations count */
-"location.count" = "%lld konum";
 
 /* Badges earned count */
-"badges.earned.count" = "%lld / %lld Kazanıldı";
 
 /* Badge earned date */
-"badge.earned.date" = "Kazanıldı: %@";
 
 
 /* === WIDGET STRINGS === */
@@ -4479,7 +4471,6 @@ Notifications */
 /* === MEMORIES STRINGS === */
 
 /* Memory title placeholder */
-"memory.title.placeholder" = "Başlık...";
 
 /* Photo count format */
 "memory.photo.count" = "%lld";
@@ -4503,7 +4494,6 @@ Notifications */
 "memory.remove.from.private" = "Gizliden Çıkar";
 
 /* Private folder title */
-"memory.private.folder" = "🔒 Gizli Klasör";
 
 /* Private memory count */
 "memory.private.count" = "%lld";
@@ -4515,14 +4505,9 @@ Notifications */
 "memory.selected.friends" = "%lld";
 
 /* Memory labels */
-"memory.label.title" = "Başlık...";
-"memory.label.date" = "Tarih...";
-"memory.label.friends" = "Arkadaşlar...";
-"memory.label.tags" = "Etiketler...";
 
 /* Memory placeholders */
 "memory.placeholder.title" = "Anınıza bir başlık verin...";
-"memory.placeholder.add.tag" = "Etiket ekle...";
 
 /* Memory navigation */
 "memory.nav.select.friend" = "Arkadaş Seç";
@@ -4616,7 +4601,6 @@ Notifications */
 "journal.count" = "%lld journal";
 
 /* Journal entry simple count */
-"journal.entry.count" = "%lld";
 
 /* More tags indicator */
 "journal.tag.more" = "+%lld";
@@ -4697,7 +4681,6 @@ Notifications */
 "component.days" = "%lld";
 
 /* Percentage format */
-"component.percentage" = "%lld%%";
 
 /* Score format */
 "component.score" = "%lld";
@@ -4706,7 +4689,6 @@ Notifications */
 "component.rank" = "%lld";
 
 /* Remaining count */
-"component.remaining" = "%lld";
 
 /* Total count */
 "component.total" = "%lld";
@@ -4751,7 +4733,6 @@ Notifications */
 "streak.current" = "%lld";
 
 /* Streak with label */
-"streak.with.label" = "%lld günlük seri";
 
 /* Daily streak */
 "mood.daily.streak" = "%lld günlük seri";
@@ -5138,3 +5119,253 @@ Notifications */
 "placeholder.örn.yemek.parası.bilet" = "Örn: Yemek parası, Bilet ücreti...";
 
 "placeholder.etiket.ekle" = "Etiket ekle";
+
+
+/* === AUTO-ADDED MISSING KEYS === */
+/* Added: 245 keys */
+
+"activity.noDuration" = "activity.noDuration";
+"activity.notDone" = "activity.notDone";
+"activityCategory.art" = "activityCategory.art";
+"activityCategory.cooking" = "activityCategory.cooking";
+"activityCategory.creative" = "activityCategory.creative";
+"activityCategory.entertainment" = "activityCategory.entertainment";
+"activityCategory.gaming" = "activityCategory.gaming";
+"activityCategory.learning" = "activityCategory.learning";
+"activityCategory.music" = "activityCategory.music";
+"activityCategory.other" = "activityCategory.other";
+"activityCategory.outdoor" = "activityCategory.outdoor";
+"activityCategory.reading" = "activityCategory.reading";
+"activityCategory.social" = "activityCategory.social";
+"activityCategory.sports" = "activityCategory.sports";
+"activityCategory.travel" = "activityCategory.travel";
+"activityCategory.wellness" = "activityCategory.wellness";
+"aibrain.empty.subtitle" = "aibrain.empty.subtitle";
+"aibrain.empty.title" = "aibrain.empty.title";
+"aibrain.tab.title" = "Yapay Zeka";
+"analytics.ai.correlation_label" = "Correlation Label";
+"analytics.ai.detected_patterns" = "analytics.ai.detected_patterns";
+"analytics.ai.empty_message" = "analytics.ai.empty_message";
+"analytics.ai.empty_title" = "analytics.ai.empty_title";
+"analytics.ai.friend_mood_correlations" = "analytics.ai.friend_mood_correlations";
+"analytics.ai.friend_negative_impact" = "analytics.ai.friend_negative_impact";
+"analytics.ai.friend_neutral_impact" = "analytics.ai.friend_neutral_impact";
+"analytics.ai.friend_positive_impact" = "analytics.ai.friend_positive_impact";
+"analytics.ai.insight_pattern_title" = "analytics.ai.insight_pattern_title";
+"analytics.ai.insight_positive_social_action" = "analytics.ai.insight_positive_social_action";
+"analytics.ai.insight_positive_social_desc" = "analytics.ai.insight_positive_social_desc";
+"analytics.ai.insight_positive_social_title" = "analytics.ai.insight_positive_social_title";
+"analytics.ai.predictions" = "analytics.ai.predictions";
+"analytics.ai.smart_insights" = "analytics.ai.smart_insights";
+"analytics.ai.title" = "analytics.ai.title";
+"analytics.chart.average" = "analytics.chart.average";
+"analytics.chart.date" = "analytics.chart.date";
+"analytics.chart.noData" = "analytics.chart.noData";
+"analytics.chart.value" = "analytics.chart.value";
+"analytics.correlation.moderate" = "Orta";
+"analytics.correlation.noData" = "analytics.correlation.noData";
+"analytics.correlation.strong" = "Güçlü";
+"analytics.correlation.veryStrong" = "Çok Güçlü";
+"analytics.correlation.veryWeak" = "Çok Zayıf";
+"analytics.correlation.weak" = "Zayıf";
+"analytics.main.correlation_contacts" = "analytics.main.correlation_contacts";
+"analytics.main.correlation_goals" = "analytics.main.correlation_goals";
+"analytics.main.correlation_location" = "analytics.main.correlation_location";
+"analytics.main.correlation_mood" = "analytics.main.correlation_mood";
+"analytics.main.correlation_mood_contacts_desc" = "analytics.main.correlation_mood_contacts_desc";
+"analytics.main.correlation_mood_goals_desc" = "analytics.main.correlation_mood_goals_desc";
+"analytics.main.correlation_mood_location_desc" = "analytics.main.correlation_mood_location_desc";
+"analytics.main.correlation_relationships" = "analytics.main.correlation_relationships";
+"analytics.main.correlation_title" = "analytics.main.correlation_title";
+"analytics.main.create_report_button" = "Create Report Button";
+"analytics.main.empty_message" = "analytics.main.empty_message";
+"analytics.main.empty_title" = "analytics.main.empty_title";
+"analytics.main.error_retry_button" = "Error Retry Button";
+"analytics.main.error_title" = "analytics.main.error_title";
+"analytics.main.export_button" = "Export Button";
+"analytics.main.export_cancel_button" = "Export Cancel Button";
+"analytics.main.export_nav_title" = "analytics.main.export_nav_title";
+"analytics.main.export_sheet_message" = "analytics.main.export_sheet_message";
+"analytics.main.export_sheet_title" = "analytics.main.export_sheet_title";
+"analytics.main.goal_active" = "analytics.main.goal_active";
+"analytics.main.goal_completed" = "analytics.main.goal_completed";
+"analytics.main.goal_performance_title" = "analytics.main.goal_performance_title";
+"analytics.main.goal_success_rate" = "analytics.main.goal_success_rate";
+"analytics.main.goal_upcoming" = "analytics.main.goal_upcoming";
+"analytics.main.habit_active" = "analytics.main.habit_active";
+"analytics.main.habit_best_streak" = "analytics.main.habit_best_streak";
+"analytics.main.habit_completion" = "analytics.main.habit_completion";
+"analytics.main.habit_performance_title" = "analytics.main.habit_performance_title";
+"analytics.main.habit_total" = "analytics.main.habit_total";
+"analytics.main.last_update" = "analytics.main.last_update";
+"analytics.main.loading_message" = "analytics.main.loading_message";
+"analytics.main.location_mobility_score" = "analytics.main.location_mobility_score";
+"analytics.main.location_most_visited" = "analytics.main.location_most_visited";
+"analytics.main.location_title" = "analytics.main.location_title";
+"analytics.main.location_unique_places" = "analytics.main.location_unique_places";
+"analytics.main.refresh_button" = "Refresh Button";
+"analytics.main.time_range_picker" = "analytics.main.time_range_picker";
+"analytics.main.title" = "analytics.main.title";
+"analytics.mood.averageMood" = "analytics.mood.averageMood";
+"analytics.mood.bestDay" = "analytics.mood.bestDay";
+"analytics.mood.consistency" = "analytics.mood.consistency";
+"analytics.mood.correlations_title" = "analytics.mood.correlations_title";
+"analytics.mood.description.average" = "analytics.mood.description.average";
+"analytics.mood.description.excellent" = "analytics.mood.description.excellent";
+"analytics.mood.description.good" = "analytics.mood.description.good";
+"analytics.mood.description.low" = "analytics.mood.description.low";
+"analytics.mood.description.veryLow" = "analytics.mood.description.veryLow";
+"analytics.mood.distribution" = "analytics.mood.distribution";
+"analytics.mood.outOfFive" = "analytics.mood.outOfFive";
+"analytics.mood.thirtyDayTrend" = "analytics.mood.thirtyDayTrend";
+"analytics.mood.title" = "analytics.mood.title";
+"analytics.mood.triggers" = "analytics.mood.triggers";
+"analytics.mood.worstDay" = "analytics.mood.worstDay";
+"analytics.overview.activeDays" = "analytics.overview.activeDays";
+"analytics.overview.consistency" = "analytics.overview.consistency";
+"analytics.overview.consistency.average" = "analytics.overview.consistency.average";
+"analytics.overview.consistency.excellent" = "analytics.overview.consistency.excellent";
+"analytics.overview.consistency.good" = "analytics.overview.consistency.good";
+"analytics.overview.consistency.needsImprovement" = "analytics.overview.consistency.needsImprovement";
+"analytics.overview.lastThirtyDays" = "analytics.overview.lastThirtyDays";
+"analytics.overview.title" = "analytics.overview.title";
+"analytics.overview.trend.declining" = "analytics.overview.trend.declining";
+"analytics.overview.trend.improving" = "analytics.overview.trend.improving";
+"analytics.overview.trend.stable" = "analytics.overview.trend.stable";
+"analytics.overview.trend.title" = "analytics.overview.trend.title";
+"analytics.overview.wellness.average" = "analytics.overview.wellness.average";
+"analytics.overview.wellness.excellent" = "analytics.overview.wellness.excellent";
+"analytics.overview.wellness.good" = "analytics.overview.wellness.good";
+"analytics.overview.wellness.needsImprovement" = "analytics.overview.wellness.needsImprovement";
+"analytics.overview.wellness.poor" = "analytics.overview.wellness.poor";
+"analytics.overview.wellnessLevel" = "analytics.overview.wellnessLevel";
+"analytics.pattern.frequency_daily" = "analytics.pattern.frequency_daily";
+"analytics.pattern.frequency_weekly" = "analytics.pattern.frequency_weekly";
+"analytics.pattern.location_regular_routine" = "analytics.pattern.location_regular_routine";
+"analytics.pattern.location_routine_desc" = "analytics.pattern.location_routine_desc";
+"analytics.pattern.location_same_places" = "analytics.pattern.location_same_places";
+"analytics.pattern.most_social_day" = "analytics.pattern.most_social_day";
+"analytics.pattern.social_activity_peak_desc" = "analytics.pattern.social_activity_peak_desc";
+"analytics.pattern.social_day_note" = "analytics.pattern.social_day_note";
+"analytics.pattern.strength_percent" = "analytics.pattern.strength_percent";
+"analytics.prediction.confidence_percent" = "analytics.prediction.confidence_percent";
+"analytics.section.ai" = "Yapay Zeka";
+"analytics.section.goals" = "Hedefler";
+"analytics.section.habits" = "Alışkanlıklar";
+"analytics.section.location" = "Konum";
+"analytics.section.mood" = "Ruh Hali";
+"analytics.section.overview" = "Genel Bakış";
+"analytics.section.social" = "Sosyal";
+"analytics.social.active" = "analytics.social.active";
+"analytics.social.byRelationType" = "analytics.social.byRelationType";
+"analytics.social.mostContacted" = "analytics.social.mostContacted";
+"analytics.social.needsAttention" = "analytics.social.needsAttention";
+"analytics.social.responseRate" = "analytics.social.responseRate";
+"analytics.social.title" = "analytics.social.title";
+"analytics.social.totalContacts" = "analytics.social.totalContacts";
+"analytics.social.weeklyTrend" = "analytics.social.weeklyTrend";
+"analytics.timeRange.month" = "Ay";
+"analytics.timeRange.threeMonths" = "3 Ay";
+"analytics.timeRange.week" = "Hafta";
+"analytics.timeRange.year" = "Yıl";
+"analytics.weekday.friday" = "analytics.weekday.friday";
+"analytics.weekday.monday" = "analytics.weekday.monday";
+"analytics.weekday.saturday" = "analytics.weekday.saturday";
+"analytics.weekday.sunday" = "analytics.weekday.sunday";
+"analytics.weekday.thursday" = "analytics.weekday.thursday";
+"analytics.weekday.tuesday" = "analytics.weekday.tuesday";
+"analytics.weekday.wednesday" = "analytics.weekday.wednesday";
+"analytics.wellness.excellent" = "Mükemmel";
+"analytics.wellness.good" = "İyi";
+"analytics.wellness.low" = "Düşük";
+"analytics.wellness.moderate" = "Orta";
+"analytics.wellness.needsImprovement" = "Geliştirilmeli";
+"analytics.wellness.unknown" = "Bilinmiyor";
+"button.export" = "Export";
+"content.artist" = "content.artist";
+"content.author" = "content.author";
+"content.creator" = "content.creator";
+"content.developer" = "content.developer";
+"content.director" = "content.director";
+"content.noRating" = "content.noRating";
+"content.writer" = "content.writer";
+"contentStatus.abandoned" = "contentStatus.abandoned";
+"contentStatus.completed" = "contentStatus.completed";
+"contentStatus.inProgress" = "contentStatus.inProgress";
+"contentStatus.rewatching" = "contentStatus.rewatching";
+"contentStatus.wantTo" = "contentStatus.wantTo";
+"contentType.article" = "contentType.article";
+"contentType.blog" = "contentType.blog";
+"contentType.book" = "contentType.book";
+"contentType.game" = "contentType.game";
+"contentType.movie" = "contentType.movie";
+"contentType.music" = "contentType.music";
+"contentType.other" = "contentType.other";
+"contentType.podcast" = "contentType.podcast";
+"contentType.tvShow" = "contentType.tvShow";
+"entityType.activity" = "entityType.activity";
+"entityType.object" = "entityType.object";
+"entityType.other" = "entityType.other";
+"entityType.person" = "entityType.person";
+"entityType.place" = "entityType.place";
+"error.invalid.coordinates" = "Geçersiz koordinatlar";
+"feedback.correct" = "feedback.correct";
+"feedback.incorrect" = "feedback.incorrect";
+"feedback.needsUpdate" = "feedback.needsUpdate";
+"feedback.outdated" = "feedback.outdated";
+"interactionType.abandoned" = "interactionType.abandoned";
+"interactionType.completed" = "interactionType.completed";
+"interactionType.continued" = "interactionType.continued";
+"interactionType.other" = "interactionType.other";
+"interactionType.paused" = "interactionType.paused";
+"interactionType.recommended" = "interactionType.recommended";
+"interactionType.reviewed" = "interactionType.reviewed";
+"interactionType.started" = "interactionType.started";
+"journal.step.content" = "journal.step.content";
+"journal.step.review" = "journal.step.review";
+"journal.step.tags" = "journal.step.tags";
+"journal.step.title" = "journal.step.title";
+"journal.step.type" = "journal.step.type";
+"knowledge.category.challenges" = "knowledge.category.challenges";
+"knowledge.category.currentSituation" = "knowledge.category.currentSituation";
+"knowledge.category.experiences" = "knowledge.category.experiences";
+"knowledge.category.fears" = "knowledge.category.fears";
+"knowledge.category.goals" = "knowledge.category.goals";
+"knowledge.category.habits" = "knowledge.category.habits";
+"knowledge.category.lifestyle" = "knowledge.category.lifestyle";
+"knowledge.category.memories" = "knowledge.category.memories";
+"knowledge.category.other" = "knowledge.category.other";
+"knowledge.category.personalInfo" = "knowledge.category.personalInfo";
+"knowledge.category.preferences" = "knowledge.category.preferences";
+"knowledge.category.recentEvents" = "knowledge.category.recentEvents";
+"knowledge.category.relationships" = "knowledge.category.relationships";
+"knowledge.category.triggers" = "knowledge.category.triggers";
+"knowledge.category.values" = "knowledge.category.values";
+"knowledge.confidence.high" = "Yüksek";
+"knowledge.confidence.low" = "Düşük";
+"knowledge.confidence.medium" = "Orta";
+"knowledge.source.aiExtracted" = "knowledge.source.aiExtracted";
+"knowledge.source.inferred" = "knowledge.source.inferred";
+"knowledge.source.pattern" = "knowledge.source.pattern";
+"knowledge.source.userTold" = "knowledge.source.userTold";
+"privacy.knowledge.autoCleanup" = "privacy.knowledge.autoCleanup";
+"privacy.knowledge.categories" = "privacy.knowledge.categories";
+"privacy.knowledge.deleteAll" = "privacy.knowledge.deleteAll";
+"privacy.knowledge.subtitle" = "privacy.knowledge.subtitle";
+"privacy.knowledge.title" = "privacy.knowledge.title";
+"privacy.preset.balanced" = "privacy.preset.balanced";
+"privacy.preset.open" = "privacy.preset.open";
+"privacy.preset.strict" = "privacy.preset.strict";
+"skillLevel.advanced" = "skillLevel.advanced";
+"skillLevel.beginner" = "skillLevel.beginner";
+"skillLevel.expert" = "skillLevel.expert";
+"skillLevel.intermediate" = "skillLevel.intermediate";
+"stats.this.week" = "stats.this.week";
+"tab.activities" = "Aktiviteler";
+"tab.analytics" = "Analitik";
+"tab.memories" = "Anılar";
+"tab.moodJournal" = "Ruh Hali Günlüğü";
+"version.degradation" = "version.degradation";
+"version.improvement" = "version.improvement";
+"version.noChange" = "version.noChange";
+"version.valueChange" = "version.valueChange";
