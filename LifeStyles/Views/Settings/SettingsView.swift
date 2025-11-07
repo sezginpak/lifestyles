@@ -79,6 +79,20 @@ struct SettingsView: View {
                                     )
                                 }
                             }
+
+                            // Dil Ayarları
+                            SettingsSection(title: String(localized: "settings.language.section", comment: "Language")) {
+                                NavigationLink {
+                                    LanguageSettingsView()
+                                } label: {
+                                    SettingsRow(
+                                        icon: "globe",
+                                        title: String(localized: "settings.language.title", comment: "Language Settings"),
+                                        color: Color.blue
+                                    )
+                                }
+                            }
+
                             // İzinler
                             SettingsSection(title: String(localized: "settings.permissions.title", comment: "Permissions")) {
                                 NavigationLink {

@@ -46,11 +46,8 @@ struct AppearanceSettingsView: View {
     @Query private var userProfiles: [UserProfile]
     @AppStorage("appTheme") private var selectedTheme: String = AppTheme.auto.rawValue
     @AppStorage("userAvatar") private var userAvatar: String = "👤"
-    @State private var showLanguageAlert = false
-    @State private var pendingLanguage: AppLanguage?
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var showAvatarPicker = false
 
     private var userProfile: UserProfile? {
         userProfiles.first
@@ -121,46 +118,14 @@ struct AppearanceSettingsView: View {
                     .textCase(.none)
             }
 
-            // Dil seçimi
-            Section {
-                VStack(spacing: 12) {
-                    ForEach(AppLanguage.allCases) { language in
-                        languageRow(language: language)
-                    }
-                }
-            } header: {
-                Text(String(localized: "settings.language", comment: "Language"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textCase(.none)
-            } footer: {
-                Text(String(localized: "settings.language.restart.warning", comment: "Language restart warning"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(String(localized: "appearance.title", comment: "Appearance & Language"))
+        .navigationTitle(String(localized: "appearance.title", comment: "Appearance"))
         .navigationBarTitleDisplayMode(.inline)
         .alert(String(localized: "common.info", comment: "Info"), isPresented: $showAlert) {
             Button(String(localized: "common.ok", comment: "OK"), role: .cancel) {}
         } message: {
             Text(alertMessage)
-        }
-        .alert(String(localized: "settings.language.change.title", comment: "Change Language"), isPresented: $showLanguageAlert) {
-            Button(String(localized: "common.cancel", comment: "Cancel"), role: .cancel) {
-                pendingLanguage = nil
-            }
-            Button(String(localized: "settings.language.change.button", comment: "Change"), role: .none) {
-                if let newLanguage = pendingLanguage {
-                    LanguageManager.shared.changeLanguage(to: newLanguage)
-                    alertMessage = String(localized: "appearance.language.success.message", comment: "Language changed")
-                    showAlert = true
-                    pendingLanguage = nil
-                }
-            }
-        } message: {
-            Text(String(localized: "settings.language.restart.message", comment: "App needs to be reopened to apply language changes.\n\nDeğişikliklerin uygulanması için uygulama yeniden açılmalı."))
         }
     }
 
@@ -312,45 +277,6 @@ struct AppearanceSettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.brandPrimary)
-                        .font(.title3)
-                }
-            }
-            .padding(.vertical, 8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Language Row
-    private func languageRow(language: AppLanguage) -> some View {
-        let isSelected = LanguageManager.shared.currentLanguage == language
-
-        return Button {
-            HapticFeedback.medium()
-            if !isSelected {
-                pendingLanguage = language
-                showLanguageAlert = true
-            }
-        } label: {
-            HStack(spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(isSelected ? LinearGradient.primaryGradient : LinearGradient(colors: [.secondary.opacity(0.2), .secondary.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 44, height: 44)
-
-                    Text(language.flag)
-                        .font(.title2)
-                }
-
-                Text(language.displayName)
-                    .font(.body)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundStyle(isSelected ? Color.brandPrimary : .primary)
 
                 Spacer()
 
