@@ -852,6 +852,21 @@ TRANSLATIONS = {
     "activity.home.connect.friends.title": "Conectar con amigos",
     "activity.home.connect.friends.desc": "Contacta a un amigo",
     "search.activities": "Buscar actividades",
+
+    # === PHASE 5.1: ACHIEVEMENT DETAILS (13 keys - reach 700!) ===
+    "achievement.all.title": "Todos los Logros",
+    "achievement.awesome": "¡Increíble!",
+    "achievement.completion.percentage": "Porcentaje de finalización",
+    "achievement.current.progress": "Progreso actual",
+    "achievement.detail.title": "Detalle del logro",
+    "achievement.next": "Siguiente",
+    "achievement.pagination.format": "%d de %d",
+    "achievement.points.format": "%d puntos",
+    "achievement.progress.fraction": "%d/%d",
+    "achievement.progress.percentage": "%d%%",
+    "achievement.requirement": "Requisito",
+    "achievement.search.placeholder": "Buscar logros...",
+    "achievement.unlocked": "Desbloqueado",
 }
 
 def translate_file():
