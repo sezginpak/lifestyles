@@ -57,7 +57,7 @@ class MoodAIService {
                     - Empatik ve yapıcı ol
                     - Somut gözlemler paylaş
                     - 2-3 öneri ver
-                    - Türkçe yaz
+                    - Respond in the user's language (Turkish, English, etc.)
                     - Motivasyonel tonla konuş
                     """
                 }

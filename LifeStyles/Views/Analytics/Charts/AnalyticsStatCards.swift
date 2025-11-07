@@ -135,7 +135,7 @@ struct LargeStatCard: View {
                         .font(.system(.largeTitle, design: .rounded).weight(.bold))
                         .foregroundStyle(color)
 
-                    Text("\(Int(progress * 100))%")
+                    Text(String(localized: "text.intprogress.100"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

@@ -29,7 +29,7 @@ struct AnalyticsView: View {
                 Group {
                     switch viewModel.viewState {
                     case .loading:
-                        loadingView
+                        AnalyticsSkeletonView()
                     case .loaded:
                         contentView
                     case .error(let message):
@@ -62,7 +62,7 @@ struct AnalyticsView: View {
 
                         Picker(String(localized: "analytics.main.time_range_picker", defaultValue: "Zaman Aralığı", comment: "Time range picker label"), selection: $viewModel.selectedTimeRange) {
                             ForEach(AnalyticsTimeRange.allCases, id: \.self) { range in
-                                Text(range.rawValue).tag(range)
+                                Text(range.localizedTitle).tag(range)
                             }
                         }
                     } label: {

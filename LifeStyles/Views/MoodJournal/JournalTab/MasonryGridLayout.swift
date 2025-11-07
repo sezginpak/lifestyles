@@ -151,7 +151,7 @@ struct MasonryGridLayout: View {
         Button {
             onTap(entry)
         } label: {
-            Label("Görüntüle", systemImage: "eye")
+            Label(String(localized: "masonry.view", comment: ""), systemImage: "eye")
         }
 
         Button {
@@ -168,7 +168,7 @@ struct MasonryGridLayout: View {
         Button(role: .destructive) {
             onDelete(entry)
         } label: {
-            Label("Sil", systemImage: "trash")
+            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
         }
     }
 }

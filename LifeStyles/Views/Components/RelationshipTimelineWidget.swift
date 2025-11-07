@@ -43,7 +43,7 @@ struct RelationshipTimelineWidget: View {
 
                             HStack(spacing: 4) {
                                 if duration.years > 0 {
-                                    Text("\(duration.years)")
+                                    Text(String(localized: "duration.years", defaultValue: "\(duration.years)", comment: "Years"))
                                         .font(.title2)
                                         .fontWeight(.bold)
                                     Text(String(localized: "time.unit.year", comment: "year"))
@@ -52,7 +52,7 @@ struct RelationshipTimelineWidget: View {
                                 }
 
                                 if duration.months > 0 {
-                                    Text("\(duration.months)")
+                                    Text(String(localized: "duration.months", defaultValue: "\(duration.months)", comment: "Months"))
                                         .font(.title2)
                                         .fontWeight(.bold)
                                     Text(String(localized: "common.month", comment: "month"))
@@ -61,7 +61,7 @@ struct RelationshipTimelineWidget: View {
                                 }
 
                                 if duration.days > 0 || (duration.years == 0 && duration.months == 0) {
-                                    Text("\(duration.days)")
+                                    Text(String(localized: "duration.days", defaultValue: "\(duration.days)", comment: "Days duration"))
                                         .font(.title2)
                                         .fontWeight(.bold)
                                     Text(String(localized: "time.unit.day", comment: "day"))
@@ -144,7 +144,7 @@ struct RelationshipTimelineWidget: View {
             // Center Content
             VStack(spacing: 4) {
                 if let days = friend.relationshipDays {
-                    Text("\(days)")
+                    Text(String(localized: "component.days", defaultValue: "\(days)", comment: "Days count"))
                         .font(.system(size: 32, weight: .bold))
                         .foregroundStyle(
                             LinearGradient(

@@ -92,7 +92,7 @@ struct JournalListView: View {
                                     Button(role: .destructive) {
                                         deleteWithFeedback(entry)
                                     } label: {
-                                        Label("Sil", systemImage: "trash")
+                                        Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                     }
                                 }
                                 .swipeActions(edge: .leading) {
@@ -214,7 +214,7 @@ struct JournalListView: View {
                     HStack(spacing: 2) {
                         Image(systemName: "doc.text")
                             .font(.system(size: 9))
-                        Text("\(entry.wordCount)")
+                        Text(String(localized: "journal.word.count", defaultValue: "\(entry.wordCount)", comment: "Word count"))
                             .font(.caption2)
                             .fontWeight(.medium)
                     }
@@ -649,7 +649,7 @@ struct MoodAnalyticsView: View {
                         .fill(Color.purple.opacity(0.1))
                 )
             } else {
-                Button("Haftalık Analiz Oluştur") {
+                Button(String(localized: "button.weekly.analysis", comment: "Weekly analysis button")) {
                     Task {
                         await viewModel.generateWeeklyAnalysis(context: modelContext)
                     }

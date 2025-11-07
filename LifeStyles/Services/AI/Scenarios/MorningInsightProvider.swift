@@ -161,7 +161,7 @@ class MorningInsightProvider: ContextProvider {
         Görevin: Kullanıcıya her sabah kişiselleştirilmiş, motive edici, samimi bir günlük insight vermek.
 
         Kurallar:
-        - Türkçe yaz, samimi ol
+        - Respond in the user's language (Turkish, English, etc.), be friendly
         - 3-4 cümle ile özetle
         - Emoji kullan (abartma)
         - Pozitif ve motive edici ol

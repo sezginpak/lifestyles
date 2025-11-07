@@ -41,7 +41,7 @@ struct PrivateMemoriesView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .navigationTitle("🔒 Gizli Klasör")
+            .navigationTitle(String(localized: "memory.nav.private.folder", comment: "Private folder"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -52,7 +52,7 @@ struct PrivateMemoriesView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "lock.fill")
-                            Text("Kapat")
+                            Text(String(localized: "memory.close", comment: "Close"))
                         }
                         .font(.subheadline)
                         .foregroundStyle(.red)
@@ -62,7 +62,7 @@ struct PrivateMemoriesView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
                         // Private memory count badge
-                        Text("\(viewModel.privateMemoryCount)")
+                        Text(String(localized: "memory.private.count", defaultValue: "\(viewModel.privateMemoryCount)", comment: "Private count"))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.white)
@@ -137,7 +137,7 @@ struct PrivateMemoryGridView: View {
                                     Button {
                                         viewModel.togglePrivateStatus(memory, context: modelContext)
                                     } label: {
-                                        Label("Gizliden Çıkar", systemImage: "lock.open")
+                                        Label(String(localized: "memory.remove.from.private", comment: "Remove from private"), systemImage: "lock.open")
                                     }
 
                                     Divider()
@@ -145,7 +145,7 @@ struct PrivateMemoryGridView: View {
                                     Button(role: .destructive) {
                                         viewModel.deleteMemory(memory, context: modelContext)
                                     } label: {
-                                        Label("Sil", systemImage: "trash")
+                                        Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                     }
                                 }
                         }
@@ -213,42 +213,49 @@ struct PrivateMemoryCard: View {
             // Thumbnail
             if let firstPhotoData = memory.photos.first,
                let uiImage = UIImage(data: firstPhotoData) {
-                ZStack(alignment: .topTrailing) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 140)
-                        .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous))
+                GeometryReader { geometry in
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: geometry.size.width)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous))
 
-                    // Lock badge
-                    Circle()
-                        .fill(.red)
-                        .frame(width: 28, height: 28)
-                        .overlay {
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(.white)
-                        }
-                        .padding(8)
+                        // Lock badge
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 28, height: 28)
+                            .overlay {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.white)
+                            }
+                            .padding(8)
+                    }
                 }
+                .aspectRatio(1, contentMode: .fit)
             } else {
                 // Placeholder
-                ZStack {
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.red.opacity(0.3), .pink.opacity(0.3)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                GeometryReader { geometry in
+                    ZStack {
+                        Rectangle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [.red.opacity(0.3), .pink.opacity(0.3)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .frame(height: 140)
+                            .frame(width: geometry.size.width, height: geometry.size.width)
 
-                    Image(systemName: "lock.square.stack")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.red.opacity(0.6))
+                        Image(systemName: "lock.square.stack")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.red.opacity(0.6))
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
                 }
-                .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium))
+                .aspectRatio(1, contentMode: .fit)
             }
 
             // Info
@@ -275,7 +282,7 @@ struct PrivateMemoryCard: View {
                         HStack(spacing: 2) {
                             Image(systemName: "photo.stack")
                                 .font(.caption2)
-                            Text("\(memory.photoCount)")
+                            Text(String(localized: "memory.photo.count", defaultValue: "\(memory.photoCount)", comment: "Photo count"))
                                 .font(.caption2)
                         }
                     }
@@ -335,7 +342,7 @@ struct PrivateMemoryTimelineView: View {
                                             Button {
                                                 viewModel.togglePrivateStatus(memory, context: modelContext)
                                             } label: {
-                                                Label("Gizliden Çıkar", systemImage: "lock.open")
+                                                Label(String(localized: "memory.remove.from.private", comment: "Remove from private"), systemImage: "lock.open")
                                             }
 
                                             Divider()
@@ -343,7 +350,7 @@ struct PrivateMemoryTimelineView: View {
                                             Button(role: .destructive) {
                                                 viewModel.deleteMemory(memory, context: modelContext)
                                             } label: {
-                                                Label("Sil", systemImage: "trash")
+                                                Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                             }
                                         }
                                 }
@@ -534,10 +541,10 @@ struct AddPrivateMemoryView: View {
     var body: some View {
         NavigationStack {
             Text(String(localized: "memories.private.create", comment: "Create private memory"))
-                .navigationTitle("Yeni Gizli Anı")
+                .navigationTitle(String(localized: "memory.nav.new.private", comment: "New private memory"))
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        Button("İptal") {
+                        Button(String(localized: "button.cancel", comment: "Cancel button")) {
                             dismiss()
                         }
                     }
@@ -557,7 +564,7 @@ struct PrivateMemoryDetailView: View {
                 .navigationTitle(memory.displayTitle)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Kapat") {
+                        Button(String(localized: "button.close", comment: "Close button")) {
                             dismiss()
                         }
                     }

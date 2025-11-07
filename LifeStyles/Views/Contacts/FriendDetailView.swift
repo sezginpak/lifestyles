@@ -78,7 +78,7 @@ struct FriendDetailView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 .padding(.vertical, 12)
-                .accessibilityLabel("Detay sekmesi")
+                .accessibilityLabel(String(localized: "friend.detail.tab.accessibility", comment: ""))
 
                 // Content based on selected tab
                 Group {
@@ -103,7 +103,7 @@ struct FriendDetailView: View {
                     Button {
                         showingAIChat = true
                     } label: {
-                        Label("AI Chat", systemImage: "brain.head.profile")
+                        Label(String(localized: "label.ai.chat"), systemImage: "brain.head.profile")
                     }
 
                     Button {
@@ -121,7 +121,7 @@ struct FriendDetailView: View {
                     Button(role: .destructive) {
                         showingDeleteAlert = true
                     } label: {
-                        Label("Sil", systemImage: "trash")
+                        Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -143,8 +143,8 @@ struct FriendDetailView: View {
             )
         }
         .alert("Arkadaşı Sil", isPresented: $showingDeleteAlert) {
-            Button("İptal", role: .cancel) { }
-            Button("Sil", role: .destructive) {
+            Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) { }
+            Button(String(localized: "button.delete", comment: "Delete button"), role: .destructive) {
                 deleteFriend()
             }
         } message: {
@@ -285,43 +285,43 @@ struct FriendDetailView: View {
                                         Button {
                                             callFriend()
                                         } label: {
-                                            Label("Şimdi Ara", systemImage: "phone.fill")
+                                            Label(String(localized: "label.şimdi.ara"), systemImage: "phone.fill")
                                         }
 
                                         Divider()
 
-                                        Section("Hatırlatma Süresi (Dynamic Island)") {
+                                        Section(String(localized: "section.hatırlatma.süresi.dynamic.island")) {
                                             if #available(iOS 16.1, *) {
                                                 Button {
                                                     NotificationService.shared.startLiveActivityReminder(for: friend, after: 1)
                                                     HapticFeedback.success()
                                                 } label: {
-                                                    Label("1 Dakika (Test)", systemImage: "circle.hexagongrid.fill")
+                                                    Label(String(localized: "label.1.dakika.test"), systemImage: "circle.hexagongrid.fill")
                                                 }
 
                                                 Button {
                                                     NotificationService.shared.startLiveActivityReminder(for: friend, after: 15)
                                                     HapticFeedback.success()
                                                 } label: {
-                                                    Label("15 Dakika", systemImage: "circle.hexagongrid.fill")
+                                                    Label(String(localized: "label.15.dakika"), systemImage: "circle.hexagongrid.fill")
                                                 }
 
                                                 Button {
                                                     NotificationService.shared.startLiveActivityReminder(for: friend, after: 30)
                                                     HapticFeedback.success()
                                                 } label: {
-                                                    Label("30 Dakika", systemImage: "circle.hexagongrid.fill")
+                                                    Label(String(localized: "label.30.dakika"), systemImage: "circle.hexagongrid.fill")
                                                 }
 
                                                 Button {
                                                     NotificationService.shared.startLiveActivityReminder(for: friend, after: 60)
                                                     HapticFeedback.success()
                                                 } label: {
-                                                    Label("1 Saat", systemImage: "circle.hexagongrid.fill")
+                                                    Label(String(localized: "label.1.saat"), systemImage: "circle.hexagongrid.fill")
                                                 }
                                             } else {
                                                 // iOS 16 altı için fallback
-                                                Text("Live Activity iOS 16.1+ gerektirir")
+                                                Text(String(localized: "live.activity.requirement", comment: "Live Activity requires iOS 16.1+"))
                                                     .font(.caption)
                                                     .foregroundColor(.secondary)
                                             }
@@ -391,7 +391,7 @@ struct FriendDetailView: View {
     var notesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Notlar", systemImage: "note.text")
+                Label(String(localized: "section.notes", comment: "Notes section"), systemImage: "note.text")
                     .font(.headline)
                 Spacer()
             }
@@ -401,7 +401,7 @@ struct FriendDetailView: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
             } else {
-                Text("Not yok")
+                Text(String(localized: "friend.no.notes", comment: "No notes"))
                     .font(.body)
                     .foregroundStyle(.tertiary)
                     .italic()

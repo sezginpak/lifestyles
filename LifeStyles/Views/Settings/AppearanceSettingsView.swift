@@ -189,7 +189,7 @@ struct AppearanceSettingsView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "crown.fill")
                                 .font(.caption)
-                            Text("Premium")
+                            Text(String(localized: "premium.label", comment: "Premium"))
                                 .font(.caption2)
                                 .fontWeight(.semibold)
                         }
@@ -231,7 +231,7 @@ struct AppearanceSettingsView: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.6, dampingFraction: 0.7), value: calculateCompletion(profile: profile))
 
-                    Text("\(Int(calculateCompletion(profile: profile)))%")
+                    Text(String(localized: "text.intcalculatecompletionprofile.profile"))
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.brandPrimary)

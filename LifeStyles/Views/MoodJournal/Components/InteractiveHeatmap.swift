@@ -439,11 +439,11 @@ struct DayDetailSheet: View {
                 }
                 .padding(Spacing.large)
             }
-            .navigationTitle("Gün Detayı")
+            .navigationTitle(String(localized: "journal.nav.day.detail", comment: "Day detail"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kapat") {
+                    Button(String(localized: "button.close", comment: "Close button")) {
                         dismiss()
                     }
                 }

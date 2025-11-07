@@ -90,7 +90,7 @@ struct HomeLocationPickerView: View {
                         Button {
                             useCurrentLocation()
                         } label: {
-                            Label("Mevcut Konum", systemImage: "location.fill")
+                            Label(String(localized: "label.mevcut.konum"), systemImage: "location.fill")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .frame(maxWidth: .infinity)
@@ -105,7 +105,7 @@ struct HomeLocationPickerView: View {
                                 showConfirmation = true
                             }
                         } label: {
-                            Label("Kaydet", systemImage: "checkmark")
+                            Label(String(localized: "label.kaydet"), systemImage: "checkmark")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .frame(maxWidth: .infinity)
@@ -178,8 +178,8 @@ struct HomeLocationPickerView: View {
             }
         }
         .alert("Ev Konumu Kaydet?", isPresented: $showConfirmation) {
-            Button("İptal", role: .cancel) {}
-            Button("Kaydet") {
+            Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) {}
+            Button(String(localized: "button.save", comment: "Save button")) {
                 saveHomeLocation()
             }
         } message: {

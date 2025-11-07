@@ -43,7 +43,7 @@ struct HeroDashboardCard: View {
 
                 // Center Content
                 VStack(spacing: 4) {
-                    Text("\(combinedStats.todayCompleted)")
+                    Text(String(localized: "stats.completed.today", defaultValue: "\(combinedStats.todayCompleted)", comment: "Completed today"))
                         .font(.system(size: 42, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
@@ -69,7 +69,7 @@ struct HeroDashboardCard: View {
                     HStack(spacing: 4) {
                         Text("🔥")
                             .font(.title3)
-                        Text("\(combinedStats.currentStreak)")
+                        Text(String(localized: "streak.current", defaultValue: "\(combinedStats.currentStreak)", comment: "Combined streak"))
                             .font(.title3.bold())
                             .foregroundStyle(.primary)
                     }

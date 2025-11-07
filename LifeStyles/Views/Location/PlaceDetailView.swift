@@ -48,7 +48,7 @@ struct PlaceDetailView: View {
                         Button {
                             showEditSheet = true
                         } label: {
-                            Label("Düzenle", systemImage: "pencil")
+                            Label(String(localized: "label.düzenle"), systemImage: "pencil")
                         }
 
                         Divider()
@@ -56,7 +56,7 @@ struct PlaceDetailView: View {
                         Button(role: .destructive) {
                             showDeleteAlert = true
                         } label: {
-                            Label("Sil", systemImage: "trash")
+                            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -67,8 +67,8 @@ struct PlaceDetailView: View {
                 PlacePickerMapView(existingPlace: place)
             }
             .alert("Yeri Sil", isPresented: $showDeleteAlert) {
-                Button("İptal", role: .cancel) {}
-                Button("Sil", role: .destructive) {
+                Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) {}
+                Button(String(localized: "button.delete", comment: "Delete button"), role: .destructive) {
                     deletePlace()
                 }
             } message: {

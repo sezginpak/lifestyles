@@ -72,7 +72,7 @@ struct MarkdownEditor: View {
                 }
                 isFocused = true
             } label: {
-                Label("Düzenle", systemImage: "pencil")
+                Label(String(localized: "button.edit", comment: "Edit button"), systemImage: "pencil")
                     .font(.caption)
                     .fontWeight(showPreview ? .regular : .semibold)
                     .foregroundStyle(showPreview ? .secondary : .primary)
@@ -87,7 +87,7 @@ struct MarkdownEditor: View {
                     }
                     isFocused = false
                 } label: {
-                    Label("Önizleme", systemImage: "eye")
+                    Label(String(localized: "button.preview", comment: "Preview button"), systemImage: "eye")
                         .font(.caption)
                         .fontWeight(showPreview ? .semibold : .regular)
                         .foregroundStyle(showPreview ? .primary : .secondary)

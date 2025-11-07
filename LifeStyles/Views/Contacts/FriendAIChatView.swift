@@ -32,6 +32,11 @@ struct FriendAIChatView: View {
     @State private var usageManager = AIUsageManager.shared
     @State private var purchaseManager = PurchaseManager.shared
     @State private var privacySettings = AIPrivacySettings.shared
+    @State private var questionService = QuickQuestionService.shared
+
+    // Quick Questions
+    @State private var quickQuestions: [QuickQuestion] = []
+    @State private var isLoadingQuestions = false
 
     // UI State
     @State private var showPaywall = false
@@ -123,7 +128,7 @@ struct FriendAIChatView: View {
                 // Modern Input Area
                 modernInputArea
             }
-            .navigationTitle("AI Chat")
+            .navigationTitle(String(localized: "nav.ai.chat"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -158,6 +163,11 @@ struct FriendAIChatView: View {
             .onAppear {
                 // Load or create conversation
                 loadOrCreateConversation()
+
+                // Load quick questions
+                Task {
+                    await loadQuickQuestions()
+                }
 
                 // Auto-focus input on appear
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -232,22 +242,58 @@ struct FriendAIChatView: View {
                     .padding(.horizontal)
             }
 
-            // Smart Quick Actions (duruma göre dinamik)
+            // Dynamic Quick Questions (AI-powered)
             VStack(spacing: 12) {
-                Text(smartActionsTitle)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Text(quickQuestionsTitle)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
 
-                ForEach(smartQuickActions, id: \.question) { action in
-                    ModernQuickQuestionButton(
-                        icon: action.icon,
-                        question: action.question,
-                        gradient: action.gradient
-                    ) {
-                        userInput = action.prompt
-                        sendMessage()
+                    Spacer()
+
+                    // Refresh button
+                    if !isLoadingQuestions {
+                        Button {
+                            HapticFeedback.light()
+                            Task {
+                                await loadQuickQuestions(forceRefresh: true)
+                            }
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                if quickQuestions.isEmpty && !isLoadingQuestions {
+                    Text(String(localized: "friend.quick.questions.loading", comment: "Loading quick questions..."))
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
+                } else {
+                    ForEach(quickQuestions) { question in
+                        ModernQuickQuestionButton(
+                            icon: question.icon,
+                            question: question.question,
+                            gradient: [
+                                Color(hex: question.gradientStartHex),
+                                Color(hex: question.gradientEndHex)
+                            ]
+                        ) {
+                            // Click tracking
+                            question.recordClick()
+                            try? modelContext.save()
+
+                            userInput = question.prompt
+                            sendMessage()
+                        }
                     }
                 }
             }
@@ -457,124 +503,31 @@ struct FriendAIChatView: View {
 
     // MARK: - Smart Quick Actions
 
-    /// Quick action modeli
-    struct QuickAction {
-        let icon: String
-        let question: String
-        let gradient: [Color]
-        let prompt: String
+    // MARK: - Quick Questions Management
+
+    /// Hızlı soruları yükle (cache'den veya AI ile)
+    @MainActor
+    private func loadQuickQuestions(forceRefresh: Bool = false) async {
+        isLoadingQuestions = true
+
+        // Kategoriyi belirle
+        let category: QuickQuestionCategory = isGeneralMode ? .generalChat : .friendChat
+
+        // Soruları getir
+        let questions = await questionService.getQuestions(
+            for: category,
+            friend: friend,
+            chatHistory: chatMessages,
+            modelContext: modelContext,
+            forceRefresh: forceRefresh
+        )
+
+        quickQuestions = questions
+        isLoadingQuestions = false
     }
 
-    /// Arkadaş durumuna veya genel moda göre akıllı quick action'lar
-    var smartQuickActions: [QuickAction] {
-        var actions: [QuickAction] = []
-
-        // GENEL MOD
-        if isGeneralMode {
-            actions.append(QuickAction(
-                icon: "person.3.fill",
-                question: "Hangi arkadaşlarla görüşmeliyim?",
-                gradient: [.orange, .red],
-                prompt: "Hangi arkadaşlarımla iletişim kurmam gerekir?"
-            ))
-
-            actions.append(QuickAction(
-                icon: "calendar.badge.clock",
-                question: "Bu hafta ne yapmalıyım?",
-                gradient: [.blue, .cyan],
-                prompt: "Bu hafta için önerin nedir?"
-            ))
-
-            actions.append(QuickAction(
-                icon: "sparkles",
-                question: "Motivasyon ver",
-                gradient: [.purple, .pink],
-                prompt: "Bana motivasyon ver ve günümü nasıl geçirmeliyim?"
-            ))
-
-            actions.append(QuickAction(
-                icon: "map.fill",
-                question: "Aktivite öner",
-                gradient: [.green, .mint],
-                prompt: "Bugün ne tür aktiviteler yapabilirim?"
-            ))
-
-            return actions
-        }
-
-        // ARKADAŞ MODU
-        guard let friend = friend else { return actions }
-
-        // İletişim gerekiyorsa - ACIL
-        if friend.needsContact {
-            actions.append(QuickAction(
-                icon: "exclamationmark.bubble.fill",
-                question: "Mesaj taslağı oluştur",
-                gradient: [.red, .orange],
-                prompt: "\(friend.name) için acil bir mesaj taslağı yaz"
-            ))
-
-            actions.append(QuickAction(
-                icon: "clock.fill",
-                question: "Ne zaman aramalıyım?",
-                gradient: [.orange, .yellow],
-                prompt: "\(friend.name)'i ne zaman aramam gerekir?"
-            ))
-        }
-        // Partner ise
-        else if friend.isPartner {
-            actions.append(QuickAction(
-                icon: "heart.fill",
-                question: "Randevu fikri ver",
-                gradient: [.pink, .red],
-                prompt: "\(friend.name) ile romantik bir buluşma fikri öner"
-            ))
-
-            actions.append(QuickAction(
-                icon: "gift.fill",
-                question: "Hediye önerisi al",
-                gradient: [.purple, .pink],
-                prompt: "\(friend.name) için hediye önerisi ver"
-            ))
-
-            if let daysUntil = friend.daysUntilAnniversary, daysUntil <= 30 {
-                actions.append(QuickAction(
-                    icon: "calendar.badge.clock",
-                    question: "Yıldönümü planı",
-                    gradient: [.red, .orange],
-                    prompt: "Yıldönümümüz yaklaşıyor, önerilerin neler?"
-                ))
-            }
-        }
-        // Normal durum
-        else {
-            actions.append(QuickAction(
-                icon: "message.fill",
-                question: "Mesaj taslağı oluştur",
-                gradient: [.blue, .cyan],
-                prompt: "\(friend.name) için bir mesaj taslağı yaz"
-            ))
-
-            actions.append(QuickAction(
-                icon: "lightbulb.fill",
-                question: "İlişki önerisi ver",
-                gradient: [.orange, .yellow],
-                prompt: "\(friend.name) ile ilişkimi nasıl geliştirebilirim?"
-            ))
-
-            actions.append(QuickAction(
-                icon: "chart.bar.fill",
-                question: "İletişim analizi yap",
-                gradient: [.purple, .pink],
-                prompt: "\(friend.name) ile iletişim geçmişimi analiz et"
-            ))
-        }
-
-        return actions
-    }
-
-    /// Quick actions başlığı
-    var smartActionsTitle: String {
+    /// Quick questions başlığı
+    var quickQuestionsTitle: String {
         if isGeneralMode {
             return "Hızlı Sorular"
         }

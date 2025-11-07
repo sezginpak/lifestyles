@@ -222,7 +222,7 @@ struct UpcomingSpecialDatesCard: View {
                         Spacer()
 
                         // Countdown Badge
-                        Text("\(item.days)")
+                        Text(String(localized: "component.days", defaultValue: "\(item.days)", comment: "Item days"))
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
@@ -363,7 +363,7 @@ struct PartnerAnniversaryCard: View {
 
                 // Countdown Badge
                 if anniversaryInfo.days <= 30 {
-                    Text("\(anniversaryInfo.days)")
+                    Text(String(localized: "relationship.anniversary.days", defaultValue: "\(anniversaryInfo.days)", comment: "Anniversary days"))
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)

@@ -181,7 +181,7 @@ struct FriendStatItem: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            Text("\(value)")
+            Text(String(localized: "component.value", defaultValue: "\(value)", comment: "Generic value"))
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundStyle(color)

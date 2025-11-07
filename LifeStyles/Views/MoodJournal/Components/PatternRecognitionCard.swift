@@ -460,11 +460,11 @@ struct PatternDetailSheet: View {
                 }
                 .padding(Spacing.large)
             }
-            .navigationTitle("Pattern Detayı")
+            .navigationTitle(String(localized: "journal.nav.pattern.detail", comment: "Pattern detail"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kapat") {
+                    Button(String(localized: "button.close", comment: "Close button")) {
                         dismiss()
                     }
                 }

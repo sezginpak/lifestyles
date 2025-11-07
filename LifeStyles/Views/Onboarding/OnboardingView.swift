@@ -177,7 +177,7 @@ struct OnboardingView: View {
             }
         }
         .alert("Arka Plan Konum İzni", isPresented: $viewModel.showLocationSettingsAlert) {
-            Button("Ayarlara Git") {
+            Button(String(localized: "button.ayarlara.git")) {
                 PermissionManager.shared.openAppSettings()
                 // Onboarding'i tamamla veya devam et
                 if viewModel.isLastPage {
@@ -186,7 +186,7 @@ struct OnboardingView: View {
                     viewModel.nextPage()
                 }
             }
-            Button("Daha Sonra", role: .cancel) {
+            Button(String(localized: "button.daha.sonra"), role: .cancel) {
                 if viewModel.isLastPage {
                     showPremiumSheet = true
                 } else {

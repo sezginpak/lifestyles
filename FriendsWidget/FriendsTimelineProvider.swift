@@ -89,23 +89,43 @@ struct FriendsTimelineProvider: TimelineProvider {
         let widgetDataKey = "friendsWidgetData"
         let widgetCountKey = "friendsWidgetCount"
 
+        print("🔍 WIDGET: Loading widget data...")
+        print("🔍 WIDGET: App Group: \(appGroupSuiteName)")
+
         guard let userDefaults = UserDefaults(suiteName: appGroupSuiteName) else {
-            print("❌ Failed to access App Group UserDefaults")
+            print("❌ WIDGET: Failed to access App Group UserDefaults")
+            print("❌ WIDGET: Bu App Group tanımlı değil!")
             return ([], 0)
         }
 
+        print("✅ WIDGET: UserDefaults erişildi")
+
         guard let data = userDefaults.data(forKey: widgetDataKey) else {
-            print("⚠️ No widget data found")
+            print("⚠️ WIDGET: No widget data found in UserDefaults")
+            print("⚠️ WIDGET: Key: \(widgetDataKey)")
+
+            // Tüm key'leri listele
+            let allKeys = userDefaults.dictionaryRepresentation().keys
+            print("📋 WIDGET: UserDefaults içindeki tüm key'ler: \(allKeys)")
+
             return ([], 0)
         }
+
+        print("✅ WIDGET: Data bulundu, decode ediliyor...")
 
         do {
             let friends = try JSONDecoder().decode([FriendWidgetData].self, from: data)
             let totalCount = userDefaults.integer(forKey: widgetCountKey)
-            print("✅ Widget data loaded: \(friends.count) friends, \(totalCount) total")
+            print("✅ WIDGET: Widget data loaded: \(friends.count) friends, \(totalCount) total")
+
+            // İlk birkaç arkadaşı logla
+            for (index, friend) in friends.prefix(3).enumerated() {
+                print("  \(index + 1). \(friend.name) - \(friend.statusText)")
+            }
+
             return (friends, totalCount)
         } catch {
-            print("❌ Failed to decode widget data: \(error)")
+            print("❌ WIDGET: Failed to decode widget data: \(error)")
             return ([], 0)
         }
     }

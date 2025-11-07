@@ -284,7 +284,7 @@ class DailyInsightProvider: ContextProvider {
         Sen LifeStyles uygulamasının kişisel yaşam asistanısın. Adın Claude.
 
         Kurallar:
-        - Türkçe yaz, samimi ve sıcak ol
+        - Respond in the user's language (Turkish, English, etc.), be friendly and warm
         - 3-4 cümle ile özetle
         - Emoji kullan (1-2 tane, abartma)
         - Pozitif ve motive edici ol
@@ -445,16 +445,20 @@ class DailyInsightService {
 
     /// Generate time-aware insight
     func generateInsight(modelContext: ModelContext) async throws -> String {
-        // Privacy check
-        let privacySettings = AIPrivacySettings.shared
-        guard privacySettings.hasGivenAIConsent && privacySettings.morningInsightEnabled else {
-            throw MorningInsightError.featureDisabled
-        }
-
         // Premium & Usage check
         let purchaseManager = PurchaseManager.shared
         let usageManager = AIUsageManager.shared
         let isPremium = purchaseManager.isPremium
+
+        // Privacy check - Premium users bypass privacy settings
+        let privacySettings = AIPrivacySettings.shared
+
+        // Premium users can always use daily insights
+        if !isPremium {
+            guard privacySettings.hasGivenAIConsent && privacySettings.morningInsightEnabled else {
+                throw MorningInsightError.featureDisabled
+            }
+        }
 
         guard usageManager.canGenerateDailyInsight(isPremium: isPremium) else {
             throw MorningInsightError.limitReached

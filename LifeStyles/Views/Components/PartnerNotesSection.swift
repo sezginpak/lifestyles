@@ -88,7 +88,7 @@ struct PartnerNotesSection: View {
                                 Button(role: .destructive) {
                                     deleteNote(note)
                                 } label: {
-                                    Label("Sil", systemImage: "trash")
+                                    Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                 }
                             }
                     }
@@ -162,7 +162,7 @@ struct NoteCategoryChip: View {
                 Text(title)
                     .font(.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
-                Text("(\(count))")
+                Text(String(localized: "notes.count.parentheses", defaultValue: "(\(count))", comment: "Notes count"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -256,7 +256,7 @@ struct AddPartnerNoteView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Kategori") {
+                Section(String(localized: "section.category", comment: "Category")) {
                     Picker("Kategori", selection: $selectedCategory) {
                         ForEach(NoteCategory.allCases, id: \.self) { category in
                             HStack {
@@ -278,17 +278,17 @@ struct AddPartnerNoteView: View {
                     Text(String(localized: "partner.notes.placeholder", comment: "Write information you want to remember about your partner here"))
                 }
             }
-            .navigationTitle("Not Ekle")
+            .navigationTitle(String(localized: "nav.add.note", comment: "Add note"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         saveNote()
                     }
                     .disabled(content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)

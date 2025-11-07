@@ -19,6 +19,16 @@ class SmartContextBuilder {
     private let maxFacts = 15            // Max 15 fact
     private let recentDays = 7           // Son 7 gün = güncel
 
+    // Services (singleton references)
+    private let vectorSearch = VectorSearchService.shared
+    private let qualityTracker = QualityTracker.shared
+
+    // Hybrid scoring weights
+    private let semanticWeight = 0.6
+    private let keywordWeight = 0.2
+    private let qualityWeight = 0.1
+    private let recencyWeight = 0.1
+
     private init() {}
 
     // MARK: - Public Methods
@@ -38,7 +48,7 @@ class SmartContextBuilder {
         // 1. ALWAYS INCLUDE: Basic Info (her zaman dahil et)
         let basics = getBasicInfo(from: knowledgeBase)
         if !basics.isEmpty {
-            let formatted = formatSection("KİŞİSEL BİLGİLER", facts: basics)
+            let formatted = formatSection(String(localized: "section.kişisel.bilgiler"), facts: basics)
             context += formatted
             tokenCount += estimateTokens(formatted)
         }
@@ -46,7 +56,7 @@ class SmartContextBuilder {
         // 2. MESSAGE-RELEVANT: Mesaja relevantları ekle
         let relevant = findRelevantFacts(message, in: knowledgeBase)
         if !relevant.isEmpty && tokenCount < maxTokens {
-            let formatted = formatSection("İLGİLİ BİLGİLER", facts: relevant)
+            let formatted = formatSection(String(localized: "section.ilgili.bilgiler"), facts: relevant)
             let tokens = estimateTokens(formatted)
 
             if tokenCount + tokens <= maxTokens {
@@ -59,7 +69,7 @@ class SmartContextBuilder {
         if tokenCount < maxTokens {
             let recent = getRecentContext(from: knowledgeBase)
             if !recent.isEmpty {
-                let formatted = formatSection("GÜNCEL DURUM", facts: recent)
+                let formatted = formatSection(String(localized: "section.güncel.durum"), facts: recent)
                 let tokens = estimateTokens(formatted)
 
                 if tokenCount + tokens <= maxTokens {
@@ -73,7 +83,7 @@ class SmartContextBuilder {
         if tokenCount < maxTokens - 50 {
             let highConfidence = getHighConfidenceFacts(from: knowledgeBase)
             if !highConfidence.isEmpty {
-                let formatted = formatSection("KANITLANMIŞ BİLGİLER", facts: highConfidence)
+                let formatted = formatSection(String(localized: "section.kanitlanmiş.bilgiler"), facts: highConfidence)
                 let tokens = estimateTokens(formatted)
 
                 if tokenCount + tokens <= maxTokens {
@@ -129,34 +139,94 @@ class SmartContextBuilder {
         .map { $0 }
     }
 
-    /// Mesaja relevant fact'ler
+    /// Mesaja relevant fact'ler (Hybrid: Semantic + Keyword + Quality + Recency)
     private func findRelevantFacts(
         _ message: String,
         in knowledge: [UserKnowledge]
     ) -> [UserKnowledge] {
-        let normalized = message.lowercased()
+        // Fallback to keyword-only scoring (sync)
+        // Async version için findRelevantFactsAsync kullan
+        return findRelevantFactsKeywordOnly(message, in: knowledge)
+    }
+
+    /// ASYNC: Hybrid scoring ile relevant fact'ler bul
+    func findRelevantFactsAsync(
+        _ message: String,
+        in knowledge: [UserKnowledge],
+        modelContext: ModelContext
+    ) async -> [UserKnowledge] {
+        guard !knowledge.isEmpty else { return [] }
+
+        // Try semantic search (may fail if embeddings not ready)
+        var semanticScores: [UUID: Double] = [:]
+
+        do {
+            let scoredFacts = try await vectorSearch.findSimilarFactsHybrid(
+                to: message,
+                modelContext: modelContext,
+                limit: 20 // Get more for reranking
+            )
+
+            for scored in scoredFacts {
+                semanticScores[scored.fact.id] = scored.semanticScore
+            }
+        } catch {
+            // Semantic search failed, will use keyword-only
+            print("Semantic search failed, falling back to keyword: \(error)")
+        }
+
+        // Calculate hybrid scores
+        var scored: [(fact: UserKnowledge, score: Double)] = []
+
+        for fact in knowledge {
+            var finalScore = 0.0
+
+            // 1. Semantic score (if available)
+            let semanticScore = semanticScores[fact.id] ?? 0.0
+            finalScore += semanticScore * semanticWeight
+
+            // 2. Keyword matching
+            let keywordScore = calculateKeywordScore(message, fact: fact)
+            finalScore += keywordScore * keywordWeight
+
+            // 3. Quality score (confidence + accuracy)
+            finalScore += fact.qualityScore * qualityWeight
+
+            // 4. Recency score
+            let recencyScore = calculateRecencyScore(fact)
+            finalScore += recencyScore * recencyWeight
+
+            if finalScore > 0.2 { // Lower threshold for hybrid
+                scored.append((fact, finalScore))
+            }
+        }
+
+        // Sort by final score, return top 10
+        return scored
+            .sorted { $0.score > $1.score }
+            .prefix(10)
+            .map { $0.fact }
+    }
+
+    /// Keyword-only scoring (fallback için)
+    private func findRelevantFactsKeywordOnly(
+        _ message: String,
+        in knowledge: [UserKnowledge]
+    ) -> [UserKnowledge] {
         var scored: [(fact: UserKnowledge, score: Double)] = []
 
         for fact in knowledge {
             var score = 0.0
 
-            // 1. Keyword matching (key veya value mesajda geçiyor mu?)
-            if normalized.contains(fact.key.lowercased()) {
-                score += 1.5
-            }
-            if normalized.contains(fact.value.lowercased()) {
-                score += 1.0
-            }
+            // 1. Keyword matching
+            score += calculateKeywordScore(message, fact: fact) * 1.5
 
-            // 2. Category relevance (mesaj hangi kategoriye ait?)
+            // 2. Category relevance
             let categoryScore = calculateCategoryRelevance(fact.categoryEnum, for: message)
             score += categoryScore
 
-            // 3. Recency bonus (yeni öğrenilenler daha relevant)
-            let daysSince = Date().timeIntervalSince(fact.createdAt) / 86400
-            if daysSince < 7 {
-                score += (7 - daysSince) / 7 * 0.5  // Max 0.5 bonus
-            }
+            // 3. Recency bonus
+            score += calculateRecencyScore(fact) * 0.5
 
             // 4. Confidence weighting
             score *= fact.confidence
@@ -171,11 +241,47 @@ class SmartContextBuilder {
             }
         }
 
-        // Sort by score, return top 10
         return scored
             .sorted { $0.score > $1.score }
             .prefix(10)
             .map { $0.fact }
+    }
+
+    // MARK: - Scoring Helpers
+
+    /// Keyword matching score hesapla
+    private func calculateKeywordScore(_ message: String, fact: UserKnowledge) -> Double {
+        let normalized = message.lowercased()
+        var score = 0.0
+
+        // Key match
+        if normalized.contains(fact.key.lowercased()) {
+            score += 0.6
+        }
+
+        // Value match
+        if normalized.contains(fact.value.lowercased()) {
+            score += 0.4
+        }
+
+        // Category keyword match
+        let categoryScore = calculateCategoryRelevance(fact.categoryEnum, for: message)
+        score += categoryScore * 0.3
+
+        return min(score, 1.0) // Cap at 1.0
+    }
+
+    /// Recency score hesapla
+    private func calculateRecencyScore(_ fact: UserKnowledge) -> Double {
+        let daysSince = Date().timeIntervalSince(fact.createdAt) / 86400
+
+        if daysSince < 7 {
+            return (7 - daysSince) / 7 // 1.0 for today, 0.0 for 7 days ago
+        } else if daysSince < 30 {
+            return 0.5 // Medium recency
+        }
+
+        return 0.2 // Old but still some value
     }
 
     /// Kategori relevance hesapla

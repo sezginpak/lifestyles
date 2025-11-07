@@ -93,7 +93,7 @@ struct ModernJournalEditorView: View {
 
     var typeSelector: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Journal Tipi")
+            Text(String(localized: "journal.editor.type", comment: ""))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.secondary)
 
@@ -120,11 +120,11 @@ struct ModernJournalEditorView: View {
 
     var titleInput: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Başlık (Opsiyonel)")
+            Text(String(localized: "journal.editor.title.optional", comment: ""))
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.secondary)
 
-            TextField("Başlık ekle...", text: $title)
+            TextField(String(localized: "journal.add.title.placeholder", comment: ""), text: $title)
                 .font(.system(size: 18, weight: .medium))
                 .padding(16)
                 .background(
@@ -147,7 +147,7 @@ struct ModernJournalEditorView: View {
     var imageSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Fotoğraf (Opsiyonel)")
+                Text(String(localized: "journal.editor.photo.optional", comment: ""))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.secondary)
 
@@ -161,7 +161,7 @@ struct ModernJournalEditorView: View {
                             imageCaption = ""
                         }
                     } label: {
-                        Text("Kaldır")
+                        Text(String(localized: "journal.editor.remove", comment: ""))
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.red)
                     }
@@ -182,7 +182,7 @@ struct ModernJournalEditorView: View {
                                 .strokeBorder(selectedType.color.opacity(0.2), lineWidth: 1)
                         )
 
-                    TextField("Fotoğraf açıklaması...", text: $imageCaption)
+                    TextField(String(localized: "journal.photo.description.placeholder", comment: ""), text: $imageCaption)
                         .font(.system(size: 14))
                         .padding(12)
                         .background(
@@ -206,11 +206,11 @@ struct ModernJournalEditorView: View {
                             )
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Fotoğraf Ekle")
+                            Text(String(localized: "journal.editor.photo.add", comment: ""))
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.primary)
 
-                            Text("Galeriden seç")
+                            Text(String(localized: "journal.editor.gallery", comment: ""))
                                 .font(.system(size: 13))
                                 .foregroundColor(.secondary)
                         }
@@ -244,13 +244,13 @@ struct ModernJournalEditorView: View {
     var contentInput: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("İçerik")
+                Text(String(localized: "journal.editor.content", comment: ""))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.secondary)
 
                 Spacer()
 
-                Text("\(content.count) karakter")
+                Text(String(localized: "journal.character.count", defaultValue: "\(content.count) characters", comment: "Character count"))
                     .font(.system(size: 13))
                     .foregroundColor(.secondary.opacity(0.6))
             }
@@ -285,11 +285,11 @@ struct ModernJournalEditorView: View {
 
             // Word count and reading time
             HStack(spacing: 16) {
-                Label("\(wordCount) kelime", systemImage: "doc.text")
+                Label(String(localized: "journal.word.count.label", defaultValue: "\(wordCount) words", comment: "Word count label"), systemImage: "doc.text")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
 
-                Label("\(estimatedReadingTime) dk okuma", systemImage: "clock")
+                Label(String(localized: "journal.reading.time.label", defaultValue: "\(estimatedReadingTime) min read", comment: "Reading time label"), systemImage: "clock")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
@@ -301,7 +301,7 @@ struct ModernJournalEditorView: View {
     var tagsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Etiketler (Opsiyonel)")
+                Text(String(localized: "journal.editor.tags.optional", comment: ""))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.secondary)
 
@@ -312,7 +312,7 @@ struct ModernJournalEditorView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "plus.circle.fill")
-                        Text("Ekle")
+                        Text(String(localized: "journal.editor.add", comment: ""))
                     }
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(selectedType.color)
@@ -325,7 +325,7 @@ struct ModernJournalEditorView: View {
                         .font(.system(size: 20))
                         .foregroundColor(.secondary.opacity(0.5))
 
-                    Text("Henüz etiket eklenmedi")
+                    Text(String(localized: "journal.editor.tags.empty", comment: ""))
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                 }
@@ -378,11 +378,11 @@ struct ModernJournalEditorView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Bugünkü Ruh Haline Bağla")
+                        Text(String(localized: "journal.editor.link.mood", comment: ""))
                             .font(.system(size: 15, weight: .semibold))
 
                         if let mood = viewModel.currentMood {
-                            Text("\(mood.moodType.displayName) • \(mood.formattedDate)")
+                            Text(String(localized: "journal.mood.datetime", defaultValue: "\(mood.moodType.displayName) • \(mood.formattedDate)", comment: "Mood datetime"))
                                 .font(.system(size: 13))
                                 .foregroundColor(.secondary)
                         }
@@ -632,7 +632,7 @@ struct TagBadge: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Text("#\(tag)")
+            Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                 .font(.system(size: 14, weight: .medium))
 
             Button(action: onRemove) {
@@ -671,7 +671,7 @@ struct TagPickerSheet: View {
                         .font(.system(size: 16))
                         .foregroundColor(journalType.color)
 
-                    TextField("Yeni etiket...", text: $newTag)
+                    TextField(String(localized: "journal.new.tag.placeholder", comment: ""), text: $newTag)
                         .font(.system(size: 16))
                         .focused($isInputFocused)
                         .submitLabel(.done)
@@ -699,7 +699,7 @@ struct TagPickerSheet: View {
                 // Suggestions
                 if !suggestions.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Önerilen Etiketler")
+                        Text(String(localized: "journal.editor.tags.suggested", comment: ""))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
@@ -718,7 +718,7 @@ struct TagPickerSheet: View {
                                         HapticFeedback.light()
                                     } label: {
                                         HStack(spacing: 6) {
-                                            Text("#\(tag)")
+                                            Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                                                 .font(.system(size: 14, weight: .medium))
 
                                             if selectedTags.contains(tag) {
@@ -752,11 +752,11 @@ struct TagPickerSheet: View {
             }
             .padding(.top)
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Etiket Ekle")
+            .navigationTitle(String(localized: "journal.add.tag.title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                 }

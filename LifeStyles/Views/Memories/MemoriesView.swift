@@ -43,7 +43,7 @@ struct MemoriesView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .navigationTitle("📸 Anılar")
+            .navigationTitle(String(localized: "memory.nav.memories", comment: "Memories"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -78,7 +78,7 @@ struct MemoriesView: View {
                 PrivateMemoriesView(viewModel: viewModel)
             }
             .alert("Kimlik Doğrulama Hatası", isPresented: $showingAuthError) {
-                Button("Tamam", role: .cancel) {}
+                Button(String(localized: "button.tamam"), role: .cancel) {}
             } message: {
                 if let error = viewModel.authenticationError {
                     Text(error)
@@ -167,7 +167,7 @@ struct MemoryGridView: View {
                                         HapticFeedback.medium()
                                         viewModel.togglePrivateStatus(memory, context: modelContext)
                                     } label: {
-                                        Label("Gizliye Taşı", systemImage: "lock.fill")
+                                        Label(String(localized: "memory.move.to.private", comment: "Move to private"), systemImage: "lock.fill")
                                     }
 
                                     Divider()
@@ -175,7 +175,7 @@ struct MemoryGridView: View {
                                     Button(role: .destructive) {
                                         viewModel.deleteMemory(memory, context: modelContext)
                                     } label: {
-                                        Label("Sil", systemImage: "trash")
+                                        Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                     }
                                 }
                         }
@@ -268,7 +268,7 @@ struct MemoryTimelineView: View {
                                                 HapticFeedback.medium()
                                                 viewModel.togglePrivateStatus(memory, context: modelContext)
                                             } label: {
-                                                Label("Gizliye Taşı", systemImage: "lock.fill")
+                                                Label(String(localized: "memory.move.to.private", comment: "Move to private"), systemImage: "lock.fill")
                                             }
 
                                             Divider()
@@ -276,7 +276,7 @@ struct MemoryTimelineView: View {
                                             Button(role: .destructive) {
                                                 viewModel.deleteMemory(memory, context: modelContext)
                                             } label: {
-                                                Label("Sil", systemImage: "trash")
+                                                Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                             }
                                         }
                                 }
@@ -412,7 +412,7 @@ struct TimelineMemoryRow: View {
                         HStack(spacing: 2) {
                             Image(systemName: "photo.stack")
                                 .font(.caption2)
-                            Text("\(memory.photoCount)")
+                            Text(String(localized: "memory.photo.count", defaultValue: "\(memory.photoCount)", comment: "Photo count"))
                                 .font(.caption2)
                         }
                         .foregroundStyle(.secondary)
@@ -434,7 +434,7 @@ struct TimelineMemoryRow: View {
                         HStack(spacing: 2) {
                             Image(systemName: "person.2.fill")
                                 .font(.caption2)
-                            Text("\(friends.count)")
+                            Text(String(localized: "memory.friends.count", defaultValue: "\(friends.count)", comment: "Friends count"))
                                 .font(.caption2)
                         }
                         .foregroundStyle(.secondary)
@@ -653,7 +653,7 @@ struct MemoryMapCard: View {
                         HStack(spacing: 2) {
                             Image(systemName: "photo.stack")
                                 .font(.caption2)
-                            Text("\(memory.photoCount)")
+                            Text(String(localized: "memory.photo.count", defaultValue: "\(memory.photoCount)", comment: "Photo count"))
                                 .font(.caption2)
                         }
                     }
@@ -668,7 +668,7 @@ struct MemoryMapCard: View {
                         HStack(spacing: 2) {
                             Image(systemName: "person.2.fill")
                                 .font(.caption2)
-                            Text("\(friends.count)")
+                            Text(String(localized: "memory.friends.count", defaultValue: "\(friends.count)", comment: "Friends count"))
                                 .font(.caption2)
                         }
                     }

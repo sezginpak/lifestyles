@@ -138,7 +138,7 @@ struct DashboardMoodWidget: View {
                                 }
                             }
 
-                            Text("\(mood.intensity)/5")
+                            Text(String(localized: "mood.intensity", defaultValue: "\(mood.intensity)/5", comment: "Mood intensity"))
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundStyle(mood.moodType.color)
@@ -333,7 +333,7 @@ struct QuickMoodButton: View {
             .padding(.vertical, 8)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(moodType.displayName) ruh hali")
+        .accessibilityLabel(String(localized: "mood.type.display", defaultValue: "\(moodType.displayName) mood", comment: "Mood type"))
         .accessibilityHint("Ruh halinizi kaydetmek için dokunun")
     }
 }
@@ -369,7 +369,7 @@ struct MoodPickerSheet: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
 
-                        TextField("Bugün neler oldu?", text: $note, axis: .vertical)
+                        TextField(String(localized: "placeholder.mood.note", comment: "Mood note"), text: $note, axis: .vertical)
                             .textFieldStyle(.plain)
                             .lineLimit(2...4)
                             .padding()
@@ -381,17 +381,17 @@ struct MoodPickerSheet: View {
                 }
                 .padding()
             }
-            .navigationTitle("Mood Kaydet")
+            .navigationTitle(String(localized: "nav.save.mood", comment: "Save mood"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         onSave(selectedMood, intensity, note.isEmpty ? nil : note)
                         dismiss()
                     }

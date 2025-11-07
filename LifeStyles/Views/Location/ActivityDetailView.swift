@@ -275,7 +275,7 @@ struct ActivityDetailView: View {
                             Image(systemName: "star.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.yellow)
-                            Text("\(completion.pointsEarned)")
+                            Text(String(localized: "text.completionpointsearned"))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                         }

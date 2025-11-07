@@ -36,7 +36,7 @@ struct TemplatePickerView: View {
                 }
                 .padding(Spacing.large)
             }
-            .navigationTitle("Şablon Seç")
+            .navigationTitle(String(localized: "journal.nav.template.select", comment: "Select template"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -258,7 +258,7 @@ struct TemplateCard: View {
                     HStack(spacing: 2) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.caption2)
-                        Text("\(template.usageCount)")
+                        Text(String(localized: "template.usage.count", defaultValue: "\(template.usageCount)", comment: "Template usage"))
                             .font(.caption2)
                     }
                     .foregroundStyle(.tertiary)

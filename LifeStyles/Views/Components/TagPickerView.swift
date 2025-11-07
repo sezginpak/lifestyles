@@ -23,7 +23,7 @@ struct TagPickerView: View {
         VStack(alignment: .leading, spacing: Spacing.large) {
             // Header
             HStack {
-                Label("Tag'ler", systemImage: "tag.fill")
+                Label(String(localized: "label.tags", comment: "Tags label"), systemImage: "tag.fill")
                     .font(.subheadline.weight(.medium))
 
                 Spacer()
@@ -44,7 +44,7 @@ struct TagPickerView: View {
                 Image(systemName: "plus.circle.fill")
                     .foregroundStyle(.blue)
 
-                TextField("Özel tag ekle", text: $customTag)
+                TextField(String(localized: "placeholder.custom.tag", comment: "Custom tag"), text: $customTag)
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
@@ -220,59 +220,6 @@ struct TagChip: View {
     }
 }
 
-// MARK: - Flow Layout (for tag wrapping)
-
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = FlowLayoutResult(
-            in: proposal.replacingUnspecifiedDimensions().width,
-            subviews: subviews,
-            spacing: spacing
-        )
-        return result.size
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = FlowLayoutResult(
-            in: bounds.width,
-            subviews: subviews,
-            spacing: spacing
-        )
-        for (index, subview) in subviews.enumerated() {
-            subview.place(at: result.origins[index], proposal: .unspecified)
-        }
-    }
-
-    struct FlowLayoutResult {
-        var origins: [CGPoint] = []
-        var size: CGSize = .zero
-
-        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
-            var x: CGFloat = 0
-            var y: CGFloat = 0
-            var lineHeight: CGFloat = 0
-
-            for subview in subviews {
-                let size = subview.sizeThatFits(.unspecified)
-
-                if x + size.width > maxWidth && x != 0 {
-                    x = 0
-                    y += lineHeight + spacing
-                    lineHeight = 0
-                }
-
-                origins.append(CGPoint(x: x, y: y))
-                lineHeight = max(lineHeight, size.height)
-                x += size.width + spacing
-            }
-
-            self.size = CGSize(width: maxWidth, height: y + lineHeight)
-        }
-    }
-}
-
 // MARK: - Frequent Tags Sheet
 
 struct FrequentTagsSheet: View {
@@ -296,11 +243,11 @@ struct FrequentTagsSheet: View {
                     }
                 }
             }
-            .navigationTitle("Sık Kullanılan Tag'ler")
+            .navigationTitle(String(localized: "nav.frequent.tags", comment: "Frequent tags"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                 }
@@ -339,7 +286,7 @@ struct TagStatRow: View {
 
                     // DS: Updated spacing from 12 to Spacing.medium
                     HStack(spacing: Spacing.medium) {
-                        Label("\(stat.count) kez", systemImage: "number")
+                        Label(String(localized: "tag.frequency", defaultValue: "\(stat.count) times", comment: "Tag frequency"), systemImage: "number")
                         Label(stat.lastUsedText, systemImage: "clock")
                     }
                     .metadataText() // DS: Using typography helper

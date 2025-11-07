@@ -185,7 +185,7 @@ struct ModernActionButtons: View {
                     HStack(spacing: 4) {
                         Image(systemName: "phone.fill")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Ara")
+                        Text(String(localized: "widget.call", comment: ""))
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                     }
                     .foregroundStyle(.white)
@@ -216,7 +216,7 @@ struct ModernActionButtons: View {
                     HStack(spacing: 4) {
                         Image(systemName: "message.fill")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Mesaj")
+                        Text(String(localized: "widget.message", comment: ""))
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                     }
                     .foregroundStyle(.white)
@@ -244,7 +244,7 @@ struct ModernActionButtons: View {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 12, weight: .semibold))
-                    Text("Tamam")
+                    Text(String(localized: "widget.done", comment: ""))
                         .font(.system(size: 13, weight: .bold, design: .rounded))
                 }
                 .foregroundStyle(.white)
@@ -641,7 +641,7 @@ struct ModernLockScreenView: View {
                     Spacer()
 
                     // Progress percentage
-                    Text("\(Int(progress * 100))%")
+                    Text(String(localized: "text.intprogress.100"))
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundStyle(gradientForStatus)
                 }

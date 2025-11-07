@@ -69,7 +69,7 @@ struct PremiumOnboardingPage: View {
                             .foregroundStyle(.white)
                     }
                     .bounce()
-                    .accessibilityLabel("Premium üyelik ikonu")
+                    .accessibilityLabel(String(localized: "premium.membership.icon", comment: ""))
 
                     // Title & Subtitle
                     VStack(spacing: 12) {
@@ -160,7 +160,7 @@ struct PremiumOnboardingPage: View {
                     }
 
                     // Legal Text
-                    Text("By continuing, you agree to our Terms and Privacy Policy")
+                    Text(String(localized: "onboarding.terms.privacy", comment: "By continuing, you agree to our Terms and Privacy Policy"))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .multilineTextAlignment(.center)

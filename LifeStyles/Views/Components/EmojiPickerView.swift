@@ -24,7 +24,7 @@ struct EmojiPickerView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
-                    TextField("Emoji ara...", text: $searchText)
+                    TextField(String(localized: "placeholder.emoji.search", comment: "Emoji search"), text: $searchText)
                         .textFieldStyle(.plain)
                 }
                 .padding(.horizontal, 12)
@@ -72,11 +72,11 @@ struct EmojiPickerView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Emoji Seç")
+            .navigationTitle(String(localized: "nav.emoji.picker", comment: "Emoji picker"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                 }

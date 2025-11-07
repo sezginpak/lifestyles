@@ -82,7 +82,7 @@ struct BadgeView: View {
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                     } else if !isEarned {
-                        Text("🔒 Kilitli")
+                        Text(String(localized: "badge.locked", comment: ""))
                             .font(.system(size: 10))
                             .foregroundColor(.secondary)
                     }
@@ -169,7 +169,7 @@ struct BadgeDetailSheet: View {
                         Image(systemName: "star.fill")
                             .font(.caption)
                             .foregroundColor(.yellow)
-                        Text("+\(badgeType.xpReward) XP")
+                        Text(String(localized: "text.badgetypexpreward.xp"))
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
@@ -183,12 +183,12 @@ struct BadgeDetailSheet: View {
 
                     // Earned date
                     if isEarned, let date = earnedDate {
-                        Text("Kazanıldı: \(formattedFullDate(date))")
+                        Text(String(localized: "text.kazanıldı.formattedfulldatedate"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.top, 8)
                     } else {
-                        Text("Henüz kazanılmadı")
+                        Text(String(localized: "badge.not.earned", comment: ""))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.top, 8)
@@ -200,7 +200,7 @@ struct BadgeDetailSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                 }
@@ -243,11 +243,11 @@ struct BadgeGridView: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Rozetler")
+                    Text(String(localized: "badge.header", comment: ""))
                         .font(.title2)
                         .fontWeight(.bold)
 
-                    Text("\(badges.count) / \(BadgeType.allCases.count) Kazanıldı")
+                    Text(String(localized: "text.badgescount.badgetypeallcasescount.kazanıldı"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -273,7 +273,7 @@ struct BadgeGridView: View {
                         .frame(width: 50, height: 50)
                         .rotationEffect(.degrees(-90))
 
-                    Text("\(Int(Double(badges.count) / Double(BadgeType.allCases.count) * 100))%")
+                    Text(String(localized: "text.intdoublebadgescount.doublebadgetypeallcasescount.100"))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(.primary)
                 }

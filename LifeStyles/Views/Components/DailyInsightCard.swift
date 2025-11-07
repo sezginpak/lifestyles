@@ -73,7 +73,7 @@ struct DailyInsightCard: View {
                             .font(.headline)
                             .foregroundStyle(.primary)
 
-                        Text("Claude Haiku")
+                        Text(String(localized: "ai.claude.haiku", comment: "AI model name"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -126,7 +126,7 @@ struct DailyInsightCard: View {
                             onExpand?()
                         } label: {
                             HStack(spacing: 4) {
-                                Text("Detaylı Gör")
+                                Text(String(localized: "ai.see.details", comment: "See details button"))
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(timeOfDay.gradientColors.first!)
 
@@ -356,7 +356,7 @@ struct FullDailyInsightSheet: View {
                 }
                 .padding(Spacing.large)
             }
-            .navigationTitle("Günlük Öneriniz")
+            .navigationTitle(String(localized: "nav.daily.insight", comment: "Daily insight"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

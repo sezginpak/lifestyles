@@ -303,7 +303,7 @@ class QuickQuestionGenerator {
                 category: category,
                 prompt: data.prompt,
                 priority: data.priority ?? (10 - index), // Varsayılan priority
-                expiresAt: Date().addingTimeInterval(3600), // 1 saat
+                expiresAt: Date().addingTimeInterval(14400), // 4 saat
                 requiresFriend: friend != nil,
                 generatedByAI: true
             )

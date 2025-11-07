@@ -124,8 +124,7 @@ struct SocialAnalyticsSection: View {
 
                 Spacer()
 
-                Text("\(count)")
-                    .font(.subheadline.weight(.semibold))
+                Text(String(localized: "component.count", defaultValue: "\(count)", comment: "Generic count")).font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
 

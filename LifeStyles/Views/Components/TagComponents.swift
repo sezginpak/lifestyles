@@ -78,7 +78,7 @@ struct ContactTagPickerView: View {
         NavigationStack {
             List {
                 if !selectedTags.isEmpty {
-                    Section("Seçili Etiketler") {
+                    Section(String(localized: "section.selected.tags", comment: "Selected tags")) {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(selectedTags) { tag in
@@ -112,11 +112,11 @@ struct ContactTagPickerView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "Etiket ara...")
-            .navigationTitle("Etiketler")
+            .navigationTitle(String(localized: "nav.tags", comment: "Tags"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Bitti") {
+                    Button(String(localized: "tag.done", comment: "")) {
                         dismiss()
                     }
                 }
@@ -204,7 +204,7 @@ struct TagRowView: View {
                         .fontWeight(.medium)
 
                     if tag.usageCount > 0 {
-                        Text("\(tag.usageCount)× kullanıldı")
+                        Text(String(localized: "tag.usage.count", defaultValue: "\(tag.usageCount)× used", comment: "Tag usage"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -240,12 +240,12 @@ struct CreateTagView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Etiket Bilgileri") {
-                    TextField("İsim", text: $name)
-                    TextField("Emoji (opsiyonel)", text: $emoji)
+                Section(String(localized: "section.tag.info", comment: "Tag info")) {
+                    TextField(String(localized: "placeholder.tag.name", comment: "Tag name"), text: $name)
+                    TextField(String(localized: "tag.emoji.optional", comment: ""), text: $emoji)
                 }
 
-                Section("Kategori") {
+                Section(String(localized: "section.category", comment: "Category")) {
                     Picker("Kategori", selection: $selectedCategory) {
                         ForEach(TagCategory.allCases, id: \.self) { category in
                             Label(category.displayName, systemImage: category.icon)
@@ -255,7 +255,7 @@ struct CreateTagView: View {
                     .pickerStyle(.menu)
                 }
 
-                Section("Renk") {
+                Section(String(localized: "section.color", comment: "Color")) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(colorOptions, id: \.self) { color in
@@ -290,20 +290,20 @@ struct CreateTagView: View {
                         Spacer()
                     }
                 } header: {
-                    Text("Önizleme")
+                    Text(String(localized: "tag.preview", comment: "Preview header"))
                 }
             }
-            .navigationTitle("Yeni Etiket")
+            .navigationTitle(String(localized: "tag.new.title", comment: ""))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         saveTag()
                     }
                     .disabled(name.isEmpty)

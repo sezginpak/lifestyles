@@ -171,7 +171,7 @@ struct JournalListViewNew: View {
                                 Button(role: .destructive) {
                                     deleteEntry(entry)
                                 } label: {
-                                    Label("Sil", systemImage: "trash")
+                                    Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                 }
                             }
                         }
@@ -215,10 +215,10 @@ struct JournalListViewNew: View {
                 .foregroundColor(.secondary.opacity(0.5))
 
             VStack(spacing: 8) {
-                Text("Sonuç Bulunamadı")
+                Text(String(localized: "journal.no.results", comment: ""))
                     .font(.system(size: 18, weight: .semibold))
 
-                Text("Arama kriterlerinizi değiştirin veya filtreleri temizleyin")
+                Text(String(localized: "journal.change.criteria", comment: ""))
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -228,7 +228,7 @@ struct JournalListViewNew: View {
                 Button {
                     clearAllFilters()
                 } label: {
-                    Text("Filtreleri Temizle")
+                    Text(String(localized: "journal.clear.filters", comment: ""))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
@@ -439,7 +439,7 @@ struct JournalListViewNew: View {
 
     return NavigationStack {
         JournalListViewNew(viewModel: viewModel)
-            .navigationTitle("Journal")
+            .navigationTitle(String(localized: "journal.navigation.title", comment: ""))
     }
     .modelContainer(container)
 }

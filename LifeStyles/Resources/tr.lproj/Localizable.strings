@@ -1,0 +1,5140 @@
+/* #%@ */
+/* A text element displaying the amount of money in a transaction, followed by the currency symbol. The first argument is the amount of money. The second argument is the currency symbol. */
+/* A subheadline displaying the price of the subscription plan and its billing period. The first argument is the price of the plan. The second argument is the billing period of the plan. */
+/* A label showing the total amount of debt that a user owes. The text inside the parentheses is replaced with the actual amount of debt. */
+/* A secondary line of text that shows the name of the current mood and the date it was last logged. */
+/* %@ • Score: %@ */
+/* %@, %@ */
+/* %@, intensity level %lld */
+/* A small, rounded badge displaying the average value of a trend line chart. */
+/* %@: %@ */
+/* A label showing the number of consecutive days a particular goal has been achieved. The text inside the label is dynamically updated to reflect the current streak. */
+/* %lld %@ */
+/* A small, rounded badge displaying the current and total number of photos in a memory. */
+/* A subtitle indicating the number of badges earned out of the total possible. The first argument is the count of badges that have been earned. The second argument is the total count of possible badges. */
+/* A pair of text elements showing the current XP and the percentage of XP needed to advance to the next level. The first argument is the current XP the user has. The second argument is the XP needed to advance to the next level. The third argument is the percentage of XP the user has accumulated to reach the next level. */
+/* A label displaying the total amount of experience points a user has accumulated. The argument is the total XP value. */
+/* %lld min */
+/* A label displaying the number of days until the next contact is needed, in green if it's in the future, or in red if it's already passed. The argument is the number of days until */
+/* A label displaying the number of days until the next contact is needed, in green if it's in the future, or in red if it's already passed. The argument is the number of days until */
+/* %lld day streak */
+/* %lld characters */
+/* %lld words */
+/* %lld times */
+/* A label displaying the number of locations visited in the current session. */
+/* A text element displaying the percentage of completion for a specific goal or task. The argument is a floating-point number between 0.0 and 1.0, representing the fraction of completion. */
+/* %lld, %@ */
+/* %lld, no mood records */
+/* %lld/%lld %@ */
+/* A text that shows the number of achievements earned and the total number of achievements. The first argument is the count of earned achievements. The second argument is the total count of achievements. */
+/* A text displaying the current XP and the XP needed for the next level. */
+/* %lld/5 */
+/* A small text label showing the number of notes in a category. */
+/* (Markdown) */
+/* A text displaying the net balance of an account, formatted as a title with a plus sign for positive values and a minus sign for negative values. The value is followed by " TL". */
+/* +%lld */
+/* A text label displaying the XP reward for earning a badge. The argument is the XP reward value. */
+/* A negative balance amount displayed in the checkout view. The value is the absolute value of the negative balance. */
+/* A placeholder text for an empty text field. */
+/* "AI" kelimesi. */
+/* The title of the view that appears in the navigation bar at the top of the screen. */
+/* AI Consent */
+/* Active */
+/* A title for the section that shows smart suggestions. */
+/* A caption displayed underneath the name of an "Alacak" button. */
+/* A title for the view that lets users select a habit template. */
+/* A button that starts an analysis process. */
+/* A button that triggers the generation of new mood insights. */
+/* The title of an alert that appears when a user attempts to delete a memory. */
+/* A button label that translates to "Call" in English. */
+/* A navigation title for the view that lets users select friends. */
+/* The title of the "Friends" view. */
+/* The title of an alert that appears when trying to delete a friend. */
+/* A label for the emoji used as the user's avatar. */
+/* Custom axis label and value extraction for the x-axis. */
+/* A label describing the description field in the transaction sheet. */
+/* The title of the gamification view. */
+/* A label for the title of a special date. */
+/* Title (optional) */
+/* Refresh Titles */
+/* Edit Title */
+/* Notification Settings */
+"Bildirim Ayarları" = "Bildirim Ayarları";
+
+/* A message displayed when a category in the "Partner Notları" section has no notes. */
+/* A label indicating that a special date is happening today. */
+/* What happened today? */
+/* Claude Haiku */
+/* A label indicating that a user's net balance is zero. */
+/* A heading for the details section of the "Add Goal" wizard. */
+/* Tap to view details */
+/* A section header in the gamification view that translates to "Detailed Stats". */
+/* The title of an alert that appears when a user tries to add a friend with a name or phone number that is already in use. */
+/* An edit button for editing a friend's details. */
+/* A button that triggers the export of mood analytics data. */
+/* A button that adds a person from the phone book to the list. */
+/* A text that shows the number of missing profile fields, up to two, followed by an ellipsis if there are more. */
+/* The title of the EmojiPickerView. */
+/* A placeholder text for a search bar in the emoji picker view. */
+/* A placeholder text for the text field where a user can add a tag. */
+/* Tags */
+/* Home */
+/* Save Home Location? */
+/* Favorite */
+/* Remove from Favorites */
+/* Remove from Favorites */
+/* Add to Favorites */
+/* Photo description (optional) */
+/* Remove Photo */
+/* A button label that says "Gallery". */
+/* A toggle switch that indicates whether geofencing is enabled. */
+/* Skip */
+/* A toggle that enables or disables a notification when entering a place. */
+/* Privacy Policy */
+/* A button that moves a memory to a private list. */
+/* A section header for the "How did the meeting go?" question in the "Add Contact History" view. */
+/* Day */
+/* The title of the view that appears when a user taps on a day in the heatmap. */
+/* Update */
+/* The title of the view. */
+/* Generate Weekly Analysis */
+/* Error */
+/* A label for the reminder time picker in the "Önizleme ve Kaydet" step of the "Alışkanlık Ekle" wizard. */
+/* A title for the view that lets users choose a goal template. */
+/* A text that appears when a badge has not been earned yet. */
+/* A message displayed when a user has no mood entries yet. */
+/* A message displayed when a user has no partner notes. */
+/* Journal Detail */
+/* Edit Journal */
+/* Journal Type */
+/* The text for the camera option in the photo section of the "Add Memory" view. */
+/* A button label that translates to "Close". */
+/* A section that lets the user select a category for their note. */
+/* A message displayed while saving a memory. */
+/* A button that saves the note when pressed. */
+/* Saved Places */
+"Kayıtlı Yerler" = "Kayıtlı Yerler";
+
+/* A text displaying the date when a badge was earned. The argument is the date in a readable format. */
+/* An alert title indicating that there was an authentication error. */
+/* A prompt for searching through phone contacts. */
+/* A section header for personal information. */
+/* A label displayed above the location section in the "Add Memory" view. */
+/* Location Settings */
+"Konum Ayarları" = "Konum Ayarları";
+
+/* The title of the view that allows users to select a location. */
+/* Terms of Use */
+/* The text "L" in the center of the custom LifeStyle Icon. */
+/* A label displayed within the level badge. */
+/* Lat: %@, Lon: %@ */
+/* A text view displaying the latitude of the selected location. */
+/* A title and subtitle in the checkout view that display the user's current level and total XP. */
+/* The title of the navigation bar at the top of the screen. */
+/* A text view displaying the latitude coordinate of the selected location. */
+/* A button label that translates to "Message". */
+/* Current Location */
+/* Mode */
+/* The title of the view. */
+/* Save Mood */
+/* No mood records, %@ */
+/* Delete Mood */
+/* A label describing the net balance of a contact. */
+/* A button that allows a user to add a new note. */
+/* A placeholder text indicating that a friend's notes are empty. */
+/* A section header for the user to add notes about a special date. */
+/* A section header that translates to "Optional Notes". */
+/* A text field prompt for the user to enter notes. */
+/* Avg: %@ */
+/* Average */
+/* The title of the view that displays detailed information about a detected pattern. */
+/* Share */
+/* Shared Data */
+/* A label for a premium badge. */
+/* The text that appears on the button to toggle the route display on the map view. */
+/* Badges */
+/* "Sayı" is a placeholder for a mood-related string that could be translated. */
+/* An abbreviation for "score". */
+/* Pin */
+/* Label for the horizontal axis in the mood distribution chart. */
+/* A label displayed above the "Love Language" section of the view. */
+/* Selected */
+/* Not selected */
+/* Tap to select */
+/* A menu item label that translates to "Delete". */
+/* Score */
+/* Score: %@ */
+/* Search chat... */
+/* A section header that translates to "Recently Earned Badges". */
+/* Last record: %@ */
+/* A label displayed below the XP needed to advance to the next level. */
+/* A label displayed below the date of the next contact with a friend. */
+/* A navigation title for the sticker palette view. */
+/* A placeholder text for a search bar in the sticker palette view. */
+/* Streak active! */
+/* Frequently Used Tags */
+/* A picker that lets the user select how often to contact this friend. */
+/* Tab */
+/* Tags */
+/* The text for a button that confirms the selection in an emoji picker view. */
+/* Complete */
+/* Completed */
+/* A label for the date picker in the "Add Special Date" view. */
+/* A section header for selecting the date and time of a contact history entry. */
+/* A button label that translates to "Try again". */
+/* A label for the phone number field in the edit friend view. */
+/* Clear */
+/* A label for the "Tip" segment in the "İlişki Tipi" section of the `AddFriendView`. */
+/* A label describing the total distance traveled. */
+/* Trend: %@ */
+/* A label describing the amount to be added. */
+/* A button label that translates to "All" in English. */
+/* Delete All */
+/* A label for the due date in the transaction sheet. */
+/* A label for the segmented control that allows the user to switch between different views of their memories. */
+/* The title of the view where a user can create a new habit. */
+/* The title of the view. */
+/* The title of the view where a user can create a new private memory. */
+/* The title of the view where a user can create a new goal. */
+/* New Journal */
+/* The title of the view when creating a new place. */
+/* A button label that says "Generate new suggestions". */
+/* The title of the view. */
+/* A button label that means "Refresh Analysis". */
+/* A button label that means "Generate again". */
+/* A button label that translates to "Add Place" in English. */
+/* A title for an alert that appears when a place is successfully saved. */
+/* A label for the name of a place. */
+/* A prompt for searching for a place. */
+/* The title of the view when editing an existing place. */
+/* The title of an alert that appears when the user attempts to delete a place. */
+/* Intensity level: %lld / 5 */
+/* A label for the anniversary date in the "Add Friend" view. */
+/* Time */
+/* Consistency category */
+"achievement.category.consistency" = "Tutarlılık";
+
+/* Goals category */
+"achievement.category.goal" = "Hedefler";
+
+/* Habits category */
+"achievement.category.habit" = "Alışkanlıklar";
+
+/* Special category */
+"achievement.category.special" = "Özel";
+
+/* First goal desc */
+"achievement.first.goal.desc" = "İlk hedefini oluştur";
+
+/* First goal */
+"achievement.first.goal.title" = "İlk Hedef";
+
+/* First habit desc */
+"achievement.first.habit.desc" = "İlk alışkanlığını oluştur";
+
+/* First habit */
+"achievement.first.habit.title" = "İlk Alışkanlık";
+
+/* Goal hunter */
+"achievement.goal.hunter.title" = "Hedef Avcısı";
+
+/* Habit master desc */
+"achievement.habit.master.desc" = "Bir alışkanlıkta 30 gün seri yap";
+
+/* Habit master */
+"achievement.habit.master.title" = "Alışkanlık Ustası";
+
+/* Health king desc */
+"achievement.health.king.desc" = "Sağlık kategorisinde 5 hedef tamamla";
+
+/* Health king */
+"achievement.health.king.title" = "Sağlık Kralı";
+
+/* Hundred master desc */
+"achievement.hundred.master.desc" = "100 gün üst üste tamamla";
+
+/* Hundred master */
+"achievement.hundred.master.title" = "Yüzün Ustası";
+
+/* Legendary habit desc */
+"achievement.legendary.habit.desc" = "Bir alışkanlıkta 90 gün seri yap";
+
+/* Legendary habit */
+"achievement.legendary.habit.title" = "Efsane Alışkanlık";
+
+/* Month champion desc */
+"achievement.month.champion.desc" = "30 gün üst üste tamamla";
+
+/* Month champion */
+"achievement.month.champion.title" = "Ay Şampiyonu";
+
+/* Week warrior desc */
+"achievement.week.warrior.desc" = "7 gün üst üste hedef/alışkanlık tamamla";
+
+/* Week warrior */
+"achievement.week.warrior.title" = "Hafta Savaşçısı";
+
+/* Read book */
+"activity.cafe.read.book.title" = "Kitap Oku";
+
+/* Complete activity */
+"activity.complete.button" = "Aktiviteyi Tamamla";
+
+/* Great! */
+"activity.completed.alert.button" = "Harika!";
+
+/* Congratulations! You earned X points! */
+"activity.completed.alert.message" = "Tebrikler! %lld puan kazandınız!";
+
+/* Activity completed! */
+"activity.completed.alert.title" = "Aktivite Tamamlandı!";
+
+/* Completion History */
+"activity.completion.history" = "Tamamlanma Geçmişi";
+
+/* Outdoor */
+"activity.current.outdoor" = "Dışarıda";
+
+/* Activity detail */
+"activity.detail.title" = "Aktivite Detayı";
+
+/* Connect friends desc */
+"activity.home.connect.friends.desc" = "Bugün kiminle konuşman gerek?";
+
+/* Connect friends */
+"activity.home.connect.friends.title" = "Arkadaşlarınla İletişim";
+
+/* Prepare tomorrow */
+"activity.home.prepare.tomorrow.desc" = "Yarın için hazırlan";
+
+/* Relax time desc */
+"activity.home.relax.time.desc" = "Kendine özel zaman ayır";
+
+/* Relax time */
+"activity.home.relax.time.title" = "Rahatlama Zamanı";
+
+/* Review goals desc */
+"activity.home.review.goals.desc" = "Bugünkü hedeflerini planla";
+
+/* Review goals */
+"activity.home.review.goals.title" = "Hedeflerini Gözden Geçir";
+
+/* Short break desc */
+"activity.home.short.break.desc" = "15 dakika dinlenme zamanı";
+
+/* Short break */
+"activity.home.short.break.title" = "Kısa Mola";
+
+/* Start day desc */
+"activity.home.start.day.desc" = "Sabah rutininle güne başla";
+
+/* Start day */
+"activity.home.start.day.title" = "Güne Başla";
+
+/* Write journal desc */
+"activity.home.write.journal.desc" = "Bugün neler oldu?";
+
+/* Write journal */
+"activity.home.write.journal.title" = "Günlüğünü Yaz";
+
+/* Activity info label: Difficulty */
+"activity.info.difficulty" = "Zorluk";
+
+/* Activity info label: Duration */
+"activity.info.duration" = "Süre";
+
+/* Activity info label: Last viewed */
+"activity.info.last_viewed" = "Son Görüldü";
+
+/* Activity info label: Points */
+"activity.info.points" = "Puan";
+
+/* Activity information */
+"activity.info.title" = "Aktivite Bilgileri";
+
+/* Activity info label: Views */
+"activity.info.views" = "Görüntülenme";
+
+/* Nature meditation desc */
+"activity.nature.meditation.desc" = "Yeşil alanda 15 dakika meditasyon";
+
+/* Nature meditation */
+"activity.nature.meditation.title" = "Açık Hava Meditasyonu";
+
+/* Nature photo desc */
+"activity.nature.photo.desc" = "Doğada güzel anları fotoğrafla";
+
+/* Nature photo */
+"activity.nature.photo.title" = "Doğa Fotoğrafçılığı";
+
+/* Nature walk desc */
+"activity.nature.walk.desc" = "Yakındaki bir parkta 30 dakika tempolu yürüyüş yap";
+
+/* Nature walk */
+"activity.nature.walk.title" = "Yeşilde Yürüyüş";
+
+/* No duration */
+/* Not done yet */
+/* X points remaining */
+"activity.points.remaining.format" = "%lld puan kaldı";
+
+/* AI Recommended */
+"activity.source.ai" = "AI Önerisi";
+
+/* Friend Based */
+"activity.source.friendBased" = "Arkadaş Bazlı";
+
+/* Goal Based */
+"activity.source.goalBased" = "Hedef Bazlı";
+
+/* Location Based */
+"activity.source.locationBased" = "Konum Bazlı";
+
+/* Rule Based */
+"activity.source.ruleBased" = "Kural Bazlı";
+
+/* X Day Streak! */
+"activity.streak.days.format" = "%lld Gün Streak!";
+
+/* Bookstore desc */
+"activity.suggestion.bookstore.desc" = "Yeni bir kitap keşfetme zamanı";
+
+/* Bookstore */
+"activity.suggestion.bookstore.title" = "Kitapçıya Uğra 📚";
+
+/* Cafe desc */
+"activity.suggestion.cafe.desc" = "Bir arkadaşınızla kahve içmeye ne dersiniz?";
+
+/* Cafe */
+"activity.suggestion.cafe.title" = "Kafe'ye Git ☕";
+
+/* Creative desc */
+"activity.suggestion.creative.desc" = "Bir şeyler çizin veya yazın";
+
+/* Creative */
+"activity.suggestion.creative.title" = "Yaratıcı Ol 🎨";
+
+/* Exercise desc */
+"activity.suggestion.exercise.desc" = "Yakındaki parka gidip koşu yapabilirsiniz";
+
+/* Exercise */
+"activity.suggestion.exercise.title" = "Spor Yap 🏃";
+
+/* Learn desc */
+"activity.suggestion.learn.desc" = "Online bir kurs başlatın";
+
+/* Learn */
+"activity.suggestion.learn.title" = "Yeni Şeyler Öğren 📖";
+
+/* Meditation desc */
+"activity.suggestion.meditation.desc" = "10 dakika nefes egzersizi yapın";
+
+/* Meditation */
+"activity.suggestion.meditation.title" = "Meditasyon Yap 🧘";
+
+/* Shopping desc */
+"activity.suggestion.shopping.desc" = "İhtiyacınız olan şeyleri almaya çıkabilirsiniz";
+
+/* Shopping */
+"activity.suggestion.shopping.title" = "Alışverişe Çık 🛍️";
+
+/* Walk desc */
+"activity.suggestion.walk.desc" = "30 dakika yürüyüş yapın, hava alın";
+
+/* Walk */
+"activity.suggestion.walk.title" = "Yürüyüşe Çık 🚶";
+
+/* Creative */
+"activity.type.creative" = "Yaratıcı";
+
+/* Exercise */
+"activity.type.exercise" = "Egzersiz";
+
+/* Learning */
+"activity.type.learning" = "Öğrenme";
+
+/* Outdoor */
+"activity.type.outdoor" = "Açık Hava";
+
+/* Relax */
+"activity.type.relax" = "Dinlenme";
+
+/* Social */
+"activity.type.social" = "Sosyal";
+
+/* Why Is It Important? */
+"activity.why.important" = "Neden Önemli";
+
+/* Focus mode desc */
+"activity.work.focus.mode.desc" = "Dikkatini topla, bildirimler kapalı";
+
+/* Focus mode */
+"activity.work.focus.mode.title" = "Focus Mode Aç";
+
+/* Hydrate */
+"activity.work.hydrate.title" = "Su İç";
+
+/* Art category */
+/* Cooking category */
+/* Creative category */
+/* Entertainment category */
+/* Gaming category */
+/* Learning category */
+/* Music category */
+/* Other category */
+/* Outdoor category */
+/* Reading category */
+/* Social category */
+/* Sports category */
+/* Travel category */
+/* Wellness category */
+/* AI Analysis */
+"ai.analysis" = "AI Analiz";
+
+/* AI Analyzing */
+"ai.analyzing" = "AI Analiz Ediliyor";
+
+/* Analyzing your mood data... */
+"ai.analyzing.mood" = "Mood verileriniz analiz ediliyor...";
+
+/* Back */
+"ai.back" = "Geri";
+
+/* AI Chat */
+"ai.chat" = "AI Sohbet";
+
+/* AI Assistant */
+"ai.chat.assistant" = "AI Asistan";
+
+/* Clear Chat */
+"ai.chat.clear" = "Sohbeti Temizle";
+
+/* Instructions to enable AI chat from settings */
+"ai.chat.enable.instruction" = "AI Chat özelliğini kullanmak için Ayarlar → AI & Gizlilik'ten aktif etmeniz gerekiyor.";
+
+/* Sorry, I cannot respond right now. Please try again. */
+"ai.chat.error.fallback" = "Üzgünüm, şu anda yanıt veremiyorum. Lütfen tekrar dene. 😔";
+
+/* Friend AI chat description with name */
+"ai.chat.friend.description.format" = "%@ hakkında soru sorabilir veya mesaj taslağı isteyebilirsiniz.";
+
+/* General AI chat description */
+"ai.chat.general.description" = "Hayatınızı iyileştirmenize yardımcı olabilirim. Arkadaşlarınız, hedefleriniz veya aktiviteler hakkında soru sorabilirsiniz.";
+
+/* Ask a question... */
+"ai.chat.input.placeholder" = "Bir soru sorun...";
+
+/* Me */
+"ai.chat.me" = "Ben";
+
+/* Share Chat */
+"ai.chat.share" = "Sohbeti Paylaş";
+
+/* LifeStyles uses Claude AI to provide personalized suggestions */
+"ai.consent.description" = "LifeStyles, kişiselleştirilmiş öneriler sunmak için Claude AI kullanır";
+
+/* Features */
+"ai.consent.features.header" = "Özellikler";
+
+/* Not Now */
+"ai.consent.not.now" = "Şimdi Değil";
+
+/* 🔒 Privacy Notes */
+"ai.consent.privacy.notes" = "🔒 Gizlilik Notları";
+
+/* Shared Data */
+"ai.consent.shared.data" = "Paylaşılan Veriler";
+
+/* To use AI features, the following data will be shared with Claude AI */
+"ai.consent.shared.data.description" = "AI özelliklerini kullanmak için aşağıdaki verileriniz Claude AI ile paylaşılır:";
+
+/* AI Features */
+"ai.consent.title" = "AI Özellikleri";
+
+/* Friend information count */
+"ai.data.friends.count.format" = "%lld arkadaş bilgisi";
+
+/* Goals information count */
+"ai.data.goals.count.format" = "%lld hedef bilgisi";
+
+/* Habits information count */
+"ai.data.habits.count.format" = "%lld alışkanlık bilgisi";
+
+/* Last AI Request */
+"ai.data.last.request" = "Son AI İsteği";
+
+/* Location data */
+"ai.data.location" = "Konum verisi";
+
+/* Mood data */
+"ai.data.mood" = "Ruh hali verisi";
+
+/* No data shared */
+"ai.data.not.shared" = "Veri paylaşılmadı";
+
+/* Data Usage */
+"ai.data.usage" = "Veri Kullanımı";
+
+/* Data used for this response: */
+"ai.data.used.for.response" = "Bu yanıt için kullanılan veriler:";
+
+/* AI Error */
+"ai.error" = "AI Hatası";
+
+/* AI Features Disabled */
+"ai.features.disabled" = "AI Özellikleri Kapalı";
+
+/* AI Insight */
+"ai.insight" = "AI İçgörüsü";
+
+/* Morning Insight */
+"ai.morning.insight" = "Sabah İçgörüsü";
+
+/* Manage Privacy Settings */
+"ai.privacy.manage.settings" = "Gizlilik Ayarlarını Yönet";
+
+/* Your data is only used to generate AI responses */
+"ai.privacy.note.1" = "Verileriniz sadece AI yanıtları oluşturmak için kullanılır";
+
+/* Anthropic does not use your data for training */
+"ai.privacy.note.2" = "Anthropic verilerinizi eğitim için kullanmaz";
+
+/* You can control each data type separately */
+"ai.privacy.note.3" = "Her veri türünü ayrı ayrı kontrol edebilirsiniz";
+
+/* Privacy Notes */
+"ai.privacy.notes" = "Gizlilik Notları";
+
+/* AI is thinking... */
+"ai.thinking" = "AI düşünüyor...";
+
+/* Empty state subtitle */
+/* Empty state title */
+/* AI Brain tab title */
+/* Correlation label */
+/* Detected patterns subsection title */
+/* Empty state message for AI insights */
+/* Empty state title for AI insights */
+/* Friend-mood correlations subsection title */
+/* Negative friend mood correlation insight */
+/* Neutral friend mood correlation insight */
+/* Positive friend mood correlation insight */
+/* Pattern detected insight title */
+/* Positive social impact suggested action */
+/* Positive social impact insight description */
+/* Positive social impact insight title */
+/* Predictions subsection title */
+/* Smart insights subsection title */
+/* AI insights section title */
+/* Average label
+Average line label */
+/* Date axis label */
+/* No data available */
+/* Value axis label */
+/* Moderate correlation */
+/* No correlation data */
+/* Strong correlation */
+/* Very strong correlation */
+/* Very weak correlation */
+/* Weak correlation */
+/* Contacts label */
+/* Goals label */
+/* Location label */
+/* Mood label */
+/* Mood-contacts correlation description */
+/* Mood-goals correlation description */
+/* Mood-location correlation description */
+/* Correlation matrix title */
+/* Correlation section title */
+/* Create report button label */
+/* Empty state message */
+/* Empty state title */
+/* Retry button label */
+/* Error title */
+/* Export report button label */
+/* Cancel export button label */
+/* Export navigation title */
+/* Export sheet message */
+/* Export sheet title */
+/* Active goals card title */
+/* Completed goals card title */
+/* Goal performance section title */
+/* Success rate card title */
+/* Upcoming deadlines card title */
+/* Active habits card title */
+/* Best streak card title */
+/* Completion rate card title */
+/* Habit performance section title */
+/* Total habits card title */
+/* Last refresh timestamp */
+/* Loading message */
+/* Mobility score card title */
+/* Most visited place label */
+/* Location section title */
+/* Unique places card title */
+/* Refresh button label */
+/* Time range picker label */
+/* Analytics view navigation title */
+/* Average mood label */
+/* Best day label */
+/* Consistency label */
+/* Mood correlations section title */
+/* Average mood description */
+/* Excellent mood description */
+/* Good mood description */
+/* Low mood description */
+/* Very low mood description */
+/* Mood distribution chart title */
+/* Out of 5 scale */
+/* 30-day mood trend chart title */
+/* Mood analytics section title */
+/* Mood triggers title */
+/* Worst day label */
+/* Active days title */
+/* Consistency title */
+/* Average consistency level */
+/* Excellent consistency level */
+/* Good consistency level */
+/* Needs improvement consistency level */
+/* Last 30 days subtitle */
+/* Overview section title */
+/* Declining trend description */
+/* Improving trend description */
+/* Stable trend description */
+/* Overall trend title */
+/* Average wellness description */
+/* Excellent wellness description */
+/* Good wellness description */
+/* Needs improvement wellness description */
+/* Poor wellness description */
+/* Wellness level title */
+/* Daily frequency */
+/* Weekly frequency */
+/* Regular routine example */
+/* Location routine pattern description */
+/* Same places example */
+/* Most social day example */
+/* Social activity peak pattern description */
+/* Social day note */
+/* Pattern strength percentage */
+/* Prediction confidence percentage */
+/* AI Insights section title */
+/* Goals section title */
+/* Habits section title */
+/* Location section title */
+/* Mood section title */
+/* Overview section title */
+/* Social section title */
+/* Active contacts title */
+/* Contacts by relationship type title */
+/* Most contacted person label */
+/* Needs attention title */
+/* Response rate title */
+/* Social analytics section title */
+/* Total contacts title */
+/* Weekly contact trend chart title */
+/* 30 days time range */
+/* 90 days time range */
+/* 7 days time range */
+/* 1 year time range */
+/* Friday */
+/* Monday */
+/* Saturday */
+/* Sunday */
+/* Thursday */
+/* Tuesday */
+/* Wednesday */
+/* Excellent wellness level */
+/* Good wellness level */
+/* Low wellness level */
+/* Moderate wellness level */
+/* Needs improvement wellness level */
+/* Unknown wellness level */
+/* Change Avatar */
+"appearance.avatar.change" = "Avatar Değiştir";
+
+/* Avatar */
+"appearance.avatar.header" = "Avatar";
+
+/* Language changed */
+"appearance.language.success.message" = "Dil ayarları kaydedildi! Değişikliklerin uygulanması için lütfen uygulamayı kapatıp tekrar açın.\n\nLanguage settings saved! Please close and reopen the app to apply changes.";
+
+/* User */
+"appearance.profile.default.name" = "Kullanıcı";
+
+/* Profile */
+"appearance.profile.header" = "Profil";
+
+/* Auto */
+"appearance.theme.auto" = "Otomatik";
+
+/* Dark */
+"appearance.theme.dark" = "Koyu";
+
+/* Follow system settings */
+"appearance.theme.description.auto" = "Sistem ayarlarını takip et";
+
+/* Always use dark theme */
+"appearance.theme.description.dark" = "Her zaman koyu tema kullan";
+
+/* Always use light theme */
+"appearance.theme.description.light" = "Her zaman açık tema kullan";
+
+/* Theme */
+"appearance.theme.header" = "Tema";
+
+/* Light */
+"appearance.theme.light" = "Açık";
+
+/* Appearance & Language */
+"appearance.title" = "Görünüm & Dil";
+
+/* Background location permission explanation */
+"background.location.permission.message" = "Konum geçmişinin arka planda da kaydedilebilmesi için \"Her Zaman\" izni vermeniz gerekiyor.\\n\\nAyarlar → LifeStyles → Konum → Her Zaman";
+
+/* Background location permission required alert title */
+"background.location.permission.required" = "Arka Plan Konum İzni Gerekli";
+
+/* Cancel button */
+"cancel" = "İptal";
+
+/* Edit chat title */
+"chat.edit.title.placeholder" = "Sohbet başlığını düzenleyin";
+
+/* Pinned */
+"chat.pinned" = "Sabitlenmiş";
+
+/* I Accept */
+"common.accept" = "Kabul Ediyorum";
+
+/* Add */
+"common.add" = "Ekle";
+
+/* AI suggestion */
+"common.ai.suggestion" = "AI Öneri";
+
+/* Common text: All */
+"common.all" = "Tümü";
+
+/* Back */
+"common.back" = "Geri";
+
+/* Basic info */
+"common.basic.info" = "Temel Bilgiler";
+
+/* Cancel */
+"common.cancel" = "İptal";
+
+/* Close */
+"common.close" = "Kapat";
+
+/* Action: Complete */
+"common.complete" = "Tamamla";
+
+/* Completed */
+"common.completed" = "Tamamlandı";
+
+/* Copy */
+"common.copy" = "Kopyala";
+
+/* Date */
+"common.date" = "Tarih";
+
+/* X days remaining */
+"common.days.remaining.format" = "%lld gün kaldı";
+
+/* Delete */
+"common.delete" = "Sil";
+
+/* Description optional */
+"common.description.optional" = "Açıklama (Opsiyonel)";
+
+/* Details */
+"common.details" = "Detaylar";
+
+/* Edit */
+"common.edit" = "Düzenle";
+
+/* Emoji (optional) */
+"common.emoji.optional" = "Emoji (isteğe bağlı)";
+
+/* Go to Settings */
+"common.go.to.settings" = "Ayarlara Git";
+
+/* Info */
+"common.info" = "Bilgi";
+
+/* month */
+"common.month" = "ay";
+
+/* Name */
+"common.name" = "İsim";
+
+/* Next */
+"common.next" = "İleri";
+
+/* No results found */
+"common.no.results" = "Arama sonucu bulunamadı";
+
+/* Not selected */
+"common.not.selected" = "Seçilmedi";
+
+/* Note */
+"common.note" = "Not";
+
+/* Notes */
+"common.notes" = "Notlar";
+
+/* OK */
+"common.ok" = "Tamam";
+
+/* Percentage format */
+"common.percentage" = "%%%lld";
+
+/* Phone */
+"common.phone" = "Telefon";
+
+/* Premium Feature */
+"common.premium.feature" = "Premium Özellik";
+
+/* Upgrade to Premium */
+"common.premium.upgrade" = "Premium'a Geç";
+
+/* Save */
+"common.save" = "Kaydet";
+
+/* Settings */
+"common.settings" = "Ayarlar";
+
+/* Show */
+"common.show" = "Göster";
+
+/* Title */
+"common.title" = "Başlık";
+
+/* Today */
+"common.today" = "Bugün";
+
+/* Today! 🎉 */
+"common.today.celebration" = "Bugün 🎉";
+
+/* Total */
+"common.total" = "Toplam";
+
+/* Update */
+"common.update" = "Güncelle";
+
+/* Urgent */
+"common.urgent" = "Acil";
+
+/* Contact frequency: every 2 weeks */
+"contact.frequency.biweekly" = "2 Haftada Bir";
+
+/* Every 2 weeks */
+"contact.frequency.biweekly.description" = "Her 2 haftada bir";
+
+/* Biweekly */
+"contact.frequency.biweekly.short" = "İki haftada bir";
+
+/* Contact frequency: every day */
+"contact.frequency.daily" = "Her Gün";
+
+/* Every day */
+"contact.frequency.daily.description" = "Her gün";
+
+/* Daily */
+"contact.frequency.daily.short" = "Günlük";
+
+/* Contact frequency: monthly */
+"contact.frequency.monthly" = "Ayda Bir";
+
+/* Once a month */
+"contact.frequency.monthly.description" = "Ayda bir";
+
+/* Monthly */
+"contact.frequency.monthly.short" = "Aylık";
+
+/* Contact frequency: every 3 months */
+"contact.frequency.quarterly" = "3 Ayda Bir";
+
+/* Every 3 months */
+"contact.frequency.quarterly.description" = "Her 3 ayda bir";
+
+/* Quarterly */
+"contact.frequency.quarterly.short" = "3 ayda bir";
+
+/* Contact frequency: every 3 days */
+"contact.frequency.threeDays" = "3 Günde Bir";
+
+/* Every 3 days */
+"contact.frequency.threeDays.description" = "Her 3 günde bir";
+
+/* 3 Days */
+"contact.frequency.threeDays.short" = "3 Günde";
+
+/* Contact frequency: every 2 days */
+"contact.frequency.twoDays" = "2 Günde Bir";
+
+/* Every 2 days */
+"contact.frequency.twoDays.description" = "Her 2 günde bir";
+
+/* 2 Days */
+"contact.frequency.twoDays.short" = "2 Günde";
+
+/* Contact frequency: weekly */
+"contact.frequency.weekly" = "Haftada Bir";
+
+/* Once a week */
+"contact.frequency.weekly.description" = "Haftada bir";
+
+/* Weekly */
+"contact.frequency.weekly.short" = "Haftalık";
+
+/* Contact frequency: yearly */
+"contact.frequency.yearly" = "Yılda Bir";
+
+/* Once a year */
+"contact.frequency.yearly.description" = "Yılda bir";
+
+/* Yearly */
+"contact.frequency.yearly.short" = "Yıllık";
+
+/* Good mood */
+"contact.mood.good" = "İyi";
+
+/* Great mood */
+"contact.mood.great" = "Harika";
+
+/* Not great mood */
+"contact.mood.notGreat" = "Pek İyi Değil";
+
+/* Okay mood */
+"contact.mood.okay" = "Normal";
+
+/* Add Contact */
+"contacts.add.contact" = "Kişi Ekle";
+
+/* No contacts found in your address book. */
+"contacts.empty.message" = "İlişkilerinizi takip etmeye başlayın";
+
+/* Contacts empty */
+"contacts.empty.title" = "Henüz kişi yok";
+
+/* Loading contacts... */
+"contacts.loading" = "Kişiler yükleniyor...";
+
+/* Select from Contacts */
+"contacts.select.from.phone" = "Telefondan Seç";
+
+/* Artist */
+/* Author */
+/* Creator */
+/* Developer */
+/* Director */
+/* No rating */
+/* Writer */
+/* Abandoned status */
+/* Completed status */
+/* In progress status */
+/* Rewatching status */
+/* Want to status */
+/* Article content type */
+/* Blog content type */
+/* Book content type */
+/* Game content type */
+/* Movie content type */
+/* Music content type */
+/* Other content type */
+/* Podcast content type */
+/* TV Show content type */
+/* Best streak count */
+"dashboard.best.streak.format" = "En İyi: %lld";
+
+/* Claude Haiku model name */
+"dashboard.claude.haiku" = "Claude Haiku";
+
+/* Hours at home */
+"dashboard.hours.at.home.format" = "%d saattir evdesiniz. Biraz hava almaya ne dersiniz?";
+
+/* More achievements count */
+"dashboard.more.achievements" = "+%lld";
+
+/* Morning Insight */
+"dashboard.morning.insight" = "Sabah İçgörüsü";
+
+/* Statistics */
+"dashboard.statistics" = "İstatistikler";
+
+/* Communication */
+"dashboard.stats.communication" = "İletişim";
+
+/* Completion */
+"dashboard.stats.completion" = "Tamamlanma";
+
+/* Goals */
+"dashboard.stats.goals" = "Hedefler";
+
+/* Habits */
+"dashboard.stats.habits" = "Alışkanlıklar";
+
+/* X locations */
+"dashboard.stats.locations.format" = "%lld lokasyon";
+
+/* Mobility */
+"dashboard.stats.mobility" = "Mobilite";
+
+/* X overdue */
+"dashboard.stats.overdue.format" = "%lld gecikmiş";
+
+/* Score */
+"dashboard.stats.score" = "Skor";
+
+/* This week */
+"dashboard.stats.this.week" = "Bu hafta";
+
+/* Today */
+"dashboard.stats.today" = "Bugün";
+
+/* X% weekly */
+"dashboard.stats.weekly.format" = "%%%lld haftalık";
+
+/* Day count for streak */
+"dashboard.streak.days.format" = "%lld Gün";
+
+/* Time to go out */
+"dashboard.time.to.go.out" = "Dışarı Çıkma Zamanı!";
+
+/* Today's Mood */
+"dashboard.todays.mood" = "Bugünün Mood'u";
+
+/* Adventure */
+"date.category.adventure" = "Macera";
+
+/* Cultural */
+"date.category.cultural" = "Kültürel";
+
+/* Relaxed */
+"date.category.relaxed" = "Rahat";
+
+/* Romantic */
+"date.category.romantic" = "Romantik";
+
+/* Ride bikes in the city or nature */
+"date.idea.adventure.biking.description" = "Şehirde veya doğada bisiklet sürün";
+
+/* Bike Tour */
+"date.idea.adventure.biking.title" = "Bisiklet Turu";
+
+/* Camp for a night in nature */
+"date.idea.adventure.camping.description" = "Doğada bir gece kamp yapın";
+
+/* Camping */
+"date.idea.adventure.camping.title" = "Kamp";
+
+/* Test your skills at the climbing wall */
+"date.idea.adventure.climbing.description" = "Tırmanış duvarında yeteneklerinizi test edin";
+
+/* Rock Climbing */
+"date.idea.adventure.climbing.title" = "Kaya Tırmanışı";
+
+/* Experience an escape room together */
+"date.idea.adventure.escaperoom.description" = "Birlikte bir escape room deneyimi yaşayın";
+
+/* Escape Room */
+"date.idea.adventure.escaperoom.title" = "Kaçış Odası";
+
+/* Go hiking and discover new routes */
+"date.idea.adventure.hiking.description" = "Doğa yürüyüşü yapın, yeni rotalar keşfedin";
+
+/* Hiking */
+"date.idea.adventure.hiking.title" = "Doğa Yürüyüşü";
+
+/* Try kayaking, surfing or jet ski */
+"date.idea.adventure.watersports.description" = "Kano, sörf veya jet ski deneyin";
+
+/* Water Sports */
+"date.idea.adventure.watersports.title" = "Su Sporları";
+
+/* Visit the book fair together */
+"date.idea.cultural.bookfair.description" = "Kitap fuarını birlikte gezin";
+
+/* Book Fair */
+"date.idea.cultural.bookfair.title" = "Kitap Fuarı";
+
+/* Listen to live music, go to a concert */
+"date.idea.cultural.concert.description" = "Canlı müzik dinleyin, konser'e gidin";
+
+/* Concert */
+"date.idea.cultural.concert.title" = "Konser";
+
+/* Visit an art or photography exhibition */
+"date.idea.cultural.exhibition.description" = "Sanat sergisi veya fotoğraf sergisi ziyaret edin";
+
+/* Exhibition */
+"date.idea.cultural.exhibition.title" = "Sergi";
+
+/* Discover historical places in your city */
+"date.idea.cultural.historical.description" = "Şehrinizin tarihi mekanlarını keşfedin";
+
+/* Historical Place */
+"date.idea.cultural.historical.title" = "Tarihi Mekan";
+
+/* Visit a museum you're interested in */
+"date.idea.cultural.museum.description" = "İlginizi çeken bir müzeyi gezin";
+
+/* Museum Visit */
+"date.idea.cultural.museum.title" = "Müze Ziyareti";
+
+/* Watch a theater play */
+"date.idea.cultural.theater.description" = "Tiyatro oyunu izleyin";
+
+/* Theater */
+"date.idea.cultural.theater.title" = "Tiyatro";
+
+/* Read books together at a book cafe */
+"date.idea.relaxed.bookcafe.description" = "Kitap kafe'de birlikte kitap okuyun";
+
+/* Book Cafe */
+"date.idea.relaxed.bookcafe.title" = "Kitap Kafe";
+
+/* Enjoy a nice brunch on the weekend */
+"date.idea.relaxed.brunch.description" = "Hafta sonu keyifli bir brunch yapın";
+
+/* Brunch */
+"date.idea.relaxed.brunch.title" = "Brunch";
+
+/* Chat at your favorite cafe */
+"date.idea.relaxed.coffee.description" = "Sevdiğiniz kafe'de sohbet edin";
+
+/* Coffee Date */
+"date.idea.relaxed.coffee.title" = "Kahve İçmeye Git";
+
+/* Play board games or video games at home */
+"date.idea.relaxed.gaming.description" = "Evde masa oyunları veya video oyunları oynayın";
+
+/* Play Games */
+"date.idea.relaxed.gaming.title" = "Oyun Oyna";
+
+/* Watch a movie at home or cinema */
+"date.idea.relaxed.movie.description" = "Evde veya sinemada film izleyin";
+
+/* Watch Movie */
+"date.idea.relaxed.movie.title" = "Film İzle";
+
+/* Go to spa together and relax */
+"date.idea.relaxed.spa.description" = "Birlikte spa'ya gidin, rahatlayın";
+
+/* Spa Day */
+"date.idea.relaxed.spa.title" = "Spa Günü";
+
+/* Walk hand in hand on the beach */
+"date.idea.romantic.beach.description" = "Sahilde el ele yürüyüş yapın";
+
+/* Beach Walk */
+"date.idea.romantic.beach.title" = "Plaj Yürüyüşü";
+
+/* Have a romantic dinner at home or restaurant */
+"date.idea.romantic.candlelight.description" = "Evde veya restoranda romantik bir akşam yemeği";
+
+/* Candlelight Dinner */
+"date.idea.romantic.candlelight.title" = "Mumlar Eşliğinde Akşam Yemeği";
+
+/* Cook together and have a romantic evening */
+"date.idea.romantic.cooking.description" = "Birlikte yemek yapın ve romantik bir akşam geçirin";
+
+/* Cook at Home */
+"date.idea.romantic.cooking.title" = "Evde Yemek Pişir";
+
+/* Organize a romantic picnic in the park */
+"date.idea.romantic.picnic.description" = "Park'ta romantik bir piknik organize edin";
+
+/* Picnic */
+"date.idea.romantic.picnic.title" = "Piknik Yap";
+
+/* Go outside the city and watch the stars */
+"date.idea.romantic.stargazing.description" = "Şehir dışına çıkıp yıldızları izleyin";
+
+/* Stargazing */
+"date.idea.romantic.stargazing.title" = "Yıldızlara Bak";
+
+/* Find a beautiful view and watch the sunset together */
+"date.idea.romantic.sunset.description" = "Güzel bir manzara bulun ve birlikte gün batımını izleyin";
+
+/* Watch Sunset */
+"date.idea.romantic.sunset.title" = "Gün Batımı İzle";
+
+/* Random */
+"date.ideas.random" = "Rastgele Buluşma Fikri";
+
+/* Date Ideas */
+"date.ideas.title" = "Buluşma Fikirleri";
+
+/* Activity difficulty level: Easy */
+"difficulty.easy" = "Kolay";
+
+/* Activity difficulty level: Hard */
+"difficulty.hard" = "Zor";
+
+/* Activity difficulty level: Medium */
+"difficulty.medium" = "Orta";
+
+/* Activity difficulty level: Unknown */
+"difficulty.unknown" = "Bilinmiyor";
+
+/* Energy level: Energetic */
+"energy.energetic" = "Enerjik";
+
+/* Energy level: Normal */
+"energy.normal" = "Normal";
+
+/* Energy level: Tired */
+"energy.tired" = "Yorgun";
+
+/* Activity entity type */
+/* Object entity type */
+/* Other entity type */
+/* Person entity type */
+/* Place entity type */
+/* Location tracking frequency */
+"every.15.minutes" = "Her 15 dakikada bir";
+
+/* Correct feedback */
+/* Incorrect feedback */
+/* Needs update feedback */
+/* Outdated feedback */
+/* AI Chat quick action button */
+"friend.action.ai.chat" = "AI Sohbet";
+
+/* Mark as contacted quick action */
+"friend.action.mark.contacted" = "Tamamla";
+
+/* Activities you do or want to do together (comma separated) */
+"friend.activities.footer" = "Birlikte yaptığınız veya yapmak istediğiniz aktiviteler (virgülle ayrılmış)";
+
+/* X days until anniversary */
+"friend.anniversary.days.remaining.format" = "Yıldönümüne %lld gün kaldı";
+
+/* Basic info */
+"friend.basic.info" = "Temel Bilgiler";
+
+/* Best day */
+"friend.best.day.contact" = "En Uygun Gün";
+
+/* Change emoji */
+"friend.change.emoji" = "Emoji Değiştir";
+
+/* Separate with commas */
+"friend.comma.separated" = "Virgülle ayırarak yazın";
+
+/* Communication frequency */
+"friend.communication.frequency" = "İletişim Sıklığı";
+
+/* Communication pattern */
+"friend.communication.pattern" = "İletişim Deseni";
+
+/* Communication quality */
+"friend.communication.quality" = "İletişim Kalitesi";
+
+/* Communication trend */
+"friend.communication.trend.3months" = "İletişim Trendi (Son 3 Ay)";
+
+/* Contact completed */
+"friend.contact.completed" = "İletişim Tamamlandı";
+
+/* X days away */
+"friend.days.away.format" = "%lld gün sonra";
+
+/* X days */
+"friend.days.overdue.format" = "%lld gün gecikmiş";
+
+/* X days */
+"friend.days.remaining.format" = "%lld gün kaldı";
+
+/* Favorite things */
+"friend.favorite.things" = "Favori Şeyler";
+
+/* Important people are shown with priority in widget */
+"friend.important.footer" = "Öncelikli takip için bu arkadaşı önemli olarak işaretle";
+
+/* Interests */
+"friend.interests" = "İlgi Alanları";
+
+/* Last 30 days */
+"friend.last.30.days" = "Son 30 Gün";
+
+/* Last 5 meetings */
+"friend.last.5.meetings" = "Son 5 Görüşme";
+
+/* Mood distribution */
+"friend.mood.distribution" = "Ruh Hali Dağılımı";
+
+/* No history yet */
+"friend.no.history.yet" = "Henüz geçmiş kaydı yok";
+
+/* overdue */
+"friend.overdue" = "gecikmiş";
+
+/* You can add love language and other details later */
+"friend.partner.details.footer" = "Sevgi dili ve diğer detayları sonra ekleyebilirsiniz";
+
+/* Relationship duration */
+"friend.relationship.duration" = "İlişki Süresi";
+
+/* X years, Y months, Z days together */
+"friend.relationship.duration.format" = "%lld yıl, %lld ay, %lld gün birlikte";
+
+/* remaining */
+"friend.remaining" = "kaldı";
+
+/* Reminder */
+"friend.reminder" = "Hatırlatıcı";
+
+/* Shared interests */
+"friend.shared.interests" = "Ortak İlgi Alanları";
+
+/* Shared interests & activities */
+"friend.shared.interests.activities" = "Ortak ilgi alanları ve aktiviteler";
+
+/* Upcoming special dates */
+"friend.upcoming.special.dates" = "Yaklaşan Özel Günler";
+
+/* Add Contact History */
+"friends.add.contact.history" = "İletişim Geçmişi Ekle";
+
+/* Add from Contacts */
+"friends.add.from.contacts" = "Rehberden Ekle";
+
+/* Add Manually */
+"friends.add.manually" = "Manuel Ekle";
+
+/* Add New Friend */
+"friends.add.new" = "Yeni Arkadaş Ekle";
+
+/* AI Suggestion */
+"friends.ai.suggestion" = "AI Öneri";
+
+/* Friend already exists validation */
+"friends.already.exists" = "Bu isim veya telefon numarası zaten kayıtlı. Lütfen farklı bir kişi ekleyin.";
+
+/* Anniversary Date */
+"friends.anniversary.date" = "Yıldönümü Tarihi";
+
+/* Avatar Emoji (Optional) */
+"friends.avatar.emoji.optional" = "Avatar Emoji (Opsiyonel)";
+
+/* Coming Soon */
+"friends.coming.soon" = "Yakında";
+
+/* Contact Frequency */
+"friends.contact.frequency" = "İletişim Sıklığı";
+
+/* Days overdue */
+"friends.days.overdue" = "%lldg";
+
+/* Days remaining */
+"friends.days.remaining" = "%lldg";
+
+/* Are you sure you want to delete %@? */
+"friends.delete.confirmation.format" = "%@ adlı kişiyi silmek istediğinizden emin misiniz?";
+
+/* Duplicate Friend */
+"friends.duplicate.title" = "Tekrar Eden Arkadaş";
+
+/* Add your important friends and start tracking */
+"friends.empty.message" = "Önemli arkadaşlarınızı ekleyin ve düzenli iletişim takibini başlatın";
+
+/* No Friends Added Yet */
+"friends.empty.title" = "Henüz Arkadaş Eklenmedi";
+
+/* Favorite Activities */
+"friends.favorite.activities" = "Favori Aktiviteler";
+
+/* Favorite items placeholder */
+"friends.favorite.placeholder" = "Favori yemek, film, aktivite vb.";
+
+/* Favorite Things */
+"friends.favorite.things" = "Favori Şeyler";
+
+/* Favorite food, movies, activities etc. */
+"friends.favorite.things.description" = "Favori yemek, film, aktivite vb.";
+
+/* All */
+"friends.filter.all" = "Tümü";
+
+/* Frequency */
+"friends.frequency" = "Sıklık";
+
+/* Relationship health percentage */
+"friends.health.percentage" = "%%%lld";
+
+/* Important friends are shown prioritized in widgets */
+"friends.important.description" = "Önemli arkadaşlar widget'ta öncelikli gösterilir";
+
+/* Important Friend */
+"friends.important.friend" = "Önemli Arkadaş";
+
+/* Last contact with date */
+"friends.last.contact" = "Son: %@";
+
+/* Last: */
+"friends.last.label" = "Son: %@";
+
+/* Love Language */
+"friends.love.language" = "Sevgi Dili";
+
+/* Name */
+"friends.name" = "İsim";
+
+/* Next: */
+"friends.next.label" = "Sonraki: %@";
+
+/* Not Selected */
+"friends.not.selected" = "Seçilmedi";
+
+/* Notes (Optional) */
+"friends.notes.optional" = "Notlar (Opsiyonel)";
+
+/* Person Info */
+"friends.person.info" = "Kişi Bilgileri";
+
+/* Phone (Optional) */
+"friends.phone.optional" = "Telefon (Opsiyonel)";
+
+/* Pick from Contacts */
+"friends.pick.from.contacts" = "Rehberden Seç";
+
+/* Relationship Health */
+"friends.relationship.health" = "İlişki Sağlığı";
+
+/* Relationship Info */
+"friends.relationship.info" = "İlişki Bilgileri";
+
+/* Relationship Start */
+"friends.relationship.start" = "İlişki Başlangıcı";
+
+/* Relationship Type */
+"friends.relationship.type" = "İlişki Tipi";
+
+/* Search Friends */
+"friends.search.placeholder" = "Arkadaş Ara";
+
+/* Importance */
+"friends.sort.importance" = "Önem";
+
+/* Last Contact */
+"friends.sort.last.contact" = "Son İletişim";
+
+/* Name */
+"friends.sort.name" = "İsim";
+
+/* Next Contact */
+"friends.sort.next.contact" = "Sonraki İletişim";
+
+/* Smart */
+"friends.sort.smart" = "Akıllı";
+
+/* Friends */
+"friends.title" = "Arkadaşlar";
+
+/* Type */
+"friends.type" = "Tip";
+
+/* Button to get new activity suggestions */
+"get.new.suggestions" = "Yeni Öneriler Al";
+
+/* Go to settings button */
+"go.to.settings" = "Ayarlara Git";
+
+/* Achievements */
+"goal.achievements" = "Başarımlar";
+
+/* AI coaching */
+"goal.ai.coaching" = "AI Koçluk";
+
+/* AI generating */
+"goal.ai.generating" = "AI açıklama oluşturuluyor...";
+
+/* All templates */
+"goal.all.templates" = "Tüm Şablonlar";
+
+/* Basic info description */
+"goal.basic.info.description" = "Hedefinin başlığını ve kategorisini belirle";
+
+/* Best day */
+"goal.best.day.format" = "En iyi gün: %@";
+
+/* Best streak */
+"goal.best.streak.format" = "En iyi: %d gün";
+
+/* Start from scratch */
+"goal.blank.description" = "Baştan başla";
+
+/* Blank goal */
+"goal.blank.title" = "Boş Hedef";
+
+/* Career
+Career goal category */
+"goal.category.career" = "Kariyer";
+
+/* Fitness
+Fitness goal category */
+"goal.category.fitness" = "Kondisyon";
+
+/* Health
+Health goal category */
+"goal.category.health" = "Sağlık";
+
+/* Category */
+"goal.category.label" = "Kategori";
+
+/* Other
+Other goal category */
+"goal.category.other" = "Diğer";
+
+/* Personal
+Personal development goal category */
+"goal.category.personal" = "Kişisel Gelişim";
+
+/* Social
+Social relationships goal category */
+"goal.category.social" = "Sosyal İlişkiler";
+
+/* Completed */
+"goal.completed.format" = "%d Tamamlandı";
+
+/* X days */
+"goal.days.format" = "%lld gün";
+
+/* days remaining */
+"goal.days.remaining" = "gün kaldı";
+
+/* Details description */
+"goal.details.description" = "Açıklama ve hedef tarihini ekle";
+
+/* Target date cannot be in the past */
+"goal.error.date.past" = "goal.error.date.past";
+
+/* Target date is too far in the future */
+"goal.error.date.too.far" = "goal.error.date.too.far";
+
+/* Description cannot exceed 500 characters */
+"goal.error.description.too.long" = "Hedef açıklaması çok uzun";
+
+/* Title cannot be empty */
+"goal.error.title.empty" = "Hedef başlığı boş olamaz";
+
+/* Title cannot exceed 100 characters */
+"goal.error.title.too.long" = "Hedef başlığı çok uzun";
+
+/* Title must be at least 3 characters */
+"goal.error.title.too.short" = "Hedef başlığı çok kısa";
+
+/* Habits (X) */
+"goal.habits.count.format" = "Alışkanlıklar (%lld)";
+
+/* Monthly */
+"goal.monthly" = "Aylık";
+
+/* Popular templates */
+"goal.popular.templates" = "Popüler Şablonlar";
+
+/* Preview description */
+"goal.preview.description" = "Hedefini kontrol et ve ayarları yap";
+
+/* Preview and save */
+"goal.preview.save" = "Önizleme ve Kaydet";
+
+/* Reminder description */
+"goal.reminder.description" = "Günlük hedef hatırlatıcısı al";
+
+/* Reminder time */
+"goal.reminder.time" = "Her sabah saat 9:00'da hatırlatma alacaksın";
+
+/* steps */
+"goal.steps" = "adım";
+
+/* Day streak */
+"goal.streak.days" = "Gün Seri";
+
+/* X goal suggestions based on your activities */
+"goal.suggestions.count.format" = "Aktivitelerinize göre oluşturulmuş %lld hedef önerisi";
+
+/* We'll suggest personalized goals as we collect more data. */
+"goal.suggestions.empty.message" = "Daha fazla veri toplandıkça size özel hedefler önereceğiz.";
+
+/* No suggestions yet */
+"goal.suggestions.empty.title" = "Henüz öneri yok";
+
+/* Generating smart goals... */
+"goal.suggestions.generating" = "Akıllı hedefler oluşturuluyor...";
+
+/* Not interested */
+"goal.suggestions.not.interested" = "İlgilenmiyorum";
+
+/* Personalized goals */
+"goal.suggestions.personalized" = "Size Özel Hedefler";
+
+/* Goal Suggestions */
+"goal.suggestions.title" = "Hedef Önerileri";
+
+/* Target date */
+"goal.target.date" = "Hedef Tarihi";
+
+/* Template description */
+"goal.template.description" = "Popüler hedeflerden birini seçebilir veya kendi hedefini oluşturabilirsin";
+
+/* Select template */
+"goal.template.select" = "Bir şablon seç veya boş başla";
+
+/* Goal title */
+"goal.title.label" = "Hedef Başlığı";
+
+/* Goal title placeholder */
+"goal.title.placeholder" = "Örn: Her gün kitap oku";
+
+/* Today's focus */
+"goal.todays.focus" = "Bugünün Odağı";
+
+/* Weekly */
+"goal.weekly" = "Haftalık";
+
+/* Weekly progress */
+"goal.weekly.progress" = "Haftalık İlerleme";
+
+/* Achievement progress current/total */
+"goals.achievement.progress" = "%lld/%lld";
+
+/* Active Goals */
+"goals.active.count" = "Aktif Hedefler (%lld)";
+
+/* Add to Goal */
+"goals.add.to.goal" = "Hedefe Ekle";
+
+/* Completion rate percentage */
+"goals.completion.rate" = "%%%lld";
+
+/* Of total goals */
+"goals.of.total" = "/ %lld";
+
+/* Goal progress percentage */
+"goals.progress.percentage" = "%%%lld";
+
+/* This Week */
+"goals.this.week" = "Bu hafta";
+
+/* AI generating */
+"habit.ai.generating" = "AI açıklama oluşturuluyor...";
+
+/* AI suggestion */
+"habit.ai.suggestion" = "AI Öneri";
+
+/* Basic info description */
+"habit.basic.info.description" = "Alışkanlığının ismini ve sıklığını belirle";
+
+/* Start from scratch */
+"habit.blank.description" = "Baştan başla";
+
+/* Blank habit */
+"habit.blank.title" = "Boş Alışkanlık";
+
+/* Description optional */
+"habit.description.optional" = "Açıklama (Opsiyonel)";
+
+/* Details description */
+"habit.details.description" = "Hedef sayısı ve açıklama ekle";
+
+/* Description cannot exceed 200 characters */
+"habit.error.description.too.long" = "Alışkanlık açıklaması çok uzun";
+
+/* Name cannot be empty */
+"habit.error.name.empty" = "Alışkanlık adı boş olamaz";
+
+/* Name cannot exceed 50 characters */
+"habit.error.name.too.long" = "Alışkanlık adı çok uzun";
+
+/* Name must be at least 2 characters */
+"habit.error.name.too.short" = "Alışkanlık adı çok kısa";
+
+/* Target cannot exceed 1000 */
+"habit.error.target.too.high" = "Hedef değer çok yüksek";
+
+/* Target must be at least 1 */
+"habit.error.target.too.low" = "Hedef değer çok düşük";
+
+/* Daily */
+"habit.frequency.daily" = "Günlük";
+
+/* Frequency */
+"habit.frequency.label" = "Sıklık";
+
+/* Monthly */
+"habit.frequency.monthly" = "Aylık";
+
+/* Weekly */
+"habit.frequency.weekly" = "Haftalık";
+
+/* Habit name */
+"habit.name.label" = "Alışkanlık İsmi";
+
+/* Popular templates */
+"habit.popular.templates" = "Popüler Şablonlar";
+
+/* Preview description */
+"habit.preview.description" = "Alışkanlığını kontrol et ve hatırlatıcı ayarla";
+
+/* Preview and save */
+"habit.preview.save" = "Önizleme ve Kaydet";
+
+/* Reminder description */
+"habit.reminder.description" = "Belirli saatte hatırlatma al";
+
+/* Target count */
+"habit.target.count" = "Hedef Sayısı";
+
+/* Target format */
+"habit.target.format" = "Hedef: %d";
+
+/* Template description */
+"habit.template.description" = "Popüler alışkanlıklardan birini seçebilir veya kendi alışkanlığını oluşturabilirsin";
+
+/* Select template header */
+"habit.template.select" = "Bir şablon seç veya boş başla";
+
+/* Home location not set warning */
+"home.location.not.set" = "Ev Konumu Ayarlanmadı";
+
+/* Hours spent at home format */
+"hours.at.home.format" = "%.1f saat evdesiniz";
+
+/* Could not generate insight */
+"insight.could.not.generate" = "Insight oluşturulamadı";
+
+/* Generated by Claude Haiku */
+"insight.generated.by.claude" = "Claude Haiku tarafından oluşturuldu";
+
+/* Your Personal Recommendation */
+"insight.personal.recommendation" = "Kişisel Öneriniz";
+
+/* Abandoned interaction */
+/* Completed interaction */
+/* Continued interaction */
+/* Other interaction */
+/* Paused interaction */
+/* Recommended interaction */
+/* Reviewed interaction */
+/* Started interaction */
+/* Add title */
+"journal.add.title" = "Başlık ekle";
+
+/* Categorize your journal */
+"journal.categorize" = "Journal'ını kategorilere ayır";
+
+/* Check your journal */
+"journal.check" = "Journal'ını kontrol et";
+
+/* Content */
+"journal.content" = "İçerik";
+
+/* Content */
+"journal.content.label" = "İçerik";
+
+/* Edit Journal */
+"journal.edit.title" = "Journal Düzenle";
+
+/* Start by writing your first journal entry */
+"journal.empty.message" = "Düşüncelerinizi yazmaya başlayın";
+
+/* No journal entries yet */
+"journal.empty.title" = "Henüz Journal Yok";
+
+/* Add to favorites */
+"journal.favorite" = "Favori";
+
+/* Guided writing description */
+"journal.guided.writing.desc" = "Guided writing ile düşüncelerini yapılandır";
+
+/* Last 7 Days */
+"journal.last.7.days" = "Son 7 Gün";
+
+/* Link to today's mood */
+"journal.link.to.mood" = "Bugünkü mood'a bağla";
+
+/* Link to todays mood */
+"journal.link.to.todays.mood" = "Bugünkü mood ile bağla";
+
+/* Linked Mood */
+"journal.linked.mood" = "Bağlı Ruh Hali";
+
+/* Photo */
+"journal.photo.label" = "Fotoğraf";
+
+/* Preview and Save */
+"journal.preview.save" = "Önizleme ve Kaydet";
+
+/* %d min
+X minutes reading time */
+"journal.reading.time.format" = "%lld dk okuma";
+
+/* Select photo from gallery */
+"journal.select.from.gallery" = "Galerinden fotoğraf seç";
+
+/* Select Photo */
+"journal.select.photo" = "Fotoğraf Seç";
+
+/* Statistics */
+"journal.stats" = "İstatistikler";
+
+/* Step: Content */
+/* Step: Review */
+/* Step: Tags */
+/* Step: Title */
+/* Step: Journal Type */
+/* Optional - you can skip */
+"journal.title.optional" = "İsteğe bağlı - geçebilirsin";
+
+/* Journal Type */
+"journal.type" = "Journal Tipi";
+
+/* Start by selecting journal type */
+"journal.type.instruction" = "Journal tipini seçerek başla";
+
+/* What type of journal do you want to write? */
+"journal.type.question" = "Hangi tür journal yazmak istersin?";
+
+/* Remove from favorites */
+"journal.unfavorite" = "Favoriden Çıkar";
+
+/* Updated time */
+"journal.updated" = "Güncellendi: %@";
+
+/* Would you like to use a template? */
+"journal.use.template.question" = "Şablon kullanmak ister misin?";
+
+/* Write Journal */
+"journal.write.button" = "Journal Yaz";
+
+/* Write your content */
+"journal.write.content" = "İçeriğini yaz";
+
+/* Write Journal */
+"journal.write.title" = "Journal Yaz";
+
+/* Challenges category */
+/* Current situation category */
+/* Experiences category */
+/* Fears category */
+/* Goals category */
+/* Habits category */
+/* Lifestyle category */
+/* Memories category */
+/* Other category */
+/* Personal info category */
+/* Preferences category */
+/* Recent events category */
+/* Relationships category */
+/* Triggers category */
+/* Values category */
+/* High confidence level */
+/* Low confidence level */
+/* Medium confidence level */
+/* AI extracted */
+/* Inferred from context */
+/* Behavior pattern */
+/* User directly stated */
+/* Last location record label */
+"last.record" = "Son Kayıt";
+
+/* Soft message when limit is reached */
+"limit.reached.soft.message" = "Bugünlük limitine ulaştın 😊";
+
+/* At place name */
+"location.at.place" = "%@'tesiniz";
+
+/* Badges */
+"location.badges" = "Rozetler";
+
+/* Badges count earned/total */
+"location.badges.count" = "%lld/%lld";
+
+/* Delete place confirmation */
+"location.delete.confirm" = "%@ silinecek. Emin misiniz?";
+
+/* Location history button
+Location history title */
+"location.history" = "Konum Geçmişi";
+
+/* Select your home location on the map or use your current location */
+"location.home.instruction" = "Harita üzerinde ev konumunuzu seçin veya mevcut konumunuzu kullanın";
+
+/* Home Radius */
+"location.home.radius" = "Ev Yarıçapı";
+
+/* This location will be saved as your home location */
+"location.home.save.confirmation" = "Bu konum ev konumunuz olarak kaydedilecek. Konum bazlı öneriler bu konuma göre yapılacak.";
+
+/* Information */
+"location.information" = "Bilgiler";
+
+/* Level */
+"location.level.format" = "Seviye %lld";
+
+/* My Favorites */
+"location.my.favorites" = "Favorilerim";
+
+/* You are not at a saved place */
+"location.not.at.saved.place" = "Kayıtlı bir yerde değilsiniz";
+
+/* Notes */
+"location.notes" = "Notlar";
+
+/* Notifications Active */
+"location.notifications.active" = "Bildirimler Aktif";
+
+/* Ongoing */
+"location.ongoing" = "Devam ediyor";
+
+/* Basic Information */
+"location.place.basic.info" = "Temel Bilgiler";
+
+/* Category */
+"location.place.category" = "Kategori";
+
+/* Color */
+"location.place.color" = "Renk";
+
+/* Emoji */
+"location.place.emoji" = "İfade";
+
+/* Select Emoji */
+"location.place.emoji.select" = "Emoji Seç";
+
+/* Geofencing */
+"location.place.geofencing" = "Konum Sınırları";
+
+/* Name */
+"location.place.name" = "İsim";
+
+/* No visit records yet */
+"location.place.no.visits" = "Henüz ziyaret kaydı yok";
+
+/* Notes Optional */
+"location.place.notes.optional" = "Notlar (Opsiyonel)";
+
+/* Radius */
+"location.place.radius" = "Yarıçap";
+
+/* Place saved */
+"location.place.saved.message" = "%@ başarıyla kaydedildi!";
+
+/* Statistics */
+"location.place.statistics" = "İstatistikler";
+
+/* Points */
+"location.points" = "%lld puan";
+
+/* Radius in meters */
+"location.radius.meters" = "%lld m";
+
+/* Recent visits */
+"location.recent.visits" = "Son Ziyaretler";
+
+/* Location records count */
+"location.records.count" = "%lld kayıt";
+
+/* No Saved Places Yet */
+"location.saved.places.empty" = "Henüz Kayıtlı Yer Yok";
+
+/* Save your frequent places */
+"location.saved.places.save.frequent" = "Sık gittiğin yerleri kaydet";
+
+/* Times count */
+"location.times.count" = "%lld kez";
+
+/* Location tracking information message */
+"location.tracking.info" = "Konumunuz 15 dakikada bir kaydedilecek. \\\"Her Zaman\\\" izni gerekiyor.";
+
+/* Home location type */
+"location.type.home" = "Ev";
+
+/* Outside location type */
+"location.type.outside" = "Dışarıda";
+
+/* Work location type */
+"location.type.work" = "İş";
+
+/* Unknown Location */
+"location.unknown" = "Bilinmeyen Konum";
+
+/* Visit count */
+"location.visits.count" = "%lld ziyaret";
+
+/* What can you do here? */
+"location.what.to.do" = "Burada Ne Yapabilirsin?";
+
+/* Receiving gifts love language */
+"love.language.gifts" = "Hediye Almak";
+
+/* Receiving gifts */
+"love.language.gifts.description" = "Hediye almak";
+
+/* People who value gifts feel loved when they receive thoughtful presents */
+"love.language.gifts.detailed" = "Hediyeye değer veren kişiler düşünceli hediyeler aldıklarında kendilerini sevilmiş hissederler";
+
+/* Acts of service love language */
+"love.language.service" = "Hizmet Eylemleri";
+
+/* Acts of service */
+"love.language.service.description" = "Hizmet eylemleri";
+
+/* Doing helpful things shows love to those who value acts of service */
+"love.language.service.detailed" = "Yardımcı şeyler yapmak, hizmet eylemlerine değer verenlere sevgi gösterir";
+
+/* Quality time love language */
+"love.language.time" = "Kaliteli Zaman";
+
+/* Quality time */
+"love.language.time.description" = "Kaliteli zaman";
+
+/* Spending focused time together is most meaningful */
+"love.language.time.detailed" = "Birlikte odaklanmış zaman geçirmek en anlamlıdır";
+
+/* Application Tips */
+"love.language.tips" = "Uygulama İpuçları";
+
+/* Physical touch love language */
+"love.language.touch" = "Fiziksel Temas";
+
+/* Physical touch */
+"love.language.touch.description" = "Fiziksel temas";
+
+/* Physical affection and closeness communicate love best */
+"love.language.touch.detailed" = "Fiziksel sevgi ve yakınlık sevgiyi en iyi şekilde iletir";
+
+/* Words of affirmation love language */
+"love.language.words" = "Destekleyici Sözler";
+
+/* Words of affirmation */
+"love.language.words.description" = "Onaylayıcı sözler";
+
+/* Hearing encouraging words and compliments feels most loving */
+"love.language.words.detailed" = "Cesaretlendirici sözler ve iltifatlar duymak en sevgi dolu hissettirir";
+
+/* Number of points on map format */
+"map.points.format" = "%d nokta";
+
+/* Immortalize special moments */
+"memories.add.subtitle" = "Fotoğraflarınızla özel anlarınızı ölümsüzleştirin";
+
+/* Add your memories */
+"memories.add.title" = "Anılarınızı ekleyin";
+
+/* Create memory */
+"memories.create" = "Anı Oluştur";
+
+/* Delete confirmation */
+"memories.delete.confirm" = "Bu anıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.";
+
+/* Create first memory */
+"memories.empty.message" = "İlk anını oluşturmak için + butonuna tıkla";
+
+/* No memories */
+"memories.empty.title" = "Henüz Anı Yok";
+
+/* Friends */
+"memories.friends" = "Arkadaşlar";
+
+/* Location map message */
+"memories.location.empty.message" = "Konum bilgisi olan anılar haritada gösterilir";
+
+/* No locations */
+"memories.location.empty.title" = "Henüz Konum Yok";
+
+/* Location picker coming soon */
+"memories.location.picker.coming.soon" = "Konum seçici yakında eklenecek";
+
+/* Create private memory */
+"memories.private.create" = "Gizli Anı Oluştur";
+
+/* Private memory detail */
+"memories.private.detail" = "Gizli Anı Detay";
+
+/* Create private memory */
+"memories.private.empty.message" = "İlk gizli anını oluşturmak için + butonuna tıkla veya mevcut bir anıyı gizliye taşı";
+
+/* No private memories */
+"memories.private.empty.title" = "Henüz Gizli Anı Yok";
+
+/* Timeline message */
+"memories.private.timeline.empty" = "Gizli anılar zaman çizelgesi olarak gösterilir";
+
+/* Untitled memory */
+"memories.untitled" = "Başlıksız Anı";
+
+/* This Week */
+"memory.date.this.week" = "Bu Hafta";
+
+/* Today */
+"memory.date.today" = "Bugün";
+
+/* Yesterday */
+"memory.date.yesterday" = "Dün";
+
+/* Untitled Memory */
+"memory.untitled" = "Başlıksız";
+
+/* 30-Day Mood Heatmap */
+"mood.30.day.heatmap" = "30 Günlük Mood Haritası";
+
+/* 30+ Days Analysis */
+"mood.30plus.analysis" = "30+ Günlük Analiz";
+
+/* Add tags */
+"mood.add.tags" = "Etiketler ekle";
+
+/* AI Analysis Ready */
+"mood.ai.analysis.ready" = "AI Analiz Hazır";
+
+/* X data points */
+"mood.correlation.data.points.format" = "%lld veri noktası";
+
+/* Relationships will appear as your mood entries increase */
+"mood.correlation.empty.message" = "Arkadaşlar, hedefler ve konumlarla olan ilişkileri görmek için mood'larınızı takip edin";
+
+/* No correlation data yet */
+"mood.correlation.empty.title" = "Henüz ilişki verisi yok";
+
+/* Friend - Mood correlation */
+"mood.correlation.friend.title" = "Arkadaş Görüşmeleri";
+
+/* Goal - Mood correlation */
+"mood.correlation.goal.title" = "Hedef İlerlemesi";
+
+/* Location - Mood correlation */
+"mood.correlation.location.title" = "Konum Değişiklikleri";
+
+/* X meetings */
+"mood.correlation.meetings.format" = "%lld görüşme";
+
+/* Delete */
+"mood.delete" = "Sil";
+
+/* Are you sure you want to delete this mood entry?
+Delete confirmation */
+"mood.delete.confirmation" = "Bu mood kaydını silmek istediğinize emin misiniz?";
+
+/* Delete Mood */
+"mood.delete.mood" = "Mood'u Sil";
+
+/* Edit */
+"mood.edit" = "Düzenle";
+
+/* Edit Mood */
+"mood.edit.mood" = "Mood Düzenle";
+
+/* Generated time */
+"mood.generated.time" = "Oluşturulma: %@";
+
+/* Mood: Happy */
+"mood.happy" = "Mutlu";
+
+/* Day count in heatmap */
+"mood.heatmap.days.format" = "%lld gün";
+
+/* More */
+"mood.heatmap.more" = "Daha çok";
+
+/* No mood record for this day */
+"mood.heatmap.no.record" = "Bu gün mood kaydı yok";
+
+/* 30-day heatmap requires Premium */
+"mood.heatmap.premium.required" = "30 günlük mood heatmap'i görüntülemek için Premium üyelik gereklidir.";
+
+/* Highlights */
+"mood.highlights" = "Öne Çıkanlar";
+
+/* How are you feeling? */
+"mood.how.are.you.feeling" = "Nasıl Hissediyorsun?";
+
+/* How are you today? */
+"mood.how.are.you.today" = "Bugün nasılsın?";
+
+/* How are you feeling? */
+"mood.how.feeling" = "Nasıl hissediyorsun?";
+
+/* Intensity */
+"mood.intensity" = "Yoğunluk";
+
+/* Intensity out of 5 */
+"mood.intensity.of.five" = "%lld/5";
+
+/* Mood & Journal */
+"mood.journal.title" = "Mood & Günlük";
+
+/* Mood: */
+"mood.label" = "Mood:";
+
+/* Less */
+"mood.less" = "Daha az";
+
+/* More options & notes */
+"mood.more.options" = "Daha Fazla Seçenek";
+
+/* More tags count */
+"mood.more.tags" = "+%lld";
+
+/* Mood: Neutral */
+"mood.neutral" = "Normal";
+
+/* Next badge */
+"mood.next.badge" = "Sonraki rozet";
+
+/* No mood records in this period */
+"mood.no.records.period" = "Bu dönemde mood kaydı yok";
+
+/* No records yet */
+"mood.no.records.yet" = "Henüz kayıt yok";
+
+/* Note (Optional) */
+"mood.note.optional" = "Not (isteğe bağlı)";
+
+/* Detected Patterns */
+"mood.patterns.detected" = "Tespit Edilen Pattern'ler";
+
+/* Premium long term analysis */
+"mood.premium.long.analysis" = "30 günden uzun süreli mood analizleri premium özelliklerdir. Premium üyelikle tüm geçmişinizi analiz edebilir ve derinlemesine içgörüler elde edebilirsiniz.";
+
+/* Questions: */
+"mood.questions" = "Sorular:";
+
+/* Recommendations */
+"mood.recommendations" = "Öneriler";
+
+/* Record Mood */
+"mood.record.title" = "Mood Kaydı Yap";
+
+/* records count */
+"mood.records.count" = "%lld kayıt";
+
+/* Mood Records */
+"mood.records.format" = "%lld kayıt";
+
+/* Mood: Sad */
+"mood.sad" = "Üzgün";
+
+/* Start adding moods to see trend */
+"mood.start.adding" = "Mood eklemeye başlayın, trend'inizi görebilirsiniz";
+
+/* Start tracking */
+"mood.start.tracking" = "Desenler görmek için mood takibini başlat";
+
+/* Statistics */
+"mood.statistics" = "İstatistikler";
+
+/* Earned badges */
+"mood.streak.badges.earned" = "Kazanılan Rozetler";
+
+/* Day streak count */
+"mood.streak.days.format" = "%lld gün seri";
+
+/* Longest streak: X days */
+"mood.streak.longest.format" = "En Uzun: %lld gün";
+
+/* Mood: Stressed */
+"mood.stressed" = "Stresli";
+
+/* Tags */
+"mood.tags" = "Etiketler";
+
+/* Tap a mood to record how you feel */
+"mood.tap.to.record" = "Kaydetmek için Dokun";
+
+/* Mood Timeline */
+"mood.timeline" = "Zaman Çizelgesi";
+
+/* Today */
+"mood.today" = "Bugün";
+
+/* Today's Mood */
+"mood.todays.mood" = "Bugünün Ruh Hali";
+
+/* total */
+"mood.total.format" = "%lld toplam";
+
+/* Track daily emotions */
+"mood.track.daily.emotions" = "Günlük duygularını kaydet ve kendini daha iyi anla";
+
+/* Mood Trend */
+"mood.trend" = "Mood Trendi";
+
+/* What happened today? */
+"mood.whats.happening.placeholder" = "Bugün neler oldu?";
+
+/* No location records for selected date */
+"no.records.for.date" = "Bu Tarihte Kayıt Yok";
+
+/* No location records message */
+"no.records.for.date.message" = "Seçtiğiniz tarihte konum kaydı bulunmuyor.\\nFarklı bir tarih seçmeyi deneyin.";
+
+/* Dislikes category */
+"note.category.dislike" = "Sevmezler";
+
+/* Favorite things category */
+"note.category.favorite" = "Favoriler";
+
+/* Hobbies category */
+"note.category.hobby" = "Hobiler";
+
+/* Important notes category */
+"note.category.important" = "Önemli";
+
+/* Other notes category */
+"note.category.other" = "Diğer";
+
+/* Add Note */
+"notes.add" = "Not Ekle";
+
+/* Contact reminder body */
+"notification.contact.reminder.body" = "%1$@ ile %2$lld gündür konuşmadınız. Aramayı düşünür müsünüz?";
+
+/* Contact reminder title */
+"notification.contact.reminder.title" = "İletişim Hatırlatması";
+
+/* Contact saved */
+"notification.contact.saved.title" = "İletişim Kaydedildi ✓";
+
+/* Contact time */
+"notification.contact.time.title" = "İletişim Zamanı! 📞";
+
+/* Daily activity */
+"notification.daily.activity.title" = "🎯 Günlük Aktivite Zamanı!";
+
+/* Go outside */
+"notification.go.outside.title" = "Dışarı Çıkma Zamanı! 🌞";
+
+/* Goal reminder */
+"notification.goal.reminder.title" = "Hedef Hatırlatması 🎯";
+
+/* Habit reminder */
+"notification.habit.reminder.title" = "Alışkanlık Zamanı! ⭐";
+
+/* Daily motivation */
+"notification.motivation.title" = "Günlük Motivasyon";
+
+/* Weekly summary */
+"notification.weekly.summary.title" = "Haftalık İletişim Özeti 📊";
+
+/* Smart chat about your friends and goals */
+"onboarding.ai.chat.description" = "Arkadaşlarınız ve hedefleriniz hakkında akıllı sohbet";
+
+/* Enable */
+"onboarding.ai.enable" = "Aktif Et";
+
+/* We can improve your life even more with our AI assistant Claude */
+"onboarding.ai.improve.life" = "AI asistanımız Claude ile hayatınızı daha da iyileştirebiliriz";
+
+/* Personalized daily suggestions every morning */
+"onboarding.ai.morning.insight.description" = "Her sabah kişiselleştirilmiş günlük öneriler";
+
+/* Not Now */
+"onboarding.ai.not.now" = "Şimdi Değil";
+
+/* One More Thing... */
+"onboarding.ai.one.more.thing" = "Bir Şey Daha...";
+
+/* Later */
+"onboarding.later" = "Daha Sonra";
+
+/* Let's Start */
+"onboarding.lets.start" = "Başlayalım";
+
+/* Please select Always option */
+"onboarding.location.always.hint" = "Lütfen \"Her Zaman\" seçeneğini işaretleyin";
+
+/* Instructions for always location permission */
+"onboarding.location.always.instruction" = "LifeStyles, hayat kalitenizi artırmak için konumunuzu 15 dakikada bir kaydeder. Bunun arka planda da çalışabilmesi için:\n\nAyarlar → LifeStyles → Konum → \"Her Zaman\" seçeneğini işaretleyin";
+
+/* Onboarding premium page subtitle */
+"onboarding.premium.subtitle" = "3 gün ücretsiz dene, istediğin zaman iptal et";
+
+/* Onboarding premium page title */
+"onboarding.premium.title" = "Premium ile Tam Güç";
+
+/* Privacy */
+"onboarding.privacy" = "🔒 Gizlilik";
+
+/* Skip */
+"onboarding.skip" = "Atla";
+
+/* Skip premium and continue with free version */
+"onboarding.skip.stay.free" = "Ücretsiz Devam Et";
+
+/* Partner Information */
+"partner.info" = "Partner Bilgileri";
+
+/* Partner Notes */
+"partner.notes" = "Partner Notları";
+
+/* Write information you want to remember about your partner here */
+"partner.notes.placeholder" = "Partneriniz hakkında hatırlamak istediğiniz bilgileri buraya yazın.";
+
+/* Record more moods to discover patterns */
+"pattern.discover.more" = "Daha fazla mood kaydederek pattern'lerinizi keşfedin";
+
+/* No patterns detected yet */
+"pattern.not.detected.yet" = "Henüz pattern tespit edilemedi";
+
+/* What should you do */
+"pattern.what.to.do" = "💡 Ne Yapmalısınız?";
+
+/* Unlock all achievements */
+"premium.achievements.unlock" = "Tüm Başarıların Kilidini Aç";
+
+/* Premium analytics card subtitle */
+"premium.analytics.subtitle" = "Hedeflerinize daha hızlı ulaşmak için detaylı analizler ve AI destekli önerilerin kilidini açın";
+
+/* Premium analytics card title */
+"premium.analytics.title" = "Gelişmiş Analizler";
+
+/* Premium badge title */
+"premium.badge.title" = "Premium";
+
+/* Cancel anytime */
+"premium.cancel.anytime" = "İstediğin zaman iptal edebilirsin";
+
+/* Can cancel before being charged */
+"premium.cancel.before.charged" = "Ücretsiz dönemde iptal edebilirsin";
+
+/* Choose your plan section title */
+"premium.choose.plan" = "Planını Seç";
+
+/* Premium CTA button text */
+"premium.cta.start.trial" = "Ücretsiz Denemeyi Başlat";
+
+/* Premium feature: Advanced charts */
+"premium.feature.advanced.charts" = "Gelişmiş Grafikler";
+
+/* Premium feature description: Advanced charts */
+"premium.feature.advanced.charts.desc" = "İlerlemeni zaman içinde takip edebilmek için detaylı grafikler ve görselleştirmeler";
+
+/* Premium feature: AI insights */
+"premium.feature.ai.insights" = "AI Destekli İçgörüler";
+
+/* Premium feature description: AI insights */
+"premium.feature.ai.insights.desc" = "Yapay zeka ile desteklenen kişiselleştirilmiş öneriler ve stratejiler edinin";
+
+/* Premium feature: Goal predictions */
+"premium.feature.goal.predictions" = "Hedef Tahminleri";
+
+/* Premium feature description: Goal predictions */
+"premium.feature.goal.predictions.desc" = "Hedeflerine ne zaman ulaşacağına dair doğru tahminler gör";
+
+/* Premium feature: Smart reminders */
+"premium.feature.smart.reminders" = "Akıllı Hatırlatmalar";
+
+/* Premium feature description: Smart reminders */
+"premium.feature.smart.reminders.desc" = "Alışkanlıklarına göre en uygun zamanlarda kişiselleştirilmiş hatırlatmalar al";
+
+/* Premium feature: Trend analysis */
+"premium.feature.trend.analysis" = "Trend Analizi";
+
+/* Premium feature description: Trend analysis */
+"premium.feature.trend.analysis.desc" = "Davranışlarındaki kalıpları keşfet ve alışkanlıklarını buna göre optimize et";
+
+/* Premium feature: Unlimited sync */
+"premium.feature.unlimited.sync" = "Sınırsız Bulut Senkronizasyonu";
+
+/* Premium feature description: Unlimited sync */
+"premium.feature.unlimited.sync.desc" = "Sınırsız bulut depolama ile verilerine tüm cihazlarından eriş";
+
+/* LifeStyles Premium */
+"premium.lifestyles.title" = "LifeStyles Premium";
+
+/* Monthly Subscription */
+"premium.monthly.subscription" = "Aylık Abonelik";
+
+/* Premium navigation title */
+"premium.navigation.title" = "Premium";
+
+/* /month
+Per month */
+"premium.per.month" = "/ay";
+
+/* Per month */
+"premium.period.month" = "ay";
+
+/* Per year */
+"premium.period.year" = "yıl";
+
+/* Monthly subscription plan */
+"premium.plan.monthly" = "Aylık";
+
+/* Yearly subscription plan */
+"premium.plan.yearly" = "Yıllık";
+
+/* Price after trial period */
+"premium.price.after.trial" = "Sonra sadece $0.99/ay";
+
+/* Reset */
+"premium.reset" = "Reset";
+
+/* Restore Purchases */
+"premium.restore.purchases" = "Satın Alımları Geri Yükle";
+
+/* Yearly plan savings badge */
+"premium.savings.yearly" = "%50 Tasarruf";
+
+/* More features, unlimited usage */
+"premium.subtitle" = "Daha fazla özellik, sınırsız kullanım";
+
+/* Premium subscription view title */
+"premium.title" = "LifeStyles Premium";
+
+/* Today's Usage */
+"premium.todays.usage" = "Bugünkü Kullanım";
+
+/* Tomorrow at midnight */
+"premium.tomorrow.midnight" = "Yarın 00:00";
+
+/* 3 Days Free Trial button */
+"premium.trial.3days" = "3 Gün Ücretsiz Dene";
+
+/* Trial is active status message */
+"premium.trial.active" = "Deneme süren aktif";
+
+/* Trial countdown message */
+"premium.trial.countdown" = "Denemen %d gün sonra bitiyor";
+
+/* %d days left */
+"premium.trial.days.remaining" = "%d gün kaldı";
+
+/* Trial information text */
+"premium.trial.info" = "7 gün ücretsiz, sonrasında otomatik ücretlendirilir. İstediğin zaman iptal edebilirsin.";
+
+/* Try again tomorrow */
+"premium.try.tomorrow" = "Yarın Tekrar Dene";
+
+/* Unlimited Usage with Premium */
+"premium.unlimited.usage" = "Premium ile Sınırsız Kullanım";
+
+/* Tap to unlock premium message */
+"premium.unlock.tap" = "Kilidi açmak için dokun";
+
+/* Upgrade to Premium */
+"premium.upgrade" = "Premium'a Geç";
+
+/* Upgrade to Premium button */
+"premium.upgrade.button" = "Premium'a Geç";
+
+/* Auto cleanup */
+/* Learning categories */
+/* Delete all knowledge */
+/* Knowledge privacy subtitle */
+/* Knowledge privacy title */
+/* Balanced privacy preset */
+/* Open privacy preset */
+/* Strict privacy preset */
+/* About Me */
+"profile.about" = "Hakkında";
+
+/* Add Hobby */
+"profile.add.hobby" = "Hobi Ekle";
+
+/* Add Interest */
+"profile.add.interest" = "İlgi Alanı Ekle";
+
+/* Add new */
+"profile.add.new" = "Yeni Ekle";
+
+/* Add Core Value */
+"profile.add.value" = "Değer Ekle";
+
+/* Age */
+"profile.age" = "Yaş";
+
+/* AI uses this information to provide better suggestions */
+"profile.ai.description" = "AI bu bilgileri kişiselleştirilmiş öneriler sunmak için kullanacak";
+
+/* Basic Information */
+"profile.basic.info" = "Temel Bilgiler";
+
+/* My Core Values */
+"profile.core.values" = "Temel Değerler";
+
+/* My Hobbies */
+"profile.hobbies" = "Hobiler";
+
+/* You have no hobbies. Tap + to add */
+"profile.hobbies.empty" = "Henüz hobi eklenmedi";
+
+/* My Interests */
+"profile.interests" = "İlgi Alanları";
+
+/* You have no interests. Tap + to add */
+"profile.interests.empty" = "Henüz ilgi alanı eklenmedi";
+
+/* My Life Goals */
+"profile.life.goals" = "Hayat Hedefleri";
+
+/* Lifestyle */
+"profile.lifestyle" = "Yaşam Tarzı";
+
+/* Alone */
+"profile.living.alone" = "Yalnız";
+
+/* Living Situation */
+"profile.living.arrangement" = "Yaşam Düzeni";
+
+/* With Family */
+"profile.living.family" = "Aileyle";
+
+/* With Partner */
+"profile.living.partner" = "Partnerle";
+
+/* With Roommates */
+"profile.living.roommates" = "Ev arkadaşlarıyla";
+
+/* My Profile Information */
+"profile.my.info" = "Profil Bilgilerim";
+
+/* My Profile */
+"profile.my.profile" = "Profilim";
+
+/* Name */
+"profile.name" = "İsim";
+
+/* Your Name */
+"profile.name.placeholder" = "İsminizi girin";
+
+/* Occupation */
+"profile.occupation" = "Meslek";
+
+/* Software Developer */
+"profile.occupation.placeholder" = "Mesleğiniz";
+
+/* Select */
+"profile.picker.placeholder" = "Seçin...";
+
+/* Profile Saved */
+"profile.saved" = "Profil Kaydedildi";
+
+/* Your profile has been saved successfully. AI can now provide more personalized suggestions. */
+"profile.saved.message" = "Profiliniz başarıyla kaydedildi";
+
+/* You have no core values. Tap + to add */
+"profile.values.empty" = "Henüz değer eklenmedi";
+
+/* Work Schedule */
+"profile.work.schedule" = "Çalışma Programı";
+
+/* 9-5 */
+"profile.work.schedule.9to5" = "9-5";
+
+/* Flexible */
+"profile.work.schedule.flexible" = "Esnek";
+
+/* Night Shift */
+"profile.work.schedule.night" = "Gece Vardiyası";
+
+/* Part-time */
+"profile.work.schedule.parttime" = "Yarı zamanlı";
+
+/* Remote */
+"profile.work.schedule.remote" = "Uzaktan";
+
+/* Days left to milestone */
+"relationship.days.left.format" = "%lld gün kaldı";
+
+/* Relationship Duration */
+"relationship.duration" = "İlişki Süresi";
+
+/* Next Goal */
+"relationship.next.goal" = "Sonraki Hedef";
+
+/* Together */
+"relationship.together" = "Birlikte";
+
+/* Colleague/work relationship type */
+"relationship.type.colleague" = "İş Arkadaşı";
+
+/* Family relationship type */
+"relationship.type.family" = "Aile";
+
+/* Friend relationship type */
+"relationship.type.friend" = "Arkadaş";
+
+/* Partner/romantic relationship type */
+"relationship.type.partner" = "Sevgilim";
+
+/* Route display is off */
+"route.off" = "Rota Kapalı";
+
+/* Route display is on */
+"route.on" = "Rota Açık";
+
+/* Set current location button */
+"set.current.location" = "Mevcut Konumu Ayarla";
+
+/* Set home location for suggestions message */
+"set.home.location.for.suggestions" = "Konum önerileri için ev konumunuzu ayarlayın.";
+
+/* About */
+"settings.about.title" = "Hakkında";
+
+/* AI assistant for conversations and suggestions */
+"settings.ai.chat.description" = "Sohbet ve öneriler için AI asistan";
+
+/* Chat Settings */
+"settings.ai.chat.settings" = "Chat Ayarları";
+
+/* Consent date: %@ */
+"settings.ai.consent.date.format" = "Onay tarihi: %@";
+
+/* Context Mode */
+"settings.ai.context.mode" = "Context Modu";
+
+/* About Shared Data */
+"settings.ai.data.about" = "Paylaşılan Veriler Hakkında";
+
+/* Friend Information */
+"settings.ai.data.friends" = "Arkadaş Bilgileri";
+
+/* Goals and Habits */
+"settings.ai.data.goals.habits" = "Hedef ve Alışkanlıklar";
+
+/* Location Data */
+"settings.ai.data.location" = "Konum Verileri";
+
+/* Mood Data */
+"settings.ai.data.mood" = "Ruh Hali Verileri";
+
+/* Data Sharing */
+"settings.ai.data.sharing" = "Veri Paylaşımı";
+
+/* X types of data shared with AI */
+"settings.ai.data.types.count.format" = "%lld tür veri AI ile paylaşılıyor";
+
+/* Data Usage */
+"settings.ai.data.usage" = "Veri Kullanımı";
+
+/* Disable All Data Sharing */
+"settings.ai.disable.all.sharing" = "Tüm Veri Paylaşımını Kapat";
+
+/* Enable All Data Sharing */
+"settings.ai.enable.all.sharing" = "Tüm Veri Paylaşımını Aç";
+
+/* Enable AI Features */
+"settings.ai.enable.features" = "AI Özelliklerini Aktif Et";
+
+/* AI Features */
+"settings.ai.features" = "AI Özellikleri";
+
+/* AI Features Active */
+"settings.ai.features.active" = "AI Özellikleri Aktif";
+
+/* Give consent to use AI features */
+"settings.ai.features.give.consent" = "AI özelliklerini kullanmak için onay verin";
+
+/* AI Features Inactive */
+"settings.ai.features.inactive" = "AI Özellikleri Kapalı";
+
+/* Last AI Request */
+"settings.ai.last.request" = "Son AI İsteği";
+
+/* Personalized suggestions every morning */
+"settings.ai.morning.insight.description" = "Her sabah kişiselleştirilmiş öneriler";
+
+/* AI Settings & Privacy */
+"settings.ai.privacy.settings" = "AI Ayarları & Gizlilik";
+
+/* AI & Privacy */
+"settings.ai.privacy.title" = "AI & Gizlilik";
+
+/* Revoke AI Consent */
+"settings.ai.revoke.consent" = "AI Onayını Geri Çek";
+
+/* Smart mode shares necessary data based on your questions and optimizes costs */
+"settings.ai.smart.mode.description" = "Akıllı mod, sorularınıza göre gerekli veriyi paylaşır ve maliyeti optimize eder";
+
+/* App Permissions */
+"settings.app.permissions" = "Uygulama İzinleri";
+
+/* App Statistics */
+"settings.app.stats.title" = "Uygulama İstatistikleri";
+
+/* Appearance & Profile */
+"settings.appearance.profile" = "Görünüm & Profil";
+
+/* Battery Optimization */
+"settings.battery.optimization" = "Pil Optimizasyonu";
+
+/* Export Data */
+"settings.data.export" = "Yedek Al";
+
+/* Exporting... */
+"settings.data.exporting" = "Yedekleniyor...";
+
+/* Importing... */
+"settings.data.importing" = "İçe Aktarılıyor...";
+
+/* Data Management */
+"settings.data.management.title" = "Veri Yönetimi";
+
+/* Restore from Backup */
+"settings.data.restore.backup" = "Yedekten Geri Yükle";
+
+/* Delete All Data */
+"settings.delete.all.data" = "Tüm Verileri Sil";
+
+/* Delete All Data? */
+"settings.delete.all.data.title" = "Tüm Verileri Sil?";
+
+/* Deleting... */
+"settings.delete.deleting" = "Siliniyor...";
+
+/* This action cannot be undone. All your friends, goals, habits and location history will be deleted. */
+"settings.delete.warning" = "Bu işlem geri alınamaz. Tüm arkadaşlarınız, hedefleriniz, alışkanlıklarınız ve konum geçmişiniz silinecek.";
+
+/* Edit profile */
+"settings.edit.profile" = "Profili Düzenle";
+
+/* Delete error: */
+"settings.error.delete.prefix" = "Silme hatası:";
+
+/* Export error: */
+"settings.error.export.prefix" = "Yedekleme hatası:";
+
+/* Import error: */
+"settings.error.import.prefix" = "İçe aktarma hatası:";
+
+/* General Settings */
+"settings.general.settings" = "Genel Ayarlar";
+
+/* Current Home Location */
+"settings.home.location.current" = "Mevcut Ev Konumu";
+
+/* Set Home Location */
+"settings.home.location.set" = "Ev Konumunu Ayarla";
+
+/* Home radius in meters */
+"settings.home.radius.meters" = "%lld metre";
+
+/* Info */
+"settings.info" = "Bilgi";
+
+/* Language */
+"settings.language" = "Dil / Language";
+
+/* Change */
+"settings.language.change.button" = "Dili Değiştir";
+
+/* Change Language */
+"settings.language.change.title" = "Dil Ayarları";
+
+/* App needs to be reopened to apply language changes.
+
+Değişikliklerin uygulanması için uygulama yeniden açılmalı. */
+"settings.language.restart.message" = "Değişikliklerin uygulanması için uygulama yeniden açılmalı.\n\nApp needs to be reopened to apply changes.";
+
+/* Language restart warning */
+"settings.language.restart.warning" = "Dil değişikliği için uygulamanın yeniden başlatılması gerekir.\n\nApp restart is required for language changes.";
+
+/* Features */
+"settings.location.features" = "Özellikler";
+
+/* Location Management */
+"settings.location.management" = "Konum Yönetimi";
+
+/* Open Settings */
+"settings.location.open.settings" = "Ayarları Aç";
+
+/* Location Permission */
+"settings.location.permission" = "Konum İzni";
+
+/* Location permission description */
+"settings.location.permission.desc" = "Konum bazlı öneriler almak için sistem ayarlarından izin vermeniz gerekiyor.";
+
+/* Location privacy info */
+"settings.location.privacy.info" = "Konum bilgileriniz sadece cihazınızda saklanır";
+
+/* Significant changes info */
+"settings.location.significant.changes" = "Sadece önemli yer değişikliklerinde çalışır";
+
+/* Location */
+"settings.location.title" = "Konum";
+
+/* Activity Reminders */
+"settings.notifications.activity.reminders" = "Aktivite Hatırlatmaları";
+
+/* Daily activity suggestions */
+"settings.notifications.activity.reminders.description" = "Günlük aktivite önerileri";
+
+/* Detailed Settings */
+"settings.notifications.detailed" = "Detaylı Ayarlar";
+
+/* End */
+"settings.notifications.end.time" = "Bitiş Saati";
+
+/* Determines how often friend and goal reminders will be sent. */
+"settings.notifications.frequency.description" = "Ne sıklıkla hatırlatma alınacak";
+
+/* Friend Reminders */
+"settings.notifications.friend.reminders" = "Arkadaş Hatırlatmaları";
+
+/* For friends you need to contact */
+"settings.notifications.friend.reminders.description" = "İletişim kurmanız gereken arkadaşlarınız için";
+
+/* Goal Reminders */
+"settings.notifications.goal.reminders" = "Hedef Hatırlatmaları";
+
+/* When your goal deadlines approach */
+"settings.notifications.goal.reminders.description" = "Hedefleriniz için son tarih yaklaşınca";
+
+/* Habit Reminders */
+"settings.notifications.habit.reminders" = "Alışkanlık Hatırlatmaları";
+
+/* For your daily habits */
+"settings.notifications.habit.reminders.description" = "Günlük alışkanlıklarınız için";
+
+/* Location Suggestions */
+"settings.notifications.location.suggestions" = "Konum Önerileri";
+
+/* Go out and activity suggestions */
+"settings.notifications.location.suggestions.description" = "Dışarı çıkma ve aktivite önerileri";
+
+/* Motivation Messages */
+"settings.notifications.motivation.messages" = "Motivasyon Mesajları";
+
+/* Daily motivation and inspiration */
+"settings.notifications.motivation.messages.description" = "Günlük motivasyon ve ilham";
+
+/* Open Settings */
+"settings.notifications.open.settings" = "Ayarları Aç";
+
+/* Notification Permission */
+"settings.notifications.permission" = "Bildirim İzni";
+
+/* Notification permission description */
+"settings.notifications.permission.desc" = "Bildirim almak için sistem ayarlarından izin vermeniz gerekiyor.";
+
+/* No notifications will be sent during the specified hours. */
+"settings.notifications.quiet.active.description" = "Sessiz saatler aktif";
+
+/* Quiet Hours */
+"settings.notifications.quiet.hours" = "Sessiz Saatler";
+
+/* Enable Quiet Hours */
+"settings.notifications.quiet.hours.enable" = "Sessiz Saatleri Etkinleştir";
+
+/* Set hours when you don't want to receive notifications. */
+"settings.notifications.quiet.inactive.description" = "Sessiz saatler pasif";
+
+/* Reminder Frequency */
+"settings.notifications.reminder.frequency" = "Hatırlatma Sıklığı";
+
+/* Start */
+"settings.notifications.start.time" = "Başlangıç Saati";
+
+/* Streak Warnings */
+"settings.notifications.streak.warnings" = "Streak Uyarıları";
+
+/* Warning if your streak is at risk */
+"settings.notifications.streak.warnings.description" = "Streak'inizin kopma riski varsa uyarı";
+
+/* Notification Preferences
+Notifications */
+"settings.notifications.title" = "Bildirim Tercihleri";
+
+/* Notification Types */
+"settings.notifications.types" = "Bildirim Türleri";
+
+/* You can enable or disable notification types. */
+"settings.notifications.types.description" = "Hangi bildirimleri almak istediğinizi seçin";
+
+/* Open App Settings */
+"settings.open.app.settings" = "Uygulama Ayarlarını Aç";
+
+/* For contact history tracking */
+"settings.permission.contacts.desc" = "İletişim geçmişi takibi için";
+
+/* Contacts */
+"settings.permission.contacts.title" = "Rehber";
+
+/* For activity suggestions */
+"settings.permission.location.desc" = "Aktivite önerileri için";
+
+/* Location */
+"settings.permission.location.title" = "Konum";
+
+/* For reminders and suggestions */
+"settings.permission.notifications.desc" = "Hatırlatmalar ve öneriler için";
+
+/* Notifications */
+"settings.permission.notifications.title" = "Bildirimler";
+
+/* Permissions */
+"settings.permissions.detail.title" = "İzinler";
+
+/* Permissions */
+"settings.permissions.title" = "İzinler";
+
+/* Personalization */
+"settings.personalization.title" = "Kişiselleştirme";
+
+/* AI messages used today: */
+"settings.premium.ai.messages.today" = "Bugün kullanılan AI mesajı:";
+
+/* Unlimited AI chat, advanced analytics and priority support. */
+"settings.premium.benefits.description" = "Sınırsız AI chat, gelişmiş analitikler ve öncelikli desteğe sahipsiniz.";
+
+/* Today: X/Y messages */
+"settings.premium.daily.usage.format" = "Bugün: %lld/%lld mesaj";
+
+/* You are a Premium Member */
+"settings.premium.member.status" = "Premium Üyesiniz";
+
+/* X messages */
+"settings.premium.messages.count" = "%lld mesaj";
+
+/* X/month */
+"settings.premium.price.month" = "%@/ay";
+
+/* X remaining */
+"settings.premium.remaining.format" = "%lld kaldı";
+
+/* Premium */
+"settings.premium.title" = "Premium";
+
+/* Total messages: */
+"settings.premium.total.messages" = "Toplam mesaj:";
+
+/* Unlimited AI chat, advanced analytics */
+"settings.premium.unlimited.features" = "Limitsiz AI chat, gelişmiş analitikler";
+
+/* Upgrade to Premium */
+"settings.premium.upgrade" = "Premium'a Geç";
+
+/* Privacy */
+"settings.privacy" = "Gizlilik";
+
+/* Privacy Policy */
+"settings.privacy.policy" = "Gizlilik Politikası";
+
+/* Profile completion */
+"settings.profile.completion" = "Profil: %%%d tamamlandı";
+
+/* Location Logs */
+"settings.stats.location.logs" = "Konum Kaydı";
+
+/* Storage Usage */
+"settings.stats.storage.usage" = "Depolama Kullanımı";
+
+/* Total Friends */
+"settings.stats.total.friends" = "Toplam Arkadaş";
+
+/* Total Goals */
+"settings.stats.total.goals" = "Toplam Hedef";
+
+/* Total Habits */
+"settings.stats.total.habits" = "Toplam Alışkanlık";
+
+/* Terms of Use */
+"settings.terms.of.use" = "Kullanım Şartları";
+
+/* Test message */
+"settings.test.message" = "TEST - BU AÇILIYORSA SORUN BAŞKA";
+
+/* Settings */
+"settings.title" = "Ayarlar";
+
+/* Version */
+"settings.version" = "Versiyon";
+
+/* Advanced skill level */
+/* Beginner skill level */
+/* Expert skill level */
+/* Intermediate skill level */
+/* Add special date */
+"special.dates.add" = "Özel Tarih Ekle";
+
+/* Anniversary */
+"special.dates.anniversary" = "Yıldönümü";
+
+/* No special dates added yet */
+"special.dates.empty" = "Özel tarih eklenmedi";
+
+/* Special date info */
+"special.dates.info" = "Özel Tarihler";
+
+/* You can optionally add notes about this special day. */
+"special.dates.notes.footer" = "Bu tarihler kişiselleştirilmiş hatırlatmalar için kullanılacak";
+
+/* Special dates section title */
+"special.dates.title" = "Özel Tarihler";
+
+/* With You Every Moment of Life */
+"splash.tagline" = "Hayatın Her Anında Yanında";
+
+/* Statistics label: Level */
+"stat.level" = "Seviye";
+
+/* Statistics label: Points */
+"stat.points" = "Puan";
+
+/* Statistics label: Streak (consecutive days) */
+"stat.streak" = "Seri";
+
+/* At home stats label */
+"stats.at.home" = "Evde";
+
+/* Outside stats label */
+"stats.outside" = "Dışarıda";
+
+/* Records stats label */
+"stats.records" = "Kayıt";
+
+/* User is at home status */
+"status.at.home" = "Evdesiniz";
+
+/* User is outside status */
+"status.outside" = "Dışarıdasınız";
+
+/* Streak message: Keep going */
+"streak.message.keep_going" = "Harika gidiyorsun! Devam et! 🔥";
+
+/* Streak message: Legendary */
+"streak.message.legendary" = "Efsane streak! 🌟";
+
+/* Streak message: On fire */
+"streak.message.on_fire" = "Ateş gibisin! 🔥🔥🔥";
+
+/* Streak message: Start */
+"streak.message.start" = "İlk aktivitenizi tamamlayın! 🎯";
+
+/* Suggested activities section title */
+"suggested.activities" = "Önerilen Aktiviteler";
+
+/* Activities tab title */
+/* Analytics tab title */
+/* Contacts/Friends tab title */
+"tab.contacts" = "Arkadaşlar";
+
+/* Dashboard tab title */
+"tab.dashboard" = "Ana Sayfa";
+
+/* Goals tab title */
+"tab.goals" = "Hedefler";
+
+/* Location/Activities tab title */
+"tab.location" = "Aktivite";
+
+/* Memories tab title */
+/* Mood journal tab title */
+/* Settings tab title */
+"tab.settings" = "Ayarlar";
+
+/* Frequently Used Tags */
+"tags.frequently.used" = "Sık Kullanılan Tag'ler";
+
+/* Selected tags count */
+"tags.selected.count.format" = "%lld seçili";
+
+/* Suggestions */
+"tags.suggestions" = "Öneriler";
+
+/* All */
+"template.all" = "Tümü";
+
+/* Continue Without Template */
+"template.continue.without" = "Şablonsuz Devam Et";
+
+/* Guided writing description */
+"template.guided.writing" = "Guided writing ile düşüncelerini yapılandır";
+
+/* Use writing template */
+"template.use.writing" = "Yazma şablonu kullan";
+
+/* Time of day: Afternoon (12:00-18:00) */
+"time.afternoon" = "Öğle";
+
+/* Time of day: All day */
+"time.all_day" = "Tüm Gün";
+
+/* days */
+"time.days" = "gün";
+
+/* Time of day: Evening (18:00-22:00) */
+"time.evening" = "Akşam";
+
+/* Time of day: Morning (06:00-12:00) */
+"time.morning" = "Sabah";
+
+/* Time of day: Night (22:00-06:00) */
+"time.night" = "Gece";
+
+/* day */
+"time.unit.day" = "gün";
+
+/* year */
+"time.unit.year" = "yıl";
+
+/* Tips content: Creative activities benefits */
+"tips.creative.content" = "Yaratıcı etkinlikler, beyinde dopamin salınımını artırarak motivasyon ve mutluluk hissini güçlendirir. Sanatsal faaliyetler, duygusal ifade kanalları açarak stres yönetimini kolaylaştırır.";
+
+/* Tips title: Creative activities */
+"tips.creative.title" = "Yaratıcı Aktiviteler 🎨";
+
+/* Tips content: Exercise benefits */
+"tips.exercise.content" = "Düzenli egzersiz, endorfin ve serotonin salgılatarak ruh halini iyileştirir. Haftada 150 dakika orta şiddette aktivite, kardiyovasküler sağlığı korur ve enerji seviyelerini artırır.";
+
+/* Tips title: Exercise activities */
+"tips.exercise.title" = "Egzersiz ve Aktivite 💪";
+
+/* Tips content: Learning benefits */
+"tips.learning.content" = "Yeni beceriler öğrenmek, nöroplastisite yoluyla beynin yeniden yapılandırılmasını sağlar. Düzenli zihinsel aktiviteler, kognitif rezervi artırarak yaşlanmayla ilişkili bilişsel düşüşü yavaşlatır.";
+
+/* Tips title: Learning activities */
+"tips.learning.title" = "Öğrenme ve Gelişim 📚";
+
+/* Tips content: Outdoor activities benefits */
+"tips.outdoor.content" = "Doğada vakit geçirmek, D vitamini sentezini artırır ve kortizol seviyesini düşürerek stresi azaltır. Yeşil alanlar, zihinsel yorgunluğu azaltarak odaklanmayı artırır.";
+
+/* Tips title: Outdoor activities */
+"tips.outdoor.title" = "Dış Mekan Aktivitesi 🌳";
+
+/* Tips content: Relaxation benefits */
+"tips.relax.content" = "Bilinçli dinlenme, parasempatik sinir sistemini aktifleştirerek kalp atış hızını düşürür ve vücudu iyileşme moduna geçirir. Meditasyon ve derin nefes egzersizleri, amigdalayı sakinleştirerek anksiyeteyi azaltır.";
+
+/* Tips title: Relaxation activities */
+"tips.relax.title" = "Dinlenme ve Rahatlama 🧘";
+
+/* Tips content: Social interaction benefits */
+"tips.social.content" = "Kaliteli sosyal etkileşimler, oksitosin hormonu salgılatarak güven ve bağlılık duygularını güçlendirir. Düzenli sosyal aktiviteler, depresyon riskini azaltır ve yaşam kalitesini artırır.";
+
+/* Tips title: Social activities */
+"tips.social.title" = "Sosyal Etkileşim 🤝";
+
+/* Total distance label */
+"total.distance" = "Toplam Mesafe";
+
+/* Total location records count label */
+"total.records" = "Toplam Kayıt";
+
+/* Add first transaction */
+"transaction.add.first" = "İlk İşlemi Ekle";
+
+/* Credit */
+"transaction.credit" = "Alacak";
+
+/* Debt */
+"transaction.debt" = "Borç";
+
+/* Due in X days */
+"transaction.due.days" = "📅 Vade: %lld gün";
+
+/* Due today */
+"transaction.due.today" = "🔔 Bugün vade bitiyor";
+
+/* Due within X days */
+"transaction.due.within.days" = "⏰ %lld gün içinde";
+
+/* No transaction records */
+"transaction.empty" = "Henüz borç/alacak kaydı yok";
+
+/* I owe them */
+"transaction.i.owe" = "Ben borçluyum";
+
+/* Overdue by X days */
+"transaction.overdue.days" = "⚠️ %lld gün gecikti";
+
+/* Paid */
+"transaction.paid" = "Ödendi";
+
+/* They owe me */
+"transaction.they.owe" = "Onlar borçlu";
+
+/* Transaction type */
+"transaction.type" = "İşlem Tipi";
+
+/* Unpaid */
+"transaction.unpaid" = "Ödenmedi";
+
+/* Confidence degraded */
+/* Confidence improved */
+/* No change */
+/* Value changed */
+/* View location history button */
+"view.history" = "Geçmişi Görüntüle";
+
+/* List view toggle */
+"view.list" = "Liste";
+
+/* Map view toggle */
+"view.map" = "Harita";
+
+/* Most Used Words */
+"wordcloud.most.used" = "En Çok Kullanılan Kelimeler";
+
+/* Not enough data yet */
+"wordcloud.not.enough.data" = "Henüz yeterli veri yok";
+
+/* Remove */
+/* A toggle that enables or disables a notification when a user exits a monitored region. */
+/* A toggle that lets the user mark a person as important. */
+/* Preview */
+/* e.g. Music, sports, travel */
+/* A placeholder text for the user to input the name of their habit. */
+/* A placeholder text for a transaction description field. */
+/* Add custom tag */
+/* A button label that translates to "Next". */
+/* "İletişim" is a generic term for communication, such as texting, calling, or messaging. */
+/* A label indicating that the user needs to contact their friend. */
+/* A section header for the frequency of contact with a friend. */
+/* A button label that allows a user to dismiss a goal suggestion. */
+/* A label for the start date of a relationship in the "Add Friend" view. */
+/* A section header that translates to "Relationship Details". */
+/* A section header that asks the user to select the type of relationship they have with the person they're adding. */
+/* A description below the "Henüz mood kaydı yok" text, instructing the user to tap the "+" button to record their first mood. */
+/* Inactive */
+/* A button that dismisses the current view. */
+/* A label for the user to input their name. */
+/* Choose Template */
+/* Current Location */
+/* A bullet point symbol. */
+/* ❤️ */
+/* 🎉 */
+/* A text-based badge representing a family member. */
+/* An emoji used to represent love. */
+/* A heart emoji used in the anniversary card. */
+/* 💡 */
+/* A text-based badge representing a colleague relationship. */
+/* 📊 */
+/* The title of the view. */
+/* The title of the private memories view. */
+/* A text indicating that a badge is locked. */
+/* 🔥 */
+/* 😊 */
+/* 😐 */
+/* DASHBOARD COMPONENTS - Yeni Eklemeler */
+
+/* Achievements section title */
+"dashboard.achievements.title" = "Başarımlar";
+
+/* Earned achievements count format */
+"dashboard.achievements.earned.format" = "%d/%d Kazanıldı";
+
+/* Show all achievements button */
+"dashboard.achievements.all" = "Tümü";
+
+/* Achievement description label */
+"dashboard.achievement.description" = "Açıklama";
+
+/* Achievement progress label */
+"dashboard.achievement.progress" = "İlerleme";
+
+/* Achievement current progress label */
+"dashboard.achievement.current" = "Mevcut";
+
+/* Achievement target label */
+"dashboard.achievement.target" = "Hedef";
+
+/* Achievement completion percentage label */
+"dashboard.achievement.completion" = "Tamamlanma";
+
+/* Achievement earned date label */
+"dashboard.achievement.earned.date" = "Kazanılma Tarihi";
+
+/* Achievement missing fields format */
+"dashboard.achievement.missing.format" = "Eksik: %@";
+
+/* Achievement AI requirement label */
+"dashboard.achievement.ai.required" = "AI için gerekli";
+
+/* QUICK CONTACT LOG */
+
+/* Change friend button */
+"quick.contact.change" = "Değiştir";
+
+/* Date label */
+"quick.contact.date" = "Tarih";
+
+/* Meeting quality question */
+"quick.contact.quality" = "Görüşme Nasıldı?";
+
+/* Notes optional label */
+"quick.contact.notes.optional" = "Notlar (Opsiyonel)";
+
+/* No friend found message */
+"quick.contact.no.friend" = "Arkadaş Bulunamadı";
+
+/* Add friend instruction */
+"quick.contact.add.instruction" = "Önce Friends sekmesinden arkadaş ekleyin";
+
+/* Days ago format */
+"quick.contact.days.ago.format" = "%d gün önce";
+
+/* Never contacted message */
+"quick.contact.never" = "Henüz görüşülmedi";
+
+/* NOTIFICATION CENTER */
+
+/* No notifications title */
+"notification.center.empty.title" = "Bildirim Yok";
+
+/* No notifications message */
+"notification.center.empty.message" = "Yeni hatırlatmalar ve öneriler burada görünecek";
+
+/* ANALYTICS CARDS - Yeni Eklemeler */
+
+/* Hourly distribution title */
+"analytics.hourly.distribution" = "Saatlik Dağılım";
+
+/* Daily distribution title */
+"analytics.daily.distribution" = "Günlük Dağılım";
+
+/* Weekday label */
+"analytics.weekday" = "Hafta İçi";
+
+/* Weekend label */
+"analytics.weekend" = "Hafta Sonu";
+
+/* Congratulations title */
+"analytics.congratulations" = "Tebrikler!";
+
+/* All achievements completed message */
+"analytics.achievements.all.completed" = "Tüm yakın başarıları tamamladınız";
+
+/* Note taking trend title */
+"analytics.note.trend" = "Not Yazma Trendi:";
+
+/* Excellent note taking message */
+"analytics.note.excellent" = "✨ Harika! Görüşmelerinizin çoğunda not tutuyorsunuz. Bu derin ve anlamlı iletişimin göstergesi.";
+
+/* Good note taking message */
+"analytics.note.good" = "👍 İyi gidiyorsunuz. Daha fazla not almak görüşmelerinizi daha anlamlı hale getirebilir.";
+
+/* Try note taking message */
+"analytics.note.try" = "💡 Görüşmeleriniz sırasında not almayı deneyin. Gelecekte değerli anılar olabilir.";
+
+/* Start note taking message */
+"analytics.note.start" = "📝 Not tutmaya başlamak için harika bir zaman! Küçük detaylar bile önemlidir.";
+
+/* General trend label */
+"analytics.general.trend" = "Genel Eğilim:";
+
+/* Average mood label */
+"analytics.average.mood" = "Ortalama Ruh Hali:";
+
+/* No mood data yet */
+"analytics.mood.no.data" = "Henüz Ruh Hali Verisi Yok";
+
+/* Add mood to create trend */
+"analytics.mood.add.prompt" = "Görüşmelerinize ruh hali ekleyerek trend analizi oluşturabilirsiniz";
+
+/* Streak start label */
+"analytics.streak.start" = "Başlangıç:";
+
+/* No streak yet */
+"analytics.streak.none" = "Henüz Seri Yok";
+
+/* Add mood to create streak */
+"analytics.streak.add.prompt" = "Görüşmelerinize ruh hali ekleyerek seri oluşturabilirsiniz";
+
+/* Which days are more positive */
+"analytics.days.positive" = "Hangi günler daha pozitif?";
+
+/* No daily data yet */
+"analytics.daily.no.data" = "Henüz Günlük Veri Yok";
+
+/* Excellent streak message format */
+"analytics.streak.excellent.format" = "🎉 Muhteşem! %d harika görüşme serisi devam ediyor!";
+
+/* Good streak message format */
+"analytics.streak.good.format" = "✨ İyi gidiyorsunuz! %d harika görüşme. Devam edin!";
+
+/* Nice streak message format */
+"analytics.streak.nice.format" = "👍 %d iyi görüşme! İlişkiniz güzel seyrediyor.";
+
+/* Remaining format */
+"analytics.remaining.format" = "%d kaldı";
+
+/* JOURNAL EDITOR - Yeni Eklemeler */
+
+/* Journal type label */
+"journal.editor.type" = "Journal Tipi";
+
+/* Title optional label */
+"journal.editor.title.optional" = "Başlık (Opsiyonel)";
+
+/* Photo optional label */
+"journal.editor.photo.optional" = "Fotoğraf (Opsiyonel)";
+
+/* Remove button */
+"journal.editor.remove" = "Kaldır";
+
+/* Add photo button */
+"journal.editor.photo.add" = "Fotoğraf Ekle";
+
+/* Select from gallery */
+"journal.editor.gallery" = "Galeriden seç";
+
+/* Content label */
+"journal.editor.content" = "İçerik";
+
+/* Tags optional label */
+"journal.editor.tags.optional" = "Etiketler (Opsiyonel)";
+
+/* Add button */
+"journal.editor.add" = "Ekle";
+
+/* No tags yet message */
+"journal.editor.tags.empty" = "Henüz etiket eklenmedi";
+
+/* Link to today's mood */
+"journal.editor.link.mood" = "Bugünkü Ruh Haline Bağla";
+
+/* Suggested tags */
+"journal.editor.tags.suggested" = "Önerilen Etiketler";
+
+/* MEMORY - Yeni Eklemeler */
+
+/* Save button */
+"memory.save" = "Kaydet";
+
+/* Saving state */
+"memory.saving" = "Kaydediliyor...";
+
+/* Camera option */
+"memory.camera" = "Kamera";
+
+/* Gallery option */
+"memory.gallery" = "Galeri";
+
+/* GOAL DETAIL - Yeni Eklemeler */
+
+/* Complete goal confirmation */
+"goal.complete.confirm" = "Bu hedefi tamamlandı olarak işaretlemek istediğinizden emin misiniz?";
+
+/* Delete goal confirmation */
+"goal.delete.confirm" = "Bu hedefi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.";
+
+/* Progress label */
+"goal.progress" = "İlerleme";
+
+/* Completed label */
+"goal.completed" = "Tamamlandı";
+
+/* Steps label */
+"goal.steps" = "Adımlar";
+
+/* Complete goal button */
+"goal.complete.button" = "Hedefi Tamamla";
+
+/* Delete goal button */
+"goal.delete.button" = "Hedefi Sil";
+
+/* FRIEND INSIGHTS - Yeni Eklemeler */
+
+/* Detailed analysis title */
+"insights.detailed.analysis" = "Detaylı Analiz";
+
+/* Last 6 months label */
+"insights.last.six.months" = "Son 6 Ay";
+
+/* Deep analysis description */
+"insights.deep.analysis.description" = "İlişkinizin derinlemesine analizi";
+
+/* Mood analysis title */
+"insights.mood.analysis" = "Ruh Hali Analizi";
+
+/* Mood tracking label */
+"insights.mood.tracking" = "Ruh Hali Takibi";
+
+/* Add mood prompt */
+"insights.mood.add.prompt" = "Görüşmelerinize ruh hali ekleyerek daha detaylı analiz yapabilirsiniz. Ruh hali takibi, ilişkinizin kalitesini anlamanıza yardımcı olur.";
+
+/* CALL REMINDER WIDGET - Yeni Eklemeler */
+/* Time overdue warning message */
+"widget.time.overdue.warning" = "ZAMAN GEÇTİ! ⚠️";
+
+/* Call time approaching message */
+"widget.call.time.approaching" = "ile konuşma zamanı yaklaşıyor";
+
+/* Call time label */
+"widget.call.time" = "ile konuşma zamanı";
+
+/* Time overdue short message */
+"widget.time.overdue" = "Zaman Geçti!";
+
+/* Time remaining label */
+"widget.time.remaining" = "kaldı";
+
+/* API USAGE STATS VIEW - Yeni Eklemeler */
+/* Daily usage section header */
+"settings.api.daily.usage" = "Günlük Kullanım";
+
+/* Hourly usage section header */
+"settings.api.hourly.usage" = "Saatlik Kullanım";
+
+/* All time statistics section header */
+"settings.api.all.time.stats" = "Tüm Zamanlar İstatistikleri";
+
+/* Quota warning message */
+"settings.api.quota.warning" = "Günlük Quota Dolmak Üzere";
+
+/* Actions section header */
+"settings.api.actions" = "İşlemler";
+
+/* MOOD ANALYTICS - Yeni Eklemeler */
+/* Detailed analysis section header */
+"mood.analytics.detailed.analysis" = "Detaylı Analiz";
+
+/* Highlights subsection label */
+"mood.analytics.highlights" = "Öne Çıkanlar";
+
+/* Pattern subsection label */
+"mood.analytics.pattern" = "Örüntü";
+
+/* Suggestions subsection label */
+"mood.analytics.suggestions" = "Öneriler";
+
+/* MEMORY DETAIL VIEW - Yeni Eklemeler */
+/* Favorite badge label */
+"memory.favorite" = "Favori";
+
+/* Location section header */
+"memory.location" = "Konum";
+
+/* Tags section header */
+"memory.tags" = "Etiketler";
+
+/* Notes section header */
+"memory.notes" = "Notlar";
+
+/* GOALS FILTER BAR - Yeni Eklemeler */
+/* Category filter label */
+"goals.filter.category" = "Kategori";
+
+/* Priority filter label */
+"goals.filter.priority" = "Öncelik";
+
+/* Date range filter label */
+"goals.filter.date.range" = "Tarih Aralığı";
+
+/* Clear filters button */
+"goals.filter.clear" = "Filtreleri Temizle";
+
+/* WIDGETS & GAMIFICATION - Toplu Eklemeler */
+/* Call button */
+"widget.call" = "Ara";
+
+/* Message button */
+"widget.message" = "Mesaj";
+
+/* Done button */
+"widget.done" = "Tamam";
+
+/* Today label */
+"widget.today" = "Bugün";
+
+/* All up to date message */
+"widget.all.up.to.date" = "Hepsi Güncel";
+
+/* All friends contacted message */
+"widget.all.friends.contacted" = "Tüm arkadaşlarınla iletişim güncel";
+
+/* Level abbreviation */
+"gamification.level.abbr" = "LVL";
+
+/* Next level label */
+"gamification.next.level" = "Sonraki Level";
+
+/* Recent badges header */
+"gamification.recent.badges" = "Son Kazanılan Rozetler";
+
+/* View all button */
+"gamification.view.all" = "Tümü";
+
+/* Detailed stats header */
+"gamification.detailed.stats" = "Detaylı İstatistikler";
+
+/* Locked badge label */
+"badge.locked" = "🔒 Kilitli";
+
+/* Not earned yet message */
+"badge.not.earned" = "Henüz kazanılmadı";
+
+/* Badges header */
+"badge.header" = "Rozetler";
+
+/* Achievement unlocked header */
+"achievement.unlocked" = "🎉 Başarı Kazanıldı!";
+
+/* Awesome exclamation */
+"achievement.awesome" = "Harika!";
+
+/* Next button */
+"achievement.next" = "Sonraki";
+
+/* No results found */
+"journal.no.results" = "Sonuç Bulunamadı";
+
+/* Change search criteria message */
+"journal.change.criteria" = "Arama kriterlerinizi değiştirin veya filtreleri temizleyin";
+
+/* Clear filters button */
+"journal.clear.filters" = "Filtreleri Temizle";
+
+/* Net status label */
+"balance.net.status" = "Net Durum";
+
+/* Balanced label */
+"balance.balanced" = "Dengede";
+
+/* Receivable label */
+"balance.receivable" = "Alacak";
+
+/* Friends widget title */
+"widget.friends" = "Arkadaşlarım";
+
+/* All okay status */
+"widget.all.okay" = "Hepsi tamam ✓";
+
+/* In progress status */
+"suggestion.in.progress" = "Devam Ediyor";
+
+/* Accept button */
+"suggestion.accept" = "Kabul Et";
+
+/* No mood records yet */
+"mood.no.records" = "Henüz mood kaydı yok";
+
+/* Tap to record first mood */
+"mood.tap.to.record" = "İlk mood'unu kaydetmek için + butonuna dokun";
+
+/* Notes section */
+"friend.notes" = "Notlar";
+
+/* Save button */
+"friend.save" = "Kaydet";
+
+/* Score label */
+"dashboard.score" = "SKOR";
+
+/* Contact support message */
+"error.contact.support" = "Sorun devam ederse lütfen desteğe başvurun";
+
+/* Retry button */
+"error.retry" = "Tekrar Dene";
+
+/* AI suggestion label */
+"ai.suggestion" = "AI Önerisi";
+
+/* Relationship health */
+"friend.relationship.health" = "İlişki Sağlığı";
+
+/* Achievements section */
+"friend.achievements" = "Başarılar";
+
+/* No journal on this date */
+"journal.no.entry" = "Bu tarihte journal yok";
+
+/* Clear button */
+"filter.clear" = "Temizle";
+
+/* Journal distribution */
+"journal.distribution" = "Journal Dağılımı";
+
+/* HIGH PRIORITY - AI & KNOWLEDGE */
+/* Delete all AI knowledge warning */
+"ai.knowledge.delete.warning" = "AI'ın öğrendiği tüm bilgiler silinecek. Bu işlem geri alınamaz.";
+
+/* Try AI Chat button */
+"ai.chat.try" = "AI Chat'i Dene";
+
+/* Categories label */
+"ai.categories" = "Kategoriler";
+
+/* Clear button */
+"ai.clear" = "Temizle";
+
+/* Retention period - Off */
+"ai.retention.off" = "Kapalı";
+
+/* Retention period - 30 days */
+"ai.retention.30days" = "30 Gün";
+
+/* Retention period - 60 days */
+"ai.retention.60days" = "60 Gün";
+
+/* Retention period - 90 days */
+"ai.retention.90days" = "90 Gün";
+
+/* Learned information header */
+"ai.learned.info" = "Öğrenilen Bilgiler";
+
+/* Active status */
+"ai.active" = "Aktif";
+
+/* AI doesn't know you yet */
+"ai.doesnt.know.you" = "AI Henüz Seni Tanımıyor";
+
+/* Chat to learn prompt */
+"ai.chat.to.learn" = "AI ile sohbet ettikçe seni, arkadaşlarını ve ilgi alanlarını öğrenecek";
+
+/* User category */
+"ai.user" = "Kullanıcı";
+
+/* Select button */
+"chat.select" = "Seç";
+
+/* Chat selected (accessibility) */
+"chat.selected" = "Sohbet seçildi";
+
+/* Claude Haiku model name */
+"ai.claude.haiku" = "Claude Haiku";
+
+/* See details button */
+"ai.see.details" = "Detaylı Gör";
+
+/* Preview label */
+"tag.preview" = "Önizleme";
+
+/* Hidden content label */
+"premium.hidden.content" = "Gizli İçerik";
+
+/* AI abbreviation */
+"ai.abbr" = "AI";
+
+/* Chat opened (accessibility) */
+"chat.opened" = "Sohbet açıldı";
+
+/* MEDIUM PRIORITY */
+/* Life (app name part 1) */
+"app.name.life" = "Life";
+
+/* Styles (app name part 2) */
+"app.name.styles" = "Styles";
+
+/* Smart suggestions header */
+"dashboard.smart.suggestions" = "Akıllı Öneriler";
+
+/* Previous records */
+"mood.previous.records" = "Önceki Kayıtlar";
+
+/* How are you feeling today */
+"mood.how.feeling" = "Bugün Nasıl Hissediyorsun?";
+
+/* First mood prompt */
+"mood.first.prompt" = "İlk ruh hali kaydını oluştur ve günlük duygusal yolculuğunu takip etmeye başla";
+
+/* Live Activity iOS requirement */
+"live.activity.requirement" = "Live Activity iOS 16.1+ gerektirir";
+
+/* No notes */
+"friend.no.notes" = "Not yok";
+
+/* Streak Indicator (debug/component name) */
+"debug.streak.indicator" = "Streak Indicator";
+
+/* Mood Grid Week View (debug/component name) */
+"debug.mood.grid.week" = "Mood Grid (Week View)";
+
+/* Stay duration */
+"location.stay.duration" = "Kalma Süresi";
+
+/* Terms and privacy disclaimer */
+"onboarding.terms.privacy" = "By continuing, you agree to our Terms and Privacy Policy";
+
+/* LOW PRIORITY */
+/* Manage subscription */
+"settings.manage.subscription" = "Aboneliği Yönet";
+
+/* Premium label */
+"premium.label" = "Premium";
+
+/* Total distance */
+"location.total.distance" = "Toplam Mesafe";
+
+/* Quick questions loading */
+"friend.quick.questions.loading" = "Hızlı sorular yükleniyor...";
+
+/* Not selected */
+"friend.not.selected" = "Seçilmedi";
+
+/* Markdown support indicator */
+"journal.markdown" = "(Markdown)";
+
+/* Close button */
+"memory.close" = "Kapat";
+
+/* Generate analysis button */
+"mood.generate.analysis" = "Analiz Oluştur";
+
+
+/* App name - Life */
+"app.name.life" = "Life";
+
+/* App name - Styles */
+"app.name.styles" = "Styles";
+
+/* Dashboard smart suggestions */
+"dashboard.smart.suggestions" = "Akıllı Öneriler";
+
+/* AI abbreviation */
+"ai.abbr" = "AI";
+
+/* Previous mood records */
+"mood.previous.records" = "Önceki Kayıtlar";
+
+/* How are you feeling */
+"mood.how.feeling" = "Bugün Nasıl Hissediyorsun?";
+
+/* First mood prompt */
+"mood.first.prompt" = "İlk ruh hali kaydını oluştur ve günlük duygusal yolculuğunu takip etmeye başla";
+
+/* Live Activity requirement */
+"live.activity.requirement" = "Live Activity iOS 16.1+ gerektirir";
+
+/* No notes */
+"friend.no.notes" = "Not yok";
+
+/* Debug - Streak Indicator */
+"debug.streak.indicator" = "Streak Indicator";
+
+/* Debug - Mood Grid Week View */
+"debug.mood.grid.week" = "Mood Grid (Week View)";
+
+/* Location stay duration */
+"location.stay.duration" = "Kalma Süresi";
+
+/* Onboarding terms and privacy */
+"onboarding.terms.privacy" = "By continuing, you agree to our Terms and Privacy Policy";
+
+
+/* === API USAGE STATS VIEW === */
+
+/* Today's usage label */
+"api.usage.today" = "Bugün Kullanılan";
+
+/* Daily limit label */
+"api.usage.daily.limit" = "Günlük Limit";
+
+/* Remaining quota label */
+"api.usage.remaining.quota" = "Kalan Quota";
+
+/* This hour label */
+"api.usage.this.hour" = "Bu Saat";
+
+/* Total requests label */
+"api.usage.total.requests" = "Toplam Request";
+
+/* Input tokens label */
+"api.usage.input.tokens" = "Input Tokens";
+
+/* Output tokens label */
+"api.usage.output.tokens" = "Output Tokens";
+
+/* Estimated cost label */
+"api.usage.estimated.cost" = "Tahmini Maliyet";
+
+/* Claude pricing info */
+"api.usage.claude.pricing" = "Claude 3.5 Haiku fiyatlandırması: $0.25/1M input, $1.25/1M output tokens";
+
+/* Reset cost stats button */
+"api.usage.reset.cost.stats" = "Maliyet İstatistiklerini Sıfırla";
+
+/* Reset rate limit debug button */
+"api.usage.reset.rate.limit" = "Rate Limit Sıfırla (Debug)";
+
+/* API usage statistics title */
+"api.usage.stats.title" = "API Kullanım İstatistikleri";
+
+
+/* === TOAST MESSAGES === */
+
+/* Success toast button */
+"toast.success" = "Başarı Toast";
+
+/* Error toast button */
+"toast.error" = "Hata Toast";
+
+/* Warning toast button */
+"toast.warning" = "Uyarı Toast";
+
+/* Info toast button */
+"toast.info" = "Bilgi Toast";
+
+/* Custom toast button */
+"toast.custom" = "Custom Toast";
+
+/* Multiple toast queue button */
+"toast.multiple.queue" = "Çoklu Toast (Kuyruk)";
+
+
+/* === TAG COMPONENTS === */
+
+/* Done button */
+"tag.done" = "Bitti";
+
+/* Emoji optional placeholder */
+"tag.emoji.optional" = "Emoji (opsiyonel)";
+
+/* New tag title */
+"tag.new.title" = "Yeni Etiket";
+
+
+/* === AUTO SAVE INDICATOR === */
+
+/* Type something placeholder */
+"autosave.type.something" = "Type something...";
+
+/* Save success button */
+"autosave.save.success" = "Save (Success)";
+
+/* Save error button */
+"autosave.save.error" = "Save (Error)";
+
+
+/* === ERROR STATE VIEW === */
+
+/* Restart app label */
+"error.restart.app" = "Uygulamayı Yeniden Başlat";
+
+/* Check for updates label */
+"error.check.updates" = "Güncelleme Kontrolü";
+
+
+/* === JOURNAL SEARCH === */
+
+/* Journal search placeholder */
+"journal.search.placeholder" = "Journal ara...";
+
+
+/* === MASONRY GRID === */
+
+/* View label */
+"masonry.view" = "Görüntüle";
+
+
+/* === NOTIFICATION CENTER === */
+
+/* Mark all as read label */
+"notification.mark.all.read" = "Tümünü Okundu İşaretle";
+
+/* Clear all label */
+"notification.clear.all" = "Tümünü Temizle";
+
+
+/* === FULL ACHIEVEMENTS === */
+
+/* All achievements title */
+"achievement.all.title" = "Tüm Başarılar";
+
+/* Search achievements placeholder */
+"achievement.search.placeholder" = "Başarı ara...";
+
+
+/* === CONVERSATION CARD === */
+
+/* General label */
+"conversation.general" = "Genel";
+
+
+/* === MODERN JOURNAL EDITOR === */
+
+/* Add title placeholder */
+"journal.add.title.placeholder" = "Başlık ekle...";
+
+/* Photo description placeholder */
+"journal.photo.description.placeholder" = "Fotoğraf açıklaması...";
+
+/* New tag placeholder */
+"journal.new.tag.placeholder" = "Yeni etiket...";
+
+/* Add tag title */
+"journal.add.tag.title" = "Etiket Ekle";
+
+
+/* === USER KNOWLEDGE TAB === */
+
+/* Search placeholder */
+"knowledge.search.placeholder" = "Ara...";
+
+/* Sort label */
+"knowledge.sort" = "Sırala";
+
+/* AI Brain Settings title */
+"knowledge.ai.brain.settings" = "AI Brain Ayarları";
+
+
+/* === DASHBOARD VIEW === */
+
+/* Dashboard summary card accessibility */
+"dashboard.summary.card.accessibility" = "Dashboard özet kartı";
+
+/* Add mood label */
+"dashboard.add.mood" = "Ruh Hali Ekle";
+
+/* Log contact label */
+"dashboard.log.contact" = "İletişim Kaydet";
+
+
+/* === MODERN INSIGHTS === */
+
+/* Add first mood label */
+"insights.add.first.mood" = "İlk Ruh Halini Ekle";
+
+
+/* === JOURNAL LIST === */
+
+/* Journal navigation title */
+"journal.navigation.title" = "Journal";
+
+
+/* === FILTER BAR === */
+
+/* Search goals habits placeholder */
+"goals.search.placeholder" = "Hedef veya alışkanlık ara...";
+
+
+/* === FRIEND DETAIL === */
+
+/* Detail tab accessibility */
+"friend.detail.tab.accessibility" = "Detay sekmesi";
+
+
+/* === ACHIEVEMENT COMPONENTS === */
+
+/* Achievement detail title */
+"achievement.detail.title" = "Başarı Detayı";
+
+
+/* === QUICK CONTACT LOG === */
+
+/* Log contact navigation title */
+"contact.log.navigation.title" = "İletişim Kaydet";
+
+
+/* === PREMIUM ONBOARDING === */
+
+/* Premium membership icon accessibility */
+"premium.membership.icon" = "Premium üyelik ikonu";
+
+/* Settings manage subscription */
+"settings.manage.subscription" = "Aboneliği Yönet";
+
+
+/* === NOTIFICATION SETTINGS === */
+
+/* Notification preferences title */
+"Bildirim Tercihleri" = "Bildirim Tercihleri";
+
+/* Notifications active status */
+"Bildirimler Aktif" = "Bildirimler Aktif";
+
+/* Daily motivation notification */
+"Günlük Motivasyon" = "Günlük Motivasyon";
+
+
+/* === LOCATION SETTINGS === */
+
+/* Location tracking setting */
+"Konum Takibi" = "Konum Takibi";
+
+/* Background location permission message */
+"background.location.permission.message" = "Konum izni gerekli";
+
+/* Location tracking information */
+"location.tracking.info" = "Konum takibi hakkında";
+
+/* Search activities */
+"search.activities" = "Aktivite ara...";
+
+/* Stats today */
+"stats.today" = "Bugün";
+
+/* Stats total */
+"stats.total" = "Toplam";
+
+/* Stats streak */
+"stats.streak" = "Seri";
+
+
+/* === AI INSIGHTS === */
+
+/* AI insight preview first suggestion */
+"ai.insight.preview.suggestion.1" = "Daha sık arkadaşlarınızla iletişime geçin";
+
+/* AI insight preview second suggestion */
+"ai.insight.preview.suggestion.2" = "Yeni yerler keşfedin";
+
+/* AI insight preview text */
+"ai.insight.preview.text" = "AI analiziniz hazırlanıyor...";
+
+/* AI suggestions section title */
+"ai.insight.suggestions" = "AI Önerileri";
+
+
+/* === AUTO SAVE === */
+
+/* Auto save states */
+"auto.save.states" = "Otomatik kayıt durumları";
+
+/* Without message indicator */
+"without.message" = "Mesajsız";
+
+
+/* === CONTACT CHANNELS === */
+
+/* Email contact channel */
+"contact.channel.email" = "E-posta";
+
+/* In person contact channel */
+"contact.channel.inPerson" = "Yüz yüze";
+
+/* Message contact channel */
+"contact.channel.message" = "Mesaj";
+
+/* Phone contact channel */
+"contact.channel.phone" = "Telefon";
+
+/* Video contact channel */
+"contact.channel.video" = "Video";
+
+
+/* === GOALS === */
+
+/* Goal details title */
+"goal.details" = "Hedef Detayları";
+
+/* Goals tab title */
+"goals.tab.title" = "Hedefler";
+
+
+/* === JOURNAL COMPONENTS === */
+
+/* Compact mood cards style */
+"compact.mood.cards" = "Kompakt ruh hali kartları";
+
+/* Compact pills style */
+"compact.pills" = "Kompakt hap görünümü";
+
+/* Journal type pills */
+"journal.type.pills" = "Günlük türü seçenekleri";
+
+/* Mood mini stat cards */
+"mood.mini.stat.cards" = "Mini ruh hali istatistikleri";
+
+
+/* === NOTIFICATION GROUPS === */
+
+/* Older notifications group */
+"notification.group.older" = "Daha Eski";
+
+/* This week notifications group */
+"notification.group.this.week" = "Bu Hafta";
+
+/* Today notifications group */
+"notification.group.today" = "Bugün";
+
+/* Yesterday notifications group */
+"notification.group.yesterday" = "Dün";
+
+
+/* === ONBOARDING === */
+
+/* Location always permission hint */
+"onboarding.location.always.hint" = "Her zaman konum izni için ipucu";
+
+/* Location always permission instruction */
+"onboarding.location.always.instruction" = "Ayarlar'dan 'Her Zaman' seçeneğini aktif edin";
+
+
+/* === TAG CATEGORIES === */
+
+/* Activity tag category */
+"tag.category.activity" = "Aktivite";
+
+/* General tag category */
+"tag.category.general" = "Genel";
+
+/* Mood tag category */
+"tag.category.mood" = "Ruh Hali";
+
+/* Occasion tag category */
+"tag.category.occasion" = "Etkinlik";
+
+/* Priority tag category */
+"tag.category.priority" = "Öncelik";
+
+/* Topic tag category */
+"tag.category.topic" = "Konu";
+
+
+/* === TOAST & MISC === */
+
+/* Toast demo message */
+"toast.demo" = "Demo mesajı";
+
+
+/* === COMMON BUTTONS === */
+
+/* Cancel button */
+"button.cancel" = "İptal";
+
+/* Save button */
+"button.save" = "Kaydet";
+
+/* Update button */
+"button.update" = "Güncelle";
+
+/* Delete button */
+"button.delete" = "Sil";
+
+/* OK button */
+"button.ok" = "Tamam";
+
+/* Edit button */
+"button.edit" = "Düzenle";
+
+/* Details button */
+"button.details" = "Detaylar";
+
+/* Complete button */
+"button.complete" = "Tamamla";
+
+/* Message button */
+"button.message" = "Mesaj";
+
+/* Call button */
+"button.call" = "Ara";
+
+/* Add button */
+"button.add" = "Ekle";
+
+/* Close button */
+"button.close" = "Kapat";
+
+/* Share button */
+"button.share" = "Paylaş";
+
+
+/* === COMMON PLACEHOLDERS === */
+
+/* Name placeholder */
+"placeholder.name" = "İsim";
+
+/* Phone placeholder */
+"placeholder.phone" = "Telefon";
+
+/* Place name placeholder */
+"placeholder.place.name" = "Yer adı";
+
+/* Notes placeholder */
+"placeholder.notes" = "Notlarınız...";
+
+/* Habit example placeholder */
+"placeholder.habit.example" = "Örn: Sabah meditasyonu";
+
+
+/* === SECTION HEADERS === */
+
+/* Notes section */
+"section.notes" = "Notlar";
+
+
+/* === DYNAMIC TEXTS === */
+
+/* Tags label */
+"tags.label" = "Etiketler";
+
+/* Selected tags count */
+"tags.selected.count" = "%lld seçili";
+
+/* Records count */
+"location.records.count" = "%lld kayıt";
+
+/* Locations count */
+"location.count" = "%lld konum";
+
+/* Badges earned count */
+"badges.earned.count" = "%lld / %lld Kazanıldı";
+
+/* Badge earned date */
+"badge.earned.date" = "Kazanıldı: %@";
+
+
+/* === WIDGET STRINGS === */
+
+/* Friends waiting widget text */
+"widget.friends.waiting" = "%lld arkadaş bekliyor 📞";
+
+/* All done widget text */
+"widget.all.done" = "Hepsi tamam ✓";
+
+/* App name */
+"app.name" = "LifeStyles";
+
+
+/* === MEMORIES STRINGS === */
+
+/* Memory title placeholder */
+"memory.title.placeholder" = "Başlık...";
+
+/* Photo count format */
+"memory.photo.count" = "%lld";
+
+/* Friends count format */
+"memory.friends.count" = "%lld";
+
+/* Tag format */
+"memory.tag.format" = "#%@";
+
+/* Location latitude */
+"memory.location.latitude" = "Lat: %f";
+
+/* Location longitude */
+"memory.location.longitude" = "Lon: %f";
+
+/* Move to private */
+"memory.move.to.private" = "Gizliye Taşı";
+
+/* Remove from private */
+"memory.remove.from.private" = "Gizliden Çıkar";
+
+/* Private folder title */
+"memory.private.folder" = "🔒 Gizli Klasör";
+
+/* Private memory count */
+"memory.private.count" = "%lld";
+
+/* Photo pagination */
+"memory.photo.pagination" = "%lld / %lld";
+
+/* Selected friends count */
+"memory.selected.friends" = "%lld";
+
+/* Memory labels */
+"memory.label.title" = "Başlık...";
+"memory.label.date" = "Tarih...";
+"memory.label.friends" = "Arkadaşlar...";
+"memory.label.tags" = "Etiketler...";
+
+/* Memory placeholders */
+"memory.placeholder.title" = "Anınıza bir başlık verin...";
+"memory.placeholder.add.tag" = "Etiket ekle...";
+
+/* Memory navigation */
+"memory.nav.select.friend" = "Arkadaş Seç";
+"memory.nav.select.location" = "Konum Seç";
+"memory.nav.private.folder" = "🔒 Gizli Klasör";
+"memory.nav.new.private" = "Yeni Gizli Anı";
+"memory.nav.memories" = "📸 Anılar";
+
+
+/* === DASHBOARD STRINGS === */
+
+/* Dashboard notifications title */
+"dashboard.notifications.title" = "Bildirimler";
+
+/* Dashboard unread notifications count */
+"dashboard.notifications.unread.count" = "%lld okunmamış";
+
+/* Dashboard notifications loading */
+"dashboard.notifications.loading" = "Bildirimler yükleniyor...";
+
+/* Dashboard show all notifications button */
+"dashboard.notifications.show.all" = "Tüm Bildirimleri Göster";
+
+/* Dashboard notification badge count */
+"dashboard.notifications.badge.count" = "%lld";
+
+/* Dashboard new goal action */
+"dashboard.action.new.goal" = "Yeni Hedef";
+
+/* Dashboard new habit action */
+"dashboard.action.new.habit" = "Yeni Alışkanlık";
+
+/* Dashboard write journal action */
+"dashboard.action.write.journal" = "Journal Yaz";
+
+/* Achievement points format */
+"achievement.points.format" = "%lld puan";
+
+/* Achievement unlocked multiple */
+"achievement.unlocked.multiple" = "🎉 %lld Başarı Kazanıldı!";
+
+/* Achievement pagination format */
+"achievement.pagination.format" = "%lld / %lld";
+
+/* Achievement progress percentage */
+"achievement.progress.percentage" = "%lld%%";
+
+/* Achievement progress fraction */
+"achievement.progress.fraction" = "%lld/%lld";
+
+/* Achievement current progress */
+"achievement.current.progress" = "%lld";
+
+/* Achievement requirement */
+"achievement.requirement" = "%lld";
+
+/* Achievement completion percentage */
+"achievement.completion.percentage" = "%%%lld";
+
+/* Dashboard contact search placeholder */
+"dashboard.contact.search.placeholder" = "Arkadaş Ara";
+
+/* Retry button */
+"button.retry" = "Tekrar Dene";
+
+
+/* === MOODJOURNAL / JOURNAL STRINGS === */
+
+/* Tag format - used for displaying tags */
+"journal.tag.format" = "#%@";
+
+/* Tag format with bullet */
+"journal.tag.bullet" = "• #%@";
+
+/* Word count - just the number */
+"journal.word.count" = "%lld";
+
+/* Word count with label */
+"journal.word.count.label" = "%lld kelime";
+
+/* Reading time with label */
+"journal.reading.time" = "%lld dk";
+
+/* Reading time with reading label */
+"journal.reading.time.label" = "%lld dk okuma";
+
+/* Character count */
+"journal.character.count" = "%lld karakter";
+
+/* Journal entry count */
+"journal.count" = "%lld journal";
+
+/* Journal entry simple count */
+"journal.entry.count" = "%lld";
+
+/* More tags indicator */
+"journal.tag.more" = "+%lld";
+
+/* Stats count */
+"journal.stats.count" = "%lld";
+
+/* Mood record count */
+"mood.record.count" = "%lld kayıt";
+
+/* Template usage count */
+"template.usage.count" = "%lld";
+
+/* Calendar day number */
+"journal.calendar.day" = "%lld";
+
+/* Mood datetime format */
+"journal.mood.datetime" = "%@ • %@";
+
+/* Percentage format */
+"journal.percentage.format" = "%lld%%";
+
+/* Goals count */
+"goals.count" = "%lld";
+
+/* Friends count */
+"friends.count" = "%lld";
+
+/* Preview button */
+"button.preview" = "Önizleme";
+
+/* Analyze button */
+"button.analyze" = "Analiz Başlat";
+
+/* Re-analyze button */
+"button.reanalyze" = "Yeniden Analiz Et";
+
+/* Remove photo button */
+"button.remove.photo" = "Fotoğrafı Kaldır";
+
+/* Weekly analysis button */
+"button.weekly.analysis" = "Haftalık Analiz Oluştur";
+
+/* Journal detail navigation title */
+"journal.nav.detail" = "Journal Detay";
+
+/* Day detail navigation title */
+"journal.nav.day.detail" = "Gün Detayı";
+
+/* Pattern detail navigation title */
+"journal.nav.pattern.detail" = "Pattern Detayı";
+
+/* Add sticker navigation title */
+"journal.nav.sticker.add" = "Sticker Ekle";
+
+/* Template select navigation title */
+"journal.nav.template.select" = "Şablon Seç";
+
+/* Mood analytics navigation title */
+"journal.nav.mood.analytics" = "Mood Analizi";
+
+/* Journal title placeholder */
+"journal.placeholder.title" = "Başlık (opsiyonel)";
+
+/* Photo caption placeholder */
+"journal.placeholder.photo.caption" = "Fotoğraf açıklaması (opsiyonel)";
+
+
+/* === COMPONENTS / GENERIC STRINGS === */
+
+/* Generic count - just number */
+"component.count" = "%lld";
+
+/* Generic value - just number */
+"component.value" = "%lld";
+
+/* Generic days count */
+"component.days" = "%lld";
+
+/* Percentage format */
+"component.percentage" = "%lld%%";
+
+/* Score format */
+"component.score" = "%lld";
+
+/* Rank format */
+"component.rank" = "%lld";
+
+/* Remaining count */
+"component.remaining" = "%lld";
+
+/* Total count */
+"component.total" = "%lld";
+
+/* Index format (1-based) */
+"component.index" = "%lld";
+
+
+/* === CURRENCY / BALANCE === */
+
+/* Positive balance with TL */
+"balance.positive" = "+ %@ TL";
+
+/* Negative balance with TL */
+"balance.negative" = "- %@ TL";
+
+/* Debt amount */
+"balance.debt" = "%@ TL";
+
+/* Credit amount */
+"balance.credit" = "%@ TL";
+
+/* Transaction amount with currency */
+"transaction.amount" = "%@ %@";
+
+
+/* === DURATION / TIME === */
+
+/* Years duration */
+"duration.years" = "%lld";
+
+/* Months duration */
+"duration.months" = "%lld";
+
+/* Days duration */
+"duration.days" = "%lld";
+
+
+/* === STREAK / PROGRESS === */
+
+/* Current streak */
+"streak.current" = "%lld";
+
+/* Streak with label */
+"streak.with.label" = "%lld günlük seri";
+
+/* Daily streak */
+"mood.daily.streak" = "%lld günlük seri";
+
+/* Streak badges count */
+"streak.badges.count" = "%lld";
+
+/* Badge days */
+"badge.days" = "%lld";
+
+/* Progress percentage */
+"progress.percentage" = "%lld%%";
+
+/* Progress fraction */
+"progress.fraction" = "%lld/%lld";
+
+/* Progress with label */
+"progress.with.label" = "İlerleme: %lld%%";
+
+
+/* === MOOD / INTENSITY === */
+
+/* Mood intensity */
+"mood.intensity" = "%lld/5";
+
+/* Intensity level with label */
+"mood.intensity.label" = "Yoğunluk seviyesi: %lld / 5";
+
+/* Mood with name and intensity */
+"mood.with.intensity" = "%@, yoğunluk seviyesi %lld";
+
+/* Mood type display */
+"mood.type.display" = "%@ ruh hali";
+
+/* Title value pair */
+"mood.title.value" = "%@: %@";
+
+
+/* === ANALYTICS === */
+
+/* Weekday count */
+"analytics.weekday.count" = "%lld";
+
+/* Weekend count */
+"analytics.weekend.count" = "%lld";
+
+/* Milestone remaining */
+"analytics.milestone.remaining" = "%lld";
+
+/* Confidence percentage */
+"analytics.confidence" = "%lld%%";
+
+/* Message count */
+"analytics.message.count" = "%lld";
+
+
+/* === TAG / USAGE === */
+
+/* Tag usage count */
+"tag.usage.count" = "%lld× kullanıldı";
+
+/* Tag frequency */
+"tag.frequency" = "%lld kez";
+
+
+/* === RELATIONSHIP === */
+
+/* Relationship health score */
+"relationship.health.score" = "%lld%%";
+
+/* Anniversary days */
+"relationship.anniversary.days" = "%lld";
+
+
+/* === CALENDAR / DATE === */
+
+/* Calendar day number */
+"calendar.day.number" = "%lld";
+
+
+/* === GOAL / HABIT === */
+
+/* Days remaining */
+"goal.days.remaining" = "%lld";
+
+/* Target count */
+"habit.target.count" = "%lld";
+
+/* Active filter count */
+"filter.active.count" = "%lld";
+
+/* Completed today */
+"stats.completed.today" = "%lld";
+
+
+/* === LOCATION === */
+
+/* Record count */
+"location.record.count" = "%lld kayıt";
+
+
+/* === NOTES / COUNT === */
+
+/* Notes count in parentheses */
+"notes.count.parentheses" = "(%lld)";
+
+
+/* === ANALYTICS MESSAGES === */
+
+/* Normal streak message */
+"analytics.streak.normal" = "🤔 Son %lld görüşme normal geçti. Belki daha fazla konuşabilirsiniz.";
+
+/* Difficult streak message */
+"analytics.streak.difficult" = "💙 Son %lld görüşme zordu. Bu kişiyle konuşmaya devam edin.";
+
+
+/* === NAVIGATION TITLES === */
+
+/* Daily insight navigation */
+"nav.daily.insight" = "Günlük Öneriniz";
+
+/* Save mood navigation */
+"nav.save.mood" = "Mood Kaydet";
+
+/* Emoji picker navigation */
+"nav.emoji.picker" = "Emoji Seç";
+
+/* Add note navigation */
+"nav.add.note" = "Not Ekle";
+
+/* Tags navigation */
+"nav.tags" = "Etiketler";
+
+/* Frequent tags navigation */
+"nav.frequent.tags" = "Sık Kullanılan Tag'ler";
+
+
+/* === SECTION HEADERS === */
+
+/* Selected tags section */
+"section.selected.tags" = "Seçili Etiketler";
+
+/* Tag info section */
+"section.tag.info" = "Etiket Bilgileri";
+
+/* Category section */
+"section.category" = "Kategori";
+
+/* Color section */
+"section.color" = "Renk";
+
+/* Debt/Credit section */
+"section.debt.credit" = "Borç/Alacak";
+
+
+/* === BUTTON / LABEL TEXT === */
+
+/* Edit title button */
+"button.edit.title" = "Başlığı Düzenle";
+
+/* View details button */
+"button.view.details" = "Detayları Gör";
+
+/* Add as goal button */
+"button.add.as.goal" = "Hedef Olarak Ekle";
+
+/* Remind button */
+"button.remind" = "Hatırlat";
+
+/* Not interested button */
+"button.not.interested" = "İlgilenmiyorum";
+
+/* Mark as paid button */
+"button.mark.paid" = "Ödendi Olarak İşaretle";
+
+/* Mark as unpaid button */
+"button.mark.unpaid" = "Ödenmedi Olarak İşaretle";
+
+/* Complete button */
+"button.complete" = "Tamamla";
+
+
+/* === TEXTFIELD PLACEHOLDERS === */
+
+/* Title placeholder */
+"placeholder.title" = "Başlık";
+
+/* Mood note placeholder */
+"placeholder.mood.note" = "Bugün neler oldu?";
+
+/* Emoji search placeholder */
+"placeholder.emoji.search" = "Emoji ara...";
+
+/* Tag name placeholder */
+"placeholder.tag.name" = "İsim";
+
+/* Custom tag placeholder */
+"placeholder.custom.tag" = "Özel tag ekle";
+
+
+/* === LABELS === */
+
+/* Tags label */
+"label.tags" = "Tag'ler";
+
+"text.intprogress.100" = "\(Int(progress * 100))%";
+
+"text.totalcount" = "\(totalCount)";
+
+"text.count" = "\(count)";
+
+"text.days" = "\(days)";
+
+"text.deneme.süresi.bitince.otomatik" = "Deneme süresi bitince otomatik olarak \(purchaseManager.monthlyPrice)/ay abonelik başlayacak.";
+
+"text.statstodaycount.sınırsız" = "\(stats.todayCount) (Sınırsız)";
+
+"label.mevcut.konum" = "Mevcut Konum";
+
+"label.kaydet" = "Kaydet";
+
+"nav.ai.onayı" = "AI Onayı";
+
+"nav.paylaşılan.veriler" = "Paylaşılan Veriler";
+
+"text.limiterrequeststoday" = "\(limiter.requestsToday)";
+
+"text.limiterremainingdailyquota" = "\(limiter.remainingDailyQuota)";
+
+"text.limiterrequeststhishour.20" = "\(limiter.requestsThisHour) / 20";
+
+"text.claudeservicetotalrequests" = "\(claudeService.totalRequests)";
+
+"text.claudeservicetotalinputtokens" = "\(claudeService.totalInputTokens)";
+
+"text.claudeservicetotaloutputtokens" = "\(claudeService.totalOutputTokens)";
+
+"text.kalan.limiterremainingdailyquota.request" = "Kalan: \(limiter.remainingDailyQuota) request";
+
+"text.intcalculatecompletionprofile.profile" = "\(Int(calculateCompletion(profile: profile)))%";
+
+"label.yeniden.oluştur" = "Yeniden Oluştur";
+
+"label.yeni.öneriler.oluştur" = "Yeni Öneriler Oluştur";
+
+"text.planprice.planperiod" = "\(plan.price) / \(plan.period)";
+
+"text.userprogresscurrentlevel" = "\(userProgress.currentLevel)";
+
+"text.level.userprogresscurrentlevel" = "Level \(userProgress.currentLevel)";
+
+"text.userprogresstotalxp.xp" = "\(userProgress.totalXP) XP";
+
+"text.userprogressxpfornextlevel.userprogressxpincurrentlevel.xp" = "\(userProgress.xpForNextLevel - userProgress.xpInCurrentLevel) XP";
+
+"text.userprogressxpincurrentlevel.userprogressxpfornextlevel.xp" = "\(userProgress.xpInCurrentLevel) / \(userProgress.xpForNextLevel) XP";
+
+"text.intuserprogresslevelprogress.100" = "\(Int(userProgress.levelProgress * 100))%";
+
+"text.userprogressxpincurrentleveluserprogressxpfornextlevel.xp" = "\(userProgress.xpInCurrentLevel)/\(userProgress.xpForNextLevel) XP";
+
+"text.intanimatedprogress.100" = "\(Int(animatedProgress * 100))%";
+
+"nav.başarılar" = "Başarılar";
+
+"text.badgetypexpreward.xp" = "+\(badgeType.xpReward) XP";
+
+"text.kazanıldı.formattedfulldatedate" = "Kazanıldı: \(formattedFullDate(date))";
+
+"text.badgescount.badgetypeallcasescount.kazanıldı" = "\(badges.count) / \(BadgeType.allCases.count) Kazanıldı";
+
+"text.intdoublebadgescount.doublebadgetypeallcasescount.100" = "\(Int(Double(badges.count) / Double(BadgeType.allCases.count) * 100))%";
+
+"text.sortedgroupscount.konum" = "\(sortedGroups.count) konum";
+
+"label.yer.ekle" = "Yer Ekle";
+
+"nav.kayıtlı.yerler" = "Kayıtlı Yerler";
+
+"text.completionpointsearned" = "\(completion.pointsEarned)";
+
+"text.konum.bilgisi.alınamıyor.lütfen" = "Konum bilgisi alınamıyor. Lütfen GPS'in açık olduğundan ve uygulamanın konum izni olduğundan emin olun.";
+
+"text.sonuç.bulunamadı" = "Sonuç Bulunamadı";
+
+"text.farklı.anahtar.kelimeler.deneyin" = "Farklı anahtar kelimeler deneyin";
+
+"label.düzenle" = "Düzenle";
+
+"text.totalrecorded" = "\(totalRecorded)";
+
+"nav.ai.chat" = "AI Chat";
+
+"section.tarih.ve.saat" = "Tarih ve Saat";
+
+"section.görüşme.nasıl.geçti" = "Görüşme Nasıl Geçti?";
+
+"section.iletişim.kanalı" = "İletişim Kanalı";
+
+"section.kişi.bilgileri" = "Kişi Bilgileri";
+
+"section.ilişki.tipi" = "İlişki Tipi";
+
+"section.ilişki.bilgileri" = "İlişki Bilgileri";
+
+"section.sevgi.dili" = "Sevgi Dili";
+
+"section.iletişim.sıklığı" = "İletişim Sıklığı";
+
+"button.ekle" = "Ekle";
+
+"button.tamam" = "Tamam";
+
+"section.notlar.opsiyonel" = "Notlar (Opsiyonel)";
+
+"label.ai.chat" = "AI Chat";
+
+"label.şimdi.ara" = "Şimdi Ara";
+
+"label.1.dakika.test" = "1 Dakika (Test)";
+
+"label.15.dakika" = "15 Dakika";
+
+"label.30.dakika" = "30 Dakika";
+
+"label.1.saat" = "1 Saat";
+
+"section.hatırlatma.süresi.dynamic.island" = "Hatırlatma Süresi (Dynamic Island)";
+
+"label.tutar" = "Tutar";
+
+"label.açıklama" = "Açıklama";
+
+"label.vade.tarihi" = "Vade Tarihi";
+
+"nav.yeni.işlem" = "Yeni İşlem";
+
+"text.bilgiler.viewmodelfilteredknowledgecount" = "Bilgiler (\(viewModel.filteredKnowledge.count))";
+
+"text.confidence" = "\(confidence)%";
+
+"text.factconfidencepercentage" = "\(fact.confidencePercentage)%";
+
+"label.ayarlar" = "Ayarlar";
+
+"text.knowledgeconfidencepercentage" = "\(knowledge.confidencePercentage)%";
+
+"nav.ai.brain" = "AI Brain";
+
+"text.sortedandfilteredconversationscount.sonuç" = "\(sortedAndFilteredConversations.count) sonuç";
+
+"text.selectedconversationscount.seçili" = "\(selectedConversations.count) Seçili";
+
+"label.tümünü.sil" = "Tümünü Sil";
+
+"label.başlıkları.yenile" = "Başlıkları Yenile";
+
+"label.başlık" = "Başlık";
+
+"label.tarih" = "Tarih";
+
+"label.arkadaşlar" = "Arkadaşlar";
+
+"label.etiketler" = "Etiketler";
+
+"nav.analizler" = "Analizler";
+
+"button.ayarlara.git" = "Ayarlara Git";
+
+"button.daha.sonra" = "Daha Sonra";
+
+"section.kişisel.bilgiler" = "KİŞİSEL BİLGİLER";
+
+"section.ilgili.bilgiler" = "İLGİLİ BİLGİLER";
+
+"section.güncel.durum" = "GÜNCEL DURUM";
+
+"section.kanitlanmiş.bilgiler" = "KANITLANMIŞ BİLGİLER";
+
+"placeholder.avatar.emoji" = "Avatar Emoji";
+
+"placeholder.örn.müzik.spor.seyahat" = "Örn: Müzik, spor, seyahat";
+
+"placeholder.örn.yemek.parası.bilet" = "Örn: Yemek parası, Bilet ücreti...";
+
+"placeholder.etiket.ekle" = "Etiket ekle";

@@ -82,7 +82,7 @@ struct MemoryDetailView: View {
                             HapticFeedback.light()
                             showingShareSheet = true
                         } label: {
-                            Label("Paylaş", systemImage: "square.and.arrow.up")
+                            Label(String(localized: "button.share", comment: "Share button"), systemImage: "square.and.arrow.up")
                         }
 
                         Divider()
@@ -90,7 +90,7 @@ struct MemoryDetailView: View {
                         Button(role: .destructive) {
                             showingDeleteAlert = true
                         } label: {
-                            Label("Sil", systemImage: "trash")
+                            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis")
@@ -107,8 +107,8 @@ struct MemoryDetailView: View {
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .alert("Anıyı Sil", isPresented: $showingDeleteAlert) {
-                Button("İptal", role: .cancel) {}
-                Button("Sil", role: .destructive) {
+                Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) {}
+                Button(String(localized: "button.delete", comment: "Delete button"), role: .destructive) {
                     deleteMemory()
                 }
             } message: {
@@ -180,7 +180,7 @@ struct MemoryDetailView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                    Text("Favori")
+                    Text(String(localized: "memory.favorite", comment: ""))
                         .font(.caption2)
                         .fontWeight(.semibold)
                 }
@@ -300,7 +300,7 @@ struct MemoryDetailView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                Text("Konum")
+                Text(String(localized: "memory.location", comment: ""))
                     .font(.headline)
 
                 Spacer()
@@ -356,7 +356,7 @@ struct MemoryDetailView: View {
 
                 Spacer()
 
-                Text("\(friends.count)")
+                Text(String(localized: "memory.friends.count", defaultValue: "\(friends.count)", comment: "Friends count"))
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
@@ -417,13 +417,13 @@ struct MemoryDetailView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                Text("Etiketler")
+                Text(String(localized: "memory.tags", comment: ""))
                     .font(.headline)
             }
 
             FlowLayout(spacing: 8) {
                 ForEach(memory.tags, id: \.self) { tag in
-                    Text("#\(tag)")
+                    Text(String(localized: "memory.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.teal)
@@ -458,7 +458,7 @@ struct MemoryDetailView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                Text("Notlar")
+                Text(String(localized: "memory.notes", comment: ""))
                     .font(.headline)
             }
 
@@ -610,7 +610,7 @@ struct FullScreenPhotoView: View {
             VStack {
                 Spacer()
                 if photos.count > 1 {
-                    Text("\(currentIndex + 1) / \(photos.count)")
+                    Text(String(format: NSLocalizedString("memory.photo.pagination", comment: "Photo pagination"), currentIndex + 1, photos.count))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.white)

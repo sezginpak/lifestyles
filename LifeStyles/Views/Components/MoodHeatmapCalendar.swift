@@ -171,7 +171,7 @@ struct MoodHeatmapCell: View {
                             )
                     )
 
-                Text("\(data.dayNumber)")
+                Text(String(localized: "calendar.day.number", defaultValue: "\(data.dayNumber)", comment: "Day number"))
                     .font(.caption)
                     .fontWeight(data.isToday ? .bold : .regular)
                     .foregroundStyle(textColor)
@@ -222,7 +222,7 @@ struct MoodDayDetailPopup: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text("\(dayData.dayNumber)")
+                Text(String(localized: "calendar.day.number", defaultValue: "\(dayData.dayNumber)", comment: "Day data number"))
                     .font(.system(size: 48, weight: .bold))
             }
 

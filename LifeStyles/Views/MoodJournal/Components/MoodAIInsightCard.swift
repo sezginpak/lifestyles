@@ -316,7 +316,7 @@ struct MoodAIInsightCard: View {
             Button {
                 onRegenerate()
             } label: {
-                Text("Analiz Oluştur")
+                Text(String(localized: "mood.generate.analysis", comment: "Generate Analysis"))
                     .font(.caption2)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
@@ -479,7 +479,7 @@ struct MoodAIInsightHeroCard: View {
                 .font(.title3)
                 .fontWeight(.semibold)
 
-            Button("Analiz Başlat") {
+            Button(String(localized: "button.analyze", comment: "Analyze button")) {
                 onRegenerate()
             }
             .buttonStyle(.borderedProminent)

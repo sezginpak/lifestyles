@@ -149,7 +149,7 @@ struct SpecialDatesSection: View {
             // Days Count Badge
             if let days = friend.daysUntilAnniversary, days > 0 {
                 VStack(spacing: 2) {
-                    Text("\(days)")
+                    Text(String(localized: "component.days", defaultValue: "\(days)", comment: "Days count"))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.pink)
@@ -250,7 +250,7 @@ struct SpecialDateCard: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(.green)
                 } else {
-                    Text("\(days)")
+                    Text(String(localized: "component.days", defaultValue: "\(days)", comment: "Days count"))
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundStyle(days <= 7 ? .orange : .secondary)

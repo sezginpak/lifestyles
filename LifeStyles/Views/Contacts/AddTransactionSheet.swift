@@ -47,17 +47,17 @@ struct AddTransactionSheet: View {
                 .padding(16)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Yeni İşlem")
+            .navigationTitle(String(localized: "nav.yeni.işlem"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         saveTransaction()
                     }
                     .fontWeight(.semibold)
@@ -65,7 +65,7 @@ struct AddTransactionSheet: View {
                 }
             }
             .alert("Hata", isPresented: $showError) {
-                Button("Tamam", role: .cancel) {}
+                Button(String(localized: "button.tamam"), role: .cancel) {}
             } message: {
                 Text(errorMessage)
             }
@@ -194,7 +194,7 @@ struct AddTransactionSheet: View {
 
     private var amountAndCurrencySection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Tutar", systemImage: "banknote")
+            Label(String(localized: "label.tutar"), systemImage: "banknote")
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
@@ -232,12 +232,12 @@ struct AddTransactionSheet: View {
 
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Açıklama", systemImage: "text.alignleft")
+            Label(String(localized: "label.açıklama"), systemImage: "text.alignleft")
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
 
-            TextField("Örn: Yemek parası, Bilet ücreti...", text: $transactionDescription)
+            TextField(String(localized: "placeholder.örn.yemek.parası.bilet"), text: $transactionDescription)
                 .font(.body)
                 .padding(12)
                 .background(Color(.systemGray6))
@@ -255,7 +255,7 @@ struct AddTransactionSheet: View {
     private var dueDateSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Toggle(isOn: $hasDueDate) {
-                Label("Vade Tarihi", systemImage: "calendar.badge.clock")
+                Label(String(localized: "label.vade.tarihi"), systemImage: "calendar.badge.clock")
                     .font(.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)

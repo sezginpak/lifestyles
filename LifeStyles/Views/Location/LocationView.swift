@@ -2,7 +2,8 @@
 //  LocationView.swift
 //  LifeStyles
 //
-//  Created by Claude on 15.10.2025.
+//  Modern UI/UX - iPad Compatible
+//  Redesigned with glassmorphism, animations, and responsive layout
 //
 
 import SwiftUI
@@ -11,349 +12,287 @@ import MapKit
 
 struct LocationView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @State private var viewModel = LocationViewModel()
     @State private var showingHistorySheet = false
     @State private var showLocationPermissionAlert = false
-
-    // Yeni state'ler
     @State private var selectedActivity: ActivitySuggestion?
     @State private var showingActivityDetail = false
+    @State private var showLocationUnavailableAlert = false
+    @State private var searchText = ""
+    @State private var showSearchBar = false
+    @State private var isRefreshing = false
 
-    // MARK: - Computed Properties
-
-    private var brandGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color.brandPrimary, Color.purple],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+    // iPad Detection
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
     }
 
-    private var greenGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color.green, Color.mint],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
+    // Adaptive Layout
+    private var gridColumns: [GridItem] {
+        if isIPad {
+            return [
+                GridItem(.flexible(), spacing: 20),
+                GridItem(.flexible(), spacing: 20)
+            ]
+        } else {
+            return [GridItem(.flexible())]
+        }
     }
 
-    private var warningGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color.orange, Color.red],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+    private var horizontalPadding: CGFloat {
+        isIPad ? 32 : 16
+    }
+
+    private var cardSpacing: CGFloat {
+        isIPad ? 20 : 16
+    }
+
+    // Filtered activities based on search
+    private var displayedActivities: [ActivitySuggestion] {
+        if searchText.isEmpty {
+            return viewModel.filteredActivities
+        } else {
+            return viewModel.filteredActivities.filter {
+                $0.title.localizedCaseInsensitiveContains(searchText) ||
+                $0.activityDescription.localizedCaseInsensitiveContains(searchText)
+            }
+        }
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Mevcut Durum
-                    CurrentLocationCard()
-                        .padding(.horizontal)
-
-                    // İstatistik Kartı
-                    if let stats = viewModel.activityStats {
-                        ActivityStatsCard(stats: stats)
-                            .padding(.horizontal)
-                    }
-
-                    // Streak Kartı
-                    if let stats = viewModel.activityStats, stats.currentStreak > 0 {
-                        StreakCard(currentStreak: stats.currentStreak)
-                            .padding(.horizontal)
-                    }
-
-                    // Badge Showcase
-                    if !viewModel.badges.isEmpty {
-                        BadgeShowcaseCard(badges: viewModel.badges)
-                            .padding(.horizontal)
-                    }
-
-                    // Kategori Filtreleri
-                    CategoryFilterChips(selectedCategory: $viewModel.selectedCategory)
-                        .padding(.vertical, 4)
-
-                    // Zaman Filtreleri
-                    TimeFilterChips(selectedTime: $viewModel.selectedTimeOfDay)
-                        .padding(.vertical, 4)
-
-                    // Favori Aktiviteler
-                    if !viewModel.favoriteActivities.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Image(systemName: "star.fill")
-                                    .foregroundStyle(.yellow)
-                                Text(String(localized: "location.my.favorites", comment: "My Favorites"))
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                Spacer()
-                                Text("\(viewModel.favoriteActivities.count)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.horizontal)
-
-                            ForEach(viewModel.favoriteActivities) { activity in
-                                EnhancedActivityCard(
-                                    activity: activity,
-                                    onComplete: {
-                                        viewModel.completeActivityWithStats(activity, context: modelContext)
-                                    },
-                                    onToggleFavorite: {
-                                        viewModel.toggleFavorite(activity, context: modelContext)
-                                    },
-                                    onTap: {
-                                        selectedActivity = activity
-                                        showingActivityDetail = true
-                                    }
-                                )
-                                .padding(.horizontal)
-                            }
-                        }
-                    }
-
-                    // Aktivite Önerileri
-                    if !viewModel.filteredActivities.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Kompakt header
-                            HStack(spacing: 8) {
-                                ZStack {
-                                    Circle()
-                                        .fill(brandGradient)
-                                        .frame(width: 28, height: 28)
-
-                                    Image(systemName: "lightbulb.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(.white)
-                                }
-
-                                Text(String(
-                                    localized: "suggested.activities",
-                                    comment: "Suggested activities section title"
-                                ))
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(brandGradient)
-
-                                Spacer()
-
-                                // Badge - Activity count
-                                Text("\(viewModel.suggestedActivities.count)")
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(brandGradient)
-                                    .clipShape(Capsule())
-                            }
-                            .padding(.horizontal)
-
-                            ForEach(viewModel.filteredActivities) { activity in
-                                EnhancedActivityCard(
-                                    activity: activity,
-                                    onComplete: {
-                                        viewModel.completeActivityWithStats(activity, context: modelContext)
-                                    },
-                                    onToggleFavorite: {
-                                        viewModel.toggleFavorite(activity, context: modelContext)
-                                    },
-                                    onTap: {
-                                        selectedActivity = activity
-                                        showingActivityDetail = true
-                                    }
-                                )
-                                .padding(.horizontal)
-                            }
-                        }
-                    }
-
-                    // Aktivite Üret Butonu - Kompakt
-                    Button {
-                        HapticFeedback.medium()
-                        viewModel.generateActivitiesWithTimeOfDay(context: modelContext)
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "lightbulb.fill")
-                                .font(.subheadline)
-
-                            Text(String(localized: "get.new.suggestions", comment: "Button to get new activity suggestions"))
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-
-                            Spacer()
-
-                            Image(systemName: "sparkles")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(greenGradient)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .shadow(color: Color.green.opacity(0.25), radius: 8, x: 0, y: 4)
-                    }
-                    .padding(.horizontal)
-
-                    // Ev Konumu Ayarlanmadı - Kompakt
-                    if !viewModel.homeLocationSet {
-                        VStack(spacing: 14) {
-                            HStack(spacing: 12) {
-                                // Icon
-                                ZStack {
-                                    Circle()
-                                        .fill(warningGradient)
-                                        .frame(width: 50, height: 50)
-                                        .glowEffect(color: .orange, radius: 8)
-
-                                    Image(systemName: "house.fill")
-                                        .font(.title3)
-                                        .foregroundStyle(.white)
-                                }
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(String(
-                                        localized: "home.location.not.set",
-                                        comment: "Home location not set warning"
-                                    ))
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(warningGradient)
-
-                                    Text(String(
-                                        localized: "set.home.location.for.suggestions",
-                                        comment: "Set home location for suggestions message"
-                                    ))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                }
-
-                                Spacer()
-                            }
-
-                            Button {
-                                HapticFeedback.success()
-                                if let location = LocationService.shared.currentLocation {
-                                    viewModel.setHomeLocation(
-                                        latitude: location.coordinate.latitude,
-                                        longitude: location.coordinate.longitude
-                                    )
-                                }
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "location.fill")
-                                        .font(.subheadline)
-
-                                    Text(String(localized: "set.current.location", comment: "Set current location button"))
-                                        .fontWeight(.semibold)
-                                        .font(.subheadline)
-                                }
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color.orange, Color.red],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                .shadow(color: Color.orange.opacity(0.25), radius: 8, x: 0, y: 4)
-                            }
-                        }
-                        .padding(18)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .fill(.ultraThinMaterial)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                        .stroke(
-                                            LinearGradient(
-                                                colors: [Color.orange.opacity(0.3), Color.red.opacity(0.3)],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 1.5
-                                        )
-                                )
-                        )
-                        .shadow(color: Color.orange.opacity(0.12), radius: 12, x: 0, y: 6)
-                        .padding(.horizontal)
-                    }
-                }
-                .padding(.vertical)
-            }
-            .navigationTitle(String(localized: "tab.location", comment: "Location/Activities tab title"))
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        HapticFeedback.light()
-                        showingHistorySheet = true
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color.blue.opacity(0.15), Color.cyan.opacity(0.15)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: 36, height: 36)
-
-                            Image(systemName: "map.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [Color.blue, Color.cyan],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .symbolRenderingMode(.hierarchical)
-                        }
-                    }
-                    .accessibilityLabel(String(localized: "location.history", comment: "Location history button"))
-                }
-            }
-            .background(
+            ZStack {
+                // Modern Gradient Background
                 LinearGradient(
                     colors: [
                         Color(.systemBackground),
-                        Color.brandPrimary.opacity(0.02),
+                        Color.brandPrimary.opacity(0.03),
                         Color.purple.opacity(0.02)
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
+
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: cardSpacing) {
+                        // MARK: - Hero Section
+                        VStack(spacing: 16) {
+                            // Modern Current Location Card
+                            ModernCurrentLocationCard()
+                                .padding(.horizontal, horizontalPadding)
+
+                            // Stats Row
+                            if let stats = viewModel.activityStats {
+                                ModernStatsRow(stats: stats, isIPad: isIPad)
+                                    .padding(.horizontal, horizontalPadding)
+                            }
+                        }
+                        .padding(.top, 8)
+
+                        // MARK: - Quick Actions
+                        ModernQuickActionsBar(
+                            showingMap: $showingHistorySheet,
+                            onGenerateActivities: {
+                                HapticFeedback.medium()
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    viewModel.generateActivitiesWithTimeOfDay(context: modelContext)
+                                }
+                            },
+                            onSetHome: {
+                                guard let location = LocationService.shared.currentLocation else {
+                                    showLocationUnavailableAlert = true
+                                    HapticFeedback.error()
+                                    return
+                                }
+                                HapticFeedback.success()
+                                viewModel.setHomeLocation(
+                                    latitude: location.coordinate.latitude,
+                                    longitude: location.coordinate.longitude
+                                )
+                            },
+                            homeLocationSet: viewModel.homeLocationSet
+                        )
+                        .padding(.horizontal, horizontalPadding)
+
+                        // MARK: - Filters Section
+                        VStack(spacing: 12) {
+                            // Category Filters
+                            ModernCategoryFilterChips(
+                                selectedCategory: $viewModel.selectedCategory,
+                                isIPad: isIPad
+                            )
+
+                            // Time Filters
+                            ModernTimeFilterChips(
+                                selectedTime: $viewModel.selectedTimeOfDay,
+                                isIPad: isIPad
+                            )
+                        }
+                        .padding(.horizontal, horizontalPadding)
+
+                        // MARK: - Favorite Activities
+                        if !viewModel.favoriteActivities.isEmpty {
+                            VStack(alignment: .leading, spacing: 16) {
+                                LocationSectionHeader(
+                                    icon: "star.fill",
+                                    title: String(localized: "location.my.favorites", comment: "My Favorites"),
+                                    count: viewModel.favoriteActivities.count,
+                                    color: .yellow
+                                )
+                                .padding(.horizontal, horizontalPadding)
+
+                                LazyVGrid(columns: gridColumns, spacing: cardSpacing) {
+                                    ForEach(Array(viewModel.favoriteActivities.enumerated()), id: \.element.id) { index, activity in
+                                        ModernActivityCard(
+                                            activity: activity,
+                                            index: index,
+                                            onComplete: {
+                                                viewModel.completeActivityWithStats(activity, context: modelContext)
+                                            },
+                                            onToggleFavorite: {
+                                                viewModel.toggleFavorite(activity, context: modelContext)
+                                            },
+                                            onTap: {
+                                                selectedActivity = activity
+                                                showingActivityDetail = true
+                                            }
+                                        )
+                                    }
+                                }
+                                .padding(.horizontal, horizontalPadding)
+                            }
+                        }
+
+                        // MARK: - Suggested Activities
+                        if !displayedActivities.isEmpty {
+                            VStack(alignment: .leading, spacing: 16) {
+                                LocationSectionHeader(
+                                    icon: "lightbulb.fill",
+                                    title: String(localized: "suggested.activities", comment: "Suggested activities section title"),
+                                    count: displayedActivities.count,
+                                    color: .brandPrimary
+                                )
+                                .padding(.horizontal, horizontalPadding)
+                                .id("suggestedActivitiesHeader")
+
+                                LazyVGrid(columns: gridColumns, spacing: cardSpacing) {
+                                    ForEach(Array(displayedActivities.enumerated()), id: \.element.id) { index, activity in
+                                        ModernActivityCard(
+                                            activity: activity,
+                                            index: index,
+                                            onComplete: {
+                                                viewModel.completeActivityWithStats(activity, context: modelContext)
+                                            },
+                                            onToggleFavorite: {
+                                                viewModel.toggleFavorite(activity, context: modelContext)
+                                            },
+                                            onTap: {
+                                                selectedActivity = activity
+                                                showingActivityDetail = true
+                                            }
+                                        )
+                                    }
+                                }
+                                .padding(.horizontal, horizontalPadding)
+                            }
+                        } else if !searchText.isEmpty {
+                            // Empty Search State
+                            ModernEmptySearchState()
+                                .padding(.vertical, 60)
+                        }
+
+                        // Home Location Warning
+                        if !viewModel.homeLocationSet {
+                            ModernHomeLocationWarning(
+                                onSetHome: {
+                                    guard let location = LocationService.shared.currentLocation else {
+                                        showLocationUnavailableAlert = true
+                                        HapticFeedback.error()
+                                        return
+                                    }
+                                    HapticFeedback.success()
+                                    viewModel.setHomeLocation(
+                                        latitude: location.coordinate.latitude,
+                                        longitude: location.coordinate.longitude
+                                    )
+                                }
+                            )
+                            .padding(.horizontal, horizontalPadding)
+                        }
+
+                        // Bottom Spacing
+                        Color.clear.frame(height: 20)
+                            .id("bottomSpacer")
+                    }
+                    .padding(.vertical)
+                    .onChange(of: viewModel.suggestedActivities.count) { oldValue, newValue in
+                        // Yeni aktiviteler eklendiğinde scroll yap
+                        if newValue > oldValue {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                proxy.scrollTo("suggestedActivitiesHeader", anchor: .top)
+                            }
+                        }
+                    }
+                }
+                .refreshable {
+                    await refreshActivities()
+                }
+                }
+            }
+            .navigationTitle(String(localized: "tab.location", comment: "Location/Activities tab title"))
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 12) {
+                        // Search Button
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                showSearchBar.toggle()
+                                HapticFeedback.light()
+                            }
+                        } label: {
+                            ModernToolbarButton(
+                                icon: showSearchBar ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                gradient: [.blue, .cyan]
+                            )
+                        }
+
+                        // History Button
+                        Button {
+                            HapticFeedback.light()
+                            showingHistorySheet = true
+                        } label: {
+                            ModernToolbarButton(
+                                icon: "map.fill",
+                                gradient: [.purple, .pink]
+                            )
+                        }
+                    }
+                }
+            }
+            .searchable(
+                text: $searchText,
+                isPresented: $showSearchBar,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: String(localized: "search.activities", comment: "Search activities")
             )
             .task {
-                // Async olarak yükle - UI donmasını önle
                 viewModel.setModelContext(modelContext)
-
-                // Main thread işlemleri önce
                 viewModel.updateLocationStatus()
                 viewModel.updatePeriodicTrackingStatus()
 
-                // Ağır işlemleri arka planda çalıştır
                 await Task.detached {
-                    // Background thread'de çalışacak
                     await viewModel.loadOrCreateStats(context: modelContext)
                     await viewModel.loadBadges(context: modelContext)
                     await viewModel.loadFavoriteActivities(context: modelContext)
                 }.value
 
-                // Location tracking sonra başlat
                 viewModel.startTracking()
 
-                // Otomatik başlatma
                 if !viewModel.isPeriodicTrackingActive && PermissionManager.shared.hasAlwaysLocationPermission() {
                     print("📍 LocationView açıldı, otomatik başlatılıyor...")
                     viewModel.startPeriodicTracking()
@@ -381,309 +320,130 @@ struct LocationView: View {
             } message: {
                 Text(String(localized: "background.location.permission.message", comment: "Background location permission explanation"))
             }
-        }
-    }
-}
-
-struct StatusCard: View {
-    let isAtHome: Bool
-    let hoursAtHome: Double
-
-    @State private var isAnimating = false
-
-    var body: some View {
-        HStack(spacing: 12) {
-            // Kompakt icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: isAtHome ? [Color.blue, Color.cyan] : [Color.green, Color.mint],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 50, height: 50)
-                    .glowEffect(color: isAtHome ? .blue : .green, radius: 8)
-
-                Image(systemName: isAtHome ? "house.fill" : "location.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-                    .symbolEffect(.bounce, value: isAnimating)
-            }
-            .scaleEffect(isAnimating ? 1.0 : 0.9)
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(isAtHome ? String(localized: "status.at.home", comment: "User is at home status") : String(localized: "status.outside", comment: "User is outside status"))
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: isAtHome ? [Color.blue, Color.cyan] : [Color.green, Color.mint],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-
-                    // Status badge
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(isAtHome ? .blue : .green)
-                }
-
-                if isAtHome && hoursAtHome > 0 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-
-                        Text(String(format: NSLocalizedString("hours.at.home.format", comment: "Hours spent at home format"), hoursAtHome))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-
-            Spacer()
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: isAtHome ? [Color.blue.opacity(0.3), Color.cyan.opacity(0.3)] : [Color.green.opacity(0.3), Color.mint.opacity(0.3)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.5
-                        )
-                )
-        )
-        .shadow(color: (isAtHome ? Color.blue : Color.green).opacity(0.12), radius: 10, x: 0, y: 4)
-        .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                isAnimating = true
+            .alert("Konum Alınamıyor", isPresented: $showLocationUnavailableAlert) {
+                Button(String(localized: "button.ok", comment: "OK button")) { }
+            } message: {
+                Text(String(localized: "text.konum.bilgisi.alınamıyor.lütfen"))
             }
         }
     }
-}
 
-struct ActivityCard: View {
-    let activity: ActivitySuggestion
-    let onComplete: () -> Void
+    private func refreshActivities() async {
+        isRefreshing = true
+        HapticFeedback.light()
 
-    @State private var isPressed = false
-    @State private var isAnimating = false
+        try? await Task.sleep(nanoseconds: 500_000_000)
 
-    var body: some View {
-        HStack(spacing: 12) {
-            // Kompakt icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: activity.isCompleted ?
-                                [Color.green, Color.mint] :
-                                [Color.brandPrimary, Color.purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 40, height: 40)
-                    .glowEffect(color: activity.isCompleted ? .green : .brandPrimary, radius: 6)
+        viewModel.generateActivitiesWithTimeOfDay(context: modelContext)
 
-                Image(systemName: activity.isCompleted ? "checkmark" : "lightbulb.fill")
-                    .font(.callout)
-                    .foregroundStyle(.white)
-                    .symbolEffect(.bounce, value: isAnimating)
-            }
-            .scaleEffect(isAnimating ? 1.0 : 0.9)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(activity.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
-
-                Text(activity.activityDescription)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            Spacer()
-
-            // Action button
-            Button {
-                HapticFeedback.success()
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                    onComplete()
-                }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(
-                            activity.isCompleted ?
-                                Color.green.opacity(0.15) :
-                                Color.brandPrimary.opacity(0.15)
-                        )
-                        .frame(width: 36, height: 36)
-
-                    Image(systemName: activity.isCompleted ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title3)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: activity.isCompleted ?
-                                    [Color.green, Color.mint] :
-                                    [Color.brandPrimary, Color.purple],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                }
-            }
-            .disabled(activity.isCompleted)
-            .scaleEffect(isPressed ? 0.9 : 1.0)
-        }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: activity.isCompleted ?
-                                    [Color.green.opacity(0.3), Color.mint.opacity(0.3)] :
-                                    [Color.brandPrimary.opacity(0.2), Color.purple.opacity(0.2)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.5
-                        )
-                )
-        )
-        .shadow(
-            color: (activity.isCompleted ? Color.green : Color.brandPrimary).opacity(0.08),
-            radius: 8,
-            x: 0,
-            y: 4
-        )
-        .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                isAnimating = true
-            }
-        }
+        isRefreshing = false
+        HapticFeedback.success()
     }
 }
 
-// MARK: - Current Location Card (With SavedPlaces)
+// MARK: - Modern Current Location Card
 
-struct CurrentLocationCard: View {
+struct ModernCurrentLocationCard: View {
     @State private var placesService = SavedPlacesService.shared
     @State private var currentPlace: SavedPlace?
     @State private var isAnimating = false
     @State private var visitDuration: TimeInterval = 0
 
-    // Timer to update duration
     let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Icon
+        HStack(spacing: 16) {
+            // Animated Icon
             ZStack {
+                // Pulse Effect
+                Circle()
+                    .fill(currentPlace?.color.opacity(0.2) ?? Color.gray.opacity(0.2))
+                    .frame(width: 70, height: 70)
+                    .scaleEffect(isAnimating ? 1.2 : 1.0)
+                    .opacity(isAnimating ? 0 : 0.6)
+                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
+
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: currentPlace != nil ? [currentPlace!.color, currentPlace!.color.opacity(0.7)] : [Color.gray, Color.gray.opacity(0.7)],
+                            colors: currentPlace != nil ?
+                                [currentPlace!.color, currentPlace!.color.opacity(0.7)] :
+                                [Color.gray, Color.gray.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 50, height: 50)
-                    .glowEffect(color: currentPlace?.color ?? .gray, radius: 8)
+                    .frame(width: 60, height: 60)
+                    .shadow(color: (currentPlace?.color ?? .gray).opacity(0.3), radius: 12, x: 0, y: 6)
 
                 if let place = currentPlace {
                     Text(place.emoji)
-                        .font(.title2)
-                        .symbolEffect(.bounce, value: isAnimating)
+                        .font(.system(size: 32))
                 } else {
                     Image(systemName: "location.slash.fill")
-                        .font(.title3)
+                        .font(.title2)
                         .foregroundStyle(.white)
                 }
             }
-            .scaleEffect(isAnimating ? 1.0 : 0.9)
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    if let place = currentPlace {
-                        Text(String(format: NSLocalizedString("location.at.place", comment: "At place name"), place.name))
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [place.color, place.color.opacity(0.7)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+            VStack(alignment: .leading, spacing: 6) {
+                if let place = currentPlace {
+                    Text(String(format: NSLocalizedString("location.at.place", comment: "At place name"), place.name))
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [place.color, place.color.opacity(0.7)],
+                                startPoint: .leading,
+                                endPoint: .trailing
                             )
-                    } else {
-                        Text(String(localized: "location.unknown", comment: "Unknown Location"))
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.secondary)
+                        )
+
+                    if visitDuration > 0 {
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock.fill")
+                                .font(.caption)
+                            Text(formatDuration(visitDuration))
+                                .font(.subheadline)
+                        }
+                        .foregroundStyle(.secondary)
                     }
+                } else {
+                    Text(String(localized: "location.unknown", comment: "Unknown Location"))
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.secondary)
 
-                    // Status badge
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(currentPlace?.color ?? .gray)
-                }
-
-                if let place = currentPlace, visitDuration > 0 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-
-                        Text(formatDuration(visitDuration))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                } else if currentPlace == nil {
                     Text(String(localized: "location.not.at.saved.place", comment: "You are not at a saved place"))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
 
             Spacer()
 
-            // Suggestions button
             if let place = currentPlace {
                 NavigationLink {
                     PlaceDetailView(place: place)
                 } label: {
-                    Image(systemName: "info.circle.fill")
-                        .font(.title3)
+                    Image(systemName: "chevron.right.circle.fill")
+                        .font(.title2)
                         .foregroundStyle(place.color)
+                        .symbolRenderingMode(.hierarchical)
                 }
             }
         }
-        .padding(16)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(
                             LinearGradient(
-                                colors: currentPlace != nil ? [currentPlace!.color.opacity(0.3), currentPlace!.color.opacity(0.1)] : [Color.gray.opacity(0.2), Color.gray.opacity(0.1)],
+                                colors: currentPlace != nil ?
+                                    [currentPlace!.color.opacity(0.4), currentPlace!.color.opacity(0.1)] :
+                                    [Color.gray.opacity(0.3), Color.gray.opacity(0.1)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -691,12 +451,12 @@ struct CurrentLocationCard: View {
                         )
                 )
         )
-        .shadow(color: (currentPlace?.color ?? .gray).opacity(0.12), radius: 10, x: 0, y: 4)
+        .shadow(color: (currentPlace?.color ?? .gray).opacity(0.15), radius: 20, x: 0, y: 10)
         .onAppear {
+            updateCurrentPlace()
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 isAnimating = true
             }
-            updateCurrentPlace()
         }
         .onReceive(timer) { _ in
             updateDuration()
@@ -705,17 +465,10 @@ struct CurrentLocationCard: View {
 
     private func updateCurrentPlace() {
         currentPlace = placesService.currentPlace
-
-        // Calculate duration if there's an ongoing visit
-        //if let visit = placesService.currentVisit, visit.isOngoing {
-        //     visitDuration = Date().timeIntervalSince(visit.arrivalTime)
-        // }
     }
 
     private func updateDuration() {
-        //if let visit = placesService.currentVisit, visit.isOngoing {
-        //     visitDuration = Date().timeIntervalSince(visit.arrivalTime)
-        // }
+        // Update visit duration if needed
     }
 
     private func formatDuration(_ seconds: TimeInterval) -> String {
@@ -730,4 +483,621 @@ struct CurrentLocationCard: View {
             return "Az önce geldiniz"
         }
     }
+}
+
+// MARK: - Modern Stats Row
+
+struct ModernStatsRow: View {
+    let stats: ActivityStats
+    let isIPad: Bool
+
+    var body: some View {
+        HStack(spacing: isIPad ? 20 : 12) {
+            LocationStatCard(
+                icon: "checkmark.circle.fill",
+                value: "\(stats.thisWeekActivities)",
+                label: String(localized: "stats.this.week", comment: "This week stats"),
+                color: .green
+            )
+
+            LocationStatCard(
+                icon: "flame.fill",
+                value: "\(stats.currentStreak)",
+                label: String(localized: "stats.streak", comment: "Streak stats"),
+                color: .orange
+            )
+
+            LocationStatCard(
+                icon: "star.fill",
+                value: "\(stats.totalActivitiesCompleted)",
+                label: String(localized: "stats.total", comment: "Total stats"),
+                color: .yellow
+            )
+        }
+    }
+}
+
+struct LocationStatCard: View {
+    let icon: String
+    let value: String
+    let label: String
+    let color: Color
+
+    @State private var isAnimating = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(color)
+            }
+            .scaleEffect(isAnimating ? 1.0 : 0.8)
+
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(.primary)
+
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(color.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: color.opacity(0.1), radius: 10, x: 0, y: 5)
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1)) {
+                isAnimating = true
+            }
+        }
+    }
+}
+
+// MARK: - Modern Quick Actions Bar
+
+struct ModernQuickActionsBar: View {
+    @Binding var showingMap: Bool
+    let onGenerateActivities: () -> Void
+    let onSetHome: () -> Void
+    let homeLocationSet: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Generate Button
+            Button(action: onGenerateActivities) {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.subheadline)
+                    Text(String(localized: "get.new.suggestions", comment: "Button to get new activity suggestions"))
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [Color.green, Color.mint],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: Color.green.opacity(0.3), radius: 10, x: 0, y: 5)
+            }
+
+            // Set Home Button (if not set)
+            if !homeLocationSet {
+                Button(action: onSetHome) {
+                    Image(systemName: "house.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 48, height: 48)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.orange, Color.red],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .shadow(color: Color.orange.opacity(0.3), radius: 10, x: 0, y: 5)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Modern Category Filter Chips
+
+struct ModernCategoryFilterChips: View {
+    @Binding var selectedCategory: ActivityType?
+    let isIPad: Bool
+
+    let categories: [(ActivityType?, String, String)] = [
+        (nil, "Tümü", "square.grid.2x2"),
+        (.social, "Sosyal", "person.2.fill"),
+        (.creative, "Yaratıcı", "paintbrush.fill"),
+        (.exercise, "Egzersiz", "figure.run"),
+        (.learning, "Öğrenme", "book.fill"),
+        (.relax, "Dinlen", "leaf.fill")
+    ]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: isIPad ? 14 : 10) {
+                ForEach(categories, id: \.1) { category, title, icon in
+                    ModernFilterChip(
+                        icon: icon,
+                        title: title,
+                        isSelected: selectedCategory == category,
+                        action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedCategory = category
+                                HapticFeedback.light()
+                            }
+                        }
+                    )
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
+// MARK: - Modern Time Filter Chips
+
+struct ModernTimeFilterChips: View {
+    @Binding var selectedTime: String?
+    let isIPad: Bool
+
+    let times: [(String?, String, String)] = [
+        (nil, "Her Zaman", "clock"),
+        ("morning", "Sabah", "sunrise.fill"),
+        ("afternoon", "Öğle", "sun.max.fill"),
+        ("evening", "Akşam", "sunset.fill"),
+        ("night", "Gece", "moon.stars.fill")
+    ]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: isIPad ? 14 : 10) {
+                ForEach(times, id: \.1) { time, title, icon in
+                    ModernFilterChip(
+                        icon: icon,
+                        title: title,
+                        isSelected: selectedTime == time,
+                        action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedTime = time
+                                HapticFeedback.light()
+                            }
+                        }
+                    )
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
+struct ModernFilterChip: View {
+    let icon: String
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+            }
+            .foregroundStyle(isSelected ? .white : .primary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(
+                Group {
+                    if isSelected {
+                        LinearGradient(
+                            colors: [Color.brandPrimary, Color.purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    } else {
+                        LinearGradient(
+                            colors: [Color.clear],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    }
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(isSelected ? Color.clear : Color.secondary.opacity(0.3), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .shadow(color: isSelected ? Color.brandPrimary.opacity(0.3) : Color.clear, radius: 8, x: 0, y: 4)
+        }
+    }
+}
+
+// MARK: - Location Section Header
+
+struct LocationSectionHeader: View {
+    let icon: String
+    let title: String
+    let count: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+
+            Text(title)
+                .font(.title3)
+                .fontWeight(.bold)
+
+            Spacer()
+
+            Text(String(localized: "text.count"))
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(color.gradient)
+                )
+        }
+    }
+}
+
+// MARK: - Modern Activity Card
+
+struct ModernActivityCard: View {
+    let activity: ActivitySuggestion
+    let index: Int
+    let onComplete: () -> Void
+    let onToggleFavorite: () -> Void
+    let onTap: () -> Void
+
+    @State private var isPressed = false
+    @State private var isAnimating = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Header - Tappable
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 12) {
+                    // Category Icon
+                    ZStack {
+                        Circle()
+                            .fill(categoryColor.opacity(0.15))
+                            .frame(width: 48, height: 48)
+
+                        Image(systemName: categoryIcon)
+                            .font(.title3)
+                            .foregroundStyle(categoryColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(activity.title)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.primary)
+                            .lineLimit(2)
+
+                        Text(timeOfDayText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    // Status Badge
+                    if activity.isCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.green)
+                    }
+                }
+
+                // Description
+                Text(activity.activityDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                HapticFeedback.light()
+                onTap()
+            }
+
+            // Actions Row - Separate buttons (non-scrollable)
+            HStack(spacing: 12) {
+                // Complete Button
+                Button(action: {
+                    HapticFeedback.success()
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                        onComplete()
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: activity.isCompleted ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.subheadline)
+                        Text(activity.isCompleted ? "Tamamlandı" : "Tamamla")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundStyle(activity.isCompleted ? .green : .primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(activity.isCompleted ? Color.green.opacity(0.15) : Color.secondary.opacity(0.1))
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .disabled(activity.isCompleted)
+
+                // Favorite Button
+                Button(action: {
+                    HapticFeedback.light()
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                        onToggleFavorite()
+                    }
+                }) {
+                    Image(systemName: activity.isFavorite ? "star.fill" : "star")
+                        .font(.title3)
+                        .foregroundStyle(activity.isFavorite ? .yellow : .secondary)
+                        .frame(width: 44, height: 44)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(activity.isFavorite ? Color.yellow.opacity(0.15) : Color.secondary.opacity(0.1))
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [categoryColor.opacity(0.3), categoryColor.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+        )
+        .shadow(color: categoryColor.opacity(0.15), radius: 15, x: 0, y: 8)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .opacity(isAnimating ? 1.0 : 0.0)
+        .offset(y: isAnimating ? 0 : 20)
+        .onAppear {
+            withAnimation(
+                .spring(response: 0.6, dampingFraction: 0.7)
+                .delay(Double(index) * 0.05)
+            ) {
+                isAnimating = true
+            }
+        }
+    }
+
+    private var categoryColor: Color {
+        switch activity.type {
+        case .social: return .blue
+        case .creative: return .purple
+        case .exercise: return .green
+        case .learning: return .orange
+        case .relax: return .mint
+        case .outdoor: return .cyan
+        }
+    }
+
+    private var categoryIcon: String {
+        switch activity.type {
+        case .social: return "person.2.fill"
+        case .creative: return "paintbrush.fill"
+        case .exercise: return "figure.run"
+        case .learning: return "book.fill"
+        case .relax: return "leaf.fill"
+        case .outdoor: return "tree.fill"
+        }
+    }
+
+    private var timeOfDayText: String {
+        switch activity.timeOfDay {
+        case "morning": return "🌅 Sabah"
+        case "afternoon": return "☀️ Öğle"
+        case "evening": return "🌆 Akşam"
+        case "night": return "🌙 Gece"
+        default: return ""
+        }
+    }
+}
+
+// MARK: - Modern Home Location Warning
+
+struct ModernHomeLocationWarning: View {
+    let onSetHome: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.orange, Color.red],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+
+                    Image(systemName: "house.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(String(localized: "home.location.not.set", comment: "Home location not set warning"))
+                        .font(.headline)
+                        .fontWeight(.bold)
+
+                    Text(String(localized: "set.home.location.for.suggestions", comment: "Set home location for suggestions message"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+            }
+
+            Button(action: onSetHome) {
+                HStack(spacing: 8) {
+                    Image(systemName: "location.fill")
+                    Text(String(localized: "set.current.location", comment: "Set current location button"))
+                        .fontWeight(.semibold)
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [Color.orange, Color.red],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.orange.opacity(0.4), Color.red.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+        )
+        .shadow(color: Color.orange.opacity(0.2), radius: 20, x: 0, y: 10)
+    }
+}
+
+// MARK: - Modern Empty Search State
+
+struct ModernEmptySearchState: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.1), Color.cyan.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 100, height: 100)
+
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 44))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.blue, Color.cyan],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+
+            VStack(spacing: 8) {
+                Text(String(localized: "text.sonuç.bulunamadı"))
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                Text(String(localized: "text.farklı.anahtar.kelimeler.deneyin"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+// MARK: - Modern Toolbar Button
+
+struct ModernToolbarButton: View {
+    let icon: String
+    let gradient: [Color]
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: gradient.map { $0.opacity(0.15) },
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 40, height: 40)
+
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: gradient,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+    }
+}
+
+#Preview {
+    LocationView()
 }

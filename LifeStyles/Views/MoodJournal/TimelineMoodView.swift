@@ -96,7 +96,7 @@ struct TimelineMoodView: View {
             Text(dominantMood.emoji)
                 .font(.system(size: 16))
 
-            Text("\(Int(averageScore * 50 + 50))%")
+            Text(String(localized: "journal.percentage.format", defaultValue: "\(Int(averageScore * 50 + 50))%", comment: "Percentage"))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.white)
         }
@@ -230,11 +230,11 @@ struct TimelineMoodView: View {
         .buttonStyle(ScaleButtonStyle())
         .contextMenu {
             Button(action: { onEdit(mood) }) {
-                Label("Düzenle", systemImage: "pencil")
+                Label(String(localized: "button.edit", comment: "Edit button"), systemImage: "pencil")
             }
 
             Button(role: .destructive, action: { onDelete(mood) }) {
-                Label("Sil", systemImage: "trash")
+                Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
             }
         }
     }
@@ -265,7 +265,7 @@ struct TimelineMoodView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "target")
                         .font(.system(size: 10))
-                    Text("\(goals.count)")
+                    Text(String(localized: "goals.count", defaultValue: "\(goals.count)", comment: "Goals count"))
                         .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundColor(.blue)
@@ -275,7 +275,7 @@ struct TimelineMoodView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "person.2")
                         .font(.system(size: 10))
-                    Text("\(friends.count)")
+                    Text(String(localized: "friends.count", defaultValue: "\(friends.count)", comment: "Friends count"))
                         .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundColor(.green)
@@ -306,11 +306,11 @@ struct TimelineMoodView: View {
                 )
                 .padding(.top, 60)
 
-            Text("Henüz mood kaydı yok")
+            Text(String(localized: "mood.no.records", comment: ""))
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.primary)
 
-            Text("İlk mood'unu kaydetmek için + butonuna dokun")
+            Text(String(localized: "mood.tap.to.record", comment: ""))
                 .font(.system(size: 14))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

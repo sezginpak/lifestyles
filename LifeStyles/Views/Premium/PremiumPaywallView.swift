@@ -160,7 +160,7 @@ struct PremiumPaywallView: View {
             }
         }
         .alert("Hata", isPresented: $showError) {
-            Button("Tamam", role: .cancel) {}
+            Button(String(localized: "button.tamam"), role: .cancel) {}
         } message: {
             Text(errorMessage)
         }

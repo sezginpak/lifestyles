@@ -28,7 +28,7 @@ struct FriendFilterChip: View {
                     .font(.subheadline)
                     .fontWeight(isSelected ? .semibold : .regular)
 
-                Text("\(count)")
+                Text(String(localized: "text.count"))
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 6)
@@ -82,7 +82,7 @@ struct PartnerHeroCard: View {
                 // İlişki süresi badge
                 if let days = partner.relationshipDays {
                     VStack(spacing: 2) {
-                        Text("\(days)")
+                        Text(String(localized: "text.days"))
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundStyle(

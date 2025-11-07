@@ -25,7 +25,7 @@ struct MiniCalendarView: View {
                         .fill(hasContact ? Color.green : Color(.systemGray5))
                         .frame(height: 28)
                         .overlay(
-                            Text("\(Calendar.current.component(.day, from: date))")
+                            Text(String(localized: "calendar.day.number", defaultValue: "\(Calendar.current.component(.day, from: date))", comment: "Calendar day"))
                                 .font(.caption2)
                                 .foregroundStyle(hasContact ? .white : .secondary)
                         )

@@ -160,8 +160,7 @@ struct WordBubble: View {
                 .fontWeight(.medium)
 
             if count > 1 {
-                Text("\(count)")
-                    .font(.caption2)
+                Text(String(localized: "journal.stats.count", defaultValue: "\(count)", comment: "Stats count")).font(.caption2)
                     .foregroundStyle(.secondary)
             }
         }

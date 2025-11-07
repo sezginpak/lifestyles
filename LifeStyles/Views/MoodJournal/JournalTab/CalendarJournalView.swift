@@ -57,7 +57,7 @@ struct CalendarJournalView: View {
                 Text(monthYearString(currentMonth))
                     .font(.system(size: 20, weight: .bold))
 
-                Text("\(entriesInCurrentMonth.count) journal")
+                Text(String(localized: "journal.count", defaultValue: "\(entriesInCurrentMonth.count) journals", comment: "Journal count"))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.secondary)
             }
@@ -148,7 +148,7 @@ struct CalendarJournalView: View {
                 Spacer()
 
                 if !entriesOnSelectedDate.isEmpty {
-                    Text("\(entriesOnSelectedDate.count) journal")
+                    Text(String(localized: "journal.count", defaultValue: "\(entriesOnSelectedDate.count) journals", comment: "Journal count"))
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.secondary)
                 }
@@ -162,7 +162,7 @@ struct CalendarJournalView: View {
                         .font(.system(size: 48))
                         .foregroundColor(.secondary.opacity(0.5))
 
-                    Text("Bu tarihte journal yok")
+                    Text(String(localized: "journal.no.entry", comment: ""))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.secondary)
                 }
@@ -263,7 +263,7 @@ struct DayCell: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 4) {
-                Text("\(calendar.component(.day, from: date))")
+                Text(String(localized: "journal.calendar.day", defaultValue: "\(calendar.component(.day, from: date))", comment: "Calendar day"))
                     .font(.system(size: 15, weight: isSelected || isToday ? .bold : .regular))
                     .foregroundColor(textColor)
 
@@ -358,7 +358,7 @@ struct CompactJournalRow: View {
                             .foregroundColor(.secondary.opacity(0.6))
 
                         if !entry.tags.isEmpty {
-                            Text("• #\(entry.tags.first!)")
+                            Text(String(localized: "journal.tag.bullet", defaultValue: "• #\(entry.tags.first!)", comment: "Tag with bullet"))
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(entry.journalType.color)
                         }

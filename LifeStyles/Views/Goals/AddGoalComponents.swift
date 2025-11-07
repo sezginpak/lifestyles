@@ -88,7 +88,7 @@ struct GoalPreviewCard: View {
                 Spacer()
 
                 VStack(alignment: .trailing) {
-                    Text("\(daysRemaining)")
+                    Text(String(localized: "goal.days.remaining", defaultValue: "\(daysRemaining)", comment: "Days remaining"))
                         .font(.title.weight(.bold))
                         .foregroundStyle(Color.cardGoals)
                     Text(String(localized: "goal.days.remaining", comment: "days remaining"))

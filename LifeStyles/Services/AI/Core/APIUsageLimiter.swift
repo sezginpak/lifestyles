@@ -14,14 +14,14 @@ class APIUsageLimiter {
 
     // MARK: - Limits (5$ = ~20K requests ile hesaplandı)
 
-    /// Günlük maksimum request sayısı (güvenli limit)
-    private let maxRequestsPerDay = 100
+    /// Günlük maksimum request sayısı (güvenli limit) - %50 artırıldı
+    private let maxRequestsPerDay = 150
 
-    /// Saatlik maksimum request sayısı (spam önleme)
-    private let maxRequestsPerHour = 20
+    /// Saatlik maksimum request sayısı (spam önleme) - %50 artırıldı
+    private let maxRequestsPerHour = 30
 
-    /// Dakikalık maksimum request sayısı (burst önleme)
-    private let maxRequestsPerMinute = 5
+    /// Dakikalık maksimum request sayısı (burst önleme) - %50 artırıldı
+    private let maxRequestsPerMinute = 8
 
     // MARK: - UserDefaults Keys
 

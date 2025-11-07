@@ -38,7 +38,7 @@ struct AIModernSuggestionCard: View {
                         )
                 }
 
-                Text("AI Önerisi")
+                Text(String(localized: "ai.suggestion", comment: ""))
                     .font(.headline)
                     .foregroundStyle(.primary)
 

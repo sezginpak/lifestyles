@@ -29,7 +29,7 @@ struct ConsistencyScoreCard: View {
                     )
 
                     VStack(spacing: 4) {
-                        Text("\(metrics.score)")
+                        Text(String(localized: "component.score", defaultValue: "\(metrics.score)", comment: "Metrics score"))
                             .font(.system(size: 48, weight: .bold))
                             .foregroundStyle(.primary)
 
@@ -84,14 +84,15 @@ struct TimingAnalyticsCard: View {
             icon: "clock.fill",
             color: .blue
         ) {
-            VStack(spacing: 16) {
-                // Segmented picker
-                Picker("Görünüm", selection: $selectedView) {
-                    Text("Saatlik").tag(TimingView.hourly)
-                    Text("Günlük").tag(TimingView.weekday)
-                    Text("Özet").tag(TimingView.summary)
+            VStack(spacing: 12) {
+                // Kompakt segmented picker
+                Picker("", selection: $selectedView) {
+                    Image(systemName: "clock").tag(TimingView.hourly)
+                    Image(systemName: "calendar").tag(TimingView.weekday)
+                    Image(systemName: "list.bullet").tag(TimingView.summary)
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
 
                 // Content based on selection
                 switch selectedView {
@@ -108,7 +109,7 @@ struct TimingAnalyticsCard: View {
 
     private var hourlyView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Saatlik Dağılım")
+            Text(String(localized: "analytics.hourly.distribution", comment: ""))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -135,7 +136,7 @@ struct TimingAnalyticsCard: View {
 
     private var weekdayView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Günlük Dağılım")
+            Text(String(localized: "analytics.daily.distribution", comment: ""))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -170,11 +171,11 @@ struct TimingAnalyticsCard: View {
                         .font(.title2)
                         .foregroundStyle(.blue)
 
-                    Text("\(analytics.weekdayCount)")
+                    Text(String(localized: "analytics.weekday.count", defaultValue: "\(analytics.weekdayCount)", comment: "Weekday count"))
                         .font(.title)
                         .fontWeight(.bold)
 
-                    Text("Hafta İçi")
+                    Text(String(localized: "analytics.weekday", comment: ""))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -188,11 +189,11 @@ struct TimingAnalyticsCard: View {
                         .font(.title2)
                         .foregroundStyle(.orange)
 
-                    Text("\(analytics.weekendCount)")
+                    Text(String(localized: "analytics.weekend.count", defaultValue: "\(analytics.weekendCount)", comment: "Weekend count"))
                         .font(.title)
                         .fontWeight(.bold)
 
-                    Text("Hafta Sonu")
+                    Text(String(localized: "analytics.weekend", comment: ""))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -286,10 +287,10 @@ struct MilestoneTrackerCard: View {
                         .font(.system(size: 48))
                         .foregroundStyle(.yellow)
 
-                    Text("Tebrikler!")
+                    Text(String(localized: "analytics.congratulations", comment: ""))
                         .font(.headline)
 
-                    Text("Tüm yakın başarıları tamamladınız")
+                    Text(String(localized: "analytics.achievements.all.completed", comment: ""))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -323,7 +324,7 @@ struct MilestoneRow: View {
                     .fill(milestone.color.opacity(0.2))
                     .frame(width: 32, height: 32)
 
-                Text("\(rank)")
+                Text(String(localized: "component.rank", defaultValue: "\(rank)", comment: "Rank"))
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundStyle(milestone.color)
@@ -344,7 +345,7 @@ struct MilestoneRow: View {
                     .foregroundStyle(.secondary)
 
                 if !milestone.isCompleted {
-                    Text("\(milestone.remaining) kaldı")
+                    Text(String(format: NSLocalizedString("analytics.remaining.format", comment: ""), milestone.remaining))
                         .font(.caption2)
                         .foregroundStyle(milestone.color)
                         .fontWeight(.medium)
@@ -395,7 +396,7 @@ struct CommunicationDepthCard: View {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .foregroundStyle(.secondary)
 
-                    Text("Not Yazma Trendi:")
+                    Text(String(localized: "analytics.note.trend", comment: ""))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
@@ -423,13 +424,13 @@ struct CommunicationDepthCard: View {
     private var insightText: some View {
         Group {
             if metrics.notesPercentage >= 80 {
-                Text("✨ Harika! Görüşmelerinizin çoğunda not tutuyorsunuz. Bu derin ve anlamlı iletişimin göstergesi.")
+                Text(String(localized: "analytics.note.excellent", comment: ""))
             } else if metrics.notesPercentage >= 50 {
-                Text("👍 İyi gidiyorsunuz. Daha fazla not almak görüşmelerinizi daha anlamlı hale getirebilir.")
+                Text(String(localized: "analytics.note.good", comment: ""))
             } else if metrics.notesPercentage >= 25 {
-                Text("💡 Görüşmeleriniz sırasında not almayı deneyin. Gelecekte değerli anılar olabilir.")
+                Text(String(localized: "analytics.note.try", comment: ""))
             } else {
-                Text("📝 Not tutmaya başlamak için harika bir zaman! Küçük detaylar bile önemlidir.")
+                Text(String(localized: "analytics.note.start", comment: ""))
             }
         }
     }
@@ -460,7 +461,7 @@ struct FriendMoodTimelineCard: View {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .foregroundStyle(.secondary)
 
-                        Text("Genel Eğilim:")
+                        Text(String(localized: "analytics.general.trend", comment: ""))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
@@ -478,7 +479,7 @@ struct FriendMoodTimelineCard: View {
                         Image(systemName: "heart.fill")
                             .foregroundStyle(.red)
 
-                        Text("Ortalama Ruh Hali:")
+                        Text(String(localized: "analytics.average.mood", comment: ""))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
@@ -500,11 +501,11 @@ struct FriendMoodTimelineCard: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
 
-            Text("Henüz Ruh Hali Verisi Yok")
+            Text(String(localized: "analytics.mood.no.data", comment: ""))
                 .font(.headline)
                 .foregroundStyle(.secondary)
 
-            Text("Görüşmelerinize ruh hali ekleyerek trend analizi oluşturabilirsiniz")
+            Text(String(localized: "analytics.mood.add.prompt", comment: ""))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -530,7 +531,7 @@ struct MoodStreakCard: View {
                         Text(streak.emoji)
                             .font(.system(size: 64))
 
-                        Text("\(streak.count)")
+                        Text(String(localized: "component.count", defaultValue: "\(streak.count)", comment: "Streak count"))
                             .font(.system(size: 48, weight: .bold))
                             .foregroundStyle(streak.color)
 
@@ -549,7 +550,7 @@ struct MoodStreakCard: View {
                         Image(systemName: "calendar")
                             .foregroundStyle(.secondary)
 
-                        Text("Başlangıç:")
+                        Text(String(localized: "analytics.streak.start", comment: ""))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
@@ -578,16 +579,16 @@ struct MoodStreakCard: View {
         switch streak.type {
         case .great:
             if streak.count >= 5 {
-                return Text("🎉 Muhteşem! \(streak.count) harika görüşme serisi devam ediyor!")
+                return Text(String(format: NSLocalizedString("analytics.streak.excellent.format", comment: ""), streak.count))
             } else {
-                return Text("✨ İyi gidiyorsunuz! \(streak.count) harika görüşme. Devam edin!")
+                return Text(String(format: NSLocalizedString("analytics.streak.good.format", comment: ""), streak.count))
             }
         case .good:
-            return Text("👍 \(streak.count) iyi görüşme! İlişkiniz güzel seyrediyor.")
+            return Text(String(format: NSLocalizedString("analytics.streak.nice.format", comment: ""), streak.count))
         case .okay:
-            return Text("🤔 Son \(streak.count) görüşme normal geçti. Belki daha derin konuşmalar deneyebilirsiniz?")
+            return Text(String(localized: "analytics.streak.normal", defaultValue: "🤔 Last \(streak.count) meetings were normal. Maybe you could talk more.", comment: "Normal streak"))
         case .notGreat:
-            return Text("💙 Son \(streak.count) görüşme zordu. Bu kişiyle konuşmak faydalı olabilir.")
+            return Text(String(localized: "analytics.streak.difficult", defaultValue: "💙 Last \(streak.count) meetings were difficult. Keep talking with this person.", comment: "Difficult streak"))
         }
     }
 
@@ -597,11 +598,11 @@ struct MoodStreakCard: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
 
-            Text("Henüz Seri Yok")
+            Text(String(localized: "analytics.streak.none", comment: ""))
                 .font(.headline)
                 .foregroundStyle(.secondary)
 
-            Text("Görüşmelerinize ruh hali ekleyerek seri oluşturabilirsiniz")
+            Text(String(localized: "analytics.streak.add.prompt", comment: ""))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -624,7 +625,7 @@ struct WeekdayMoodDistributionCard: View {
                 emptyState
             } else {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Hangi günler daha pozitif?")
+                    Text(String(localized: "analytics.days.positive", comment: ""))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
@@ -656,7 +657,7 @@ struct WeekdayMoodDistributionCard: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
 
-            Text("Henüz Günlük Veri Yok")
+            Text(String(localized: "analytics.daily.no.data", comment: ""))
                 .font(.headline)
                 .foregroundStyle(.secondary)
         }

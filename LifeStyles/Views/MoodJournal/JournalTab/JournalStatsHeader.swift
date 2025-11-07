@@ -107,7 +107,7 @@ struct JournalStatsHeader: View {
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
 
-                Text("Journal Dağılımı")
+                Text(String(localized: "journal.distribution", comment: ""))
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.secondary)
 
@@ -121,7 +121,7 @@ struct JournalStatsHeader: View {
                             Text(dist.type.emoji)
                                 .font(.system(size: 14))
 
-                            Text("\(dist.count)")
+                            Text(String(localized: "journal.stats.count", defaultValue: "\(dist.count)", comment: "Distribution count"))
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(dist.type.color)
 
@@ -311,7 +311,7 @@ struct JournalStatCard: View {
 
 // MARK: - Animated Gradient Background
 
-struct AnimatedGradientBackground: View {
+private struct AnimatedGradientBackground: View {
     @State private var animateGradient = false
 
     let colors: [Color] = [

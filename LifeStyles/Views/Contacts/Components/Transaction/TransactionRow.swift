@@ -62,7 +62,7 @@ struct TransactionRow: View {
 
             // Amount
             VStack(alignment: .trailing, spacing: 4) {
-                Text("\(transaction.amount.description) \(transaction.currency)")
+                Text(String(localized: "transaction.amount", defaultValue: "\(transaction.amount.description) \(transaction.currency)", comment: "Transaction amount"))
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundStyle(transaction.transactionType == .debt ? .red : .green)
@@ -91,13 +91,13 @@ struct TransactionRow: View {
                 Button {
                     onMarkAsPaid(transaction)
                 } label: {
-                    Label("Ödendi Olarak İşaretle", systemImage: "checkmark.circle")
+                    Label(String(localized: "button.mark.paid", comment: "Mark as paid"), systemImage: "checkmark.circle")
                 }
             } else {
                 Button {
                     onMarkAsUnpaid(transaction)
                 } label: {
-                    Label("Ödenmedi Olarak İşaretle", systemImage: "xmark.circle")
+                    Label(String(localized: "button.mark.unpaid", comment: "Mark as unpaid"), systemImage: "xmark.circle")
                 }
             }
 
@@ -107,7 +107,7 @@ struct TransactionRow: View {
             Button(role: .destructive) {
                 onDelete(transaction)
             } label: {
-                Label("Sil", systemImage: "trash")
+                Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
             }
         }
     }

@@ -320,11 +320,11 @@ struct AIConsentSheet: View {
                 }
                 .padding()
             }
-            .navigationTitle("AI Onayı")
+            .navigationTitle(String(localized: "nav.ai.onayı"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
@@ -490,11 +490,11 @@ struct DataSharingDetailsSheet: View {
                     )
                 }
             }
-            .navigationTitle("Paylaşılan Veriler")
+            .navigationTitle(String(localized: "nav.paylaşılan.veriler"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                 }

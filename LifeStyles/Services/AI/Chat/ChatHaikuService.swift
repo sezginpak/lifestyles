@@ -135,7 +135,7 @@ class ChatHaikuService {
         trackDataUsage(context: context)
 
         // Generate prompts
-        let (systemPrompt, userMessage) = generateChatPrompt(
+        let (systemPrompt, userMessage) = await generateChatPrompt(
             context: context,
             question: question,
             chatHistory: chatHistory,
@@ -165,7 +165,7 @@ class ChatHaikuService {
 
     // MARK: - Knowledge Extraction (NEW)
 
-    /// Konuşmadan bilgi çıkar ve kaydet
+    /// Konuşmadan bilgi çıkar ve kaydet - Artık hem user hem entity knowledge
     private func extractKnowledgeFromConversation(
         userMessage: String,
         aiResponse: String,
@@ -189,10 +189,15 @@ class ChatHaikuService {
             ChatMessage(id: UUID(), content: userMessage, isUser: true, timestamp: Date())
         )
 
+        // 🚀 YENI: Tüm arkadaşları al (entity tanıma için)
+        let availableFriends = (try? modelContext.fetch(FetchDescriptor<Friend>())) ?? []
+
         let extractor = KnowledgeExtractor.shared
         let _ = await extractor.extractKnowledge(
             from: allUserMessages,
-            context: modelContext
+            context: modelContext,
+            conversationId: nil,
+            availableFriends: availableFriends
         )
     }
 
@@ -351,7 +356,7 @@ class ChatHaikuService {
         question: String,
         chatHistory: [ChatMessage],
         modelContext: ModelContext
-    ) -> (system: String, user: String) {
+    ) async -> (system: String, user: String) {
 
         let systemPrompt: String
 
@@ -506,7 +511,7 @@ class ChatHaikuService {
                 }
             }
 
-            // 🧠 YENI: AI Learned Knowledge Context
+            // 🧠 YENI: AI Learned Knowledge Context (VECTOR SEARCH)
             // AI'ın önceki konuşmalardan öğrendiği bilgileri yükle
             if let allKnowledge = try? modelContext.fetch(
                 FetchDescriptor<UserKnowledge>(
@@ -514,14 +519,28 @@ class ChatHaikuService {
                     sortBy: [SortDescriptor(\.confidence, order: .reverse)]
                 )
             ) {
-                // SmartContextBuilder ile relevant facts seç (token optimization)
-                let smartContext = SmartContextBuilder.shared.buildContext(
-                    for: question,
-                    from: allKnowledge
+                // 🚀 HYBRID SEARCH: Semantic + Keyword + Quality + Recency
+                let relevantFacts = await SmartContextBuilder.shared.findRelevantFactsAsync(
+                    question,
+                    in: allKnowledge,
+                    modelContext: modelContext
                 )
 
-                if !smartContext.isEmpty {
-                    contextInfo += "\n\n🧠 ÖĞRENİLMİŞ BİLGİLER (Önceki konuşmalardan):\(smartContext)"
+                if !relevantFacts.isEmpty {
+                    // Format facts for context
+                    var knowledgeText = ""
+
+                    // Group by category
+                    let grouped = Dictionary(grouping: relevantFacts) { $0.categoryEnum }
+
+                    for (category, facts) in grouped.sorted(by: { $0.key.rawValue < $1.key.rawValue }) {
+                        knowledgeText += "\n\n\(category.localizedName):"
+                        for fact in facts.prefix(5) { // Max 5 per category
+                            knowledgeText += "\n• \(fact.key): \(fact.value)"
+                        }
+                    }
+
+                    contextInfo += "\n\n🧠 ÖĞRENİLMİŞ BİLGİLER (Önceki konuşmalardan):\(knowledgeText)"
                 }
             }
 
@@ -532,18 +551,19 @@ class ChatHaikuService {
             \(profileInfo)
             \(contextInfo)
             Kurallar:
-            - Türkçe yaz, samimi ve doğal ol
-            - Kısa ve öz cevaplar ver (2-3 cümle ideal)
-            - Emoji kullan (abartma, 1-2 emoji yeterli)
-            - Yapıcı ve motive edici ol
-            - Kullanıcının adını, yaşını, mesleğini kullanarak kişisel ol
-            - Hobiler ve ilgi alanlarına özel önerilerde bulun
-            - Context bilgilerini kullanarak kişiselleştirilmiş önerilerde bulun
-            - Önceki konuşmalardan öğrendiğin bilgileri (🧠 işaretli) mutlaka dikkate al
-            - Hedef/alışkanlık/mood verilerini analiz ederek tavsiye ver
-            - Gerekirse soru sor, daha fazla detay iste
+            - ALWAYS respond in the SAME LANGUAGE as the user's message (Turkish, English, etc.)
+            - Samimi ve doğal ol / Be friendly and natural
+            - Kısa ve öz cevaplar ver (2-3 cümle ideal) / Keep answers concise (2-3 sentences ideal)
+            - Emoji kullan (abartma, 1-2 emoji yeterli) / Use emojis moderately (1-2 emojis)
+            - Yapıcı ve motive edici ol / Be constructive and motivating
+            - Kullanıcının adını, yaşını, mesleğini kullanarak kişisel ol / Personalize with user's name, age, occupation
+            - Hobiler ve ilgi alanlarına özel önerilerde bulun / Make suggestions based on hobbies and interests
+            - Context bilgilerini kullanarak kişiselleştirilmiş önerilerde bulun / Use context for personalized recommendations
+            - Önceki konuşmalardan öğrendiğin bilgileri (🧠 işaretli) mutlaka dikkate al / Consider learned knowledge (🧠 marked)
+            - Hedef/alışkanlık/mood verilerini analiz ederek tavsiye ver / Analyze goals/habits/mood data for advice
+            - Gerekirse soru sor, daha fazla detay iste / Ask questions when needed
 
-            Tarzın: Arkadaş canlısı, destekleyici, anlayışlı, motive edici
+            Tarzın: Arkadaş canlısı, destekleyici, anlayışlı, motive edici / Friendly, supportive, understanding, motivating
             """
         } else {
             // Friend modu - kişiselleştirilmiş asistan
@@ -598,7 +618,7 @@ class ChatHaikuService {
                 }
             }
 
-            // 🧠 YENI: AI Learned Knowledge Context (Friend mode için de)
+            // 🧠 YENI: AI Learned Knowledge Context (Friend mode için de - VECTOR SEARCH)
             // AI'ın önceki konuşmalardan öğrendiği bilgileri yükle
             var knowledgeContext = ""
             if let allKnowledge = try? modelContext.fetch(
@@ -607,14 +627,28 @@ class ChatHaikuService {
                     sortBy: [SortDescriptor(\.confidence, order: .reverse)]
                 )
             ) {
-                // SmartContextBuilder ile relevant facts seç (token optimization)
-                let smartContext = SmartContextBuilder.shared.buildContext(
-                    for: question,
-                    from: allKnowledge
+                // 🚀 HYBRID SEARCH: Semantic + Keyword + Quality + Recency
+                let relevantFacts = await SmartContextBuilder.shared.findRelevantFactsAsync(
+                    question,
+                    in: allKnowledge,
+                    modelContext: modelContext
                 )
 
-                if !smartContext.isEmpty {
-                    knowledgeContext = "\n\n🧠 Kullanıcı hakkında öğrendiğim bilgiler:\(smartContext)"
+                if !relevantFacts.isEmpty {
+                    // Format facts for context
+                    var knowledgeText = ""
+
+                    // Group by category
+                    let grouped = Dictionary(grouping: relevantFacts) { $0.categoryEnum }
+
+                    for (category, facts) in grouped.sorted(by: { $0.key.rawValue < $1.key.rawValue }) {
+                        knowledgeText += "\n\n\(category.localizedName):"
+                        for fact in facts.prefix(5) { // Max 5 per category
+                            knowledgeText += "\n• \(fact.key): \(fact.value)"
+                        }
+                    }
+
+                    knowledgeContext = "\n\n🧠 Kullanıcı hakkında öğrendiğim bilgiler:\(knowledgeText)"
                 }
             }
 
@@ -631,22 +665,23 @@ class ChatHaikuService {
             Görevin: Kullanıcıya \(friendName) ile ilişkisini güçlendirmede yardımcı olmak.
 
             Kurallar:
-            - Türkçe yaz, samimi ve doğal ol
-            - Kısa ve öz cevaplar ver (2-3 cümle)
-            - Emoji kullan (1-2 emoji yeterli)
-            - Yapıcı öneriler sun
-            - Kullanıcının context bilgisini kullan ama tekrar etme
-            - Öğrendiğin bilgileri (🧠 işaretli) kullanarak kişiselleştirilmiş öneriler yap
-            - İlişkiyi güçlendirici fikirler ver
-            - Kullanıcının ruh hali ve hedeflerini dikkate al
+            - ALWAYS respond in the SAME LANGUAGE as the user's message (Turkish, English, etc.)
+            - Samimi ve doğal ol / Be friendly and natural
+            - Kısa ve öz cevaplar ver (2-3 cümle) / Keep answers concise (2-3 sentences)
+            - Emoji kullan (1-2 emoji yeterli) / Use emojis moderately (1-2 emojis)
+            - Yapıcı öneriler sun / Provide constructive suggestions
+            - Kullanıcının context bilgisini kullan ama tekrar etme / Use context but don't repeat it
+            - Öğrendiğin bilgileri (🧠 işaretli) kullanarak kişiselleştirilmiş öneriler yap / Use learned knowledge (🧠) for personalized suggestions
+            - İlişkiyi güçlendirici fikirler ver / Give relationship-strengthening ideas
+            - Kullanıcının ruh hali ve hedeflerini dikkate al / Consider user's mood and goals
 
-            Konuşabileceğin konular:
-            - Mesaj önerileri ("\(friendName)'a ne mesaj atsam?")
-            - İletişim fikirleri ("Ne yapabilirim?", "Nasıl yaklaşmalıyım?")
-            - Aktivite önerileri ("Nereye gidelim?", "Ne yapsak?")
-            - İlişki tavsiyeleri
+            Konuşabileceğin konular / Topics you can discuss:
+            - Mesaj önerileri / Message suggestions ("\(friendName)'a ne mesaj atsam?" / "What should I message \(friendName)?")
+            - İletişim fikirleri / Communication ideas ("Ne yapabilirim?" / "What can I do?")
+            - Aktivite önerileri / Activity suggestions ("Nereye gidelim?" / "Where should we go?")
+            - İlişki tavsiyeleri / Relationship advice
 
-            Tarzın: Empatik, destekleyici, yaratıcı
+            Tarzın: Empatik, destekleyici, yaratıcı / Empathetic, supportive, creative
             """
         }
 

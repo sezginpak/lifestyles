@@ -324,7 +324,7 @@ class AutoSaveManager {
                 // Auto save indicator
                 FloatingAutoSave(state: autoSave.state)
 
-                TextField("Type something...", text: $text)
+                TextField(String(localized: "autosave.type.something", comment: ""), text: $text)
                     .textFieldStyle(.roundedBorder)
                     .onChange(of: text) { _, _ in
                         // Trigger auto save on text change
@@ -336,7 +336,7 @@ class AutoSaveManager {
                     }
 
                 HStack {
-                    Button("Save (Success)") {
+                    Button(String(localized: "autosave.save.success", comment: "")) {
                         Task {
                             await autoSave.save {
                                 try? await Task.sleep(nanoseconds: 1_000_000_000)
@@ -346,7 +346,7 @@ class AutoSaveManager {
                     }
                     .buttonStyle(.borderedProminent)
 
-                    Button("Save (Error)") {
+                    Button(String(localized: "autosave.save.error", comment: "")) {
                         Task {
                             await autoSave.save {
                                 try? await Task.sleep(nanoseconds: 1_000_000_000)

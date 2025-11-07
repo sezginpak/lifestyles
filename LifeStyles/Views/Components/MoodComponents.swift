@@ -124,7 +124,7 @@ struct MoodIntensitySlider: View {
             .frame(height: 40)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Yoğunluk seviyesi: \(intensity) / 5")
+        .accessibilityLabel(String(localized: "mood.intensity.label", defaultValue: "Intensity level: \(intensity) / 5", comment: "Intensity label"))
         .accessibilityValue("\(intensity)")
         .accessibilityAdjustableAction { direction in
             switch direction {
@@ -247,7 +247,7 @@ struct MoodCalendarCell: View {
         // DS: Updated spacing from 4 to Spacing.micro
         VStack(spacing: Spacing.micro) {
             // Gün numarası
-            Text("\(data.dayNumber)")
+            Text(String(localized: "calendar.day.number", defaultValue: "\(data.dayNumber)", comment: "Day number"))
                 .font(.caption2)
                 .fontWeight(data.isToday ? .bold : .regular)
                 .foregroundStyle(data.isToday ? .white : .primary)
@@ -324,7 +324,7 @@ struct MoodStatCard: View {
                 .fill(Color(.secondarySystemBackground))
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title): \(value)")
+        .accessibilityLabel(String(localized: "mood.title.value", defaultValue: "\(title): \(value)", comment: "Title value"))
         .accessibilityValue(trend != nil ? "Trend: \(trend!)" : "")
     }
 }

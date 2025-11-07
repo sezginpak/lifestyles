@@ -224,7 +224,7 @@ struct EnhancedJournalCard: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(entry.tags.prefix(4), id: \.self) { tag in
-                    Text("#\(tag)")
+                    Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(entry.journalType.color)
                         .padding(.horizontal, 8)
@@ -236,7 +236,7 @@ struct EnhancedJournalCard: View {
                 }
 
                 if entry.tags.count > 4 {
-                    Text("+\(entry.tags.count - 4)")
+                    Text(String(localized: "journal.tag.more", defaultValue: "+\(entry.tags.count - 4)", comment: "More tags"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 8)
@@ -269,7 +269,7 @@ struct EnhancedJournalCard: View {
             HStack(spacing: 4) {
                 Image(systemName: "doc.text")
                     .font(.system(size: 10))
-                Text("\(entry.wordCount)")
+                Text(String(localized: "journal.word.count", defaultValue: "\(entry.wordCount)", comment: "Word count"))
                     .font(.system(size: 11, weight: .medium))
             }
             .foregroundColor(.secondary)

@@ -87,7 +87,7 @@ class ChatTitleGenerator {
         Görevin: Verilen sohbet metninden 5-6 kelimelik kısa, öz ve açıklayıcı bir başlık oluştur.
 
         Kurallar:
-        - Türkçe yaz
+        - Respond in the conversation's language (Turkish, English, etc.)
         - 5-6 kelime, maksimum 40 karakter
         - Sohbetin ana konusunu yakala
         - Emoji kullanma

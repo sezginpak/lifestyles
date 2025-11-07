@@ -26,11 +26,11 @@ struct StickerPaletteView: View {
                 // Sticker grid
                 stickerGrid
             }
-            .navigationTitle("Sticker Ekle")
+            .navigationTitle(String(localized: "journal.nav.sticker.add", comment: "Add sticker"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }

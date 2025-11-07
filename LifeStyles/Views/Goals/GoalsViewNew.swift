@@ -26,13 +26,146 @@ struct GoalsViewNew: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Loading State
+                        if viewModel.isLoading {
+                            loadingContent
+                        } else if viewModel.goals.isEmpty && viewModel.habits.isEmpty {
+                            // Empty State
+                            emptyStateContent
+                        } else {
+                            // Normal Content
+                            normalContent
+                        }
+                    }
+                    .padding(.vertical)
+                }
+
+                // Error Overlay
+                if viewModel.showError, let errorMessage = viewModel.errorMessage {
+                    GoalErrorStateView(
+                        title: "Bir Hata Oluştu",
+                        message: errorMessage,
+                        retryAction: {
+                            viewModel.loadGoals(context: modelContext)
+                            viewModel.loadHabits(context: modelContext)
+                        }
+                    )
+                }
+            }
+            .navigationTitle(String(localized: "goals.tab.title", comment: "Goals"))
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 12) {
+                        // Add Goal
+                        Button {
+                            viewModel.showingAddGoal = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+
+                        // Add Habit
+                        Button {
+                            viewModel.showingAddHabit = true
+                        } label: {
+                            Image(systemName: "star.circle.fill")
+                                .font(.title3)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $viewModel.showingAddGoal) {
+                AddGoalView(viewModel: viewModel, modelContext: modelContext)
+            }
+            .sheet(isPresented: $viewModel.showingAddHabit) {
+                AddHabitView(viewModel: viewModel, modelContext: modelContext)
+            }
+            .sheet(isPresented: $showingPremiumSheet) {
+                PremiumSubscriptionView()
+            }
+            .task {
+                // Sadece ilk kez veri yükle
+                if !hasLoadedData {
+                    viewModel.loadGoals(context: modelContext)
+                    viewModel.loadHabits(context: modelContext)
+                    hasLoadedData = true
+                }
+            }
+            .refreshable {
+                // Refresh için güvenli yeniden yükleme
+                await refreshData()
+            }
+            .confetti(isPresented: $viewModel.showConfetti, count: 50)
+        }
+    }
+
+    // MARK: - Loading Content
+
+    private var loadingContent: some View {
+        VStack(spacing: 20) {
+            DashboardSkeletonCard()
+                .padding(.horizontal)
+
+            ForEach(0..<3, id: \.self) { _ in
+                GoalSkeletonCard()
+                    .padding(.horizontal)
+            }
+
+            ForEach(0..<2, id: \.self) { _ in
+                HabitSkeletonCard()
+                    .padding(.horizontal)
+            }
+        }
+    }
+
+    // MARK: - Empty State Content
+
+    private var emptyStateContent: some View {
+        VStack(spacing: 40) {
+            EmptyStateView(
+                icon: "target",
+                title: "Henüz Hedef Yok",
+                message: "İlk hedefini ekleyerek başla! Hedefler seni motivasyonlu tutmana yardımcı olacak.",
+                actionTitle: "Hedef Ekle",
+                action: {
+                    viewModel.showingAddGoal = true
+                }
+            )
+
+            EmptyStateView(
+                icon: "star",
+                title: "Henüz Alışkanlık Yok",
+                message: "Günlük alışkanlıklar ekleyerek kendini geliştirmeye başla!",
+                actionTitle: "Alışkanlık Ekle",
+                action: {
+                    viewModel.showingAddHabit = true
+                }
+            )
+        }
+        .padding()
+    }
+
+    // MARK: - Normal Content
+
+    private var normalContent: some View {
+        VStack(spacing: 20) {
                     // 1. Hero Dashboard
                     HeroDashboardCard(combinedStats: viewModel.combinedStats)
                         .padding(.horizontal)
 
-                    // 2. Weekly & Monthly Stats
+                    // 2. Filter Bar
+                    FilterBar(
+                        searchText: $viewModel.searchText,
+                        selectedCategory: $viewModel.selectedCategoryFilter,
+                        selectedPriority: $viewModel.selectedPriorityFilter,
+                        dateFilter: $viewModel.dateFilter
+                    )
+                    .padding(.horizontal)
+
+                    // 3. Weekly & Monthly Stats
                     HStack(spacing: 12) {
                         WeeklyStatsChart(weeklyStats: viewModel.weeklyGoalStats)
                             .frame(maxWidth: .infinity)
@@ -57,7 +190,7 @@ struct GoalsViewNew: View {
 
                             ForEach(viewModel.todaysFocus) { goal in
                                 GoalRingCard(goal: goal) {
-                                    viewModel.quickCompleteGoal(goal)
+                                    viewModel.quickCompleteGoal(goal, context: modelContext)
                                 }
                             }
                             .padding(.horizontal)
@@ -73,7 +206,7 @@ struct GoalsViewNew: View {
 
                             ForEach(viewModel.activeGoals.prefix(5)) { goal in
                                 GoalRingCard(goal: goal) {
-                                    viewModel.completeGoal(goal)
+                                    viewModel.completeGoal(goal, context: modelContext)
                                 }
                             }
                             .padding(.horizontal)
@@ -151,71 +284,6 @@ struct GoalsViewNew: View {
                                 showingPremiumSheet = true
                             }
                     }
-
-                    // Empty States
-                    if viewModel.goals.isEmpty && viewModel.habits.isEmpty {
-                        ContentUnavailableView(
-                            String(localized: "goals.lets_start"),
-                            systemImage: "target",
-                            description: Text(String(localized: "goal.empty.description", comment: "Start by adding a new goal or habit"))
-                        )
-                        .padding(.vertical, 60)
-                    }
-                }
-                .padding(.vertical)
-            }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle(String(localized: "goals.title"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            viewModel.showingAddGoal = true
-                        } label: {
-                            Label(String(localized: "goals.new_goal"), systemImage: "target")
-                        }
-
-                        Button {
-                            viewModel.showingAddHabit = true
-                        } label: {
-                            Label(String(localized: "goals.new_habit"), systemImage: "flame")
-                        }
-
-                        Divider()
-
-                        Button {
-                            // Achievement gallery
-                        } label: {
-                            Label(String(localized: "goals.achievements"), systemImage: "trophy.fill")
-                        }
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title3)
-                    }
-                }
-            }
-            .sheet(isPresented: $viewModel.showingAddGoal) {
-                AddGoalView(viewModel: viewModel, modelContext: modelContext)
-            }
-            .sheet(isPresented: $viewModel.showingAddHabit) {
-                AddHabitView(viewModel: viewModel, modelContext: modelContext)
-            }
-            .sheet(isPresented: $showingPremiumSheet) {
-                PremiumSubscriptionView()
-            }
-            .task {
-                // Sadece ilk kez veri yükle
-                if !hasLoadedData {
-                    viewModel.loadGoals(context: modelContext)
-                    viewModel.loadHabits(context: modelContext)
-                    hasLoadedData = true
-                }
-            }
-            .refreshable {
-                // Refresh için güvenli yeniden yükleme
-                await refreshData()
-            }
         }
     }
 
@@ -226,7 +294,7 @@ struct GoalsViewNew: View {
         viewModel.calculateWeeklyStats()
         viewModel.calculateMonthlyStats()
         viewModel.updateCombinedStats()
-        viewModel.checkAndAwardAchievements()
+        viewModel.checkAndAwardAchievements(context: modelContext)
     }
 }
 

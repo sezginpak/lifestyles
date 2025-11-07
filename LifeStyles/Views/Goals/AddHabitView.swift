@@ -81,7 +81,7 @@ struct AddHabitView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") { dismiss() }
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) { dismiss() }
                 }
             }
             .sheet(isPresented: $showingEmojiPicker) {
@@ -155,7 +155,7 @@ struct AddHabitView: View {
 
             VStack(alignment: .leading, spacing: AppConstants.Spacing.small) {
                 Text(String(localized: "habit.name.label", comment: "Habit name")).font(.subheadline.weight(.semibold))
-                TextField("Örn: Sabah meditasyonu", text: $draft.name)
+                TextField(String(localized: "placeholder.habit.example", comment: "Habit example placeholder"), text: $draft.name)
                     .textFieldStyle(.plain)
                     .padding()
                     .background(RoundedRectangle(cornerRadius: AppConstants.CornerRadius.medium).fill(Color.adaptiveSecondaryBackground))

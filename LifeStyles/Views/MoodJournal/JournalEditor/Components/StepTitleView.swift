@@ -31,7 +31,7 @@ struct StepTitleView: View {
                 .padding(.top, Spacing.large)
 
                 // Title Input
-                TextField("Başlık (opsiyonel)", text: $state.title)
+                TextField(String(localized: "journal.placeholder.title", comment: "Title placeholder"), text: $state.title)
                     .textFieldStyle(.plain)
                     .font(.title3)
                     .fontWeight(.medium)

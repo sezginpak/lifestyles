@@ -30,7 +30,7 @@ struct FriendDetailHistoryTab: View {
                                 Button(role: .destructive) {
                                     deleteHistory(item)
                                 } label: {
-                                    Label("Sil", systemImage: "trash")
+                                    Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                                 }
                             }
                     }

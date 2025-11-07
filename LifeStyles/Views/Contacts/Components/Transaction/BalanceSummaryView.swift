@@ -22,22 +22,22 @@ struct BalanceSummaryView: View {
             HStack(spacing: 12) {
                 // Net Balance
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Net Durum")
+                    Text(String(localized: "balance.net.status", comment: ""))
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
                     if balance > 0 {
-                        Text("+ \(balance.description) TL")
+                        Text(String(localized: "balance.positive", defaultValue: "+ \(balance.description) TL", comment: "Positive balance"))
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(.green)
                     } else if balance < 0 {
-                        Text("- \(abs(balance).description) TL")
+                        Text(String(localized: "balance.negative", defaultValue: "- \(abs(balance).description) TL", comment: "Negative balance"))
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(.red)
                     } else {
-                        Text("Dengede")
+                        Text(String(localized: "balance.balanced", comment: ""))
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
@@ -52,7 +52,7 @@ struct BalanceSummaryView: View {
                         VStack(spacing: 2) {
                             Text(String(localized: "transaction.debt", comment: "Debt"))
                                 .font(.caption2)
-                            Text("\(totalDebt.description) TL")
+                            Text(String(localized: "balance.debt", defaultValue: "\(totalDebt.description) TL", comment: "Debt amount"))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                         }
@@ -65,9 +65,9 @@ struct BalanceSummaryView: View {
 
                     if totalCredit > 0 {
                         VStack(spacing: 2) {
-                            Text("Alacak")
+                            Text(String(localized: "balance.receivable", comment: ""))
                                 .font(.caption2)
-                            Text("\(totalCredit.description) TL")
+                            Text(String(localized: "balance.credit", defaultValue: "\(totalCredit.description) TL", comment: "Credit amount"))
                                 .font(.caption)
                                 .fontWeight(.semibold)
                         }

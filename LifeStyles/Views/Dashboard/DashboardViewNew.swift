@@ -21,12 +21,32 @@ struct DashboardViewNew: View {
     @State private var dashboardSummary: DashboardSummary = .empty()
     @State private var partnerInfo: PartnerInfo? = nil
     @State private var streakInfo: StreakInfo = .empty()
+    @State private var achievements: [Achievement] = []
+    @State private var userProfile: UserProfile? = nil
 
     // Navigation states (YENİ)
     @State private var selectedTab: Int? = nil
     @State private var showingAddGoalSheet = false
     @State private var showingAddHabitSheet = false
+    @State private var showingProfileEdit = false
     @State private var goalsViewModel = GoalsViewModel()
+    @State private var premiumManager = PremiumManager.shared
+    @State private var showingPremiumPaywall = false
+    @State private var showingFullAchievements = false
+    @State private var selectedAchievement: Achievement? = nil
+
+    // Achievement unlock states
+    @State private var showingAchievementUnlock = false
+    @State private var unlockedAchievements: [Achievement] = []
+
+    // Notification states
+    @State private var showingNotificationCenter = false
+    @State private var unreadNotificationCount = 0
+
+    // Quick action states
+    @State private var showingMoodTracker = false
+    @State private var showingJournalEditor = false
+    @State private var showingContactLog = false
 
     var body: some View {
         NavigationStack {
@@ -36,11 +56,31 @@ struct DashboardViewNew: View {
                     HeroStatsCard(summary: dashboardSummary)
                         .padding(.horizontal)
                         .accessibilityElement(children: .contain)
-                        .accessibilityLabel("Dashboard özet kartı")
+                        .accessibilityLabel(String(localized: "dashboard.summary.card.accessibility", comment: ""))
 
                     // 1.5. Trial Countdown Widget (if trial active)
                     TrialCountdownWidget()
                         .padding(.horizontal)
+
+                    // 1.6. Profile Completion Widget (if incomplete)
+                    if let profile = userProfile, profile.completionPercentage < 1.0 {
+                        ProfileCompletionWidget(
+                            profile: profile,
+                            onEditProfile: {
+                                showingProfileEdit = true
+                            }
+                        )
+                        .padding(.horizontal)
+                    } else if userProfile == nil {
+                        // Show widget if no profile exists
+                        ProfileCompletionWidget(
+                            profile: nil,
+                            onEditProfile: {
+                                showingProfileEdit = true
+                            }
+                        )
+                        .padding(.horizontal)
+                    }
 
                     // 2. Mood Widget
                     DashboardMoodWidget()
@@ -68,15 +108,17 @@ struct DashboardViewNew: View {
                         .padding(.horizontal)
                     }
 
-                    // 5. Streak & Achievements
-                    if streakInfo.currentStreak > 0 || !streakInfo.recentAchievements.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(String(localized: "dashboard.achievements", comment: "Achievements"))
-                                .font(.headline)
-                                .padding(.horizontal)
-
-                            StreakAchievementCard(streakInfo: streakInfo)
-                        }
+                    // 5. Modern Achievements Section
+                    if !achievements.isEmpty {
+                        ModernAchievementsSection(
+                            achievements: achievements,
+                            onAchievementTap: { achievement in
+                                selectedAchievement = achievement
+                            },
+                            onSeeAll: {
+                                showingFullAchievements = true
+                            }
+                        )
                     }
 
                     // 6. Compact Stats Grid (2x2)
@@ -103,6 +145,14 @@ struct DashboardViewNew: View {
                     dashboardSummary = viewModel.getDashboardSummary(context: modelContext)
                     partnerInfo = viewModel.getPartnerInfo(context: modelContext)
                     streakInfo = viewModel.getStreakInfo(context: modelContext)
+                    achievements = viewModel.getAllAchievements(context: modelContext)
+
+                    // UserProfile yükle
+                    let descriptor = FetchDescriptor<UserProfile>()
+                    if let profiles = try? modelContext.fetch(descriptor),
+                       let existingProfile = profiles.first {
+                        userProfile = existingProfile
+                    }
                 }
 
                 HapticFeedback.success()
@@ -134,8 +184,137 @@ struct DashboardViewNew: View {
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
             }
-            .navigationTitle("LifeStyles")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    // Custom header
+                    HStack(spacing: 4) {
+                        Text(String(localized: "app.name.life", comment: "Life"))
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.brandPrimary, .purple],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+
+                        Text(String(localized: "app.name.styles", comment: "Styles"))
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.purple, .pink],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.yellow)
+                            .offset(y: -8)
+                    }
+                }
+
+                // Leading: Hızlı Ekle
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            showingAddGoalSheet = true
+                            HapticFeedback.medium()
+                        } label: {
+                            Label(String(localized: "dashboard.action.new.goal", comment: "New goal action"), systemImage: "target")
+                        }
+
+                        Button {
+                            showingAddHabitSheet = true
+                            HapticFeedback.medium()
+                        } label: {
+                            Label(String(localized: "dashboard.action.new.habit", comment: "New habit action"), systemImage: "checkmark.circle")
+                        }
+
+                        Divider()
+
+                        Button {
+                            showingMoodTracker = true
+                            HapticFeedback.medium()
+                        } label: {
+                            Label(String(localized: "dashboard.add.mood", comment: ""), systemImage: "face.smiling")
+                        }
+
+                        Button {
+                            showingJournalEditor = true
+                            HapticFeedback.medium()
+                        } label: {
+                            Label(String(localized: "dashboard.action.write.journal", comment: "Write journal action"), systemImage: "book.fill")
+                        }
+
+                        Button {
+                            showingContactLog = true
+                            HapticFeedback.medium()
+                        } label: {
+                            Label(String(localized: "dashboard.log.contact", comment: ""), systemImage: "person.2.fill")
+                        }
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 22))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.success, .green],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                }
+
+                // Trailing: Bildirimler + Profil
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 12) {
+                        // Bildirimler
+                        Button {
+                            showingNotificationCenter = true
+                            HapticFeedback.light()
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "bell.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(.secondary)
+
+                                if unreadNotificationCount > 0 {
+                                    ZStack {
+                                        Circle()
+                                            .fill(.red)
+                                            .frame(width: 14, height: 14)
+
+                                        Text(String(localized: "dashboard.notifications.badge.count", defaultValue: "\(min(unreadNotificationCount, 9))", comment: "Notification badge"))
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundStyle(.white)
+                                    }
+                                    .offset(x: 6, y: -4)
+                                }
+                            }
+                            .frame(width: 24, height: 24)
+                        }
+
+                        // Profil
+                        Button {
+                            showingProfileEdit = true
+                            HapticFeedback.light()
+                        } label: {
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 22))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.blue, .cyan],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        }
+                    }
+                }
+            }
             .sheet(isPresented: $showingFullDailyInsight) {
                 if let insight = viewModel.dailyInsightText {
                     FullDailyInsightSheet(
@@ -154,6 +333,50 @@ struct DashboardViewNew: View {
             }
             .sheet(isPresented: $showingAddHabitSheet) {
                 AddHabitView(viewModel: goalsViewModel, modelContext: modelContext)
+            }
+            .sheet(isPresented: $showingPremiumPaywall) {
+                PremiumPaywallView()
+            }
+            .sheet(isPresented: $showingFullAchievements) {
+                FullAchievementsView(achievements: achievements)
+            }
+            .sheet(item: $selectedAchievement) { achievement in
+                AchievementDetailSheet(achievement: achievement)
+            }
+            .sheet(isPresented: $showingProfileEdit) {
+                UserProfileEditView()
+            }
+            .sheet(isPresented: $showingNotificationCenter) {
+                NotificationCenterView()
+            }
+            .sheet(isPresented: $showingMoodTracker) {
+                MoodTrackerView(viewModel: MoodJournalViewModel())
+            }
+            .sheet(isPresented: $showingJournalEditor) {
+                if #available(iOS 16.0, *) {
+                    ModernJournalEditorView(viewModel: MoodJournalViewModel())
+                        .presentationDetents([.large])
+                } else {
+                    ModernJournalEditorView(viewModel: MoodJournalViewModel())
+                }
+            }
+            .sheet(isPresented: $showingContactLog) {
+                QuickContactLogView()
+            }
+            .fullScreenCover(isPresented: $showingAchievementUnlock) {
+                if unlockedAchievements.count == 1, let achievement = unlockedAchievements.first {
+                    // Single achievement
+                    AchievementUnlockModal(
+                        achievement: achievement,
+                        isPresented: $showingAchievementUnlock
+                    )
+                } else if unlockedAchievements.count > 1 {
+                    // Multiple achievements
+                    MultipleAchievementsModal(
+                        achievements: unlockedAchievements,
+                        isPresented: $showingAchievementUnlock
+                    )
+                }
             }
             .task {
                 // Async olarak veri yükle
@@ -345,7 +568,7 @@ struct DashboardViewNew: View {
                         )
                     )
 
-                Text("Akıllı Öneriler")
+                Text(String(localized: "dashboard.smart.suggestions", comment: "Smart Suggestions"))
                     .font(.title3.bold())
 
                 Spacer()
@@ -359,7 +582,7 @@ struct DashboardViewNew: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "brain.head.profile")
-                        Text("AI")
+                        Text(String(localized: "ai.abbr", comment: "AI"))
                     }
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.purple)
@@ -464,20 +687,29 @@ struct DashboardViewNew: View {
                     isLoading: true
                 )
                 .padding(.horizontal)
+                .premiumLocked(!premiumManager.isPremium, title: "Günlük AI İçgörüler") {
+                    HapticFeedback.medium()
+                    showingPremiumPaywall = true
+                }
 
             } else if let insight = viewModel.dailyInsightText {
                 // Modern Daily Insight kartı
                 DailyInsightCard(
                     insight: insight,
                     timeOfDay: viewModel.dailyInsightTimeOfDay,
-                    onRefresh: {
+                    onRefresh: premiumManager.isPremium ? {
                         await viewModel.refreshDailyInsight(context: modelContext)
-                    },
-                    onExpand: {
+                    } : nil,
+                    onExpand: premiumManager.isPremium ? {
+                        HapticFeedback.light()
                         showingFullDailyInsight = true
-                    }
+                    } : nil
                 )
                 .padding(.horizontal)
+                .premiumLocked(!premiumManager.isPremium, title: "Günlük AI İçgörüler") {
+                    HapticFeedback.medium()
+                    showingPremiumPaywall = true
+                }
 
             } else if let error = viewModel.dailyInsightError {
                 // Error state (kompakt)
@@ -498,13 +730,15 @@ struct DashboardViewNew: View {
 
                     Spacer()
 
-                    Button("Tekrar Dene") {
-                        Task {
-                            await viewModel.refreshDailyInsight(context: modelContext)
+                    if premiumManager.isPremium {
+                        Button(String(localized: "button.retry", comment: "Retry button")) {
+                            Task {
+                                await viewModel.refreshDailyInsight(context: modelContext)
+                            }
                         }
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.orange)
                     }
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.orange)
                 }
                 .padding(Spacing.medium)
                 .background(
@@ -512,6 +746,10 @@ struct DashboardViewNew: View {
                         .fill(.orange.opacity(0.1))
                 )
                 .padding(.horizontal)
+                .premiumLocked(!premiumManager.isPremium, title: "Günlük AI İçgörüler") {
+                    HapticFeedback.medium()
+                    showingPremiumPaywall = true
+                }
         } else {
             EmptyView()
         }
@@ -547,6 +785,37 @@ struct DashboardViewNew: View {
         dashboardSummary = viewModel.getDashboardSummary(context: modelContext)
         partnerInfo = viewModel.getPartnerInfo(context: modelContext)
         streakInfo = viewModel.getStreakInfo(context: modelContext)
+        achievements = viewModel.getAllAchievements(context: modelContext)
+
+        // UserProfile yükle
+        let descriptor = FetchDescriptor<UserProfile>()
+        if let profiles = try? modelContext.fetch(descriptor),
+           let existingProfile = profiles.first {
+            userProfile = existingProfile
+        }
+
+        // Bildirim sayısını yükle
+        await loadNotificationCount()
+
+        // Yeni kazanılan başarıları kontrol et
+        let newAchievements = viewModel.checkNewAchievements(context: modelContext)
+        if !newAchievements.isEmpty {
+            // Unlock modal göster
+            unlockedAchievements = newAchievements
+            showingAchievementUnlock = true
+            print("🎉 Yeni başarı kazanıldı: \(newAchievements.map { $0.title })")
+        }
+    }
+
+    /// Bildirim sayısını yükle
+    private func loadNotificationCount() async {
+        let pendingCount = await NotificationService.shared.getPendingNotificationCount()
+        let deliveredCount = await NotificationService.shared.getDeliveredNotificationCount()
+
+        await MainActor.run {
+            // Toplam okunmamış bildirim sayısı
+            unreadNotificationCount = pendingCount + deliveredCount
+        }
     }
 
     private func callPartner(_ partner: PartnerInfo) {

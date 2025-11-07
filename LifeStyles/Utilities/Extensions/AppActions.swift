@@ -130,7 +130,7 @@ struct StreakBadgeView: View {
             Image(systemName: "flame.fill")
                 .font(.system(size: size.iconSize))
 
-            Text("\(days)")
+            Text(String(localized: "text.days"))
                 .font(.system(size: size.textSize, weight: .bold, design: .rounded))
         }
         .foregroundStyle(

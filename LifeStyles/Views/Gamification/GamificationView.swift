@@ -58,7 +58,7 @@ struct GamificationView: View {
                 .padding(.vertical, 20)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Başarılar")
+            .navigationTitle(String(localized: "nav.başarılar"))
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -176,7 +176,7 @@ struct GamificationView: View {
     var recentBadgesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Son Kazanılan Rozetler")
+                Text(String(localized: "gamification.recent.badges", comment: ""))
                     .font(.headline)
                     .foregroundColor(.primary)
 
@@ -185,7 +185,7 @@ struct GamificationView: View {
                 Button(action: {
                     selectedTab = .badges
                 }) {
-                    Text("Tümü")
+                    Text(String(localized: "gamification.view.all", comment: ""))
                         .font(.subheadline)
                         .foregroundColor(.blue)
                 }
@@ -260,7 +260,7 @@ struct GamificationView: View {
 
     var detailedStatsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Detaylı İstatistikler")
+            Text(String(localized: "gamification.detailed.stats", comment: ""))
                 .font(.headline)
                 .padding(.horizontal)
 

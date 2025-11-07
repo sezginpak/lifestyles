@@ -260,7 +260,7 @@ struct SubscriptionPlanCard: View {
                         }
                     }
 
-                    Text("\(plan.price) / \(plan.period)")
+                    Text(String(localized: "text.planprice.planperiod"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

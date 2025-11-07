@@ -137,7 +137,7 @@ struct SplashAlternative1: View {
 
                 // App name
                 VStack(spacing: 12) {
-                    Text("LifeStyles")
+                    Text(String(localized: "app.name", defaultValue: "LifeStyles", comment: "App name"))
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
@@ -330,7 +330,7 @@ struct SplashAlternative2: View {
 
                 // App name
                 VStack(spacing: 12) {
-                    Text("LifeStyles")
+                    Text(String(localized: "app.name", defaultValue: "LifeStyles", comment: "App name"))
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .scaleEffect(nameScale)
@@ -493,7 +493,7 @@ struct SplashAlternative3: View {
 
                 // App name
                 VStack(spacing: 12) {
-                    Text("LifeStyles")
+                    Text(String(localized: "app.name", defaultValue: "LifeStyles", comment: "App name"))
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
@@ -664,7 +664,7 @@ struct SplashAlternative4: View {
 
                 // App name
                 VStack(spacing: 12) {
-                    Text("LifeStyles")
+                    Text(String(localized: "app.name", defaultValue: "LifeStyles", comment: "App name"))
                         .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(

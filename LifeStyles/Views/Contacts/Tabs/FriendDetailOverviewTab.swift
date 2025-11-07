@@ -201,7 +201,7 @@ struct FriendDetailOverviewTab: View {
 
     private var modernNotesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Notlar")
+            Text(String(localized: "friend.notes", comment: ""))
                 .font(.headline)
                 .foregroundStyle(.primary)
 
@@ -217,7 +217,7 @@ struct FriendDetailOverviewTab: View {
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                        Text("Kaydet")
+                        Text(String(localized: "friend.save", comment: ""))
                             .fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity)

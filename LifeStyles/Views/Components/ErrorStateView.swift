@@ -73,7 +73,7 @@ struct ErrorStateView: View {
                     // Uygulamayı yeniden başlat
                     exit(0)
                 } label: {
-                    Label("Uygulamayı Yeniden Başlat", systemImage: "arrow.clockwise")
+                    Label(String(localized: "error.restart.app", comment: ""), systemImage: "arrow.clockwise")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
@@ -87,7 +87,7 @@ struct ErrorStateView: View {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    Label("Güncelleme Kontrolü", systemImage: "arrow.down.circle")
+                    Label(String(localized: "error.check.updates", comment: ""), systemImage: "arrow.down.circle")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.gray.opacity(0.2))
@@ -100,7 +100,7 @@ struct ErrorStateView: View {
 
             Spacer()
 
-            Text("Sorun devam ederse lütfen desteğe başvurun")
+            Text(String(localized: "error.contact.support", comment: ""))
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }

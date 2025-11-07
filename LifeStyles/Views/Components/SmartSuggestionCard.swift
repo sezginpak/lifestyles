@@ -84,7 +84,7 @@ struct SmartSuggestionCard: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chart.line.uptrend.xyaxis")
                                     .font(.caption2)
-                                Text("Devam Ediyor")
+                                Text(String(localized: "suggestion.in.progress", comment: ""))
                                     .font(.caption2.weight(.medium))
                             }
                             .foregroundStyle(progressColor)
@@ -145,7 +145,7 @@ struct SmartSuggestionCard: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 18, weight: .semibold))
-                            Text("Kabul Et")
+                            Text(String(localized: "suggestion.accept", comment: ""))
                                 .font(.subheadline.weight(.semibold))
                         }
                         .foregroundStyle(.white)
@@ -207,19 +207,19 @@ struct SmartSuggestionCard: View {
             Button {
                 onTap()
             } label: {
-                Label("Detayları Gör", systemImage: "doc.text")
+                Label(String(localized: "button.view.details", comment: "View details"), systemImage: "doc.text")
             }
 
             Button {
                 onAccept()
             } label: {
-                Label("Hedef Olarak Ekle", systemImage: "checkmark.circle")
+                Label(String(localized: "button.add.as.goal", comment: "Add as goal"), systemImage: "checkmark.circle")
             }
 
             Button {
                 // TODO: Remind later functionality
             } label: {
-                Label("Hatırlat", systemImage: "clock")
+                Label(String(localized: "button.remind", comment: "Remind"), systemImage: "clock")
             }
 
             Divider()
@@ -227,7 +227,7 @@ struct SmartSuggestionCard: View {
             Button(role: .destructive) {
                 onDismiss()
             } label: {
-                Label("İlgilenmiyorum", systemImage: "xmark")
+                Label(String(localized: "button.not.interested", comment: "Not interested"), systemImage: "xmark")
             }
         }
         .onAppear {

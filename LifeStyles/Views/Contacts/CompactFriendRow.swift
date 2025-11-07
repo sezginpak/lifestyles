@@ -180,7 +180,7 @@ struct SwipeableFriendRow: View {
                 HapticFeedback.success()
                 viewModel.markAsContacted(friend)
             } label: {
-                Label("Tamamla", systemImage: "checkmark.circle.fill")
+                Label(String(localized: "button.complete", comment: "Complete button"), systemImage: "checkmark.circle.fill")
             }
             .tint(.green)
         }
@@ -190,7 +190,7 @@ struct SwipeableFriendRow: View {
                 HapticFeedback.light()
                 sendMessage(to: friend)
             } label: {
-                Label("Mesaj", systemImage: "message.fill")
+                Label(String(localized: "button.message", comment: "Message button"), systemImage: "message.fill")
             }
             .tint(.blue)
 
@@ -199,7 +199,7 @@ struct SwipeableFriendRow: View {
                 HapticFeedback.light()
                 callFriend(friend)
             } label: {
-                Label("Ara", systemImage: "phone.fill")
+                Label(String(localized: "button.call", comment: "Call button"), systemImage: "phone.fill")
             }
             .tint(.purple)
         }

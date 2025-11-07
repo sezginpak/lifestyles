@@ -20,7 +20,7 @@ struct JournalSearchBar: View {
                 .foregroundColor(isFocused ? .brandPrimary : .secondary)
 
             // Text field
-            TextField("Journal ara...", text: $searchText)
+            TextField(String(localized: "journal.search.placeholder", comment: ""), text: $searchText)
                 .font(.system(size: 16))
                 .focused($isFocused)
                 .submitLabel(.search)

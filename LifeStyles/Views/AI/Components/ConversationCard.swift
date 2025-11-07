@@ -11,7 +11,6 @@ import SwiftData
 
 struct ConversationCard: View {
     let conversation: ChatConversation
-    let onTap: () -> Void
     let onDelete: () -> Void
     let onToggleFavorite: () -> Void
     let onEdit: () -> Void
@@ -20,14 +19,39 @@ struct ConversationCard: View {
     @State private var editedTitle = ""
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: Spacing.small) {
+        HStack(spacing: Spacing.medium) {
+            // Left: Avatar/Icon
+            ZStack {
+                Circle()
+                    .fill(
+                        conversation.isGeneralMode
+                            ? LinearGradient(
+                                colors: [.purple.opacity(0.8), .blue.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                            : LinearGradient(
+                                colors: [Color.cardCommunication.opacity(0.8), Color.cardCommunication.opacity(0.6)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                    )
+                    .frame(width: 50, height: 50)
+
+                Image(systemName: conversation.isGeneralMode ? "brain.head.profile" : "person.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(.white)
+            }
+            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+
+            // Middle: Content
+            VStack(alignment: .leading, spacing: 6) {
                 // Header: Title + Badges
-                HStack(spacing: Spacing.small) {
+                HStack(spacing: 6) {
                     // Pinned indicator
                     if conversation.isPinned {
                         Image(systemName: "pin.fill")
-                            .font(.caption2)
+                            .font(.system(size: 10))
                             .foregroundStyle(.orange)
                     }
 
@@ -38,12 +62,10 @@ struct ConversationCard: View {
                         .foregroundStyle(.primary)
                         .lineLimit(1)
 
-                    Spacer()
-
                     // Favorite star
                     if conversation.isFavorite {
                         Image(systemName: "star.fill")
-                            .font(.caption)
+                            .font(.system(size: 10))
                             .foregroundStyle(.yellow)
                     }
                 }
@@ -53,69 +75,83 @@ struct ConversationCard: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
 
-                // Footer: Badges + Time
-                HStack(spacing: Spacing.small) {
-                    // Friend badge (if applicable)
+                // Footer: Badges + Stats
+                HStack(spacing: 8) {
+                    // Mode badge
                     if !conversation.isGeneralMode, let friendName = conversation.friendName {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.fill")
-                                .font(.caption2)
-                            Text(friendName)
-                                .font(.caption2)
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(Color.cardCommunication.gradient)
-                        .clipShape(Capsule())
-                    } else {
-                        // General mode badge
-                        HStack(spacing: 4) {
-                            Image(systemName: "brain.head.profile")
-                                .font(.caption2)
-                            Text(String(localized: "ai.general", comment: "General"))
-                                .font(.caption2)
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
-                        .background(
-                            LinearGradient(
-                                colors: [.purple, .blue],
-                                startPoint: .leading,
-                                endPoint: .trailing
+                        Label(friendName, systemImage: "person.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(Color.cardCommunication.gradient)
                             )
+                    } else {
+                        Label(String(localized: "conversation.general", comment: ""), systemImage: "sparkles")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.purple, .blue],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                            )
+                    }
+
+                    // Message count badge
+                    Label(String(localized: "analytics.message.count", defaultValue: "\(conversation.messageCount)", comment: "Message count"), systemImage: "bubble.left.and.bubble.right.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color(.tertiarySystemBackground))
                         )
-                        .clipShape(Capsule())
-                    }
-
-                    // Message count
-                    HStack(spacing: 2) {
-                        Image(systemName: "bubble.left.and.bubble.right.fill")
-                            .font(.caption2)
-                        Text("\(conversation.messageCount)")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.secondary)
-
-                    Spacer()
-
-                    // Time
-                    Text(conversation.relativeTime)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
                 }
             }
-            .padding(Spacing.medium)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: CornerRadius.normal))
-            .overlay(
-                RoundedRectangle(cornerRadius: CornerRadius.normal)
-                    .stroke(Color(.separator).opacity(0.3), lineWidth: 1)
-            )
+
+            Spacer()
+
+            // Right: Time + Chevron
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(conversation.relativeTime)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
+            }
+            .frame(height: 50)
         }
-        .buttonStyle(.plain)
+        .padding(Spacing.medium)
+        .background(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .fill(Color(.secondarySystemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: CornerRadius.medium)
+                .stroke(
+                    conversation.isFavorite
+                        ? Color.yellow.opacity(0.3)
+                        : Color(.separator).opacity(0.2),
+                    lineWidth: conversation.isFavorite ? 1.5 : 0.5
+                )
+        )
         .contextMenu {
             // Favorite toggle
             Button {
@@ -133,7 +169,7 @@ struct ConversationCard: View {
                 editedTitle = conversation.title
                 showEditAlert = true
             } label: {
-                Label("Başlığı Düzenle", systemImage: "pencil")
+                Label(String(localized: "button.edit.title", comment: "Edit title"), systemImage: "pencil")
             }
 
             Divider()
@@ -143,13 +179,13 @@ struct ConversationCard: View {
                 HapticFeedback.warning()
                 onDelete()
             } label: {
-                Label("Sil", systemImage: "trash")
+                Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
             }
         }
         .alert("Başlığı Düzenle", isPresented: $showEditAlert) {
-            TextField("Başlık", text: $editedTitle)
-            Button("İptal", role: .cancel) {}
-            Button("Kaydet") {
+            TextField(String(localized: "placeholder.title", comment: "Title placeholder"), text: $editedTitle)
+            Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) {}
+            Button(String(localized: "button.save", comment: "Save button")) {
                 if !editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     conversation.updateTitle(editedTitle, isAIGenerated: false)
                     HapticFeedback.success()
@@ -180,16 +216,21 @@ struct ConversationCard: View {
     conversation.addMessage(msg1)
     conversation.addMessage(msg2)
 
-    return ScrollView {
-        VStack(spacing: 12) {
-            ConversationCard(
-                conversation: conversation,
-                onTap: { print("Tapped") },
-                onDelete: { print("Delete") },
-                onToggleFavorite: { print("Toggle fav") },
-                onEdit: { print("Edit") }
-            )
+    return NavigationStack {
+        ScrollView {
+            VStack(spacing: 12) {
+                NavigationLink {
+                    Text(String(localized: "chat.opened", comment: "Chat opened"))
+                } label: {
+                    ConversationCard(
+                        conversation: conversation,
+                        onDelete: { print("Delete") },
+                        onToggleFavorite: { print("Toggle fav") },
+                        onEdit: { print("Edit") }
+                    )
+                }
+            }
+            .padding()
         }
-        .padding()
     }
 }

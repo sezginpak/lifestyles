@@ -2,10 +2,10 @@
 //  MediumFriendsWidget.swift
 //  FriendsWidget
 //
-//  Medium size widget showing 3-4 friends needing contact
-//  Glassmorphism design with gradients
+//  iOS 26 Timeline View - Apple Calendar Style
+//  Native, minimal, professional design
 //
-//  Created by Claude on 04.11.2025.
+//  Created by Claude on 05.11.2025.
 //
 
 import WidgetKit
@@ -41,304 +41,147 @@ struct MediumFriendsWidgetView: View {
     }
 }
 
-// MARK: - Friends List View
+// MARK: - Timeline View (iOS 26 - Medium 4x2 Optimized)
 
 struct FriendsListView: View {
     let friends: [FriendWidgetData]
     let totalCount: Int
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Header
-            HeaderView(totalCount: totalCount)
+        VStack(spacing: 0) {
+            // Header - Compact for Medium Widget
+            HStack {
+                Text(String(localized: "widget.today", comment: ""))
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
 
-            // Friends List
-            VStack(spacing: 8) {
-                ForEach(friends.prefix(3)) { friend in
-                    FriendCardView(friend: friend)
+                Spacer()
+
+                Text(String(localized: "text.totalcount"))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 12)
+            .padding(.bottom, 6)
+
+            // Timeline Rows - Compact spacing
+            VStack(spacing: 0) {
+                ForEach(Array(friends.prefix(3).enumerated()), id: \.element.id) { index, friend in
+                    TimelineRow(friend: friend)
+
+                    if index < min(2, friends.count - 1) {
+                        Divider()
+                            .padding(.leading, 48)
+                            .padding(.vertical, 2)
+                    }
                 }
             }
 
             Spacer(minLength: 0)
         }
-        .padding(16)
     }
 }
 
-// MARK: - Header View
+// MARK: - Timeline Row (Medium 4x2 Optimized)
 
-struct HeaderView: View {
-    let totalCount: Int
-
-    var body: some View {
-        HStack(spacing: 8) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(red: 0.2, green: 0.5, blue: 1.0), Color(red: 0.4, green: 0.3, blue: 0.9)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 32, height: 32)
-
-                Image(systemName: "person.2.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
-
-            // Title
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Arkadaşlarım")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-
-                Text("\(totalCount) kişi bekliyor")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Friend Card View
-
-struct FriendCardView: View {
+struct TimelineRow: View {
     let friend: FriendWidgetData
 
     var body: some View {
         if let url = URL(string: "lifestyles://friend-detail/\(friend.id)") {
             Link(destination: url) {
-                cardContent
+                rowContent
             }
             .buttonStyle(.plain)
         } else {
-            cardContent
+            rowContent
         }
     }
 
-    private var cardContent: some View {
-        HStack(spacing: 12) {
-                // Avatar
-                AvatarView(emoji: friend.emoji, status: friend.statusCategory)
+    private var rowContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // Top: Dot + Emoji + Name + Star
+            HStack(spacing: 10) {
+                // Status Dot (7pt circle - smaller)
+                Circle()
+                    .fill(statusColor)
+                    .frame(width: 7, height: 7)
 
-                // Info
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 4) {
-                        Text(friend.name)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
+                // Emoji (compact)
+                Text(friend.emoji)
+                    .font(.system(size: 26))
 
-                        if friend.isImportant {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 8))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.yellow, .orange],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                        }
-                    }
+                // Name
+                Text(friend.name)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
 
-                    StatusBadge(friend: friend)
+                // Star (Important)
+                if friend.isImportant {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.yellow)
                 }
 
+                Spacer(minLength: 0)
+            }
+
+            // Bottom: Status Text (Indented)
+            HStack(spacing: 0) {
+                // Indent (dot + spacing + emoji + spacing = 47pt)
                 Spacer()
+                    .frame(width: 47)
 
-                // Action Icon
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                Text(friend.statusText)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Spacer()
             }
-            .padding(10)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color(.secondarySystemGroupedBackground))
-                    .shadow(color: .black.opacity(0.03), radius: 2, x: 0, y: 1)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(
-                        gradientForStatus(friend.statusCategory).opacity(0.2),
-                        lineWidth: 1
-                    )
-            )
-    }
-
-    private func gradientForStatus(_ status: FriendStatus) -> LinearGradient {
-        switch status {
-        case .overdue:
-            return LinearGradient(
-                colors: [Color(red: 1.0, green: 0.3, blue: 0.3), Color(red: 1.0, green: 0.6, blue: 0.2)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        case .upcoming:
-            return LinearGradient(
-                colors: [Color(red: 1.0, green: 0.6, blue: 0.2), Color(red: 1.0, green: 0.8, blue: 0.3)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        case .onTime:
-            return LinearGradient(
-                colors: [Color(red: 0.2, green: 0.8, blue: 0.5), Color(red: 0.3, green: 0.9, blue: 0.7)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
         }
-    }
-}
-
-// MARK: - Avatar View
-
-struct AvatarView: View {
-    let emoji: String
-    let status: FriendStatus
-
-    var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            // Avatar background
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: gradientColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .opacity(0.2)
-                    )
-                    .frame(width: 40, height: 40)
-
-                Text(emoji)
-                    .font(.system(size: 20))
-            }
-
-            // Status indicator
-            Circle()
-                .fill(statusColor)
-                .frame(width: 12, height: 12)
-                .overlay(
-                    Circle()
-                        .stroke(Color(.systemBackground), lineWidth: 2)
-                )
-        }
-    }
-
-    private var gradientColors: [Color] {
-        switch status {
-        case .overdue:
-            return [Color(red: 1.0, green: 0.3, blue: 0.3), Color(red: 1.0, green: 0.6, blue: 0.2)]
-        case .upcoming:
-            return [Color(red: 1.0, green: 0.6, blue: 0.2), Color(red: 1.0, green: 0.8, blue: 0.3)]
-        case .onTime:
-            return [Color(red: 0.2, green: 0.8, blue: 0.5), Color(red: 0.3, green: 0.9, blue: 0.7)]
-        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 5)
+        .contentShape(Rectangle())
     }
 
     private var statusColor: Color {
-        switch status {
+        switch friend.statusCategory {
         case .overdue:
-            return Color(red: 1.0, green: 0.3, blue: 0.3)
+            return .red
         case .upcoming:
-            return Color(red: 1.0, green: 0.6, blue: 0.2)
+            return .orange
         case .onTime:
-            return Color(red: 0.2, green: 0.8, blue: 0.5)
+            return .green
         }
     }
 }
 
-// MARK: - Status Badge
-
-struct StatusBadge: View {
-    let friend: FriendWidgetData
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: friend.statusIcon)
-                .font(.system(size: 9, weight: .semibold))
-            Text(friend.statusText)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-        }
-        .foregroundStyle(gradientForStatus)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 3)
-        .background(
-            Capsule()
-                .fill(colorForStatus.opacity(0.15))
-        )
-    }
-
-    private var gradientForStatus: LinearGradient {
-        switch friend.statusCategory {
-        case .overdue:
-            return LinearGradient(
-                colors: [Color(red: 1.0, green: 0.3, blue: 0.3), Color(red: 1.0, green: 0.6, blue: 0.2)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        case .upcoming:
-            return LinearGradient(
-                colors: [Color(red: 1.0, green: 0.6, blue: 0.2), Color(red: 1.0, green: 0.8, blue: 0.3)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        case .onTime:
-            return LinearGradient(
-                colors: [Color(red: 0.2, green: 0.8, blue: 0.5), Color(red: 0.3, green: 0.9, blue: 0.7)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        }
-    }
-
-    private var colorForStatus: Color {
-        switch friend.statusCategory {
-        case .overdue:
-            return Color(red: 1.0, green: 0.3, blue: 0.3)
-        case .upcoming:
-            return Color(red: 1.0, green: 0.6, blue: 0.2)
-        case .onTime:
-            return Color(red: 0.2, green: 0.8, blue: 0.5)
-        }
-    }
-}
-
-// MARK: - Empty State View
+// MARK: - Empty State (Medium 4x2 Optimized)
 
 struct EmptyStateView: View {
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 40))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color(red: 0.2, green: 0.8, blue: 0.5), Color(red: 0.3, green: 0.9, blue: 0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.system(size: 36))
+                .foregroundStyle(.green)
+                .symbolRenderingMode(.hierarchical)
 
-            VStack(spacing: 4) {
-                Text("Harika! ✨")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
+            VStack(spacing: 3) {
+                Text(String(localized: "widget.all.up.to.date", comment: ""))
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.primary)
 
-                Text("Tüm arkadaşların ile güncel")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundColor(.secondary)
+                Text(String(localized: "widget.all.friends.contacted", comment: ""))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .padding(12)
     }
 }
 

@@ -59,7 +59,7 @@ struct SavedPlacesListView: View {
                     placesList
                 }
             }
-            .navigationTitle("Kayıtlı Yerler")
+            .navigationTitle(String(localized: "nav.kayıtlı.yerler"))
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "Yer ara...")
             .toolbar {
@@ -79,10 +79,10 @@ struct SavedPlacesListView: View {
                 PlaceDetailView(place: place)
             }
             .alert("Yeri Sil", isPresented: $showDeleteAlert, presenting: placeToDelete) { place in
-                Button("İptal", role: .cancel) {
+                Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) {
                     placeToDelete = nil
                 }
-                Button("Sil", role: .destructive) {
+                Button(String(localized: "button.delete", comment: "Delete button"), role: .destructive) {
                     deletePlace(place)
                 }
             } message: { place in
@@ -151,7 +151,7 @@ struct SavedPlacesListView: View {
                             selectedPlace = place
                             showPlaceDetail = true
                         } label: {
-                            Label("Detaylar", systemImage: "info.circle")
+                            Label(String(localized: "button.details", comment: "Details button"), systemImage: "info.circle")
                         }
 
                         Divider()
@@ -160,7 +160,7 @@ struct SavedPlacesListView: View {
                             placeToDelete = place
                             showDeleteAlert = true
                         } label: {
-                            Label("Sil", systemImage: "trash")
+                            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                         }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -168,7 +168,7 @@ struct SavedPlacesListView: View {
                             placeToDelete = place
                             showDeleteAlert = true
                         } label: {
-                            Label("Sil", systemImage: "trash")
+                            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                         }
                     }
                 }
@@ -199,7 +199,7 @@ struct SavedPlacesListView: View {
                 Button {
                     showAddPlace = true
                 } label: {
-                    Label("Yer Ekle", systemImage: "plus.circle.fill")
+                    Label(String(localized: "label.yer.ekle"), systemImage: "plus.circle.fill")
                         .font(.headline)
                         .padding()
                         .background(Color.brandPrimary.gradient)
@@ -324,7 +324,7 @@ struct CategoryFilterChip: View {
                     .fontWeight(.medium)
 
                 if let count = count {
-                    Text("\(count)")
+                    Text(String(localized: "text.count"))
                         .font(.caption2)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 6)

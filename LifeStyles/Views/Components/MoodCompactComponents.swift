@@ -58,7 +58,7 @@ struct CompactMoodCard: View {
                 .strokeBorder(mood.moodType.color.opacity(0.4), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(mood.moodType.displayName), yoğunluk seviyesi \(mood.intensity)")
+        .accessibilityLabel(String(localized: "mood.with.intensity", defaultValue: "\(mood.moodType.displayName), intensity level \(mood.intensity)", comment: "Mood with intensity"))
         .accessibilityHint("Detayları görmek için tıklayın")
         .accessibilityAddTraits(.isButton)
         .scaleEffect(isPressed ? 0.97 : 1.0)
@@ -138,7 +138,7 @@ struct MiniStatCard: View {
                 .strokeBorder(color.opacity(0.3), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title): \(value)")
+        .accessibilityLabel(String(localized: "mood.title.value", defaultValue: "\(title): \(value)", comment: "Title value"))
         .accessibilityValue(value)
     }
 }
@@ -210,7 +210,7 @@ struct InlineMoodStreak: View {
                 .strokeBorder(isActive ? Color.orange.opacity(0.5) : Color.gray.opacity(0.3), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(currentStreak) günlük seri")
+        .accessibilityLabel(String(localized: "mood.daily.streak", defaultValue: "\(currentStreak) day streak", comment: "Daily streak"))
         .accessibilityValue(isActive ? "Aktif" : "İnaktif")
     }
 }
@@ -479,7 +479,7 @@ private struct IntensityDots: View {
 
             // Section 4: Streak
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                Text("Streak Indicator")
+                Text(String(localized: "debug.streak.indicator", comment: "Streak Indicator"))
                     .font(.title3)
                     .fontWeight(.bold)
 
@@ -488,7 +488,7 @@ private struct IntensityDots: View {
 
             // Section 5: Grid
             VStack(alignment: .leading, spacing: Spacing.medium) {
-                Text("Mood Grid (Week View)")
+                Text(String(localized: "debug.mood.grid.week", comment: "Mood Grid (Week View)"))
                     .font(.title3)
                     .fontWeight(.bold)
 
@@ -631,8 +631,8 @@ struct TodayMoodCard: View {
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isPressed)
         .alert("Mood'u Sil", isPresented: $showDeleteConfirm) {
-            Button("İptal", role: .cancel) { }
-            Button("Sil", role: .destructive) {
+            Button(String(localized: "button.cancel", comment: "Cancel button"), role: .cancel) { }
+            Button(String(localized: "button.delete", comment: "Delete button"), role: .destructive) {
                 onDelete?()
             }
         } message: {

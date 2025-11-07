@@ -32,7 +32,7 @@ struct HabitStreakCard: View {
                 if habit.currentStreak > 0 {
                     HStack(spacing: 4) {
                         Text("🔥")
-                        Text("\(habit.currentStreak)")
+                        Text(String(localized: "streak.current", defaultValue: "\(habit.currentStreak)", comment: "Habit streak"))
                             .font(.caption.bold())
                     }
                     .padding(.horizontal, 8)
@@ -372,36 +372,14 @@ struct AICoachingCard: View {
 }
 
 #Preview("Achievement Badge") {
-    HStack {
-        AchievementBadgeCard(
-            achievement: Achievement(
-                id: "test1",
-                title: "Hafta Savaşçısı",
-                description: "7 gün seri",
-                emoji: "🔥",
-                category: .streak,
-                requirement: 7,
-                currentProgress: 7,
-                isEarned: true,
-                earnedAt: Date(),
-                colorHex: "E74C3C"
-            )
-        )
+    let service = AchievementService.shared
+    let achievements = service.getAllAchievements(goals: [], habits: [], currentStreak: 0, friends: [])
 
-        AchievementBadgeCard(
-            achievement: Achievement(
-                id: "test2",
-                title: "Hedef Avcısı",
-                description: "10 hedef",
-                emoji: "💪",
-                category: .goal,
-                requirement: 10,
-                currentProgress: 6,
-                isEarned: false,
-                earnedAt: nil,
-                colorHex: "3498DB"
-            )
-        )
+    HStack {
+        ForEach(achievements.prefix(2)) { achievement in
+            AchievementBadgeCard(achievement: achievement)
+        }
     }
     .padding()
+    .modelContainer(for: [Goal.self, Habit.self])
 }

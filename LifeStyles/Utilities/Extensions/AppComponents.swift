@@ -95,17 +95,17 @@ struct ModernStatCard: View {
     @State private var isAnimating = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             // Icon ve Badge
             HStack {
                 // Icon container
                 ZStack {
                     Circle()
                         .fill(.white.opacity(0.2))
-                        .frame(width: 36, height: 36)
+                        .frame(width: 28, height: 28)
 
                     Image(systemName: icon)
-                        .font(.body)
+                        .font(.caption)
                         .foregroundStyle(iconColor)
                 }
 
@@ -117,8 +117,8 @@ struct ModernStatCard: View {
                         .font(.caption2)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 3)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
                         .background(.white.opacity(0.25))
                         .clipShape(Capsule())
                 }
@@ -126,23 +126,23 @@ struct ModernStatCard: View {
 
             Spacer()
 
-            // Value ve Title - Daha kompakt
-            VStack(alignment: .leading, spacing: 2) {
+            // Value ve Title - Çok daha kompakt
+            VStack(alignment: .leading, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
 
                 Text(title)
-                    .font(.caption2)
+                    .font(.system(size: 9))
                     .fontWeight(.medium)
                     .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(1)
             }
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, minHeight: 110, alignment: .leading)
+        .padding(8)
+        .frame(maxWidth: .infinity, minHeight: 75, alignment: .leading)
         .gradientCard(gradient: gradient)
         .scaleEffect(isAnimating ? 1.0 : 0.9)
         .opacity(isAnimating ? 1.0 : 0.0)
@@ -205,6 +205,47 @@ struct GlassStatCard: View {
         .padding(AppConstants.Spacing.large)
         .frame(height: 140)
         .glassCard(tintColor: color, opacity: 0.15)
+    }
+}
+
+// MARK: - Compact Stat Chip
+
+/// Çok kompakt istatistik chip'i - tek satır, minimal tasarım
+struct CompactStatChip: View {
+    let value: Int
+    let icon: String
+    let color: Color
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            // Icon
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(color)
+
+            // Value
+            Text(String(localized: "component.value", defaultValue: "\(value)", comment: "Generic value"))
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+
+            // Label
+            Text(label)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(color.opacity(0.1))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(color.opacity(0.3), lineWidth: 1)
+        )
     }
 }
 

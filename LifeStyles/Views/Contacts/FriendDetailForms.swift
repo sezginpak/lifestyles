@@ -47,11 +47,11 @@ struct AddContactHistoryView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Tarih ve Saat") {
+                Section(String(localized: "section.tarih.ve.saat")) {
                     DatePicker("Tarih", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                 }
 
-                Section("Görüşme Nasıl Geçti?") {
+                Section(String(localized: "section.görüşme.nasıl.geçti")) {
                     Picker("Ruh Hali", selection: $selectedMood) {
                         Text(String(localized: "common.not.selected", comment: "Not selected")).tag(nil as ContactMood?)
                         ForEach([ContactMood.great, .good, .okay, .notGreat], id: \.self) { mood in
@@ -64,9 +64,9 @@ struct AddContactHistoryView: View {
                     }
                 }
 
-                Section("İletişim Kanalı") {
+                Section(String(localized: "section.iletişim.kanalı")) {
                     Picker("Kanal", selection: $selectedChannel) {
-                        Text("Seçilmedi").tag(nil as ContactChannel?)
+                        Text(String(localized: "friend.not.selected", comment: "Not Selected")).tag(nil as ContactChannel?)
                         ForEach(ContactChannel.allCases, id: \.self) { channel in
                             Label {
                                 Text(channel.displayName)
@@ -93,10 +93,10 @@ struct AddContactHistoryView: View {
                         showingTagPicker.toggle()
                     } label: {
                         HStack {
-                            Label("Etiketler", systemImage: "tag.fill")
+                            Label(String(localized: "tags.label", comment: "Tags label"), systemImage: "tag.fill")
                             Spacer()
                             if !selectedTags.isEmpty {
-                                Text("\(selectedTags.count) seçili")
+                                Text(String(localized: "tags.selected.count", defaultValue: "\(selectedTags.count) selected", comment: "Selected tags count"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -117,7 +117,7 @@ struct AddContactHistoryView: View {
                     }
                 }
 
-                Section("Notlar") {
+                Section(String(localized: "section.notes", comment: "Notes section")) {
                     TextEditor(text: $notes)
                         .frame(height: 100)
                 }
@@ -126,13 +126,13 @@ struct AddContactHistoryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         saveHistory()
                     }
                 }
@@ -197,14 +197,14 @@ struct EditFriendView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Kişi Bilgileri") {
-                    TextField("İsim", text: $name)
-                    TextField("Telefon", text: $phoneNumber)
+                Section(String(localized: "section.kişi.bilgileri")) {
+                    TextField(String(localized: "placeholder.name", comment: "Name placeholder"), text: $name)
+                    TextField(String(localized: "placeholder.phone", comment: "Phone placeholder"), text: $phoneNumber)
                         .keyboardType(.phonePad)
-                    TextField("Avatar Emoji", text: $avatarEmoji)
+                    TextField(String(localized: "placeholder.avatar.emoji"), text: $avatarEmoji)
                 }
 
-                Section("İlişki Tipi") {
+                Section(String(localized: "section.ilişki.tipi")) {
                     Picker("Tip", selection: $relationshipType) {
                         ForEach(RelationshipType.allCases, id: \.self) { type in
                             HStack {
@@ -219,12 +219,12 @@ struct EditFriendView: View {
 
                 // Partner için özel bölümler
                 if relationshipType == .partner {
-                    Section("İlişki Bilgileri") {
+                    Section(String(localized: "section.ilişki.bilgileri")) {
                         DatePicker("İlişki Başlangıcı", selection: $relationshipStartDate, displayedComponents: .date)
                         DatePicker("Yıldönümü Tarihi", selection: $anniversaryDate, displayedComponents: .date)
                     }
 
-                    Section("Sevgi Dili") {
+                    Section(String(localized: "section.sevgi.dili")) {
                         Picker("Sevgi Dili", selection: $selectedLoveLanguage) {
                             Text(String(localized: "common.not.selected", comment: "Not selected")).tag(nil as LoveLanguage?)
                             ForEach(LoveLanguage.allCases, id: \.self) { language in
@@ -255,7 +255,7 @@ struct EditFriendView: View {
 
                 // Ortak ilgi alanları ve aktiviteler (tüm ilişki tipleri için)
                 Section {
-                    TextField("Örn: Müzik, spor, seyahat", text: $sharedInterests)
+                    TextField(String(localized: "placeholder.örn.müzik.spor.seyahat"), text: $sharedInterests)
                 } header: {
                     Text(String(localized: "friend.shared.interests", comment: "Shared interests"))
                 } footer: {
@@ -271,7 +271,7 @@ struct EditFriendView: View {
                     Text(String(localized: "friend.activities.footer", comment: "Activities you do or want to do together (comma separated)"))
                 }
 
-                Section("İletişim Sıklığı") {
+                Section(String(localized: "section.iletişim.sıklığı")) {
                     Picker("Sıklık", selection: $selectedFrequency) {
                         ForEach([ContactFrequency.daily, .twoDays, .threeDays, .weekly, .biweekly, .monthly], id: \.self) { freq in
                             Text(freq.displayName).tag(freq)
@@ -287,13 +287,13 @@ struct EditFriendView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kaydet") {
+                    Button(String(localized: "button.save", comment: "Save button")) {
                         saveFriend()
                     }
                     .disabled(name.isEmpty)

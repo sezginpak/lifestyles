@@ -175,7 +175,7 @@ class MoodAIServiceHaiku {
             - Her insight kısa ve öz (1 cümle)
             - Pozitif vurgu yap ama gerçekçi ol
             - Pattern'leri belirt
-            - Türkçe yaz
+            - Respond in the user's language (Turkish, English, etc.)
             """
 
             let userMessage = buildInsightsPrompt(entries: entries)
@@ -207,7 +207,7 @@ class MoodAIServiceHaiku {
             - Her öneri kısa ve net
             - Somut eylem içermeli
             - Pozitif ve motive edici ol
-            - Türkçe yaz
+            - Respond in the user's language (Turkish, English, etc.)
             """
 
             let userMessage = """
@@ -251,7 +251,7 @@ class MoodAIServiceHaiku {
             - 2-3 pattern belirle
             - Her pattern için frekans bilgisi ver (günlük, haftalık)
             - Impact'i belirt (pozitif/negatif/nötr)
-            - Türkçe yaz
+            - Respond in the user's language (Turkish, English, etc.)
             """
 
             let userMessage = buildPatternPrompt(entries: entries)
@@ -296,7 +296,7 @@ class MoodAIServiceHaiku {
         - Kısa ve öz cümleler
         - Pozitif reinforcement
         - Pattern'leri net belirt
-        - Türkçe yaz
+        - Respond in the user's language (Turkish, English, etc.)
         - Maksimum 250 kelime
         """
 

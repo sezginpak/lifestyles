@@ -98,7 +98,7 @@ struct PeriodicTrackingCard: View {
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("\(totalRecorded)")
+                            Text(String(localized: "text.totalrecorded"))
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundStyle(

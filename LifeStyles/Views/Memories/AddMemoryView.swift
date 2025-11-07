@@ -81,11 +81,11 @@ struct AddMemoryView: View {
                         saveMemory()
                     } label: {
                         if loadedImages.isEmpty {
-                            Text("Kaydet")
+                            Text(String(localized: "memory.save", comment: ""))
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.secondary)
                         } else {
-                            Text("Kaydet")
+                            Text(String(localized: "memory.save", comment: ""))
                                 .fontWeight(.semibold)
                                 .foregroundStyle(
                                     LinearGradient(
@@ -100,7 +100,7 @@ struct AddMemoryView: View {
                 }
             }
             .alert("Hata", isPresented: $showError) {
-                Button("Tamam", role: .cancel) {}
+                Button(String(localized: "button.tamam"), role: .cancel) {}
             } message: {
                 Text(errorMessage)
             }
@@ -115,7 +115,7 @@ struct AddMemoryView: View {
                                 .scaleEffect(1.5)
                                 .tint(.white)
 
-                            Text("Kaydediliyor...")
+                            Text(String(localized: "memory.saving", comment: ""))
                                 .font(.subheadline)
                                 .foregroundStyle(.white)
                         }
@@ -206,7 +206,7 @@ struct AddMemoryView: View {
                                         .foregroundStyle(.teal)
                                 }
 
-                                Text("Kamera")
+                                Text(String(localized: "memory.camera", comment: ""))
                                     .font(.caption)
                                     .foregroundStyle(.primary)
                             }
@@ -230,7 +230,7 @@ struct AddMemoryView: View {
                                         .foregroundStyle(.blue)
                                 }
 
-                                Text("Galeri")
+                                Text(String(localized: "memory.gallery", comment: ""))
                                     .font(.caption)
                                     .foregroundStyle(.primary)
                             }
@@ -293,7 +293,7 @@ struct AddMemoryView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "camera.fill")
-                                Text("Kamera")
+                                Text(String(localized: "memory.camera", comment: ""))
                             }
                             .font(.subheadline)
                             .fontWeight(.medium)
@@ -319,7 +319,7 @@ struct AddMemoryView: View {
                         ) {
                             HStack {
                                 Image(systemName: "photo.fill")
-                                Text("Galeri")
+                                Text(String(localized: "memory.gallery", comment: ""))
                             }
                             .font(.subheadline)
                             .fontWeight(.medium)
@@ -351,12 +351,12 @@ struct AddMemoryView: View {
             VStack(spacing: 24) {
                 // Title field
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Başlık", systemImage: "text.quote")
+                    Label(String(localized: "label.başlık"), systemImage: "text.quote")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)
 
-                    TextField("Anınıza bir başlık verin...", text: $title)
+                    TextField(String(localized: "memory.placeholder.title", comment: "Memory title placeholder"), text: $title)
                         .font(.body)
                         .padding(16)
                         .background(Color(.systemGray6))
@@ -365,7 +365,7 @@ struct AddMemoryView: View {
 
                 // Date picker
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Tarih", systemImage: "calendar")
+                    Label(String(localized: "label.tarih"), systemImage: "calendar")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)
@@ -407,14 +407,14 @@ struct AddMemoryView: View {
                     showingFriendsPicker = true
                 } label: {
                     HStack {
-                        Label("Arkadaşlar", systemImage: "person.2.fill")
+                        Label(String(localized: "label.arkadaşlar"), systemImage: "person.2.fill")
                             .font(.subheadline)
                             .fontWeight(.medium)
 
                         Spacer()
 
                         if !selectedFriends.isEmpty {
-                            Text("\(selectedFriends.count)")
+                            Text(String(localized: "memory.selected.friends", defaultValue: "\(selectedFriends.count)", comment: "Selected friends"))
                                 .font(.caption2)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(.white)
@@ -444,13 +444,13 @@ struct AddMemoryView: View {
 
                 // Tags
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Etiketler", systemImage: "tag.fill")
+                    Label(String(localized: "label.etiketler"), systemImage: "tag.fill")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)
 
                     HStack {
-                        TextField("Etiket ekle", text: $tagInput)
+                        TextField(String(localized: "placeholder.etiket.ekle"), text: $tagInput)
                             .textFieldStyle(.plain)
                             .onSubmit {
                                 addTag()
@@ -481,7 +481,7 @@ struct AddMemoryView: View {
                         FlowLayout(spacing: 8) {
                             ForEach(tags, id: \.self) { tag in
                                 HStack(spacing: 6) {
-                                    Text("#\(tag)")
+                                    Text(String(localized: "memory.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                                         .font(.caption)
                                         .fontWeight(.medium)
 
@@ -509,7 +509,7 @@ struct AddMemoryView: View {
 
                 // Notes
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Notlar", systemImage: "note.text")
+                    Label(String(localized: "section.notes", comment: "Notes section"), systemImage: "note.text")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.secondary)
@@ -717,11 +717,11 @@ struct FriendsPickerView: View {
                     }
                 }
             }
-            .navigationTitle("Arkadaş Seç")
+            .navigationTitle(String(localized: "memory.nav.select.friend", comment: "Select friend"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Tamam") {
+                    Button(String(localized: "button.ok", comment: "OK button")) {
                         dismiss()
                     }
                     .fontWeight(.semibold)
@@ -770,23 +770,23 @@ struct MemoryLocationPickerView: View {
                     .padding()
 
                 if let location = selectedLocation {
-                    Text("Lat: \(location.latitude)")
-                    Text("Lon: \(location.longitude)")
+                    Text(String(format: NSLocalizedString("memory.location.latitude", comment: "Latitude"), location.latitude))
+                    Text(String(format: NSLocalizedString("memory.location.longitude", comment: "Longitude"), location.longitude))
                 }
 
                 Spacer()
             }
-            .navigationTitle("Konum Seç")
+            .navigationTitle(String(localized: "memory.nav.select.location", comment: "Select location"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Kaydet") {
+                    Button(String(localized: "memory.save", comment: "")) {
                         dismiss()
                     }
                     .fontWeight(.semibold)

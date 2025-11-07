@@ -307,7 +307,7 @@ struct NewJournalEditorView: View {
                     color: selectedType.color
                 )
 
-                TextField("Başlık (opsiyonel)", text: $title)
+                TextField(String(localized: "journal.placeholder.title", comment: "Title placeholder"), text: $title)
                     .textFieldStyle(.plain)
                     .font(.title3)
                     .fontWeight(.medium)
@@ -383,7 +383,7 @@ struct NewJournalEditorView: View {
                             .frame(maxHeight: 300)
                             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.medium, style: .continuous))
 
-                        TextField("Fotoğraf açıklaması (opsiyonel)", text: $imageCaption)
+                        TextField(String(localized: "journal.placeholder.photo.caption", comment: "Photo caption placeholder"), text: $imageCaption)
                             .textFieldStyle(.plain)
                             .font(.subheadline)
                             .padding(Spacing.medium)
@@ -395,7 +395,7 @@ struct NewJournalEditorView: View {
                                 imageCaption = ""
                             }
                         } label: {
-                            Label("Fotoğrafı Kaldır", systemImage: "trash")
+                            Label(String(localized: "button.remove.photo", comment: "Remove photo button"), systemImage: "trash")
                                 .font(.subheadline)
                                 .foregroundStyle(.red)
                         }
@@ -513,14 +513,14 @@ struct NewJournalEditorView: View {
                                 .foregroundStyle(.secondary)
 
                             if hasMarkdown {
-                                Text("(Markdown)")
+                                Text(String(localized: "journal.markdown", comment: "(Markdown)"))
                                     .font(.caption2)
                                     .foregroundStyle(.tertiary)
                             }
 
                             Spacer()
 
-                            Text("\(content.count) karakter")
+                            Text(String(localized: "journal.character.count", defaultValue: "\(content.count) characters", comment: "Character count"))
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
                         }
@@ -574,7 +574,7 @@ struct NewJournalEditorView: View {
 
                             FlowLayout(spacing: 6) {
                                 ForEach(selectedTags, id: \.self) { tag in
-                                    Text("#\(tag)")
+                                    Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                                         .font(.caption)
                                         .foregroundStyle(selectedType.color)
                                         .padding(.horizontal, 10)

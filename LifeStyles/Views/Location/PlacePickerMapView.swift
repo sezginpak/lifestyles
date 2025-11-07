@@ -83,13 +83,13 @@ struct PlacePickerMapView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(existingPlace == nil ? "Kaydet" : "Güncelle") {
+                    Button(existingPlace == nil ? String(localized: "button.save", comment: "Save button") : String(localized: "button.update", comment: "Update button")) {
                         savePlace()
                     }
                     .fontWeight(.semibold)
@@ -97,7 +97,7 @@ struct PlacePickerMapView: View {
                 }
             }
             .alert("Yer Kaydedildi", isPresented: $showSaveConfirmation) {
-                Button("Tamam") {
+                Button(String(localized: "button.ok", comment: "OK button")) {
                     dismiss()
                 }
             } message: {
@@ -189,7 +189,7 @@ struct PlacePickerMapView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                TextField("Yer adı", text: $placeName)
+                TextField(String(localized: "placeholder.place.name", comment: "Place name placeholder"), text: $placeName)
                     .multilineTextAlignment(.trailing)
                     .textFieldStyle(.roundedBorder)
                     .frame(maxWidth: 200)
@@ -298,7 +298,7 @@ struct PlacePickerMapView: View {
             Text(String(localized: "location.place.notes.optional", comment: "Notes Optional"))
                 .font(.headline)
 
-            TextField("Notlarınız...", text: $notes, axis: .vertical)
+            TextField(String(localized: "placeholder.notes", comment: "Notes placeholder"), text: $notes, axis: .vertical)
                 .lineLimit(3...6)
                 .textFieldStyle(.roundedBorder)
         }

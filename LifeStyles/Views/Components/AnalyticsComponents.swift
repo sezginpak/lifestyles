@@ -65,8 +65,7 @@ struct HourlyHeatMap: View {
                                 .fill(intensityColor(for: intensity))
                                 .frame(width: 40, height: 32)
                                 .overlay(
-                                    Text("\(count)")
-                                        .font(.caption2)
+                                    Text(String(localized: "component.count", defaultValue: "\(count)", comment: "Generic count")).font(.caption2)
                                         .foregroundStyle(intensity > 0.5 ? .white : .primary)
                                 )
 
@@ -114,7 +113,7 @@ struct MilestoneProgressRing: View {
                     .foregroundStyle(milestone.color)
 
                 if !milestone.isCompleted {
-                    Text("\(milestone.remaining)")
+                    Text(String(localized: "analytics.milestone.remaining", defaultValue: "\(milestone.remaining)", comment: "Milestone remaining"))
                         .font(.system(size: size * 0.2, weight: .bold))
                         .foregroundStyle(.primary)
                 } else {
@@ -343,7 +342,7 @@ struct WeekdayMoodRow: View {
             }
             .frame(height: 24)
 
-            Text("\(total)")
+            Text(String(localized: "component.total", defaultValue: "\(total)", comment: "Total"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .frame(width: 30)

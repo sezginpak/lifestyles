@@ -95,7 +95,7 @@ struct MoodTrackerView: View {
                                 Image(systemName: "circle.fill")
                                     .font(.system(size: 6))
                                     .foregroundStyle(Color.brandPrimary)
-                                Text("\(viewModel.todaysMoods.count) kayıt")
+                                Text(String(localized: "mood.record.count", defaultValue: "\(viewModel.todaysMoods.count) records", comment: "Mood records"))
                                     .font(.caption)
                                     .fontWeight(.medium)
                             }
@@ -148,7 +148,7 @@ struct MoodTrackerView: View {
                 // Previous moods - compact horizontal
                 if viewModel.todaysMoods.count > 1 {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Önceki Kayıtlar")
+                        Text(String(localized: "mood.previous.records", comment: "Previous Records"))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundStyle(.secondary)
@@ -271,7 +271,7 @@ struct MoodTrackerView: View {
                     viewModel.startEditingMood(mood)
                     showingMoodPicker = true
                 } label: {
-                    Label("Düzenle", systemImage: "pencil")
+                    Label(String(localized: "button.edit", comment: "Edit button"), systemImage: "pencil")
                 }
 
                 Button(role: .destructive) {
@@ -279,7 +279,7 @@ struct MoodTrackerView: View {
                         viewModel.deleteMood(mood, context: modelContext)
                     }
                 } label: {
-                    Label("Sil", systemImage: "trash")
+                    Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle.fill")
@@ -362,11 +362,11 @@ struct MoodTrackerView: View {
             }
 
             VStack(spacing: 8) {
-                Text("Bugün Nasıl Hissediyorsun?")
+                Text(String(localized: "mood.how.feeling", comment: "How are you feeling today?"))
                     .font(.title3)
                     .fontWeight(.bold)
 
-                Text("İlk ruh hali kaydını oluştur ve günlük duygusal yolculuğunu takip et")
+                Text(String(localized: "mood.first.prompt", comment: "Create your first mood record"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

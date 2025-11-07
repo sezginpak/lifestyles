@@ -16,6 +16,7 @@ class KnowledgeExtractor {
 
     private let patternMatcher = PatternMatcher.shared
     private let haikuService = ClaudeHaikuService.shared
+    private let embeddingService = EmbeddingService.shared
 
     // Extraction durumu
     var isExtracting = false
@@ -26,29 +27,32 @@ class KnowledgeExtractor {
     // MARK: - Public Methods
 
     /// Konuşmadan bilgi çıkar (hybrid: regex + AI)
+    /// Artık hem UserKnowledge hem EntityKnowledge çıkarır
     func extractKnowledge(
         from conversation: [ChatMessage],
         context: ModelContext,
-        conversationId: String? = nil
-    ) async -> [UserKnowledge] {
-        guard !conversation.isEmpty else { return [] }
+        conversationId: String? = nil,
+        availableFriends: [Friend] = []
+    ) async -> (userKnowledge: [UserKnowledge], entityKnowledge: [EntityKnowledge]) {
+        guard !conversation.isEmpty else { return ([], []) }
 
         isExtracting = true
         defer { isExtracting = false }
 
-        var extractedFacts: [UserKnowledge] = []
+        var extractedUserFacts: [UserKnowledge] = []
+        var extractedEntityFacts: [EntityKnowledge] = []
 
         // 1. Son 5 mesajı al (son konuşma context'i)
         let recentMessages = Array(conversation.suffix(5))
         let conversationText = recentMessages.map { $0.content }.joined(separator: "\n")
 
-        // 2. Önce pattern matching dene (bedava ve hızlı)
+        // 2. Önce pattern matching dene (bedava ve hızlı - sadece user facts)
         let regexFacts = patternMatcher.extract(from: conversationText)
 
         // 3. Regex'ten gelen fact'leri UserKnowledge'a çevir
         for fact in regexFacts {
             let knowledge = fact.toUserKnowledge(conversationId: conversationId)
-            extractedFacts.append(knowledge)
+            extractedUserFacts.append(knowledge)
         }
 
         // 4. Eğer regex yeterli değilse, AI ile çıkar
@@ -56,11 +60,23 @@ class KnowledgeExtractor {
         let wordCount = conversationText.split(separator: " ").count
         if regexFacts.count < 2 || wordCount > 50 {
             do {
-                let aiFacts = try await extractWithAI(conversationText)
+                // 🚀 YENI: AI'dan hem user hem entity facts al
+                let (aiFacts, aiEntityFacts) = try await extractWithAI(
+                    conversationText,
+                    availableFriends: availableFriends,
+                    context: context
+                )
 
+                // User facts
                 for fact in aiFacts {
                     let knowledge = fact.toUserKnowledge(conversationId: conversationId)
-                    extractedFacts.append(knowledge)
+                    extractedUserFacts.append(knowledge)
+                }
+
+                // Entity facts
+                for fact in aiEntityFacts {
+                    let knowledge = fact.toEntityKnowledge(conversationId: conversationId)
+                    extractedEntityFacts.append(knowledge)
                 }
             } catch {
                 print("⚠️ AI extraction hatası: \(error.localizedDescription)")
@@ -68,16 +84,49 @@ class KnowledgeExtractor {
             }
         }
 
-        // 5. Duplicate'leri filtrele ve kaydet
-        let uniqueFacts = deduplicateFacts(extractedFacts, context: context)
-        for fact in uniqueFacts {
+        // 5. Duplicate'leri filtrele ve kaydet - USER
+        let uniqueUserFacts = deduplicateFacts(extractedUserFacts, context: context)
+        for fact in uniqueUserFacts {
             saveFact(fact, to: context)
+        }
+
+        // 6. Duplicate'leri filtrele ve kaydet - ENTITY
+        let uniqueEntityFacts = deduplicateEntityFacts(extractedEntityFacts, context: context)
+        for fact in uniqueEntityFacts {
+            saveEntityFact(fact, to: context)
+        }
+
+        // 7. 🚀 Background'da embedding'leri oluştur (Phase 2)
+        if !uniqueUserFacts.isEmpty {
+            let factIds = uniqueUserFacts.map { $0.id }
+            let modelContainer = context.container
+
+            Task.detached {
+                await self.generateEmbeddingsInBackground(
+                    factIds: factIds,
+                    modelContainer: modelContainer
+                )
+            }
+        }
+
+        if !uniqueEntityFacts.isEmpty {
+            let factIds = uniqueEntityFacts.map { $0.id }
+            let modelContainer = context.container
+
+            Task.detached {
+                await self.generateEntityEmbeddingsInBackground(
+                    factIds: factIds,
+                    modelContainer: modelContainer
+                )
+            }
         }
 
         lastExtractionDate = Date()
 
-        print("✅ \(uniqueFacts.count) yeni bilgi öğrenildi")
-        return uniqueFacts
+        let totalCount = uniqueUserFacts.count + uniqueEntityFacts.count
+        print("✅ \(totalCount) yeni bilgi öğrenildi (\(uniqueUserFacts.count) kullanıcı + \(uniqueEntityFacts.count) varlık)")
+
+        return (uniqueUserFacts, uniqueEntityFacts)
     }
 
     /// Tek mesajdan hızlı bilgi çıkar (sadece regex)
@@ -93,31 +142,57 @@ class KnowledgeExtractor {
             knowledge.append(k)
         }
 
+        // 🚀 YENI: Background'da embedding'leri oluştur
+        if !knowledge.isEmpty {
+            let factIds = knowledge.map { $0.id }
+            let modelContainer = context.container
+
+            Task.detached {
+                await self.generateEmbeddingsInBackground(
+                    factIds: factIds,
+                    modelContainer: modelContainer
+                )
+            }
+        }
+
         return knowledge
     }
 
     // MARK: - AI Extraction
 
-    /// Haiku API ile bilgi çıkar
-    private func extractWithAI(_ text: String) async throws -> [ExtractedFact] {
-        let prompt = buildExtractionPrompt(text)
+    /// Haiku API ile bilgi çıkar - Hem user hem entity facts
+    private func extractWithAI(
+        _ text: String,
+        availableFriends: [Friend],
+        context: ModelContext
+    ) async throws -> (userFacts: [ExtractedFact], entityFacts: [ExtractedEntityFact]) {
+        let prompt = buildExtractionPrompt(text, availableFriends: availableFriends)
 
         let response = try await haikuService.generate(
             systemPrompt: prompt,
             userMessage: text,
             temperature: 0.3,  // Daha deterministik
-            maxTokens: 800
+            maxTokens: 1200    // Daha fazla token (entity facts için)
         )
 
-        return parseAIResponse(response)
+        return parseAIResponse(response, availableFriends: availableFriends, context: context)
     }
 
-    /// AI extraction prompt'u oluştur
-    private func buildExtractionPrompt(_ text: String) -> String {
-        return """
-        Extract user facts from the conversation below. Return ONLY valid JSON, no explanations.
+    /// AI extraction prompt'u oluştur - Hem user hem entity facts için
+    private func buildExtractionPrompt(_ text: String, availableFriends: [Friend]) -> String {
+        // Arkadaş listesi (entity tanıma için)
+        var friendContext = ""
+        if !availableFriends.isEmpty {
+            friendContext = "\n\nKNOWN FRIENDS (for entity recognition):\n"
+            for friend in availableFriends.prefix(20) {
+                friendContext += "- \(friend.name) (id: \(friend.id))\n"
+            }
+        }
 
-        CATEGORIES:
+        return """
+        Extract both USER facts and ENTITY facts from the conversation. Return ONLY valid JSON.
+
+        USER CATEGORIES:
         - personalInfo: name, age, job, city, etc
         - relationships: family, friends, partner
         - lifestyle: habits, routines
@@ -134,20 +209,40 @@ class KnowledgeExtractor {
         - recentEvents: recent happenings
         - other: miscellaneous
 
+        ENTITY TYPES:
+        - person: Friends, family members (Ömer, Ali, vb.)
+        - place: Locations (cafe, park, office)
+        - activity: Hobbies, activities (yoga, reading)
+        - object: Items (books, movies, music)
+        - other: Miscellaneous\(friendContext)
+
         RULES:
         ❌ NO guessing - only extract explicitly stated facts
-        ❌ NO general statements - "drinking coffee" ≠ likes_coffee
-        ✅ SPECIFIC facts only - "I love coffee" = likes_coffee
+        ❌ NO general statements
+        ✅ SPECIFIC facts only
         ✅ HIGH confidence only - >= 0.8
+        ✅ Match friend names to their IDs when available
 
         JSON FORMAT:
         {
-          "facts": [
+          "userFacts": [
             {
               "category": "personalInfo",
               "key": "job",
               "value": "software developer",
               "confidence": 0.9,
+              "source": "user_told"
+            }
+          ],
+          "entityFacts": [
+            {
+              "entityType": "person",
+              "entityId": "UUID-HERE-IF-KNOWN",
+              "entityName": "Ömer",
+              "category": "personalInfo",
+              "key": "occupation",
+              "value": "hukuk okuyor",
+              "confidence": 0.95,
               "source": "user_told"
             }
           ]
@@ -157,11 +252,11 @@ class KnowledgeExtractor {
         - "value" MUST ALWAYS BE A STRING (not boolean, not number)
         - For boolean facts: use "true" or "false" as string
         - For numbers: use string like "28" not 28
-        - Example: {"key": "has_partner", "value": "true"} ✅
-        - Example: {"key": "has_partner", "value": true} ❌
+        - entityId: Use UUID from KNOWN FRIENDS list if name matches, otherwise null
+        - entityName: Always include the entity's name
 
         IMPORTANT:
-        - Return empty array if no facts
+        - Return empty arrays if no facts
         - confidence must be >= 0.8
         - source: "user_told" or "inferred"
         - Support Turkish and English
@@ -173,23 +268,56 @@ class KnowledgeExtractor {
         """
     }
 
-    /// AI response'u parse et
-    private func parseAIResponse(_ response: String) -> [ExtractedFact] {
+    /// AI response'u parse et - Hem user hem entity facts
+    private func parseAIResponse(
+        _ response: String,
+        availableFriends: [Friend],
+        context: ModelContext
+    ) -> (userFacts: [ExtractedFact], entityFacts: [ExtractedEntityFact]) {
         // JSON extract et
         guard let jsonString = extractJSON(from: response) else {
-            return []
+            return ([], [])
         }
 
         // Parse JSON
         guard let data = jsonString.data(using: .utf8) else {
-            return []
+            return ([], [])
         }
 
         do {
-            let json = try JSONDecoder().decode(AIExtractionResponse.self, from: data)
-            return json.facts
+            let json = try JSONDecoder().decode(AIExtractionResponseV2.self, from: data)
+
+            // Entity facts için friend matching yap
+            var processedEntityFacts: [ExtractedEntityFact] = []
+            for entityFact in json.entityFacts {
+                var fact = entityFact
+
+                // Eğer entityType person ise ve entityId nil ise, friend listesinden bul
+                if fact.entityType == .person, fact.entityId == nil, let name = fact.entityName {
+                    if let matchedFriend = availableFriends.first(where: {
+                        $0.name.lowercased() == name.lowercased()
+                    }) {
+                        // Friend bulundu, ID'sini ekle
+                        fact = ExtractedEntityFact(
+                            entityType: fact.entityType,
+                            entityId: matchedFriend.id,
+                            entityName: fact.entityName,
+                            category: fact.category,
+                            key: fact.key,
+                            value: fact.value,
+                            confidence: fact.confidence,
+                            source: fact.source
+                        )
+                    }
+                }
+
+                processedEntityFacts.append(fact)
+            }
+
+            return (json.userFacts, processedEntityFacts)
         } catch {
-            return []
+            print("⚠️ JSON parse hatası: \(error)")
+            return ([], [])
         }
     }
 
@@ -284,11 +412,176 @@ class KnowledgeExtractor {
             print("⚠️ UserKnowledge kayıt hatası: \(error)")
         }
     }
+
+    // MARK: - Entity Knowledge Methods
+
+    /// Entity duplicate fact'leri birleştir
+    private func deduplicateEntityFacts(_ facts: [EntityKnowledge], context: ModelContext) -> [EntityKnowledge] {
+        var unique: [EntityKnowledge] = []
+
+        for fact in facts {
+            // Aynı entity + key kombinasyonu var mı kontrol et
+            if let existing = findExistingEntity(fact, in: context) {
+                // Varsa güncelle
+                updateExistingEntity(existing, with: fact)
+            } else {
+                // Yoksa yeni ekle
+                unique.append(fact)
+            }
+        }
+
+        return unique
+    }
+
+    /// Mevcut entity fact'i bul
+    private func findExistingEntity(_ fact: EntityKnowledge, in context: ModelContext) -> EntityKnowledge? {
+        let entityType = fact.entityType
+        let entityId = fact.entityId
+        let category = fact.category
+        let key = fact.key
+
+        let descriptor = FetchDescriptor<EntityKnowledge>(
+            predicate: #Predicate { knowledge in
+                knowledge.entityType == entityType &&
+                knowledge.entityId == entityId &&
+                knowledge.category == category &&
+                knowledge.key == key &&
+                knowledge.isActive == true
+            }
+        )
+
+        return try? context.fetch(descriptor).first
+    }
+
+    /// Mevcut entity fact'i güncelle
+    private func updateExistingEntity(_ existing: EntityKnowledge, with new: EntityKnowledge) {
+        // Aynı değer mi?
+        if existing.value == new.value {
+            // Güven artır
+            existing.increaseConfidence()
+            existing.incrementUsage()
+        } else {
+            // Farklı değer - güven azalt (conflict)
+            existing.decreaseConfidence(by: 0.2)
+
+            // Eğer güven çok düştüyse, yeni fact'i kabul et
+            if existing.confidence < 0.3 {
+                existing.value = new.value
+                existing.confidence = new.confidence
+                existing.source = new.source
+            }
+        }
+
+        // Conversation ID ekle
+        if !new.conversationIds.isEmpty {
+            for convId in new.conversationIds {
+                existing.addConversationId(convId)
+            }
+        }
+    }
+
+    /// Entity fact'i kaydet
+    private func saveEntityFact(_ fact: EntityKnowledge, to context: ModelContext) {
+        // Eğer entityId varsa, ilişkili entity'yi bul ve bağla
+        if let entityId = fact.entityId {
+            if fact.entityTypeEnum == .person {
+                // Friend ara
+                let descriptor = FetchDescriptor<Friend>(
+                    predicate: #Predicate { $0.id == entityId }
+                )
+                if let friend = try? context.fetch(descriptor).first {
+                    fact.friend = friend
+                }
+            }
+        }
+
+        context.insert(fact)
+
+        do {
+            try context.save()
+        } catch {
+            print("⚠️ EntityKnowledge kayıt hatası: \(error)")
+        }
+    }
+
+    // MARK: - Embedding Generation (Phase 2)
+
+    /// Background'da embedding'leri oluştur (thread-safe)
+    private func generateEmbeddingsInBackground(
+        factIds: [UUID],
+        modelContainer: ModelContainer
+    ) async {
+        // Background context oluştur (thread-safe)
+        let backgroundContext = ModelContext(modelContainer)
+
+        for factId in factIds {
+            // Fact'i background context'te bul
+            let descriptor = FetchDescriptor<UserKnowledge>(
+                predicate: #Predicate { $0.id == factId }
+            )
+
+            guard let fact = try? backgroundContext.fetch(descriptor).first else {
+                continue
+            }
+
+            // Embedding oluştur
+            do {
+                let embedding = try await embeddingService.generateEmbeddingForFact(fact)
+                fact.updateEmbedding(embedding, model: "simple-tfidf-v1")
+
+                // Kaydet
+                try backgroundContext.save()
+                print("✅ Embedding oluşturuldu: \(fact.key)")
+            } catch {
+                print("⚠️ Embedding generation hatası (\(fact.key)): \(error)")
+            }
+        }
+    }
+
+    /// Background'da entity embedding'leri oluştur (thread-safe)
+    private func generateEntityEmbeddingsInBackground(
+        factIds: [UUID],
+        modelContainer: ModelContainer
+    ) async {
+        // Background context oluştur (thread-safe)
+        let backgroundContext = ModelContext(modelContainer)
+
+        for factId in factIds {
+            // Fact'i background context'te bul
+            let descriptor = FetchDescriptor<EntityKnowledge>(
+                predicate: #Predicate { $0.id == factId }
+            )
+
+            guard let fact = try? backgroundContext.fetch(descriptor).first else {
+                continue
+            }
+
+            // Embedding oluştur (aynı service kullanıyoruz)
+            do {
+                // EntityKnowledge için text oluştur
+                let text = "\(fact.entityName ?? ""): \(fact.key) = \(fact.value)"
+                let embedding = try await embeddingService.generateEmbedding(for: text)
+                fact.updateEmbedding(embedding, model: "simple-tfidf-v1")
+
+                // Kaydet
+                try backgroundContext.save()
+                print("✅ Entity embedding oluşturuldu: \(fact.entityName ?? "unknown") - \(fact.key)")
+            } catch {
+                print("⚠️ Entity embedding generation hatası (\(fact.key)): \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - AI Response Models
 
-/// AI extraction response
+/// AI extraction response (legacy - v1)
 struct AIExtractionResponse: Codable {
     let facts: [ExtractedFact]
+}
+
+/// AI extraction response v2 - Hem user hem entity facts
+struct AIExtractionResponseV2: Codable {
+    let userFacts: [ExtractedFact]
+    let entityFacts: [ExtractedEntityFact]
 }

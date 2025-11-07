@@ -57,14 +57,14 @@ struct ModernInsightsView: View {
                     .font(.title2)
                     .foregroundStyle(.blue)
 
-                Text("Detaylı Analiz")
+                Text(String(localized: "insights.detailed.analysis", comment: ""))
                     .font(.title2)
                     .fontWeight(.bold)
 
                 Spacer()
 
                 // Period badge (son 6 ay)
-                Text("Son 6 Ay")
+                Text(String(localized: "insights.last.six.months", comment: ""))
                     .font(.caption)
                     .fontWeight(.medium)
                     .padding(.horizontal, 10)
@@ -74,7 +74,7 @@ struct ModernInsightsView: View {
                     .clipShape(Capsule())
             }
 
-            Text("İlişkinizin derinlemesine analizi")
+            Text(String(localized: "insights.deep.analysis.description", comment: ""))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -90,7 +90,7 @@ struct ModernInsightsView: View {
                 Image(systemName: "heart.text.square.fill")
                     .foregroundStyle(.pink)
 
-                Text("Ruh Hali Analizi")
+                Text(String(localized: "insights.mood.analysis", comment: ""))
                     .font(.headline)
 
                 Spacer()
@@ -125,17 +125,17 @@ struct ModernInsightsView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
 
-            Text("Ruh Hali Takibi")
+            Text(String(localized: "insights.mood.tracking", comment: ""))
                 .font(.headline)
 
-            Text("Görüşmelerinize ruh hali ekleyerek daha detaylı analiz yapabilirsiniz. Ruh hali takibi, ilişkinizin kalitesini anlamanıza yardımcı olur.")
+            Text(String(localized: "insights.mood.add.prompt", comment: ""))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Button(action: {}) {
-                Label("İlk Ruh Halini Ekle", systemImage: "plus.circle.fill")
+                Label(String(localized: "insights.add.first.mood", comment: ""), systemImage: "plus.circle.fill")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)

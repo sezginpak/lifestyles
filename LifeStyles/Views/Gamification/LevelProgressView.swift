@@ -37,11 +37,11 @@ struct LevelProgressView: View {
                         .shadow(color: levelColor.opacity(0.4), radius: 8)
 
                     VStack(spacing: 0) {
-                        Text("LVL")
+                        Text(String(localized: "gamification.level.abbr", comment: ""))
                             .font(.system(size: showDetails ? 10 : 8, weight: .bold))
                             .foregroundColor(.white.opacity(0.8))
 
-                        Text("\(userProgress.currentLevel)")
+                        Text(String(localized: "text.userprogresscurrentlevel"))
                             .font(.system(size: showDetails ? 24 : 20, weight: .black))
                             .foregroundColor(.white)
                     }
@@ -49,11 +49,11 @@ struct LevelProgressView: View {
 
                 if showDetails {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Level \(userProgress.currentLevel)")
+                        Text(String(localized: "text.level.userprogresscurrentlevel"))
                             .font(.title3)
                             .fontWeight(.bold)
 
-                        Text("\(userProgress.totalXP) XP")
+                        Text(String(localized: "text.userprogresstotalxp.xp"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -64,11 +64,11 @@ struct LevelProgressView: View {
                 if showDetails {
                     // XP to next level
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("Sonraki Level")
+                        Text(String(localized: "gamification.next.level", comment: ""))
                             .font(.caption2)
                             .foregroundColor(.secondary)
 
-                        Text("\(userProgress.xpForNextLevel - userProgress.xpInCurrentLevel) XP")
+                        Text(String(localized: "text.userprogressxpfornextlevel.userprogressxpincurrentlevel.xp"))
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
@@ -103,14 +103,14 @@ struct LevelProgressView: View {
             if showDetails {
                 // Progress text
                 HStack {
-                    Text("\(userProgress.xpInCurrentLevel) / \(userProgress.xpForNextLevel) XP")
+                    Text(String(localized: "text.userprogressxpincurrentlevel.userprogressxpfornextlevel.xp"))
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
 
                     Spacer()
 
-                    Text("\(Int(userProgress.levelProgress * 100))%")
+                    Text(String(localized: "text.intuserprogresslevelprogress.100"))
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(levelColor)
@@ -195,11 +195,11 @@ struct CompactLevelCard: View {
                     .frame(width: 40, height: 40)
 
                 VStack(spacing: -2) {
-                    Text("LVL")
+                    Text(String(localized: "gamification.level.abbr", comment: ""))
                         .font(.system(size: 7, weight: .bold))
                         .foregroundColor(.white.opacity(0.8))
 
-                    Text("\(userProgress.currentLevel)")
+                    Text(String(localized: "text.userprogresscurrentlevel"))
                         .font(.system(size: 16, weight: .black))
                         .foregroundColor(.white)
                 }
@@ -207,11 +207,11 @@ struct CompactLevelCard: View {
 
             // Info
             VStack(alignment: .leading, spacing: 2) {
-                Text("Level \(userProgress.currentLevel)")
+                Text(String(localized: "text.level.userprogresscurrentlevel"))
                     .font(.subheadline)
                     .fontWeight(.semibold)
 
-                Text("\(userProgress.xpInCurrentLevel)/\(userProgress.xpForNextLevel) XP")
+                Text(String(localized: "text.userprogressxpincurrentleveluserprogressxpfornextlevel.xp"))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -266,7 +266,7 @@ struct CircularProgressView: View {
                 .rotationEffect(.degrees(-90))
 
             // Percentage
-            Text("\(Int(animatedProgress * 100))%")
+            Text(String(localized: "text.intanimatedprogress.100"))
                 .font(.system(size: size * 0.25, weight: .bold))
                 .foregroundColor(.primary)
         }

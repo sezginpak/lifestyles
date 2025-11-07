@@ -14,7 +14,7 @@ struct AchievementSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Başarılar")
+            Text(String(localized: "friend.achievements", comment: ""))
                 .font(.headline)
                 .foregroundStyle(.primary)
 

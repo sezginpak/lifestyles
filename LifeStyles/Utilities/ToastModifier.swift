@@ -61,7 +61,7 @@ extension EnvironmentValues {
                 Divider()
 
                 // Success
-                Button("Başarı Toast") {
+                Button(String(localized: "toast.success", comment: "")) {
                     toastManager.success(
                         title: "Başarılı!",
                         message: "İşlem tamamlandı",
@@ -72,7 +72,7 @@ extension EnvironmentValues {
                 .tint(.success)
 
                 // Error
-                Button("Hata Toast") {
+                Button(String(localized: "toast.error", comment: "")) {
                     toastManager.error(
                         title: "Hata!",
                         message: "Bir şeyler yanlış gitti",
@@ -83,7 +83,7 @@ extension EnvironmentValues {
                 .tint(.error)
 
                 // Warning
-                Button("Uyarı Toast") {
+                Button(String(localized: "toast.warning", comment: "")) {
                     toastManager.warning(
                         title: "Dikkat!",
                         message: "İzin gerekli",
@@ -94,7 +94,7 @@ extension EnvironmentValues {
                 .tint(.warning)
 
                 // Info
-                Button("Bilgi Toast") {
+                Button(String(localized: "toast.info", comment: "")) {
                     toastManager.info(
                         title: "Bilgilendirme",
                         message: "Güncelleme mevcut",
@@ -105,7 +105,7 @@ extension EnvironmentValues {
                 .tint(.info)
 
                 // Custom
-                Button("Custom Toast") {
+                Button(String(localized: "toast.custom", comment: "")) {
                     toastManager.custom(
                         title: "Özel Bildirim",
                         message: "Custom renk ve icon",
@@ -118,7 +118,7 @@ extension EnvironmentValues {
                 .tint(.purple)
 
                 // Multiple toasts (queue demo)
-                Button("Çoklu Toast (Kuyruk)") {
+                Button(String(localized: "toast.multiple.queue", comment: "")) {
                     toastManager.success(title: "İlk Toast", emoji: "1️⃣")
                     toastManager.info(title: "İkinci Toast", emoji: "2️⃣")
                     toastManager.warning(title: "Üçüncü Toast", emoji: "3️⃣")

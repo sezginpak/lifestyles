@@ -134,7 +134,7 @@ struct SettingsView: View {
                                                 .foregroundStyle(purchaseManager.trialDaysRemaining > 1 ? .blue : .orange)
                                         }
 
-                                        Text("Deneme süresi bitince otomatik olarak \(purchaseManager.monthlyPrice)/ay abonelik başlayacak.")
+                                        Text(String(localized: "text.deneme.süresi.bitince.otomatik"))
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
 
@@ -145,7 +145,7 @@ struct SettingsView: View {
                                                 Text(String(localized: "settings.premium.ai.messages.today", comment: "AI messages used today:"))
                                                     .font(.caption)
                                                 Spacer()
-                                                Text("\(stats.todayCount) (Sınırsız)")
+                                                Text(String(localized: "text.statstodaycount.sınırsız"))
                                                     .font(.caption.bold())
                                                     .foregroundStyle(.green)
                                             }
@@ -166,7 +166,7 @@ struct SettingsView: View {
                                             showPaywall = true
                                         } label: {
                                             HStack {
-                                                Text("Aboneliği Yönet")
+                                                Text(String(localized: "settings.manage.subscription", comment: "Manage Subscription"))
                                                     .font(.subheadline.bold())
                                                 Spacer()
                                                 Image(systemName: "chevron.right")

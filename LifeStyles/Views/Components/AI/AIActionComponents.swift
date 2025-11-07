@@ -196,7 +196,7 @@ struct AIBadge: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 10, weight: .semibold))
 
-            Text("AI")
+            Text(String(localized: "ai.abbr", comment: "AI abbreviation"))
                 .font(.system(size: 11, weight: .bold))
         }
         .foregroundStyle(

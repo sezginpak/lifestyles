@@ -135,7 +135,7 @@ struct GlassJournalCard: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: Spacing.small) {
                             ForEach(entry.tags.prefix(5), id: \.self) { tag in
-                                Text("#\(tag)")
+                                Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                                     .font(.caption)
                                     .foregroundStyle(entry.journalType.color)
                                     .padding(.horizontal, Spacing.small)
@@ -153,7 +153,7 @@ struct GlassJournalCard: View {
                 HStack(spacing: Spacing.small) {
                     Image(systemName: "text.word.spacing")
                         .font(.caption2)
-                    Text("\(entry.wordCount)")
+                    Text(String(localized: "journal.word.count", defaultValue: "\(entry.wordCount)", comment: "Word count"))
                         .font(.caption2)
 
                     Text("•")
@@ -262,7 +262,7 @@ struct GlassJournalCard: View {
                         HStack(spacing: 2) {
                             Image(systemName: "doc.text")
                                 .font(.system(size: 9))
-                            Text("\(entry.wordCount)")
+                            Text(String(localized: "journal.word.count", defaultValue: "\(entry.wordCount)", comment: "Word count"))
                                 .font(.caption2)
                                 .fontWeight(.medium)
                         }
@@ -332,7 +332,7 @@ struct GlassJournalCard: View {
                                 }
 
                                 if entry.tags.count > 3 {
-                                    Text("+\(entry.tags.count - 3)")
+                                    Text(String(localized: "journal.tag.more", defaultValue: "+\(entry.tags.count - 3)", comment: "More tags"))
                                         .font(.caption2)
                                         .fontWeight(.medium)
                                         .foregroundStyle(entry.journalType.color.opacity(0.6))

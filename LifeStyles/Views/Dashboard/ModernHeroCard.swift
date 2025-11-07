@@ -74,7 +74,7 @@ struct ModernHeroStatsCard: View {
                                 .scaleEffect(animateScore ? 1 : 0.5)
                                 .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.3), value: animateScore)
 
-                            Text("SKOR")
+                            Text(String(localized: "dashboard.score", comment: ""))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
                                 .tracking(2)

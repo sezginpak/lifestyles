@@ -49,7 +49,7 @@ struct JournalDetailView: View {
                 .padding(Spacing.large)
             }
             .background(Color.backgroundPrimary)
-            .navigationTitle("Journal Detay")
+            .navigationTitle(String(localized: "journal.nav.detail", comment: "Journal detail"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -68,7 +68,7 @@ struct JournalDetailView: View {
                             viewModel.startEditingJournal(entry)
                             dismiss()
                         } label: {
-                            Label("Düzenle", systemImage: "pencil")
+                            Label(String(localized: "button.edit", comment: "Edit button"), systemImage: "pencil")
                         }
 
                         // Favorite Toggle
@@ -85,7 +85,7 @@ struct JournalDetailView: View {
                         Button {
                             shareJournal()
                         } label: {
-                            Label("Paylaş", systemImage: "square.and.arrow.up")
+                            Label(String(localized: "button.share", comment: "Share button"), systemImage: "square.and.arrow.up")
                         }
 
                         Divider()
@@ -94,7 +94,7 @@ struct JournalDetailView: View {
                         Button(role: .destructive) {
                             deleteJournal()
                         } label: {
-                            Label("Sil", systemImage: "trash")
+                            Label(String(localized: "button.delete", comment: "Delete button"), systemImage: "trash")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
@@ -208,7 +208,7 @@ struct JournalDetailView: View {
 
             FlowLayout(spacing: Spacing.small) {
                 ForEach(entry.tags, id: \.self) { tag in
-                    Text("#\(tag)")
+                    Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundStyle(.white)
@@ -241,7 +241,7 @@ struct JournalDetailView: View {
                     Image(systemName: "text.word.spacing")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("\(entry.wordCount) kelime")
+                    Text(String(localized: "journal.word.count.label", defaultValue: "\(entry.wordCount) words", comment: "Word count label"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -253,7 +253,7 @@ struct JournalDetailView: View {
                     Image(systemName: "book")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text("\(entry.estimatedReadingTime) dk")
+                    Text(String(localized: "journal.reading.time", defaultValue: "\(entry.estimatedReadingTime) min", comment: "Reading time"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

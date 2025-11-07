@@ -120,7 +120,7 @@ struct AIInsightsSection: View {
                 Spacer()
 
                 // Confidence badge
-                Text("\(Int(insight.confidence * 100))%")
+                Text(String(localized: "analytics.confidence", defaultValue: "\(Int(insight.confidence * 100))%", comment: "Confidence percentage"))
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
@@ -200,7 +200,7 @@ struct AIInsightsSection: View {
     private func predictionCard(_ prediction: AnalyticsPredictiveInsight) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "crystal.ball.fill")
+                Image(systemName: "wand.and.stars")
                     .font(.title2)
                     .foregroundStyle(
                         LinearGradient(

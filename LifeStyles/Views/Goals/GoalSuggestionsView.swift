@@ -71,7 +71,7 @@ struct GoalSuggestionsView: View {
                         Button {
                             generateSuggestions()
                         } label: {
-                            Label("Yeniden Oluştur", systemImage: "arrow.clockwise")
+                            Label(String(localized: "label.yeniden.oluştur"), systemImage: "arrow.clockwise")
                                 .font(.headline)
                                 .foregroundStyle(.white)
                                 .padding()
@@ -121,7 +121,7 @@ struct GoalSuggestionsView: View {
                             Button {
                                 generateSuggestions()
                             } label: {
-                                Label("Yeni Öneriler Oluştur", systemImage: "arrow.clockwise")
+                                Label(String(localized: "label.yeni.öneriler.oluştur"), systemImage: "arrow.clockwise")
                                     .font(.headline)
                                     .foregroundStyle(Color.cardGoals)
                                     .frame(maxWidth: .infinity)
@@ -139,7 +139,7 @@ struct GoalSuggestionsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Kapat") {
+                    Button(String(localized: "button.close", comment: "Close button")) {
                         dismiss()
                     }
                 }

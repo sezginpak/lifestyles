@@ -19,7 +19,7 @@ struct TransactionSection: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack {
-                Label("Borç/Alacak", systemImage: "banknote")
+                Label(String(localized: "section.debt.credit", comment: "Debt/Credit"), systemImage: "banknote")
                     .font(.headline)
 
                 Spacer()

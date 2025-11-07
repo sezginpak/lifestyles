@@ -21,7 +21,7 @@ struct MoodStreakWidget: View {
                 // Streak counter
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("\(streakData.currentStreak)")
+                        Text(String(localized: "streak.current", defaultValue: "\(streakData.currentStreak)", comment: "Current streak"))
                             .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
@@ -177,7 +177,7 @@ struct MoodStreakWidget: View {
 
                 Spacer()
 
-                Text("\(streakData.streakBadges.count)")
+                Text(String(localized: "streak.badges.count", defaultValue: "\(streakData.streakBadges.count)", comment: "Streak badges"))
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
@@ -218,7 +218,7 @@ struct BadgeCard: View {
                 .font(.system(size: 36))
 
             // Days
-            Text("\(badge.days)")
+            Text(String(localized: "badge.days", defaultValue: "\(badge.days)", comment: "Badge days"))
                 .font(.caption.weight(.bold))
 
             Text(String(localized: "time.days", comment: "days"))
@@ -254,7 +254,7 @@ struct CompactStreakDisplay: View {
             Text("🔥")
                 .font(.title3)
 
-            Text("\(currentStreak)")
+            Text(String(localized: "streak.current", defaultValue: "\(currentStreak)", comment: "Current streak"))
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(.orange)
 

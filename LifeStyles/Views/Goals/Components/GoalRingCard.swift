@@ -12,6 +12,8 @@ struct GoalRingCard: View {
     let goal: Goal
     let onComplete: () -> Void
 
+    @State private var showingDetailSheet = false
+
     var body: some View {
         HStack(spacing: 16) {
             // Ring Progress
@@ -120,21 +122,35 @@ struct GoalRingCard: View {
 
             Spacer()
 
-            // Quick Complete Button
-            if !goal.isCompleted {
+            // Action Buttons
+            HStack(spacing: 12) {
+                // Detail Button
                 Button {
-                    HapticFeedback.medium()
-                    onComplete()
+                    HapticFeedback.light()
+                    showingDetailSheet = true
                 } label: {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(Color(hex: goal.category.ringColor))
+                    Image(systemName: "info.circle")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-            } else {
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.title2)
-                    .foregroundStyle(.green)
+
+                // Quick Complete Button
+                if !goal.isCompleted {
+                    Button {
+                        HapticFeedback.medium()
+                        onComplete()
+                    } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color(hex: goal.category.ringColor))
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.title2)
+                        .foregroundStyle(.green)
+                }
             }
         }
         .padding(16)
@@ -143,6 +159,11 @@ struct GoalRingCard: View {
                 .fill(.ultraThinMaterial)
                 .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
         )
+        .sheet(isPresented: $showingDetailSheet) {
+            GoalDetailSheet(goal: goal) {
+                // Refresh callback - parent view will refresh
+            }
+        }
     }
 }
 

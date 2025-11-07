@@ -82,7 +82,7 @@ struct PhoneBookPickerView: View {
             .searchable(text: $searchText, prompt: "Kişi Ara")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
@@ -235,7 +235,7 @@ struct AddContactFromPhoneBookView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Kişi Bilgileri") {
+                Section(String(localized: "section.kişi.bilgileri")) {
                     HStack {
                         Text(String(localized: "common.name", comment: "Name"))
                             .foregroundStyle(.secondary)
@@ -255,7 +255,7 @@ struct AddContactFromPhoneBookView: View {
                     }
                 }
 
-                Section("İlişki Tipi") {
+                Section(String(localized: "section.ilişki.tipi")) {
                     Picker("Tip", selection: $relationshipType) {
                         ForEach(RelationshipType.allCases, id: \.self) { type in
                             HStack {
@@ -280,7 +280,7 @@ struct AddContactFromPhoneBookView: View {
                     }
                 }
 
-                Section("İletişim Sıklığı") {
+                Section(String(localized: "section.iletişim.sıklığı")) {
                     Picker("Sıklık", selection: $selectedFrequency) {
                         ForEach([ContactFrequency.daily, .twoDays, .threeDays, .weekly, .biweekly, .monthly], id: \.self) { freq in
                             Text(freq.displayName).tag(freq)
@@ -294,7 +294,7 @@ struct AddContactFromPhoneBookView: View {
                     Text(String(localized: "friend.important.footer", comment: "Important people are shown with priority in widget"))
                 }
 
-                Section("Notlar (Opsiyonel)") {
+                Section(String(localized: "section.notlar.opsiyonel")) {
                     TextEditor(text: $notes)
                         .frame(height: 80)
                 }
@@ -303,13 +303,13 @@ struct AddContactFromPhoneBookView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("İptal") {
+                    Button(String(localized: "button.cancel", comment: "Cancel button")) {
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Ekle") {
+                    Button(String(localized: "button.ekle")) {
                         let success = viewModel.addFriendFromPhoneBook(
                             contact,
                             frequency: selectedFrequency,
@@ -338,7 +338,7 @@ struct AddContactFromPhoneBookView: View {
                 }
             }
             .alert("Duplicate Arkadaş", isPresented: $showDuplicateError) {
-                Button("Tamam", role: .cancel) { }
+                Button(String(localized: "button.tamam"), role: .cancel) { }
             } message: {
                 Text(String(localized: "friends.already.exists", comment: "Friend already exists validation"))
             }

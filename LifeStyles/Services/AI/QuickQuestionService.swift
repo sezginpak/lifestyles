@@ -20,7 +20,7 @@ class QuickQuestionService {
     private let premiumManager = PremiumManager.shared
 
     // Cache settings
-    private let cacheExpirationSeconds: TimeInterval = 3600 // 1 saat
+    private let cacheExpirationSeconds: TimeInterval = 14400 // 4 saat
     private let maxQuestionsPerCategory = 6
     private let minQuestionsPerCategory = 4
 

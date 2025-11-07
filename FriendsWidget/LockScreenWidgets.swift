@@ -77,7 +77,7 @@ struct CircularWidgetView: View {
                     )
 
                 if count > 0 {
-                    Text("\(count)")
+                    Text(String(localized: "text.count"))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                 }
@@ -100,13 +100,13 @@ struct RectangularWidgetView: View {
                 Image(systemName: "person.2.fill")
                     .font(.system(size: 12, weight: .semibold))
 
-                Text("Arkadaşlarım")
+                Text(String(localized: "widget.friends", comment: ""))
                     .font(.system(size: 12, weight: .bold, design: .rounded))
 
                 Spacer()
 
                 if count > 0 {
-                    Text("\(count)")
+                    Text(String(localized: "text.count"))
                         .font(.system(size: 12, weight: .bold, design: .rounded))
                         .foregroundColor(.red)
                 }
@@ -114,7 +114,7 @@ struct RectangularWidgetView: View {
 
             // Friends list (top 2)
             if friends.isEmpty {
-                Text("Hepsi tamam ✓")
+                Text(String(localized: "widget.all.okay", comment: ""))
                     .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
             } else {
@@ -160,10 +160,10 @@ struct InlineWidgetView: View {
 
     var body: some View {
         if count > 0 {
-            Label("\(count) arkadaş bekliyor 📞", systemImage: "person.2.fill")
+            Label(String(localized: "widget.friends.waiting", defaultValue: "\(count) friends waiting 📞", comment: "Friends waiting widget"), systemImage: "person.2.fill")
                 .widgetAccentable()
         } else {
-            Label("Hepsi tamam ✓", systemImage: "checkmark.circle.fill")
+            Label(String(localized: "widget.all.done", defaultValue: "All done ✓", comment: "All done widget"), systemImage: "checkmark.circle.fill")
                 .widgetAccentable()
         }
     }

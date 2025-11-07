@@ -84,7 +84,7 @@ struct GoalAIInsightSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Kapat") {
+                    Button(String(localized: "button.close", comment: "Close button")) {
                         dismiss()
                     }
                 }

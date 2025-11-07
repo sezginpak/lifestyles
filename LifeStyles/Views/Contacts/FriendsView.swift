@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct FriendsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -22,7 +23,7 @@ struct FriendsView: View {
                     // Compact Stats
                     modernStatsCards
                         .padding(.horizontal)
-                        .padding(.top, 4)
+                        .padding(.top, 2)
 
                     // Sort Picker
                     sortPicker
@@ -109,6 +110,9 @@ struct FriendsView: View {
             }
             .onAppear {
                 viewModel.setModelContext(modelContext)
+
+                // Widget verisini güncelle
+                updateWidgetData()
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddFriendView(viewModel: viewModel)
@@ -122,44 +126,32 @@ struct FriendsView: View {
         }
     }
 
-    // MARK: - Modern Stats Cards
+    // MARK: - Compact Stats Chips
 
     private var modernStatsCards: some View {
         HStack(spacing: 8) {
-            // Acil Kart
-            ModernStatCard(
-                title: String(localized: "common.urgent", comment: "Urgent"),
-                value: "\(viewModel.friendsNeedingAttention)",
+            // Acil Chip
+            CompactStatChip(
+                value: viewModel.friendsNeedingAttention,
                 icon: "exclamationmark.triangle.fill",
-                gradient: LinearGradient(
-                    colors: [.red, .orange],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                color: .red,
+                label: String(localized: "common.urgent", comment: "Urgent")
             )
 
-            // Yakında Kart
-            ModernStatCard(
-                title: String(localized: "friends.coming.soon", comment: "Coming Soon"),
-                value: "\(viewModel.friendsSoonCount)",
+            // Yakında Chip
+            CompactStatChip(
+                value: viewModel.friendsSoonCount,
                 icon: "clock.fill",
-                gradient: LinearGradient(
-                    colors: [.orange, .yellow],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                color: .orange,
+                label: String(localized: "friends.coming.soon", comment: "Coming Soon")
             )
 
-            // Toplam Kart
-            ModernStatCard(
-                title: String(localized: "common.total", comment: "Total"),
-                value: "\(viewModel.friends.count)",
+            // Toplam Chip
+            CompactStatChip(
+                value: viewModel.friends.count,
                 icon: "person.2.fill",
-                gradient: LinearGradient(
-                    colors: [.blue, .cyan],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                color: .blue,
+                label: String(localized: "common.total", comment: "Total")
             )
         }
     }
@@ -281,6 +273,25 @@ struct FriendsView: View {
                 }
             }
             .padding(.horizontal, 4)
+        }
+    }
+
+    // MARK: - Widget Update Helper
+
+    private func updateWidgetData() {
+        Task { @MainActor in
+            do {
+                let widgetFriends = try WidgetDataService.shared.fetchFriendsForWidget(context: modelContext)
+                let totalCount = try WidgetDataService.shared.fetchNeedsContactCount(context: modelContext)
+                WidgetDataService.shared.saveWidgetData(friends: widgetFriends, totalCount: totalCount)
+
+                // Widget'ı reload et
+                WidgetCenter.shared.reloadAllTimelines()
+
+                print("✅ Widget güncellendi: \(widgetFriends.count) arkadaş, toplam: \(totalCount)")
+            } catch {
+                print("❌ Widget güncelleme hatası: \(error)")
+            }
         }
     }
 }

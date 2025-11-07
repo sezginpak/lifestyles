@@ -77,7 +77,7 @@ struct FilterChipGroup: View {
                         HStack(spacing: 6) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 12, weight: .semibold))
-                            Text("Temizle")
+                            Text(String(localized: "filter.clear", comment: ""))
                                 .font(.system(size: 14, weight: .semibold))
                         }
                         .foregroundColor(.red)

@@ -15,13 +15,13 @@ struct RelationshipHealthCard: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("İlişki Sağlığı")
+                Text(String(localized: "friend.relationship.health", comment: ""))
                     .font(.headline)
                     .foregroundStyle(.primary)
 
                 Spacer()
 
-                Text("\(relationshipHealthScore)%")
+                Text(String(localized: "relationship.health.score", defaultValue: "\(relationshipHealthScore)%", comment: "Health score"))
                     .font(.title2.bold())
                     .foregroundStyle(
                         LinearGradient(

@@ -72,7 +72,7 @@ struct HabitPreviewCard: View {
                 Text(draft.emoji).font(.system(size: 48))
                 Spacer()
                 VStack(alignment: .trailing) {
-                    Text("\(draft.targetCount)").font(.title.weight(.bold)).foregroundStyle(Color.accentSecondary)
+                    Text(String(localized: "habit.target.count", defaultValue: "\(draft.targetCount)", comment: "Target count")).font(.title.weight(.bold)).foregroundStyle(Color.accentSecondary)
                     Text(frequencyLabel).font(.caption).foregroundStyle(.secondary)
                 }
             }

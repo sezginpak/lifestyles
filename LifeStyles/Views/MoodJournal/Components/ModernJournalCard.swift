@@ -208,7 +208,7 @@ struct ModernJournalCard: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(entry.tags.prefix(5), id: \.self) { tag in
-                    Text("#\(tag)")
+                    Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(typeColor)
                         .padding(.horizontal, 8)
@@ -257,7 +257,7 @@ struct ModernJournalCard: View {
             HStack(spacing: 4) {
                 Image(systemName: "doc.text")
                     .font(.system(size: 11))
-                Text("\(entry.wordCount) kelime")
+                Text(String(localized: "journal.word.count.label", defaultValue: "\(entry.wordCount) words", comment: "Word count label"))
                     .font(.system(size: 11, weight: .medium))
             }
             .foregroundColor(.secondary)
@@ -266,7 +266,7 @@ struct ModernJournalCard: View {
             HStack(spacing: 4) {
                 Image(systemName: "clock")
                     .font(.system(size: 11))
-                Text("\(entry.estimatedReadingTime) dk")
+                Text(String(localized: "journal.reading.time", defaultValue: "\(entry.estimatedReadingTime) min", comment: "Reading time"))
                     .font(.system(size: 11, weight: .medium))
             }
             .foregroundColor(.secondary)

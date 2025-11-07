@@ -1,0 +1,4951 @@
+/* #%@ */
+/* A text element displaying the amount of money in a transaction, followed by the currency symbol. The first argument is the amount of money. The second argument is the currency symbol. */
+/* A label showing the total amount of debt that a user owes. The text inside the parentheses is replaced with the actual amount of debt. */
+/* %@ • Score: %@ */
+/* %@, %@ */
+/* %@, intensity level %lld */
+/* %@: %@ */
+/* A label showing the number of consecutive days a particular goal has been achieved. The text inside the label is dynamically updated to reflect the current streak. */
+/* %lld %@ */
+/* A small, rounded badge displaying the current and total number of photos in a memory. */
+/* A subtitle indicating the number of badges earned out of the total possible. The first argument is the count of badges that have been earned. The second argument is the total count of possible badges. */
+/* A pair of text elements showing the current XP and the percentage of XP needed to advance to the next level. The first argument is the current XP the user has. The second argument is the XP needed to advance to the next level. The third argument is the percentage of XP the user has accumulated to reach the next level. */
+/* A label displaying the total amount of experience points a user has accumulated. The argument is the total XP value. */
+/* %lld min */
+/* A label displaying the number of days until the next contact is needed, in green if it's in the future, or in red if it's already passed. The argument is the number of days until */
+/* A label displaying the number of days until the next contact is needed, in green if it's in the future, or in red if it's already passed. The argument is the number of days until */
+/* %lld day streak */
+/* %lld characters */
+/* %lld words */
+/* %lld times */
+/* A label displaying the number of locations visited in the current session. */
+/* A text element displaying the percentage of completion for a specific goal or task. The argument is a floating-point number between 0.0 and 1.0, representing the fraction of completion. */
+/* %lld, %@ */
+/* %lld, no mood records */
+/* %lld/%lld %@ */
+/* A text displaying the current XP and the XP needed for the next level. */
+/* %lld/5 */
+/* A small text label showing the number of notes in a category. */
+/* (Markdown) */
+/* A text displaying the net balance of an account, formatted as a title with a plus sign for positive values and a minus sign for negative values. The value is followed by " TL". */
+/* +%lld */
+/* A text label displaying the XP reward for earning a badge. The argument is the XP reward value. */
+/* A negative balance amount displayed in the checkout view. The value is the absolute value of the negative balance. */
+/* A placeholder text for an empty text field. */
+/* "AI" kelimesi. */
+/* The title of the view that appears in the navigation bar at the top of the screen. */
+/* AI Consent */
+/* Active */
+/* A title for the section that shows smart suggestions. */
+/* A caption displayed underneath the name of an "Alacak" button. */
+/* A title for the view that lets users select a habit template. */
+/* A button that starts an analysis process. */
+/* A button that triggers the generation of new mood insights. */
+/* The title of an alert that appears when a user attempts to delete a memory. */
+/* A button label that translates to "Call" in English. */
+/* A navigation title for the view that lets users select friends. */
+/* The title of the "Friends" view. */
+/* The title of an alert that appears when trying to delete a friend. */
+/* A label for the emoji used as the user's avatar. */
+/* Custom axis label and value extraction for the x-axis. */
+/* A label describing the description field in the transaction sheet. */
+/* The title of the gamification view. */
+/* A label for the title of a special date. */
+/* Title (optional) */
+/* Refresh Titles */
+/* Edit Title */
+/* Notification Settings */
+"Bildirim Ayarları" = "Notification Settings";
+
+/* A message displayed when a category in the "Partner Notları" section has no notes. */
+/* A label indicating that a special date is happening today. */
+/* What happened today? */
+/* Claude Haiku */
+/* A label indicating that a user's net balance is zero. */
+/* A heading for the details section of the "Add Goal" wizard. */
+/* Tap to view details */
+/* A section header in the gamification view that translates to "Detailed Stats". */
+/* The title of an alert that appears when a user tries to add a friend with a name or phone number that is already in use. */
+/* An edit button for editing a friend's details. */
+/* A button that triggers the export of mood analytics data. */
+/* A button that adds a person from the phone book to the list. */
+/* The title of the EmojiPickerView. */
+/* A placeholder text for a search bar in the emoji picker view. */
+/* A placeholder text for the text field where a user can add a tag. */
+/* Tags */
+/* Home */
+/* Save Home Location? */
+/* Favorite */
+/* Remove from Favorites */
+/* Remove from Favorites */
+/* Add to Favorites */
+/* Photo description (optional) */
+/* Remove Photo */
+/* A button label that says "Gallery". */
+/* A toggle switch that indicates whether geofencing is enabled. */
+/* Skip */
+/* A toggle that enables or disables a notification when entering a place. */
+/* Privacy Policy */
+/* A button that moves a memory to a private list. */
+/* A section header for the "How did the meeting go?" question in the "Add Contact History" view. */
+/* Day */
+/* The title of the view that appears when a user taps on a day in the heatmap. */
+/* Update */
+/* The title of the view. */
+/* Generate Weekly Analysis */
+/* Error */
+/* A label for the reminder time picker in the "Önizleme ve Kaydet" step of the "Alışkanlık Ekle" wizard. */
+/* A title for the view that lets users choose a goal template. */
+/* A text that appears when a badge has not been earned yet. */
+/* A message displayed when a user has no mood entries yet. */
+/* A message displayed when a user has no partner notes. */
+/* Journal Detail */
+/* Edit Journal */
+/* Journal Type */
+/* The text for the camera option in the photo section of the "Add Memory" view. */
+/* A button label that translates to "Close". */
+/* A section that lets the user select a category for their note. */
+/* A message displayed while saving a memory. */
+/* A button that saves the note when pressed. */
+/* Saved Places */
+"Kayıtlı Yerler" = "Saved Places";
+
+/* A text displaying the date when a badge was earned. The argument is the date in a readable format. */
+/* An alert title indicating that there was an authentication error. */
+/* A prompt for searching through phone contacts. */
+/* A section header for personal information. */
+/* A label displayed above the location section in the "Add Memory" view. */
+/* Location Settings */
+"Konum Ayarları" = "Location Settings";
+
+/* The title of the view that allows users to select a location. */
+/* Terms of Use */
+/* The text "L" in the center of the custom LifeStyle Icon. */
+/* A label displayed within the level badge. */
+/* Lat: %@, Lon: %@ */
+/* A text view displaying the latitude of the selected location. */
+/* A title and subtitle in the checkout view that display the user's current level and total XP. */
+/* The title of the navigation bar at the top of the screen. */
+/* A text view displaying the latitude coordinate of the selected location. */
+/* A button label that translates to "Message". */
+/* Current Location */
+/* Mode */
+/* The title of the view. */
+/* Save Mood */
+/* No mood records, %@ */
+/* Delete Mood */
+/* A label describing the net balance of a contact. */
+/* A button that allows a user to add a new note. */
+/* A placeholder text indicating that a friend's notes are empty. */
+/* A section header for the user to add notes about a special date. */
+/* A section header that translates to "Optional Notes". */
+/* A text field prompt for the user to enter notes. */
+/* Avg: %@ */
+/* Average */
+/* The title of the view that displays detailed information about a detected pattern. */
+/* Share */
+/* Shared Data */
+/* A label for a premium badge. */
+/* The text that appears on the button to toggle the route display on the map view. */
+/* Badges */
+/* "Sayı" is a placeholder for a mood-related string that could be translated. */
+/* An abbreviation for "score". */
+/* Pin */
+/* Label for the horizontal axis in the mood distribution chart. */
+/* A label displayed above the "Love Language" section of the view. */
+/* Selected */
+/* Not selected */
+/* Tap to select */
+/* A menu item label that translates to "Delete". */
+/* Score */
+/* Score: %@ */
+/* Search chat... */
+/* A section header that translates to "Recently Earned Badges". */
+/* Last record: %@ */
+/* A label displayed below the XP needed to advance to the next level. */
+/* A label displayed below the date of the next contact with a friend. */
+/* A navigation title for the sticker palette view. */
+/* A placeholder text for a search bar in the sticker palette view. */
+/* Streak active! */
+/* Frequently Used Tags */
+/* A picker that lets the user select how often to contact this friend. */
+/* Tab */
+/* Tags */
+/* The text for a button that confirms the selection in an emoji picker view. */
+/* Complete */
+/* Completed */
+/* A label for the date picker in the "Add Special Date" view. */
+/* A section header for selecting the date and time of a contact history entry. */
+/* A button label that translates to "Try again". */
+/* A label for the phone number field in the edit friend view. */
+/* Clear */
+/* A label for the "Tip" segment in the "İlişki Tipi" section of the `AddFriendView`. */
+/* A label describing the total distance traveled. */
+/* Trend: %@ */
+/* A label describing the amount to be added. */
+/* A button label that translates to "All" in English. */
+/* Delete All */
+/* A label for the due date in the transaction sheet. */
+/* A label for the segmented control that allows the user to switch between different views of their memories. */
+/* The title of the view where a user can create a new habit. */
+/* The title of the view. */
+/* The title of the view where a user can create a new private memory. */
+/* The title of the view where a user can create a new goal. */
+/* New Journal */
+/* The title of the view when creating a new place. */
+/* A button label that says "Generate new suggestions". */
+/* The title of the view. */
+/* A button label that means "Refresh Analysis". */
+/* A button label that means "Generate again". */
+/* A button label that translates to "Add Place" in English. */
+/* A title for an alert that appears when a place is successfully saved. */
+/* A label for the name of a place. */
+/* A prompt for searching for a place. */
+/* The title of the view when editing an existing place. */
+/* The title of an alert that appears when the user attempts to delete a place. */
+/* Intensity level: %lld / 5 */
+/* A label for the anniversary date in the "Add Friend" view. */
+/* Time */
+/* Consistency category */
+"achievement.category.consistency" = "Consistency";
+
+/* Goals category */
+"achievement.category.goal" = "Goals";
+
+/* Habits category */
+"achievement.category.habit" = "Habits";
+
+/* Special category */
+"achievement.category.special" = "Special";
+
+/* First goal desc */
+"achievement.first.goal.desc" = "Create your first goal";
+
+/* First goal */
+"achievement.first.goal.title" = "First Goal";
+
+/* First habit desc */
+"achievement.first.habit.desc" = "Create your first habit";
+
+/* First habit */
+"achievement.first.habit.title" = "First Habit";
+
+/* Goal hunter */
+"achievement.goal.hunter.title" = "Goal Hunter";
+
+/* Habit master desc */
+"achievement.habit.master.desc" = "30-day streak on a habit";
+
+/* Habit master */
+"achievement.habit.master.title" = "Habit Master";
+
+/* Health king desc */
+"achievement.health.king.desc" = "Complete 5 health goals";
+
+/* Health king */
+"achievement.health.king.title" = "Health King";
+
+/* Hundred master desc */
+"achievement.hundred.master.desc" = "Complete for 100 consecutive days";
+
+/* Hundred master */
+"achievement.hundred.master.title" = "Master of Hundred";
+
+/* Legendary habit desc */
+"achievement.legendary.habit.desc" = "90-day streak on a habit";
+
+/* Legendary habit */
+"achievement.legendary.habit.title" = "Legendary Habit";
+
+/* Month champion desc */
+"achievement.month.champion.desc" = "Complete for 30 consecutive days";
+
+/* Month champion */
+"achievement.month.champion.title" = "Month Champion";
+
+/* Week warrior desc */
+"achievement.week.warrior.desc" = "Complete goals/habits for 7 consecutive days";
+
+/* Week warrior */
+"achievement.week.warrior.title" = "Week Warrior";
+
+/* Read book */
+"activity.cafe.read.book.title" = "Read a Book";
+
+/* Complete activity */
+"activity.complete.button" = "Complete Activity";
+
+/* Great! */
+"activity.completed.alert.button" = "Great!";
+
+/* Congratulations! You earned X points! */
+"activity.completed.alert.message" = "Congratulations! You earned %lld points!";
+
+/* Activity completed! */
+"activity.completed.alert.title" = "Activity Completed!";
+
+/* Completion History */
+"activity.completion.history" = "Completion History";
+
+/* Outdoor */
+"activity.current.outdoor" = "Outdoor";
+
+/* Activity detail */
+"activity.detail.title" = "Activity Detail";
+
+/* Connect friends desc */
+"activity.home.connect.friends.desc" = "Who do you need to talk to today?";
+
+/* Connect friends */
+"activity.home.connect.friends.title" = "Connect with Friends";
+
+/* Prepare tomorrow */
+"activity.home.prepare.tomorrow.desc" = "Prepare for tomorrow";
+
+/* Relax time desc */
+"activity.home.relax.time.desc" = "Take some time for yourself";
+
+/* Relax time */
+"activity.home.relax.time.title" = "Relaxation Time";
+
+/* Review goals desc */
+"activity.home.review.goals.desc" = "Plan your goals for today";
+
+/* Review goals */
+"activity.home.review.goals.title" = "Review Your Goals";
+
+/* Short break desc */
+"activity.home.short.break.desc" = "15 minute rest time";
+
+/* Short break */
+"activity.home.short.break.title" = "Short Break";
+
+/* Start day desc */
+"activity.home.start.day.desc" = "Start your day with your morning routine";
+
+/* Start day */
+"activity.home.start.day.title" = "Start Your Day";
+
+/* Write journal desc */
+"activity.home.write.journal.desc" = "What happened today?";
+
+/* Write journal */
+"activity.home.write.journal.title" = "Write Your Journal";
+
+/* Activity info label: Difficulty */
+"activity.info.difficulty" = "Difficulty";
+
+/* Activity info label: Duration */
+"activity.info.duration" = "Duration";
+
+/* Activity info label: Last viewed */
+"activity.info.last_viewed" = "Last Viewed";
+
+/* Activity info label: Points */
+"activity.info.points" = "Points";
+
+/* Activity information */
+"activity.info.title" = "Activity Information";
+
+/* Activity info label: Views */
+"activity.info.views" = "Views";
+
+/* Nature meditation desc */
+"activity.nature.meditation.desc" = "15 minutes of meditation in green space";
+
+/* Nature meditation */
+"activity.nature.meditation.title" = "Outdoor Meditation";
+
+/* Nature photo desc */
+"activity.nature.photo.desc" = "Capture beautiful moments in nature";
+
+/* Nature photo */
+"activity.nature.photo.title" = "Nature Photography";
+
+/* Nature walk desc */
+"activity.nature.walk.desc" = "Take a brisk 30-minute walk in a nearby park";
+
+/* Nature walk */
+"activity.nature.walk.title" = "Walk in Greenery";
+
+/* X points remaining */
+"activity.points.remaining.format" = "%lld points remaining";
+
+/* AI Recommended */
+"activity.source.ai" = "AI Recommended";
+
+/* Friend Based */
+"activity.source.friendBased" = "Friend Based";
+
+/* Goal Based */
+"activity.source.goalBased" = "Goal Based";
+
+/* Location Based */
+"activity.source.locationBased" = "Location Based";
+
+/* Rule Based */
+"activity.source.ruleBased" = "Rule Based";
+
+/* X Day Streak! */
+"activity.streak.days.format" = "%lld Day Streak!";
+
+/* Bookstore desc */
+"activity.suggestion.bookstore.desc" = "Time to discover a new book";
+
+/* Bookstore */
+"activity.suggestion.bookstore.title" = "Visit a Bookstore 📚";
+
+/* Cafe desc */
+"activity.suggestion.cafe.desc" = "How about coffee with a friend?";
+
+/* Cafe */
+"activity.suggestion.cafe.title" = "Go to a Cafe ☕";
+
+/* Creative desc */
+"activity.suggestion.creative.desc" = "Draw or write something";
+
+/* Creative */
+"activity.suggestion.creative.title" = "Be Creative 🎨";
+
+/* Exercise desc */
+"activity.suggestion.exercise.desc" = "Go to the nearby park for a run";
+
+/* Exercise */
+"activity.suggestion.exercise.title" = "Exercise 🏃";
+
+/* Learn desc */
+"activity.suggestion.learn.desc" = "Start an online course";
+
+/* Learn */
+"activity.suggestion.learn.title" = "Learn Something New 📖";
+
+/* Meditation desc */
+"activity.suggestion.meditation.desc" = "Do 10 minutes of breathing exercises";
+
+/* Meditation */
+"activity.suggestion.meditation.title" = "Meditate 🧘";
+
+/* Shopping desc */
+"activity.suggestion.shopping.desc" = "You can go get what you need";
+
+/* Shopping */
+"activity.suggestion.shopping.title" = "Go Shopping 🛍️";
+
+/* Walk desc */
+"activity.suggestion.walk.desc" = "Take a 30-minute walk, get some fresh air";
+
+/* Walk */
+"activity.suggestion.walk.title" = "Go for a Walk 🚶";
+
+/* Creative */
+"activity.type.creative" = "Creative";
+
+/* Exercise */
+"activity.type.exercise" = "Exercise";
+
+/* Learning */
+"activity.type.learning" = "Learning";
+
+/* Outdoor */
+"activity.type.outdoor" = "Outdoor";
+
+/* Relax */
+"activity.type.relax" = "Relax";
+
+/* Social */
+"activity.type.social" = "Social";
+
+/* Why Is It Important? */
+"activity.why.important" = "Why Important";
+
+/* Focus mode desc */
+"activity.work.focus.mode.desc" = "Stay focused, notifications off";
+
+/* Focus mode */
+"activity.work.focus.mode.title" = "Enable Focus Mode";
+
+/* Hydrate */
+"activity.work.hydrate.title" = "Drink Water";
+
+/* AI Analysis */
+"ai.analysis" = "AI Analysis";
+
+/* AI Analyzing */
+"ai.analyzing" = "AI Analyzing";
+
+/* Analyzing your mood data... */
+"ai.analyzing.mood" = "Analyzing your mood data...";
+
+/* Back */
+"ai.back" = "Back";
+
+/* AI Chat */
+"ai.chat" = "AI Chat";
+
+/* AI Assistant */
+"ai.chat.assistant" = "AI Assistant";
+
+/* Clear Chat */
+"ai.chat.clear" = "Clear Chat";
+
+/* Instructions to enable AI chat from settings */
+"ai.chat.enable.instruction" = "To use AI Chat, you need to enable it from Settings → AI & Privacy.";
+
+/* Sorry, I cannot respond right now. Please try again. */
+"ai.chat.error.fallback" = "Sorry, I cannot respond right now. Please try again. 😔";
+
+/* Friend AI chat description with name */
+"ai.chat.friend.description.format" = "You can ask questions about %@ or request message drafts.";
+
+/* General AI chat description */
+"ai.chat.general.description" = "I can help you improve your life. You can ask questions about your friends, goals, or activities.";
+
+/* Ask a question... */
+"ai.chat.input.placeholder" = "Ask a question...";
+
+/* Me */
+"ai.chat.me" = "Me";
+
+/* Share Chat */
+"ai.chat.share" = "Share Chat";
+
+/* LifeStyles uses Claude AI to provide personalized suggestions */
+"ai.consent.description" = "LifeStyles uses Claude AI to provide personalized suggestions";
+
+/* Features */
+"ai.consent.features.header" = "Features";
+
+/* Not Now */
+"ai.consent.not.now" = "Not Now";
+
+/* 🔒 Privacy Notes */
+"ai.consent.privacy.notes" = "🔒 Privacy Notes";
+
+/* Shared Data */
+"ai.consent.shared.data" = "Shared Data";
+
+/* To use AI features, the following data will be shared with Claude AI */
+"ai.consent.shared.data.description" = "To use AI features, the following data will be shared with Claude AI:";
+
+/* AI Features */
+"ai.consent.title" = "AI Features";
+
+/* Friend information count */
+"ai.data.friends.count.format" = "%lld friend information";
+
+/* Goals information count */
+"ai.data.goals.count.format" = "%lld goals information";
+
+/* Habits information count */
+"ai.data.habits.count.format" = "%lld habits information";
+
+/* Last AI Request */
+"ai.data.last.request" = "Last AI Request";
+
+/* Location data */
+"ai.data.location" = "Location data";
+
+/* Mood data */
+"ai.data.mood" = "Mood data";
+
+/* No data shared */
+"ai.data.not.shared" = "No data shared";
+
+/* Data Usage */
+"ai.data.usage" = "Data Usage";
+
+/* Data used for this response: */
+"ai.data.used.for.response" = "Data used for this response:";
+
+/* AI Error */
+"ai.error" = "AI Error";
+
+/* AI Features Disabled */
+"ai.features.disabled" = "AI Features Disabled";
+
+/* AI Insight */
+"ai.insight" = "AI Insight";
+
+/* Morning Insight */
+"ai.morning.insight" = "Morning Insight";
+
+/* Manage Privacy Settings */
+"ai.privacy.manage.settings" = "Manage Privacy Settings";
+
+/* Your data is only used to generate AI responses */
+"ai.privacy.note.1" = "Your data is only used to generate AI responses";
+
+/* Anthropic does not use your data for training */
+"ai.privacy.note.2" = "Anthropic does not use your data for training";
+
+/* You can control each data type separately */
+"ai.privacy.note.3" = "You can control each data type separately";
+
+/* Privacy Notes */
+"ai.privacy.notes" = "Privacy Notes";
+
+/* AI is thinking... */
+"ai.thinking" = "AI is thinking...";
+
+/* Empty state subtitle */
+/* Empty state title */
+/* AI Brain tab title */
+/* Change Avatar */
+"appearance.avatar.change" = "Change Avatar";
+
+/* Avatar */
+"appearance.avatar.header" = "Avatar";
+
+/* Language changed */
+"appearance.language.success.message" = "Language settings saved! Please close and reopen the app to apply changes.\n\nDil ayarları kaydedildi! Değişikliklerin uygulanması için lütfen uygulamayı kapatıp tekrar açın.";
+
+/* User */
+"appearance.profile.default.name" = "User";
+
+/* Profile */
+"appearance.profile.header" = "Profile";
+
+/* Auto */
+"appearance.theme.auto" = "Auto";
+
+/* Dark */
+"appearance.theme.dark" = "Dark";
+
+/* Follow system settings */
+"appearance.theme.description.auto" = "Follow system settings";
+
+/* Always use dark theme */
+"appearance.theme.description.dark" = "Always use dark theme";
+
+/* Always use light theme */
+"appearance.theme.description.light" = "Always use light theme";
+
+/* Theme */
+"appearance.theme.header" = "Theme";
+
+/* Light */
+"appearance.theme.light" = "Light";
+
+/* Appearance & Language */
+"appearance.title" = "Appearance & Language";
+
+/* Background location permission explanation */
+"background.location.permission.message" = "To record location history in the background, you need to grant \"Always\" permission.\\n\\nSettings → LifeStyles → Location → Always";
+
+/* Background location permission required alert title */
+"background.location.permission.required" = "Background Location Permission Required";
+
+/* Cancel button */
+"cancel" = "Cancel";
+
+/* Edit chat title */
+"chat.edit.title.placeholder" = "Edit chat title";
+
+/* Pinned */
+"chat.pinned" = "Pinned";
+
+/* I Accept */
+"common.accept" = "I Accept";
+
+/* Add */
+"common.add" = "Add";
+
+/* AI suggestion */
+"common.ai.suggestion" = "AI Suggestion";
+
+/* Common text: All */
+"common.all" = "All";
+
+/* Back */
+"common.back" = "Back";
+
+/* Basic info */
+"common.basic.info" = "Basic Information";
+
+/* Cancel */
+"common.cancel" = "Cancel";
+
+/* Close */
+"common.close" = "Close";
+
+/* Action: Complete */
+"common.complete" = "Complete";
+
+/* Completed */
+"common.completed" = "Completed";
+
+/* Copy */
+"common.copy" = "Copy";
+
+/* Date */
+"common.date" = "Date";
+
+/* X days remaining */
+"common.days.remaining.format" = "%lld days remaining";
+
+/* Delete */
+"common.delete" = "Delete";
+
+/* Description optional */
+"common.description.optional" = "Description (Optional)";
+
+/* Details */
+"common.details" = "Details";
+
+/* Edit */
+"common.edit" = "Edit";
+
+/* Emoji (optional) */
+"common.emoji.optional" = "Emoji (optional)";
+
+/* Go to Settings */
+"common.go.to.settings" = "Go to Settings";
+
+/* Info */
+"common.info" = "Info";
+
+/* month */
+"common.month" = "month";
+
+/* Name */
+"common.name" = "Name";
+
+/* Next */
+"common.next" = "Next";
+
+/* No results found */
+"common.no.results" = "No results found";
+
+/* Not selected */
+"common.not.selected" = "Not Selected";
+
+/* Note */
+"common.note" = "Note";
+
+/* Notes */
+"common.notes" = "Notes";
+
+/* OK */
+"common.ok" = "OK";
+
+/* Percentage format */
+"common.percentage" = "%lld%%";
+
+/* Phone */
+"common.phone" = "Phone";
+
+/* Premium Feature */
+"common.premium.feature" = "Premium Feature";
+
+/* Upgrade to Premium */
+"common.premium.upgrade" = "Upgrade to Premium";
+
+/* Save */
+"common.save" = "Save";
+
+/* Settings */
+"common.settings" = "Settings";
+
+/* Show */
+"common.show" = "Show";
+
+/* Title */
+"common.title" = "Title";
+
+/* Today */
+"common.today" = "Today";
+
+/* Today! 🎉 */
+"common.today.celebration" = "Today 🎉";
+
+/* Total */
+"common.total" = "Total";
+
+/* Update */
+"common.update" = "Update";
+
+/* Urgent */
+"common.urgent" = "Urgent";
+
+/* Contact frequency: every 2 weeks */
+"contact.frequency.biweekly" = "Every 2 Weeks";
+
+/* Every 2 weeks */
+"contact.frequency.biweekly.description" = "Every 2 weeks";
+
+/* Biweekly */
+"contact.frequency.biweekly.short" = "Biweekly";
+
+/* Contact frequency: every day */
+"contact.frequency.daily" = "Daily";
+
+/* Every day */
+"contact.frequency.daily.description" = "Every day";
+
+/* Daily */
+"contact.frequency.daily.short" = "Daily";
+
+/* Contact frequency: monthly */
+"contact.frequency.monthly" = "Monthly";
+
+/* Once a month */
+"contact.frequency.monthly.description" = "Once a month";
+
+/* Monthly */
+"contact.frequency.monthly.short" = "Monthly";
+
+/* Contact frequency: every 3 months */
+"contact.frequency.quarterly" = "Quarterly";
+
+/* Every 3 months */
+"contact.frequency.quarterly.description" = "Every 3 months";
+
+/* Quarterly */
+"contact.frequency.quarterly.short" = "Quarterly";
+
+/* Contact frequency: every 3 days */
+"contact.frequency.threeDays" = "Every 3 Days";
+
+/* Every 3 days */
+"contact.frequency.threeDays.description" = "Every 3 days";
+
+/* 3 Days */
+"contact.frequency.threeDays.short" = "3 Days";
+
+/* Contact frequency: every 2 days */
+"contact.frequency.twoDays" = "Every 2 Days";
+
+/* Every 2 days */
+"contact.frequency.twoDays.description" = "Every 2 days";
+
+/* 2 Days */
+"contact.frequency.twoDays.short" = "2 Days";
+
+/* Contact frequency: weekly */
+"contact.frequency.weekly" = "Weekly";
+
+/* Once a week */
+"contact.frequency.weekly.description" = "Once a week";
+
+/* Weekly */
+"contact.frequency.weekly.short" = "Weekly";
+
+/* Contact frequency: yearly */
+"contact.frequency.yearly" = "Yearly";
+
+/* Once a year */
+"contact.frequency.yearly.description" = "Once a year";
+
+/* Yearly */
+"contact.frequency.yearly.short" = "Yearly";
+
+/* Good mood */
+"contact.mood.good" = "Good";
+
+/* Great mood */
+"contact.mood.great" = "Great";
+
+/* Not great mood */
+"contact.mood.notGreat" = "Not Great";
+
+/* Okay mood */
+"contact.mood.okay" = "Okay";
+
+/* Add Contact */
+"contacts.add.contact" = "Add Contact";
+
+/* No contacts found in your address book. */
+"contacts.empty.message" = "Start tracking your relationships";
+
+/* Contacts empty */
+"contacts.empty.title" = "No contacts yet";
+
+/* Loading contacts... */
+"contacts.loading" = "Loading contacts...";
+
+/* Select from Contacts */
+"contacts.select.from.phone" = "Select from Phone";
+
+/* Best streak count */
+"dashboard.best.streak.format" = "Best: %lld";
+
+/* Claude Haiku model name */
+"dashboard.claude.haiku" = "Claude Haiku";
+
+/* Hours at home */
+"dashboard.hours.at.home.format" = "You've been home for %d hours. How about getting some fresh air?";
+
+/* More achievements count */
+"dashboard.more.achievements" = "+%lld";
+
+/* Morning Insight */
+"dashboard.morning.insight" = "Morning Insight";
+
+/* Statistics */
+"dashboard.statistics" = "Statistics";
+
+/* Communication */
+"dashboard.stats.communication" = "Communication";
+
+/* Completion */
+"dashboard.stats.completion" = "Completion";
+
+/* Goals */
+"dashboard.stats.goals" = "Goals";
+
+/* Habits */
+"dashboard.stats.habits" = "Habits";
+
+/* X locations */
+"dashboard.stats.locations.format" = "%lld locations";
+
+/* Mobility */
+"dashboard.stats.mobility" = "Mobility";
+
+/* X overdue */
+"dashboard.stats.overdue.format" = "%lld overdue";
+
+/* Score */
+"dashboard.stats.score" = "Score";
+
+/* This week */
+"dashboard.stats.this.week" = "This week";
+
+/* Today */
+"dashboard.stats.today" = "Today";
+
+/* X% weekly */
+"dashboard.stats.weekly.format" = "%lld%% weekly";
+
+/* Day count for streak */
+"dashboard.streak.days.format" = "%lld Days";
+
+/* Time to go out */
+"dashboard.time.to.go.out" = "Time to Go Out!";
+
+/* Today's Mood */
+"dashboard.todays.mood" = "Today's Mood";
+
+/* Adventure */
+"date.category.adventure" = "date.category.adventure";
+
+/* Cultural */
+"date.category.cultural" = "Cultural";
+
+/* Relaxed */
+"date.category.relaxed" = "Relaxed";
+
+/* Romantic */
+"date.category.romantic" = "Romantic";
+
+/* Ride bikes in the city or nature */
+"date.idea.adventure.biking.description" = "Ride bikes in the city or nature";
+
+/* Bike Tour */
+"date.idea.adventure.biking.title" = "Bike Tour";
+
+/* Camp for a night in nature */
+"date.idea.adventure.camping.description" = "Camp for a night in nature";
+
+/* Camping */
+"date.idea.adventure.camping.title" = "Camping";
+
+/* Test your skills at the climbing wall */
+"date.idea.adventure.climbing.description" = "Test your skills at the climbing wall";
+
+/* Rock Climbing */
+"date.idea.adventure.climbing.title" = "Rock Climbing";
+
+/* Experience an escape room together */
+"date.idea.adventure.escaperoom.description" = "Experience an escape room together";
+
+/* Escape Room */
+"date.idea.adventure.escaperoom.title" = "Escape Room";
+
+/* Go hiking and discover new routes */
+"date.idea.adventure.hiking.description" = "Go hiking and discover new routes";
+
+/* Hiking */
+"date.idea.adventure.hiking.title" = "Hiking";
+
+/* Try kayaking, surfing or jet ski */
+"date.idea.adventure.watersports.description" = "Try kayaking, surfing or jet ski";
+
+/* Water Sports */
+"date.idea.adventure.watersports.title" = "Water Sports";
+
+/* Visit the book fair together */
+"date.idea.cultural.bookfair.description" = "Visit the book fair together";
+
+/* Book Fair */
+"date.idea.cultural.bookfair.title" = "Book Fair";
+
+/* Listen to live music, go to a concert */
+"date.idea.cultural.concert.description" = "Listen to live music, go to a concert";
+
+/* Concert */
+"date.idea.cultural.concert.title" = "Concert";
+
+/* Visit an art or photography exhibition */
+"date.idea.cultural.exhibition.description" = "Visit an art or photography exhibition";
+
+/* Exhibition */
+"date.idea.cultural.exhibition.title" = "Exhibition";
+
+/* Discover historical places in your city */
+"date.idea.cultural.historical.description" = "Discover historical places in your city";
+
+/* Historical Place */
+"date.idea.cultural.historical.title" = "Historical Place";
+
+/* Visit a museum you're interested in */
+"date.idea.cultural.museum.description" = "Visit a museum you're interested in";
+
+/* Museum Visit */
+"date.idea.cultural.museum.title" = "Museum Visit";
+
+/* Watch a theater play */
+"date.idea.cultural.theater.description" = "Watch a theater play";
+
+/* Theater */
+"date.idea.cultural.theater.title" = "Theater";
+
+/* Read books together at a book cafe */
+"date.idea.relaxed.bookcafe.description" = "Read books together at a book cafe";
+
+/* Book Cafe */
+"date.idea.relaxed.bookcafe.title" = "Book Cafe";
+
+/* Enjoy a nice brunch on the weekend */
+"date.idea.relaxed.brunch.description" = "Enjoy a nice brunch on the weekend";
+
+/* Brunch */
+"date.idea.relaxed.brunch.title" = "Brunch";
+
+/* Chat at your favorite cafe */
+"date.idea.relaxed.coffee.description" = "Chat at your favorite cafe";
+
+/* Coffee Date */
+"date.idea.relaxed.coffee.title" = "Coffee Date";
+
+/* Play board games or video games at home */
+"date.idea.relaxed.gaming.description" = "Play board games or video games at home";
+
+/* Play Games */
+"date.idea.relaxed.gaming.title" = "Play Games";
+
+/* Watch a movie at home or cinema */
+"date.idea.relaxed.movie.description" = "Watch a movie at home or cinema";
+
+/* Watch Movie */
+"date.idea.relaxed.movie.title" = "Watch Movie";
+
+/* Go to spa together and relax */
+"date.idea.relaxed.spa.description" = "Go to spa together and relax";
+
+/* Spa Day */
+"date.idea.relaxed.spa.title" = "Spa Day";
+
+/* Walk hand in hand on the beach */
+"date.idea.romantic.beach.description" = "Walk hand in hand on the beach";
+
+/* Beach Walk */
+"date.idea.romantic.beach.title" = "Beach Walk";
+
+/* Have a romantic dinner at home or restaurant */
+"date.idea.romantic.candlelight.description" = "Have a romantic dinner at home or restaurant";
+
+/* Candlelight Dinner */
+"date.idea.romantic.candlelight.title" = "Candlelight Dinner";
+
+/* Cook together and have a romantic evening */
+"date.idea.romantic.cooking.description" = "Cook together and have a romantic evening";
+
+/* Cook at Home */
+"date.idea.romantic.cooking.title" = "Cook at Home";
+
+/* Organize a romantic picnic in the park */
+"date.idea.romantic.picnic.description" = "Organize a romantic picnic in the park";
+
+/* Picnic */
+"date.idea.romantic.picnic.title" = "Picnic";
+
+/* Go outside the city and watch the stars */
+"date.idea.romantic.stargazing.description" = "Go outside the city and watch the stars";
+
+/* Stargazing */
+"date.idea.romantic.stargazing.title" = "Stargazing";
+
+/* Find a beautiful view and watch the sunset together */
+"date.idea.romantic.sunset.description" = "Find a beautiful view and watch the sunset together";
+
+/* Watch Sunset */
+"date.idea.romantic.sunset.title" = "Watch Sunset";
+
+/* Random */
+"date.ideas.random" = "Random Date Idea";
+
+/* Date Ideas */
+"date.ideas.title" = "Date Ideas";
+
+/* Activity difficulty level: Easy */
+"difficulty.easy" = "Easy";
+
+/* Activity difficulty level: Hard */
+"difficulty.hard" = "Hard";
+
+/* Activity difficulty level: Medium */
+"difficulty.medium" = "Medium";
+
+/* Activity difficulty level: Unknown */
+"difficulty.unknown" = "Unknown";
+
+/* Energy level: Energetic */
+"energy.energetic" = "Energetic";
+
+/* Energy level: Normal */
+"energy.normal" = "Normal";
+
+/* Energy level: Tired */
+"energy.tired" = "Tired";
+
+/* Location tracking frequency */
+"every.15.minutes" = "Every 15 minutes";
+
+/* AI Chat quick action button */
+"friend.action.ai.chat" = "AI Chat";
+
+/* Mark as contacted quick action */
+"friend.action.mark.contacted" = "Mark Complete";
+
+/* Activities you do or want to do together (comma separated) */
+"friend.activities.footer" = "Activities you do or want to do together (comma separated)";
+
+/* X days until anniversary */
+"friend.anniversary.days.remaining.format" = "%lld days until anniversary";
+
+/* Basic info */
+"friend.basic.info" = "Basic Information";
+
+/* Best day */
+"friend.best.day.contact" = "Best Day";
+
+/* Change emoji */
+"friend.change.emoji" = "Change Emoji";
+
+/* Separate with commas */
+"friend.comma.separated" = "Separate with commas";
+
+/* Communication frequency */
+"friend.communication.frequency" = "Communication Frequency";
+
+/* Communication pattern */
+"friend.communication.pattern" = "Communication Pattern";
+
+/* Communication quality */
+"friend.communication.quality" = "Communication Quality";
+
+/* Communication trend */
+"friend.communication.trend.3months" = "Communication Trend (Last 3 Months)";
+
+/* Contact completed */
+"friend.contact.completed" = "Contact Completed";
+
+/* X days away */
+"friend.days.away.format" = "%lld days away";
+
+/* X days */
+"friend.days.overdue.format" = "%lld days overdue";
+
+/* X days */
+"friend.days.remaining.format" = "%lld days remaining";
+
+/* Favorite things */
+"friend.favorite.things" = "Favorite Things";
+
+/* Important people are shown with priority in widget */
+"friend.important.footer" = "Mark this friend as important for priority tracking";
+
+/* Interests */
+"friend.interests" = "Interests";
+
+/* Last 30 days */
+"friend.last.30.days" = "Last 30 Days";
+
+/* Last 5 meetings */
+"friend.last.5.meetings" = "Last 5 Meetings";
+
+/* Mood distribution */
+"friend.mood.distribution" = "Mood Distribution";
+
+/* No history yet */
+"friend.no.history.yet" = "No history yet";
+
+/* overdue */
+"friend.overdue" = "overdue";
+
+/* You can add love language and other details later */
+"friend.partner.details.footer" = "You can add love language and other details later";
+
+/* Relationship duration */
+"friend.relationship.duration" = "Relationship Duration";
+
+/* X years, Y months, Z days together */
+"friend.relationship.duration.format" = "%lld years, %lld months, %lld days together";
+
+/* remaining */
+"friend.remaining" = "remaining";
+
+/* Reminder */
+"friend.reminder" = "Reminder";
+
+/* Shared interests */
+"friend.shared.interests" = "Shared Interests";
+
+/* Shared interests & activities */
+"friend.shared.interests.activities" = "Shared interests & activities";
+
+/* Upcoming special dates */
+"friend.upcoming.special.dates" = "Upcoming Special Dates";
+
+/* Add Contact History */
+"friends.add.contact.history" = "Add Contact History";
+
+/* Add from Contacts */
+"friends.add.from.contacts" = "Add from Contacts";
+
+/* Add Manually */
+"friends.add.manually" = "Add Manually";
+
+/* Add New Friend */
+"friends.add.new" = "Add New Friend";
+
+/* AI Suggestion */
+"friends.ai.suggestion" = "AI Suggestion";
+
+/* Friend already exists validation */
+"friends.already.exists" = "This name or phone number is already registered. Please add a different person.";
+
+/* Anniversary Date */
+"friends.anniversary.date" = "Anniversary Date";
+
+/* Avatar Emoji (Optional) */
+"friends.avatar.emoji.optional" = "Avatar Emoji (Optional)";
+
+/* Coming Soon */
+"friends.coming.soon" = "Coming Soon";
+
+/* Contact Frequency */
+"friends.contact.frequency" = "Contact Frequency";
+
+/* Days overdue */
+"friends.days.overdue" = "%lldd";
+
+/* Days remaining */
+"friends.days.remaining" = "%lldd";
+
+/* Are you sure you want to delete %@? */
+"friends.delete.confirmation.format" = "Are you sure you want to delete %@?";
+
+/* Duplicate Friend */
+"friends.duplicate.title" = "Duplicate Friend";
+
+/* Add your important friends and start tracking */
+"friends.empty.message" = "Add your important friends and start tracking regular communication";
+
+/* No Friends Added Yet */
+"friends.empty.title" = "No Friends Added Yet";
+
+/* Favorite Activities */
+"friends.favorite.activities" = "Favorite Activities";
+
+/* Favorite items placeholder */
+"friends.favorite.placeholder" = "Favorite food, movie, activity, etc.";
+
+/* Favorite Things */
+"friends.favorite.things" = "Favorite Things";
+
+/* Favorite food, movies, activities etc. */
+"friends.favorite.things.description" = "Favorite food, movies, activities etc.";
+
+/* All */
+"friends.filter.all" = "All";
+
+/* Frequency */
+"friends.frequency" = "Frequency";
+
+/* Relationship health percentage */
+"friends.health.percentage" = "%lld%%";
+
+/* Important friends are shown prioritized in widgets */
+"friends.important.description" = "Important friends are shown prioritized in widgets";
+
+/* Important Friend */
+"friends.important.friend" = "Important Friend";
+
+/* Last contact with date */
+"friends.last.contact" = "Last: %@";
+
+/* Last: */
+"friends.last.label" = "Last: %@";
+
+/* Love Language */
+"friends.love.language" = "Love Language";
+
+/* Name */
+"friends.name" = "Name";
+
+/* Next: */
+"friends.next.label" = "Next: %@";
+
+/* Not Selected */
+"friends.not.selected" = "Not Selected";
+
+/* Notes (Optional) */
+"friends.notes.optional" = "Notes (Optional)";
+
+/* Person Info */
+"friends.person.info" = "Person Info";
+
+/* Phone (Optional) */
+"friends.phone.optional" = "Phone (Optional)";
+
+/* Pick from Contacts */
+"friends.pick.from.contacts" = "Pick from Contacts";
+
+/* Relationship Health */
+"friends.relationship.health" = "Relationship Health";
+
+/* Relationship Info */
+"friends.relationship.info" = "Relationship Info";
+
+/* Relationship Start */
+"friends.relationship.start" = "Relationship Start";
+
+/* Relationship Type */
+"friends.relationship.type" = "Relationship Type";
+
+/* Search Friends */
+"friends.search.placeholder" = "Search Friends";
+
+/* Importance */
+"friends.sort.importance" = "Importance";
+
+/* Last Contact */
+"friends.sort.last.contact" = "Last Contact";
+
+/* Name */
+"friends.sort.name" = "Name";
+
+/* Next Contact */
+"friends.sort.next.contact" = "Next Contact";
+
+/* Smart */
+"friends.sort.smart" = "Smart";
+
+/* Friends */
+"friends.title" = "Friends";
+
+/* Type */
+"friends.type" = "Type";
+
+/* Button to get new activity suggestions */
+"get.new.suggestions" = "Get New Suggestions";
+
+/* Go to settings button */
+"go.to.settings" = "Go to Settings";
+
+/* Achievements */
+"goal.achievements" = "Achievements";
+
+/* AI coaching */
+"goal.ai.coaching" = "AI Coaching";
+
+/* AI generating */
+"goal.ai.generating" = "AI generating description...";
+
+/* All templates */
+"goal.all.templates" = "All Templates";
+
+/* Basic info description */
+"goal.basic.info.description" = "Set your goal's title and category";
+
+/* Best day */
+"goal.best.day.format" = "Best day: %@";
+
+/* Best streak */
+"goal.best.streak.format" = "Best: %d days";
+
+/* Start from scratch */
+"goal.blank.description" = "Start from scratch";
+
+/* Blank goal */
+"goal.blank.title" = "Blank Goal";
+
+/* Career
+Career goal category */
+"goal.category.career" = "Career";
+
+/* Fitness
+Fitness goal category */
+"goal.category.fitness" = "Fitness";
+
+/* Health
+Health goal category */
+"goal.category.health" = "Health";
+
+/* Category */
+"goal.category.label" = "Category";
+
+/* Other
+Other goal category */
+"goal.category.other" = "Other";
+
+/* Personal
+Personal development goal category */
+"goal.category.personal" = "Personal Growth";
+
+/* Social
+Social relationships goal category */
+"goal.category.social" = "Social";
+
+/* Completed */
+"goal.completed.format" = "%d Completed";
+
+/* X days */
+"goal.days.format" = "%lld days";
+
+/* days remaining */
+"goal.days.remaining" = "days remaining";
+
+/* Details description */
+"goal.details.description" = "Add description and target date";
+
+/* Target date cannot be in the past */
+"goal.error.date.past" = "Goal date cannot be in the past";
+
+/* Target date is too far in the future */
+"goal.error.date.too.far" = "Goal date is too far in the future";
+
+/* Description cannot exceed 500 characters */
+"goal.error.description.too.long" = "Goal description is too long";
+
+/* Title cannot be empty */
+"goal.error.title.empty" = "Goal title cannot be empty";
+
+/* Title cannot exceed 100 characters */
+"goal.error.title.too.long" = "Goal title is too long";
+
+/* Title must be at least 3 characters */
+"goal.error.title.too.short" = "Goal title is too short";
+
+/* Habits (X) */
+"goal.habits.count.format" = "Habits (%lld)";
+
+/* Monthly */
+"goal.monthly" = "Monthly";
+
+/* Popular templates */
+"goal.popular.templates" = "Popular Templates";
+
+/* Preview description */
+"goal.preview.description" = "Review your goal and configure settings";
+
+/* Preview and save */
+"goal.preview.save" = "Preview and Save";
+
+/* Reminder description */
+"goal.reminder.description" = "Get daily goal reminder";
+
+/* Reminder time */
+"goal.reminder.time" = "You'll receive a reminder every morning at 9:00 AM";
+
+/* steps */
+"goal.steps" = "steps";
+
+/* Day streak */
+"goal.streak.days" = "Day Streak";
+
+/* X goal suggestions based on your activities */
+"goal.suggestions.count.format" = "%lld goal suggestions based on your activities";
+
+/* We'll suggest personalized goals as we collect more data. */
+"goal.suggestions.empty.message" = "We'll suggest personalized goals as we collect more data.";
+
+/* No suggestions yet */
+"goal.suggestions.empty.title" = "No suggestions yet";
+
+/* Generating smart goals... */
+"goal.suggestions.generating" = "Generating smart goals...";
+
+/* Not interested */
+"goal.suggestions.not.interested" = "Not Interested";
+
+/* Personalized goals */
+"goal.suggestions.personalized" = "Personalized Goals";
+
+/* Goal Suggestions */
+"goal.suggestions.title" = "Goal Suggestions";
+
+/* Target date */
+"goal.target.date" = "Target Date";
+
+/* Template description */
+"goal.template.description" = "Choose from popular goals or create your own";
+
+/* Select template */
+"goal.template.select" = "Select a template or start blank";
+
+/* Goal title */
+"goal.title.label" = "Goal Title";
+
+/* Goal title placeholder */
+"goal.title.placeholder" = "e.g., Read every day";
+
+/* Today's focus */
+"goal.todays.focus" = "Today's Focus";
+
+/* Weekly */
+"goal.weekly" = "Weekly";
+
+/* Weekly progress */
+"goal.weekly.progress" = "Weekly Progress";
+
+/* Achievement progress current/total */
+"goals.achievement.progress" = "%lld/%lld";
+
+/* Active Goals */
+"goals.active.count" = "Active Goals (%lld)";
+
+/* Add to Goal */
+"goals.add.to.goal" = "Add to Goal";
+
+/* Completion rate percentage */
+"goals.completion.rate" = "%%%lld";
+
+/* Of total goals */
+"goals.of.total" = "/ %lld";
+
+/* Goal progress percentage */
+"goals.progress.percentage" = "%%%lld";
+
+/* This Week */
+"goals.this.week" = "This Week";
+
+/* AI generating */
+"habit.ai.generating" = "AI is generating description...";
+
+/* AI suggestion */
+"habit.ai.suggestion" = "AI Suggestion";
+
+/* Basic info description */
+"habit.basic.info.description" = "Set your habit's name and frequency";
+
+/* Start from scratch */
+"habit.blank.description" = "Start from scratch";
+
+/* Blank habit */
+"habit.blank.title" = "Blank Habit";
+
+/* Description optional */
+"habit.description.optional" = "Description (Optional)";
+
+/* Details description */
+"habit.details.description" = "Add target count and description";
+
+/* Description cannot exceed 200 characters */
+"habit.error.description.too.long" = "Habit description is too long";
+
+/* Name cannot be empty */
+"habit.error.name.empty" = "Habit name cannot be empty";
+
+/* Name cannot exceed 50 characters */
+"habit.error.name.too.long" = "Habit name is too long";
+
+/* Name must be at least 2 characters */
+"habit.error.name.too.short" = "Habit name is too short";
+
+/* Target cannot exceed 1000 */
+"habit.error.target.too.high" = "Target value is too high";
+
+/* Target must be at least 1 */
+"habit.error.target.too.low" = "Target value is too low";
+
+/* Daily */
+"habit.frequency.daily" = "Daily";
+
+/* Frequency */
+"habit.frequency.label" = "Frequency";
+
+/* Monthly */
+"habit.frequency.monthly" = "Monthly";
+
+/* Weekly */
+"habit.frequency.weekly" = "Weekly";
+
+/* Habit name */
+"habit.name.label" = "Habit Name";
+
+/* Popular templates */
+"habit.popular.templates" = "Popular Templates";
+
+/* Preview description */
+"habit.preview.description" = "Review your habit and set reminder";
+
+/* Preview and save */
+"habit.preview.save" = "Preview and Save";
+
+/* Reminder description */
+"habit.reminder.description" = "Get reminder at specific time";
+
+/* Target count */
+"habit.target.count" = "Target Count";
+
+/* Target format */
+"habit.target.format" = "Target: %d";
+
+/* Template description */
+"habit.template.description" = "Choose from popular habits or create your own";
+
+/* Select template header */
+"habit.template.select" = "Select a template or start blank";
+
+/* Home location not set warning */
+"home.location.not.set" = "Home Location Not Set";
+
+/* Hours spent at home format */
+"hours.at.home.format" = "%.1f hours at home";
+
+/* Could not generate insight */
+"insight.could.not.generate" = "Could not generate insight";
+
+/* Generated by Claude Haiku */
+"insight.generated.by.claude" = "Generated by Claude Haiku";
+
+/* Your Personal Recommendation */
+"insight.personal.recommendation" = "Your Personal Recommendation";
+
+/* Add title */
+"journal.add.title" = "Add title";
+
+/* Categorize your journal */
+"journal.categorize" = "Categorize your journal";
+
+/* Check your journal */
+"journal.check" = "Check your journal";
+
+/* Content */
+"journal.content" = "Content";
+
+/* Content */
+"journal.content.label" = "Content";
+
+/* Edit Journal */
+"journal.edit.title" = "Edit Journal";
+
+/* Start by writing your first journal entry */
+"journal.empty.message" = "Start journaling your thoughts";
+
+/* No journal entries yet */
+"journal.empty.title" = "No journal entries yet";
+
+/* Add to favorites */
+"journal.favorite" = "Favorite";
+
+/* Guided writing description */
+"journal.guided.writing.desc" = "Structure your thoughts with guided writing";
+
+/* Last 7 Days */
+"journal.last.7.days" = "Last 7 Days";
+
+/* Link to today's mood */
+"journal.link.to.mood" = "Link to today's mood";
+
+/* Link to todays mood */
+"journal.link.to.todays.mood" = "Link to today's mood";
+
+/* Linked Mood */
+"journal.linked.mood" = "Linked Mood";
+
+/* Photo */
+"journal.photo.label" = "Photo";
+
+/* Preview and Save */
+"journal.preview.save" = "Preview and Save";
+
+/* %d min
+X minutes reading time */
+"journal.reading.time.format" = "%lld min read";
+
+/* Select photo from gallery */
+"journal.select.from.gallery" = "Select photo from gallery";
+
+/* Select Photo */
+"journal.select.photo" = "Select Photo";
+
+/* Statistics */
+"journal.stats" = "Statistics";
+
+/* Step: Content */
+/* Step: Review */
+/* Step: Tags */
+/* Step: Title */
+/* Step: Journal Type */
+/* Optional - you can skip */
+"journal.title.optional" = "Optional - you can skip";
+
+/* Journal Type */
+"journal.type" = "Journal Type";
+
+/* Start by selecting journal type */
+"journal.type.instruction" = "Start by selecting journal type";
+
+/* What type of journal do you want to write? */
+"journal.type.question" = "What type of journal do you want to write?";
+
+/* Remove from favorites */
+"journal.unfavorite" = "Unfavorite";
+
+/* Updated time */
+"journal.updated" = "Updated: %@";
+
+/* Would you like to use a template? */
+"journal.use.template.question" = "Would you like to use a template?";
+
+/* Write Journal */
+"journal.write.button" = "Write Journal";
+
+/* Write your content */
+"journal.write.content" = "Write your content";
+
+/* Write Journal */
+"journal.write.title" = "Write Journal";
+
+/* Challenges category */
+/* Current situation category */
+/* Experiences category */
+/* Fears category */
+/* Goals category */
+/* Habits category */
+/* Lifestyle category */
+/* Memories category */
+/* Other category */
+/* Personal info category */
+/* Preferences category */
+/* Recent events category */
+/* Relationships category */
+/* Triggers category */
+/* Values category */
+/* High confidence level */
+/* Low confidence level */
+/* Medium confidence level */
+/* AI extracted */
+/* Inferred from context */
+/* Behavior pattern */
+/* User directly stated */
+/* Last location record label */
+"last.record" = "Last Record";
+
+/* Soft message when limit is reached */
+"limit.reached.soft.message" = "You've reached today's limit 😊";
+
+/* At place name */
+"location.at.place" = "at %@";
+
+/* Badges */
+"location.badges" = "Badges";
+
+/* Badges count earned/total */
+"location.badges.count" = "%lld/%lld";
+
+/* Delete place confirmation */
+"location.delete.confirm" = "%@ will be deleted. Are you sure?";
+
+/* Location history button
+Location history title */
+"location.history" = "Location History";
+
+/* Select your home location on the map or use your current location */
+"location.home.instruction" = "Select your home location on the map or use your current location";
+
+/* Home Radius */
+"location.home.radius" = "Home Radius";
+
+/* This location will be saved as your home location */
+"location.home.save.confirmation" = "This location will be saved as your home location. Location-based suggestions will be made according to this location.";
+
+/* Information */
+"location.information" = "Information";
+
+/* Level */
+"location.level.format" = "Level %lld";
+
+/* My Favorites */
+"location.my.favorites" = "My Favorites";
+
+/* You are not at a saved place */
+"location.not.at.saved.place" = "You are not at a saved place";
+
+/* Notes */
+"location.notes" = "Notes";
+
+/* Notifications Active */
+"location.notifications.active" = "Notifications Active";
+
+/* Ongoing */
+"location.ongoing" = "Ongoing";
+
+/* Basic Information */
+"location.place.basic.info" = "Basic Information";
+
+/* Category */
+"location.place.category" = "Category";
+
+/* Color */
+"location.place.color" = "Color";
+
+/* Emoji */
+"location.place.emoji" = "Emoji";
+
+/* Select Emoji */
+"location.place.emoji.select" = "Select Emoji";
+
+/* Geofencing */
+"location.place.geofencing" = "Geofencing";
+
+/* Name */
+"location.place.name" = "Name";
+
+/* No visit records yet */
+"location.place.no.visits" = "No visit records yet";
+
+/* Notes Optional */
+"location.place.notes.optional" = "Notes (Optional)";
+
+/* Radius */
+"location.place.radius" = "Radius";
+
+/* Place saved */
+"location.place.saved.message" = "%@ saved successfully!";
+
+/* Statistics */
+"location.place.statistics" = "Statistics";
+
+/* Points */
+"location.points" = "%lld points";
+
+/* Radius in meters */
+"location.radius.meters" = "%lld m";
+
+/* Recent visits */
+"location.recent.visits" = "Recent Visits";
+
+/* Location records count */
+"location.records.count" = "%lld records";
+
+/* No Saved Places Yet */
+"location.saved.places.empty" = "No Saved Places Yet";
+
+/* Save your frequent places */
+"location.saved.places.save.frequent" = "Save your frequent places";
+
+/* Times count */
+"location.times.count" = "%lld times";
+
+/* Location tracking information message */
+"location.tracking.info" = "Your location will be recorded every 15 minutes. \\\"Always\\\" permission required.";
+
+/* Home location type */
+"location.type.home" = "Home";
+
+/* Outside location type */
+"location.type.outside" = "Outside";
+
+/* Work location type */
+"location.type.work" = "Work";
+
+/* Unknown Location */
+"location.unknown" = "Unknown Location";
+
+/* Visit count */
+"location.visits.count" = "%lld visits";
+
+/* What can you do here? */
+"location.what.to.do" = "What Can You Do Here?";
+
+/* Receiving gifts love language */
+"love.language.gifts" = "Receiving Gifts";
+
+/* Receiving gifts */
+"love.language.gifts.description" = "Receiving gifts";
+
+/* People who value gifts feel loved when they receive thoughtful presents */
+"love.language.gifts.detailed" = "People who value gifts feel loved when they receive thoughtful presents";
+
+/* Acts of service love language */
+"love.language.service" = "Acts of Service";
+
+/* Acts of service */
+"love.language.service.description" = "Acts of service";
+
+/* Doing helpful things shows love to those who value acts of service */
+"love.language.service.detailed" = "Doing helpful things shows love to those who value acts of service";
+
+/* Quality time love language */
+"love.language.time" = "Quality Time";
+
+/* Quality time */
+"love.language.time.description" = "Quality time";
+
+/* Spending focused time together is most meaningful */
+"love.language.time.detailed" = "Spending focused time together is most meaningful";
+
+/* Application Tips */
+"love.language.tips" = "Application Tips";
+
+/* Physical touch love language */
+"love.language.touch" = "Physical Touch";
+
+/* Physical touch */
+"love.language.touch.description" = "Physical touch";
+
+/* Physical affection and closeness communicate love best */
+"love.language.touch.detailed" = "Physical affection and closeness communicate love best";
+
+/* Words of affirmation love language */
+"love.language.words" = "Words of Affirmation";
+
+/* Words of affirmation */
+"love.language.words.description" = "Words of affirmation";
+
+/* Hearing encouraging words and compliments feels most loving */
+"love.language.words.detailed" = "Hearing encouraging words and compliments feels most loving";
+
+/* Number of points on map format */
+"map.points.format" = "%d points";
+
+/* Immortalize special moments */
+"memories.add.subtitle" = "Immortalize special moments with your photos";
+
+/* Add your memories */
+"memories.add.title" = "Add Your Memories";
+
+/* Create memory */
+"memories.create" = "Create Memory";
+
+/* Delete confirmation */
+"memories.delete.confirm" = "Are you sure you want to delete this memory? This action cannot be undone.";
+
+/* Create first memory */
+"memories.empty.message" = "Tap the + button to create your first memory";
+
+/* No memories */
+"memories.empty.title" = "No Memories Yet";
+
+/* Friends */
+"memories.friends" = "Friends";
+
+/* Location map message */
+"memories.location.empty.message" = "Memories with location information are shown on the map";
+
+/* No locations */
+"memories.location.empty.title" = "No Locations Yet";
+
+/* Location picker coming soon */
+"memories.location.picker.coming.soon" = "Location picker coming soon";
+
+/* Create private memory */
+"memories.private.create" = "Create Private Memory";
+
+/* Private memory detail */
+"memories.private.detail" = "Private Memory Detail";
+
+/* Create private memory */
+"memories.private.empty.message" = "Tap the + button to create your first private memory or move an existing memory to private";
+
+/* No private memories */
+"memories.private.empty.title" = "No Private Memories Yet";
+
+/* Timeline message */
+"memories.private.timeline.empty" = "Private memories are shown as a timeline";
+
+/* Untitled memory */
+"memories.untitled" = "Untitled Memory";
+
+/* This Week */
+"memory.date.this.week" = "This Week";
+
+/* Today */
+"memory.date.today" = "Today";
+
+/* Yesterday */
+"memory.date.yesterday" = "Yesterday";
+
+/* Untitled Memory */
+"memory.untitled" = "Untitled";
+
+/* 30-Day Mood Heatmap */
+"mood.30.day.heatmap" = "30-Day Mood Heatmap";
+
+/* 30+ Days Analysis */
+"mood.30plus.analysis" = "30+ Days Analysis";
+
+/* Add tags */
+"mood.add.tags" = "Add tags";
+
+/* AI Analysis Ready */
+"mood.ai.analysis.ready" = "AI Analysis Ready";
+
+/* X data points */
+"mood.correlation.data.points.format" = "%lld data points";
+
+/* Relationships will appear as your mood entries increase */
+"mood.correlation.empty.message" = "Track your moods to see correlations with friends, goals and locations";
+
+/* No correlation data yet */
+"mood.correlation.empty.title" = "No correlation data yet";
+
+/* Friend - Mood correlation */
+"mood.correlation.friend.title" = "Friend Meetings";
+
+/* Goal - Mood correlation */
+"mood.correlation.goal.title" = "Goal Progress";
+
+/* Location - Mood correlation */
+"mood.correlation.location.title" = "Location Changes";
+
+/* X meetings */
+"mood.correlation.meetings.format" = "%lld meetings";
+
+/* Delete */
+"mood.delete" = "Delete";
+
+/* Are you sure you want to delete this mood entry?
+Delete confirmation */
+"mood.delete.confirmation" = "Are you sure you want to delete this mood entry?";
+
+/* Delete Mood */
+"mood.delete.mood" = "Delete Mood";
+
+/* Edit */
+"mood.edit" = "Edit";
+
+/* Edit Mood */
+"mood.edit.mood" = "Edit Mood";
+
+/* Generated time */
+"mood.generated.time" = "Generated: %@";
+
+/* Mood: Happy */
+"mood.happy" = "Happy";
+
+/* Day count in heatmap */
+"mood.heatmap.days.format" = "%lld days";
+
+/* More */
+"mood.heatmap.more" = "More";
+
+/* No mood record for this day */
+"mood.heatmap.no.record" = "No mood record for this day";
+
+/* 30-day heatmap requires Premium */
+"mood.heatmap.premium.required" = "Premium membership required to view 30-day mood heatmap.";
+
+/* Highlights */
+"mood.highlights" = "Highlights";
+
+/* How are you feeling? */
+"mood.how.are.you.feeling" = "How are you feeling?";
+
+/* How are you today? */
+"mood.how.are.you.today" = "How are you today?";
+
+/* How are you feeling? */
+"mood.how.feeling" = "How are you feeling?";
+
+/* Intensity */
+"mood.intensity" = "Intensity";
+
+/* Intensity out of 5 */
+"mood.intensity.of.five" = "%lld/5";
+
+/* Mood & Journal */
+"mood.journal.title" = "Mood & Journal";
+
+/* Mood: */
+"mood.label" = "Mood:";
+
+/* Less */
+"mood.less" = "Less";
+
+/* More options & notes */
+"mood.more.options" = "More Options";
+
+/* More tags count */
+"mood.more.tags" = "+%lld";
+
+/* Mood: Neutral */
+"mood.neutral" = "Neutral";
+
+/* Next badge */
+"mood.next.badge" = "Next badge";
+
+/* No mood records in this period */
+"mood.no.records.period" = "No mood records in this period";
+
+/* No records yet */
+"mood.no.records.yet" = "No records yet";
+
+/* Note (Optional) */
+"mood.note.optional" = "Note (optional)";
+
+/* Detected Patterns */
+"mood.patterns.detected" = "Detected Patterns";
+
+/* Premium long term analysis */
+"mood.premium.long.analysis" = "Mood analyses longer than 30 days are premium features. With premium membership, you can analyze your entire history and gain deep insights.";
+
+/* Questions: */
+"mood.questions" = "Questions:";
+
+/* Recommendations */
+"mood.recommendations" = "Recommendations";
+
+/* Record Mood */
+"mood.record.title" = "Record Your Mood";
+
+/* records count */
+"mood.records.count" = "%lld records";
+
+/* Mood Records */
+"mood.records.format" = "%lld records";
+
+/* Mood: Sad */
+"mood.sad" = "Sad";
+
+/* Start adding moods to see trend */
+"mood.start.adding" = "Start adding moods to see your trend";
+
+/* Start tracking */
+"mood.start.tracking" = "Start tracking your mood to see patterns";
+
+/* Statistics */
+"mood.statistics" = "Statistics";
+
+/* Earned badges */
+"mood.streak.badges.earned" = "Badges Earned";
+
+/* Day streak count */
+"mood.streak.days.format" = "%lld day streak";
+
+/* Longest streak: X days */
+"mood.streak.longest.format" = "Longest: %lld days";
+
+/* Mood: Stressed */
+"mood.stressed" = "Stressed";
+
+/* Tags */
+"mood.tags" = "Tags";
+
+/* Tap a mood to record how you feel */
+"mood.tap.to.record" = "Tap to Record";
+
+/* Mood Timeline */
+"mood.timeline" = "Timeline";
+
+/* Today */
+"mood.today" = "Today";
+
+/* Today's Mood */
+"mood.todays.mood" = "Today's Mood";
+
+/* total */
+"mood.total.format" = "%lld total";
+
+/* Track daily emotions */
+"mood.track.daily.emotions" = "Track daily emotions and understand yourself better";
+
+/* Mood Trend */
+"mood.trend" = "Mood Trend";
+
+/* What happened today? */
+"mood.whats.happening.placeholder" = "What happened today?";
+
+/* No location records for selected date */
+"no.records.for.date" = "No Records for This Date";
+
+/* No location records message */
+"no.records.for.date.message" = "No location records found for the selected date.\\nTry selecting a different date.";
+
+/* Dislikes category */
+"note.category.dislike" = "Dislikes";
+
+/* Favorite things category */
+"note.category.favorite" = "Favorites";
+
+/* Hobbies category */
+"note.category.hobby" = "Hobbies";
+
+/* Important notes category */
+"note.category.important" = "Important";
+
+/* Other notes category */
+"note.category.other" = "Other";
+
+/* Add Note */
+"notes.add" = "Add Note";
+
+/* Contact reminder body */
+"notification.contact.reminder.body" = "You haven't talked to %1$@ for %2$lld days. Would you like to call?";
+
+/* Contact reminder title */
+"notification.contact.reminder.title" = "Communication Reminder";
+
+/* Contact saved */
+"notification.contact.saved.title" = "Contact Saved ✓";
+
+/* Contact time */
+"notification.contact.time.title" = "Time to Connect! 📞";
+
+/* Daily activity */
+"notification.daily.activity.title" = "🎯 Daily Activity Time!";
+
+/* Go outside */
+"notification.go.outside.title" = "Time to Go Outside! 🌞";
+
+/* Goal reminder */
+"notification.goal.reminder.title" = "Goal Reminder 🎯";
+
+/* Habit reminder */
+"notification.habit.reminder.title" = "Habit Time! ⭐";
+
+/* Daily motivation */
+"notification.motivation.title" = "Daily Motivation";
+
+/* Weekly summary */
+"notification.weekly.summary.title" = "Weekly Communication Summary 📊";
+
+/* Smart chat about your friends and goals */
+"onboarding.ai.chat.description" = "Smart chat about your friends and goals";
+
+/* Enable */
+"onboarding.ai.enable" = "Enable";
+
+/* We can improve your life even more with our AI assistant Claude */
+"onboarding.ai.improve.life" = "We can improve your life even more with our AI assistant Claude";
+
+/* Personalized daily suggestions every morning */
+"onboarding.ai.morning.insight.description" = "Personalized daily suggestions every morning";
+
+/* Not Now */
+"onboarding.ai.not.now" = "Not Now";
+
+/* One More Thing... */
+"onboarding.ai.one.more.thing" = "One More Thing...";
+
+/* Later */
+"onboarding.later" = "Later";
+
+/* Let's Start */
+"onboarding.lets.start" = "Let's Start";
+
+/* Please select Always option */
+"onboarding.location.always.hint" = "Please select \"Always\" option";
+
+/* Instructions for always location permission */
+"onboarding.location.always.instruction" = "LifeStyles records your location every 15 minutes to improve your quality of life. For this to work in the background:\n\nSettings → LifeStyles → Location → Select \"Always\"";
+
+/* Onboarding premium page subtitle */
+"onboarding.premium.subtitle" = "Try free for 3 days, cancel anytime";
+
+/* Onboarding premium page title */
+"onboarding.premium.title" = "Full Power with Premium";
+
+/* Privacy */
+"onboarding.privacy" = "🔒 Privacy";
+
+/* Skip */
+"onboarding.skip" = "Skip";
+
+/* Skip premium and continue with free version */
+"onboarding.skip.stay.free" = "Continue Free";
+
+/* Partner Information */
+"partner.info" = "Partner Information";
+
+/* Partner Notes */
+"partner.notes" = "Partner Notes";
+
+/* Write information you want to remember about your partner here */
+"partner.notes.placeholder" = "Write information you want to remember about your partner here.";
+
+/* Record more moods to discover patterns */
+"pattern.discover.more" = "Record more moods to discover your patterns";
+
+/* No patterns detected yet */
+"pattern.not.detected.yet" = "No patterns detected yet";
+
+/* What should you do */
+"pattern.what.to.do" = "💡 What Should You Do?";
+
+/* Unlock all achievements */
+"premium.achievements.unlock" = "Unlock All Achievements";
+
+/* Premium analytics card subtitle */
+"premium.analytics.subtitle" = "Unlock detailed insights and AI-powered recommendations to achieve your goals faster";
+
+/* Premium analytics card title */
+"premium.analytics.title" = "Advanced Analytics";
+
+/* Premium badge title */
+"premium.badge.title" = "Premium";
+
+/* Cancel anytime */
+"premium.cancel.anytime" = "Cancel anytime";
+
+/* Can cancel before being charged */
+"premium.cancel.before.charged" = "Cancel anytime before charged";
+
+/* Choose your plan section title */
+"premium.choose.plan" = "Choose Your Plan";
+
+/* Premium CTA button text */
+"premium.cta.start.trial" = "Start Free Trial";
+
+/* Premium feature: Advanced charts */
+"premium.feature.advanced.charts" = "Advanced Charts";
+
+/* Premium feature description: Advanced charts */
+"premium.feature.advanced.charts.desc" = "Detailed charts and visualizations to track your progress over time";
+
+/* Premium feature: AI insights */
+"premium.feature.ai.insights" = "AI-Powered Insights";
+
+/* Premium feature description: AI insights */
+"premium.feature.ai.insights.desc" = "Get personalized recommendations and strategies powered by artificial intelligence";
+
+/* Premium feature: Goal predictions */
+"premium.feature.goal.predictions" = "Goal Predictions";
+
+/* Premium feature description: Goal predictions */
+"premium.feature.goal.predictions.desc" = "See accurate predictions of when you'll achieve your goals";
+
+/* Premium feature: Smart reminders */
+"premium.feature.smart.reminders" = "Smart Reminders";
+
+/* Premium feature description: Smart reminders */
+"premium.feature.smart.reminders.desc" = "Get personalized reminders at the optimal times based on your habits";
+
+/* Premium feature: Trend analysis */
+"premium.feature.trend.analysis" = "Trend Analysis";
+
+/* Premium feature description: Trend analysis */
+"premium.feature.trend.analysis.desc" = "Discover patterns in your behavior and optimize your habits accordingly";
+
+/* Premium feature: Unlimited sync */
+"premium.feature.unlimited.sync" = "Unlimited Cloud Sync";
+
+/* Premium feature description: Unlimited sync */
+"premium.feature.unlimited.sync.desc" = "Access your data from all your devices with unlimited cloud storage";
+
+/* LifeStyles Premium */
+"premium.lifestyles.title" = "LifeStyles Premium";
+
+/* Monthly Subscription */
+"premium.monthly.subscription" = "Monthly Subscription";
+
+/* Premium navigation title */
+"premium.navigation.title" = "Premium";
+
+/* /month
+Per month */
+"premium.per.month" = "/month";
+
+/* Per month */
+"premium.period.month" = "month";
+
+/* Per year */
+"premium.period.year" = "year";
+
+/* Monthly subscription plan */
+"premium.plan.monthly" = "Monthly";
+
+/* Yearly subscription plan */
+"premium.plan.yearly" = "Yearly";
+
+/* Price after trial period */
+"premium.price.after.trial" = "Then just $0.99/month";
+
+/* Reset */
+"premium.reset" = "Reset";
+
+/* Restore Purchases */
+"premium.restore.purchases" = "Restore Purchases";
+
+/* Yearly plan savings badge */
+"premium.savings.yearly" = "Save 50%";
+
+/* More features, unlimited usage */
+"premium.subtitle" = "More features, unlimited usage";
+
+/* Premium subscription view title */
+"premium.title" = "LifeStyles Premium";
+
+/* Today's Usage */
+"premium.todays.usage" = "Today's Usage";
+
+/* Tomorrow at midnight */
+"premium.tomorrow.midnight" = "Tomorrow 00:00";
+
+/* 3 Days Free Trial button */
+"premium.trial.3days" = "Try 3 Days Free";
+
+/* Trial is active status message */
+"premium.trial.active" = "Your trial is active";
+
+/* Trial countdown message */
+"premium.trial.countdown" = "Trial ends in %d days";
+
+/* %d days left */
+"premium.trial.days.remaining" = "%d days left";
+
+/* Trial information text */
+"premium.trial.info" = "7 days free, then charged automatically. Cancel anytime.";
+
+/* Try again tomorrow */
+"premium.try.tomorrow" = "Try Tomorrow";
+
+/* Unlimited Usage with Premium */
+"premium.unlimited.usage" = "Unlimited Usage with Premium";
+
+/* Tap to unlock premium message */
+"premium.unlock.tap" = "Tap to unlock";
+
+/* Upgrade to Premium */
+"premium.upgrade" = "Upgrade to Premium";
+
+/* Upgrade to Premium button */
+"premium.upgrade.button" = "Upgrade to Premium";
+
+/* Auto cleanup */
+/* Learning categories */
+/* Delete all knowledge */
+/* Knowledge privacy subtitle */
+/* Knowledge privacy title */
+/* About Me */
+"profile.about" = "About";
+
+/* Add Hobby */
+"profile.add.hobby" = "Add Hobby";
+
+/* Add Interest */
+"profile.add.interest" = "Add Interest";
+
+/* Add new */
+"profile.add.new" = "Add New";
+
+/* Add Core Value */
+"profile.add.value" = "Add Value";
+
+/* Age */
+"profile.age" = "Age";
+
+/* AI uses this information to provide better suggestions */
+"profile.ai.description" = "AI will use this information to provide personalized recommendations";
+
+/* Basic Information */
+"profile.basic.info" = "Basic Information";
+
+/* My Core Values */
+"profile.core.values" = "Core Values";
+
+/* My Hobbies */
+"profile.hobbies" = "Hobbies";
+
+/* You have no hobbies. Tap + to add */
+"profile.hobbies.empty" = "No hobbies added yet";
+
+/* My Interests */
+"profile.interests" = "Interests";
+
+/* You have no interests. Tap + to add */
+"profile.interests.empty" = "No interests added yet";
+
+/* My Life Goals */
+"profile.life.goals" = "Life Goals";
+
+/* Lifestyle */
+"profile.lifestyle" = "Lifestyle";
+
+/* Alone */
+"profile.living.alone" = "Alone";
+
+/* Living Situation */
+"profile.living.arrangement" = "Living Arrangement";
+
+/* With Family */
+"profile.living.family" = "With Family";
+
+/* With Partner */
+"profile.living.partner" = "With Partner";
+
+/* With Roommates */
+"profile.living.roommates" = "With Roommates";
+
+/* My Profile Information */
+"profile.my.info" = "My Profile Information";
+
+/* My Profile */
+"profile.my.profile" = "My Profile";
+
+/* Name */
+"profile.name" = "Name";
+
+/* Your Name */
+"profile.name.placeholder" = "Enter your name";
+
+/* Occupation */
+"profile.occupation" = "profile.occupation";
+
+/* Software Developer */
+"profile.occupation.placeholder" = "profile.occupation.placeholder";
+
+/* Select */
+"profile.picker.placeholder" = "Select...";
+
+/* Profile Saved */
+"profile.saved" = "Profile Saved";
+
+/* Your profile has been saved successfully. AI can now provide more personalized suggestions. */
+"profile.saved.message" = "Your profile has been saved successfully";
+
+/* You have no core values. Tap + to add */
+"profile.values.empty" = "No values added yet";
+
+/* Work Schedule */
+"profile.work.schedule" = "Work Schedule";
+
+/* 9-5 */
+"profile.work.schedule.9to5" = "9-5";
+
+/* Flexible */
+"profile.work.schedule.flexible" = "Flexible";
+
+/* Night Shift */
+"profile.work.schedule.night" = "Night Shift";
+
+/* Part-time */
+"profile.work.schedule.parttime" = "Part-time";
+
+/* Remote */
+"profile.work.schedule.remote" = "Remote";
+
+/* Days left to milestone */
+"relationship.days.left.format" = "%lld days left";
+
+/* Relationship Duration */
+"relationship.duration" = "Relationship Duration";
+
+/* Next Goal */
+"relationship.next.goal" = "Next Goal";
+
+/* Together */
+"relationship.together" = "Together";
+
+/* Colleague/work relationship type */
+"relationship.type.colleague" = "Colleague";
+
+/* Family relationship type */
+"relationship.type.family" = "Family";
+
+/* Friend relationship type */
+"relationship.type.friend" = "Friend";
+
+/* Partner/romantic relationship type */
+"relationship.type.partner" = "Partner";
+
+/* Route display is off */
+"route.off" = "Route Off";
+
+/* Route display is on */
+"route.on" = "Route On";
+
+/* Set current location button */
+"set.current.location" = "Set Current Location";
+
+/* Set home location for suggestions message */
+"set.home.location.for.suggestions" = "Set your home location for location-based suggestions.";
+
+/* About */
+"settings.about.title" = "About";
+
+/* AI assistant for conversations and suggestions */
+"settings.ai.chat.description" = "AI assistant for conversations and suggestions";
+
+/* Chat Settings */
+"settings.ai.chat.settings" = "Chat Settings";
+
+/* Consent date: %@ */
+"settings.ai.consent.date.format" = "Consent date: %@";
+
+/* Context Mode */
+"settings.ai.context.mode" = "Context Mode";
+
+/* About Shared Data */
+"settings.ai.data.about" = "About Shared Data";
+
+/* Friend Information */
+"settings.ai.data.friends" = "Friend Information";
+
+/* Goals and Habits */
+"settings.ai.data.goals.habits" = "Goals and Habits";
+
+/* Location Data */
+"settings.ai.data.location" = "Location Data";
+
+/* Mood Data */
+"settings.ai.data.mood" = "Mood Data";
+
+/* Data Sharing */
+"settings.ai.data.sharing" = "Data Sharing";
+
+/* X types of data shared with AI */
+"settings.ai.data.types.count.format" = "%lld types of data shared with AI";
+
+/* Data Usage */
+"settings.ai.data.usage" = "Data Usage";
+
+/* Disable All Data Sharing */
+"settings.ai.disable.all.sharing" = "Disable All Data Sharing";
+
+/* Enable All Data Sharing */
+"settings.ai.enable.all.sharing" = "Enable All Data Sharing";
+
+/* Enable AI Features */
+"settings.ai.enable.features" = "Enable AI Features";
+
+/* AI Features */
+"settings.ai.features" = "AI Features";
+
+/* AI Features Active */
+"settings.ai.features.active" = "AI Features Active";
+
+/* Give consent to use AI features */
+"settings.ai.features.give.consent" = "Give consent to use AI features";
+
+/* AI Features Inactive */
+"settings.ai.features.inactive" = "AI Features Inactive";
+
+/* Last AI Request */
+"settings.ai.last.request" = "Last AI Request";
+
+/* Personalized suggestions every morning */
+"settings.ai.morning.insight.description" = "Personalized suggestions every morning";
+
+/* AI Settings & Privacy */
+"settings.ai.privacy.settings" = "AI Settings & Privacy";
+
+/* AI & Privacy */
+"settings.ai.privacy.title" = "AI & Privacy";
+
+/* Revoke AI Consent */
+"settings.ai.revoke.consent" = "Revoke AI Consent";
+
+/* Smart mode shares necessary data based on your questions and optimizes costs */
+"settings.ai.smart.mode.description" = "Smart mode shares necessary data based on your questions and optimizes costs";
+
+/* App Permissions */
+"settings.app.permissions" = "App Permissions";
+
+/* App Statistics */
+"settings.app.stats.title" = "App Statistics";
+
+/* Appearance & Profile */
+"settings.appearance.profile" = "Appearance & Profile";
+
+/* Battery Optimization */
+"settings.battery.optimization" = "Battery Optimization";
+
+/* Export Data */
+"settings.data.export" = "Export Data";
+
+/* Exporting... */
+"settings.data.exporting" = "Exporting...";
+
+/* Importing... */
+"settings.data.importing" = "Importing...";
+
+/* Data Management */
+"settings.data.management.title" = "Data Management";
+
+/* Restore from Backup */
+"settings.data.restore.backup" = "Restore from Backup";
+
+/* Delete All Data */
+"settings.delete.all.data" = "Delete All Data";
+
+/* Delete All Data? */
+"settings.delete.all.data.title" = "Delete All Data?";
+
+/* Deleting... */
+"settings.delete.deleting" = "Deleting...";
+
+/* This action cannot be undone. All your friends, goals, habits and location history will be deleted. */
+"settings.delete.warning" = "This action cannot be undone. All your friends, goals, habits and location history will be deleted.";
+
+/* Edit profile */
+"settings.edit.profile" = "Edit Profile";
+
+/* Delete error: */
+"settings.error.delete.prefix" = "Delete error:";
+
+/* Export error: */
+"settings.error.export.prefix" = "Export error:";
+
+/* Import error: */
+"settings.error.import.prefix" = "Import error:";
+
+/* General Settings */
+"settings.general.settings" = "General Settings";
+
+/* Current Home Location */
+"settings.home.location.current" = "Current Home Location";
+
+/* Set Home Location */
+"settings.home.location.set" = "Set Home Location";
+
+/* Home radius in meters */
+"settings.home.radius.meters" = "%lld meters";
+
+/* Info */
+"settings.info" = "Info";
+
+/* Language */
+"settings.language" = "Language / Dil";
+
+/* Change */
+"settings.language.change.button" = "Change Language";
+
+/* Change Language */
+"settings.language.change.title" = "Language Settings";
+
+/* App needs to be reopened to apply language changes.
+
+Değişikliklerin uygulanması için uygulama yeniden açılmalı. */
+"settings.language.restart.message" = "App needs to be reopened to apply language changes.\n\nDeğişikliklerin uygulanması için uygulama yeniden açılmalı.";
+
+/* Language restart warning */
+"settings.language.restart.warning" = "Language change requires app restart.\n\nDil değişikliği için uygulamanın yeniden başlatılması gerekir.";
+
+/* Features */
+"settings.location.features" = "Features";
+
+/* Location Management */
+"settings.location.management" = "Location Management";
+
+/* Open Settings */
+"settings.location.open.settings" = "Open Settings";
+
+/* Location Permission */
+"settings.location.permission" = "Location Permission";
+
+/* Location permission description */
+"settings.location.permission.desc" = "You need to grant permission from system settings to receive location-based suggestions.";
+
+/* Location privacy info */
+"settings.location.privacy.info" = "Your location information is stored only on your device";
+
+/* Significant changes info */
+"settings.location.significant.changes" = "Works only on significant location changes";
+
+/* Location */
+"settings.location.title" = "Location";
+
+/* Activity Reminders */
+"settings.notifications.activity.reminders" = "Activity Reminders";
+
+/* Daily activity suggestions */
+"settings.notifications.activity.reminders.description" = "Daily activity suggestions";
+
+/* Detailed Settings */
+"settings.notifications.detailed" = "Detailed Settings";
+
+/* End */
+"settings.notifications.end.time" = "End Time";
+
+/* Determines how often friend and goal reminders will be sent. */
+"settings.notifications.frequency.description" = "How often to receive reminders";
+
+/* Friend Reminders */
+"settings.notifications.friend.reminders" = "Friend Reminders";
+
+/* For friends you need to contact */
+"settings.notifications.friend.reminders.description" = "For friends you need to contact";
+
+/* Goal Reminders */
+"settings.notifications.goal.reminders" = "Goal Reminders";
+
+/* When your goal deadlines approach */
+"settings.notifications.goal.reminders.description" = "When your goal deadlines approach";
+
+/* Habit Reminders */
+"settings.notifications.habit.reminders" = "Habit Reminders";
+
+/* For your daily habits */
+"settings.notifications.habit.reminders.description" = "For your daily habits";
+
+/* Location Suggestions */
+"settings.notifications.location.suggestions" = "Location Suggestions";
+
+/* Go out and activity suggestions */
+"settings.notifications.location.suggestions.description" = "Go out and activity suggestions";
+
+/* Motivation Messages */
+"settings.notifications.motivation.messages" = "Motivation Messages";
+
+/* Daily motivation and inspiration */
+"settings.notifications.motivation.messages.description" = "Daily motivation and inspiration";
+
+/* Open Settings */
+"settings.notifications.open.settings" = "Open Settings";
+
+/* Notification Permission */
+"settings.notifications.permission" = "Notification Permission";
+
+/* Notification permission description */
+"settings.notifications.permission.desc" = "You need to grant permission from system settings to receive notifications.";
+
+/* No notifications will be sent during the specified hours. */
+"settings.notifications.quiet.active.description" = "Quiet hours are active";
+
+/* Quiet Hours */
+"settings.notifications.quiet.hours" = "Quiet Hours";
+
+/* Enable Quiet Hours */
+"settings.notifications.quiet.hours.enable" = "Enable Quiet Hours";
+
+/* Set hours when you don't want to receive notifications. */
+"settings.notifications.quiet.inactive.description" = "Quiet hours are inactive";
+
+/* Reminder Frequency */
+"settings.notifications.reminder.frequency" = "Reminder Frequency";
+
+/* Start */
+"settings.notifications.start.time" = "Start Time";
+
+/* Streak Warnings */
+"settings.notifications.streak.warnings" = "Streak Warnings";
+
+/* Warning if your streak is at risk */
+"settings.notifications.streak.warnings.description" = "Warning if your streak is at risk";
+
+/* Notification Preferences
+Notifications */
+"settings.notifications.title" = "Notification Preferences";
+
+/* Notification Types */
+"settings.notifications.types" = "Notification Types";
+
+/* You can enable or disable notification types. */
+"settings.notifications.types.description" = "Choose which notifications you want to receive";
+
+/* Open App Settings */
+"settings.open.app.settings" = "Open App Settings";
+
+/* For contact history tracking */
+"settings.permission.contacts.desc" = "For contact history tracking";
+
+/* Contacts */
+"settings.permission.contacts.title" = "Contacts";
+
+/* For activity suggestions */
+"settings.permission.location.desc" = "For activity suggestions";
+
+/* Location */
+"settings.permission.location.title" = "Location";
+
+/* For reminders and suggestions */
+"settings.permission.notifications.desc" = "For reminders and suggestions";
+
+/* Notifications */
+"settings.permission.notifications.title" = "Notifications";
+
+/* Permissions */
+"settings.permissions.detail.title" = "Permissions";
+
+/* Permissions */
+"settings.permissions.title" = "Permissions";
+
+/* Personalization */
+"settings.personalization.title" = "Personalization";
+
+/* AI messages used today: */
+"settings.premium.ai.messages.today" = "AI messages used today:";
+
+/* Unlimited AI chat, advanced analytics and priority support. */
+"settings.premium.benefits.description" = "Unlimited AI chat, advanced analytics and priority support.";
+
+/* Today: X/Y messages */
+"settings.premium.daily.usage.format" = "Today: %lld/%lld messages";
+
+/* You are a Premium Member */
+"settings.premium.member.status" = "You are a Premium Member";
+
+/* X messages */
+"settings.premium.messages.count" = "%lld messages";
+
+/* X/month */
+"settings.premium.price.month" = "%@/month";
+
+/* X remaining */
+"settings.premium.remaining.format" = "%lld remaining";
+
+/* Premium */
+"settings.premium.title" = "Premium";
+
+/* Total messages: */
+"settings.premium.total.messages" = "Total messages:";
+
+/* Unlimited AI chat, advanced analytics */
+"settings.premium.unlimited.features" = "Unlimited AI chat, advanced analytics";
+
+/* Upgrade to Premium */
+"settings.premium.upgrade" = "Upgrade to Premium";
+
+/* Privacy */
+"settings.privacy" = "Privacy";
+
+/* Privacy Policy */
+"settings.privacy.policy" = "Privacy Policy";
+
+/* Profile completion */
+"settings.profile.completion" = "Profile: %d%% complete";
+
+/* Location Logs */
+"settings.stats.location.logs" = "Location Logs";
+
+/* Storage Usage */
+"settings.stats.storage.usage" = "Storage Usage";
+
+/* Total Friends */
+"settings.stats.total.friends" = "Total Friends";
+
+/* Total Goals */
+"settings.stats.total.goals" = "Total Goals";
+
+/* Total Habits */
+"settings.stats.total.habits" = "Total Habits";
+
+/* Terms of Use */
+"settings.terms.of.use" = "Terms of Use";
+
+/* Test message */
+"settings.test.message" = "TEST - IF THIS OPENS, PROBLEM IS ELSEWHERE";
+
+/* Settings */
+"settings.title" = "Settings";
+
+/* Version */
+"settings.version" = "Version";
+
+/* Add special date */
+"special.dates.add" = "Add Special Date";
+
+/* Anniversary */
+"special.dates.anniversary" = "Anniversary";
+
+/* No special dates added yet */
+"special.dates.empty" = "No special dates added";
+
+/* Special date info */
+"special.dates.info" = "Special Dates";
+
+/* You can optionally add notes about this special day. */
+"special.dates.notes.footer" = "These dates will be used for personalized reminders";
+
+/* Special dates section title */
+"special.dates.title" = "Special Dates";
+
+/* With You Every Moment of Life */
+"splash.tagline" = "With You at Every Moment of Life";
+
+/* Statistics label: Level */
+"stat.level" = "Level";
+
+/* Statistics label: Points */
+"stat.points" = "Points";
+
+/* Statistics label: Streak (consecutive days) */
+"stat.streak" = "Streak";
+
+/* At home stats label */
+"stats.at.home" = "At Home";
+
+/* Outside stats label */
+"stats.outside" = "Outside";
+
+/* Records stats label */
+"stats.records" = "Records";
+
+/* User is at home status */
+"status.at.home" = "You Are at Home";
+
+/* User is outside status */
+"status.outside" = "You Are Outside";
+
+/* Streak message: Keep going */
+"streak.message.keep_going" = "You're doing great! Keep going! 🔥";
+
+/* Streak message: Legendary */
+"streak.message.legendary" = "Legendary streak! 🌟";
+
+/* Streak message: On fire */
+"streak.message.on_fire" = "You're on fire! 🔥🔥🔥";
+
+/* Streak message: Start */
+"streak.message.start" = "Complete your first activity! 🎯";
+
+/* Suggested activities section title */
+"suggested.activities" = "Suggested Activities";
+
+/* Contacts/Friends tab title */
+"tab.contacts" = "Friends";
+
+/* Dashboard tab title */
+"tab.dashboard" = "Home";
+
+/* Goals tab title */
+"tab.goals" = "Goals";
+
+/* Location/Activities tab title */
+"tab.location" = "Activity";
+
+/* Settings tab title */
+"tab.settings" = "Settings";
+
+/* Frequently Used Tags */
+"tags.frequently.used" = "Frequently Used Tags";
+
+/* Selected tags count */
+"tags.selected.count.format" = "%lld selected";
+
+/* Suggestions */
+"tags.suggestions" = "Suggestions";
+
+/* All */
+"template.all" = "All";
+
+/* Continue Without Template */
+"template.continue.without" = "Continue Without Template";
+
+/* Guided writing description */
+"template.guided.writing" = "Structure your thoughts with guided writing";
+
+/* Use writing template */
+"template.use.writing" = "Use writing template";
+
+/* Time of day: Afternoon (12:00-18:00) */
+"time.afternoon" = "Afternoon";
+
+/* Time of day: All day */
+"time.all_day" = "All Day";
+
+/* days */
+"time.days" = "days";
+
+/* Time of day: Evening (18:00-22:00) */
+"time.evening" = "Evening";
+
+/* Time of day: Morning (06:00-12:00) */
+"time.morning" = "Morning";
+
+/* Time of day: Night (22:00-06:00) */
+"time.night" = "Night";
+
+/* day */
+"time.unit.day" = "day";
+
+/* year */
+"time.unit.year" = "year";
+
+/* Tips content: Creative activities benefits */
+"tips.creative.content" = "Creative activities increase dopamine release in the brain, strengthening motivation and happiness. Artistic activities facilitate stress management by opening emotional expression channels.";
+
+/* Tips title: Creative activities */
+"tips.creative.title" = "Creative Activities 🎨";
+
+/* Tips content: Exercise benefits */
+"tips.exercise.content" = "Regular exercise improves mood by releasing endorphins and serotonin. 150 minutes of moderate activity per week protects cardiovascular health and increases energy levels.";
+
+/* Tips title: Exercise activities */
+"tips.exercise.title" = "Exercise and Activity 💪";
+
+/* Tips content: Learning benefits */
+"tips.learning.content" = "Learning new skills enables brain restructuring through neuroplasticity. Regular mental activities increase cognitive reserve, slowing age-related cognitive decline.";
+
+/* Tips title: Learning activities */
+"tips.learning.title" = "Learning and Development 📚";
+
+/* Tips content: Outdoor activities benefits */
+"tips.outdoor.content" = "Spending time in nature increases vitamin D synthesis and reduces stress by lowering cortisol levels. Green spaces enhance focus by reducing mental fatigue.";
+
+/* Tips title: Outdoor activities */
+"tips.outdoor.title" = "Outdoor Activity 🌳";
+
+/* Tips content: Relaxation benefits */
+"tips.relax.content" = "Conscious rest activates the parasympathetic nervous system, reducing heart rate and putting the body into recovery mode. Meditation and deep breathing exercises calm the amygdala, reducing anxiety.";
+
+/* Tips title: Relaxation activities */
+"tips.relax.title" = "Rest and Relaxation 🧘";
+
+/* Tips content: Social interaction benefits */
+"tips.social.content" = "Quality social interactions release oxytocin hormone, strengthening trust and bonding feelings. Regular social activities reduce depression risk and improve quality of life.";
+
+/* Tips title: Social activities */
+"tips.social.title" = "Social Interaction 🤝";
+
+/* Total distance label */
+"total.distance" = "Total Distance";
+
+/* Total location records count label */
+"total.records" = "Total Records";
+
+/* Add first transaction */
+"transaction.add.first" = "Add First Transaction";
+
+/* Credit */
+"transaction.credit" = "Credit";
+
+/* Debt */
+"transaction.debt" = "Debt";
+
+/* Due in X days */
+"transaction.due.days" = "📅 Due: %lld days";
+
+/* Due today */
+"transaction.due.today" = "🔔 Due today";
+
+/* Due within X days */
+"transaction.due.within.days" = "⏰ Within %lld days";
+
+/* No transaction records */
+"transaction.empty" = "No debt/credit records yet";
+
+/* I owe them */
+"transaction.i.owe" = "I owe them";
+
+/* Overdue by X days */
+"transaction.overdue.days" = "⚠️ %lld days overdue";
+
+/* Paid */
+"transaction.paid" = "Paid";
+
+/* They owe me */
+"transaction.they.owe" = "They owe me";
+
+/* Transaction type */
+"transaction.type" = "Transaction Type";
+
+/* Unpaid */
+"transaction.unpaid" = "Unpaid";
+
+/* View location history button */
+"view.history" = "View History";
+
+/* List view toggle */
+"view.list" = "List";
+
+/* Map view toggle */
+"view.map" = "Map";
+
+/* Most Used Words */
+"wordcloud.most.used" = "Most Used Words";
+
+/* Not enough data yet */
+"wordcloud.not.enough.data" = "Not enough data yet";
+
+/* Remove */
+/* A toggle that enables or disables a notification when a user exits a monitored region. */
+/* A toggle that lets the user mark a person as important. */
+/* Preview */
+/* e.g. Music, sports, travel */
+/* A placeholder text for the user to input the name of their habit. */
+/* A placeholder text for a transaction description field. */
+/* Add custom tag */
+/* A button label that translates to "Next". */
+/* "İletişim" is a generic term for communication, such as texting, calling, or messaging. */
+/* A label indicating that the user needs to contact their friend. */
+/* A section header for the frequency of contact with a friend. */
+/* A button label that allows a user to dismiss a goal suggestion. */
+/* A label for the start date of a relationship in the "Add Friend" view. */
+/* A section header that translates to "Relationship Details". */
+/* A section header that asks the user to select the type of relationship they have with the person they're adding. */
+/* A description below the "Henüz mood kaydı yok" text, instructing the user to tap the "+" button to record their first mood. */
+/* Inactive */
+/* A button that dismisses the current view. */
+/* A label for the user to input their name. */
+/* Choose Template */
+/* Current Location */
+/* A bullet point symbol. */
+/* ❤️ */
+/* 🎉 */
+/* A text-based badge representing a family member. */
+/* An emoji used to represent love. */
+/* A heart emoji used in the anniversary card. */
+/* 💡 */
+/* A text-based badge representing a colleague relationship. */
+/* 📊 */
+/* The title of the view. */
+/* The title of the private memories view. */
+/* A text indicating that a badge is locked. */
+/* 🔥 */
+/* 😊 */
+/* 😐 */
+/* DASHBOARD COMPONENTS - New Additions */
+
+/* Achievements section title */
+"dashboard.achievements.title" = "Achievements";
+
+/* Earned achievements count format */
+"dashboard.achievements.earned.format" = "%d/%d Earned";
+
+/* Show all achievements button */
+"dashboard.achievements.all" = "All";
+
+/* Achievement description label */
+"dashboard.achievement.description" = "Description";
+
+/* Achievement progress label */
+"dashboard.achievement.progress" = "Progress";
+
+/* Achievement current progress label */
+"dashboard.achievement.current" = "Current";
+
+/* Achievement target label */
+"dashboard.achievement.target" = "Target";
+
+/* Achievement completion percentage label */
+"dashboard.achievement.completion" = "Completion";
+
+/* Achievement earned date label */
+"dashboard.achievement.earned.date" = "Earned Date";
+
+/* Achievement missing fields format */
+"dashboard.achievement.missing.format" = "Missing: %@";
+
+/* Achievement AI requirement label */
+"dashboard.achievement.ai.required" = "Required for AI";
+
+/* QUICK CONTACT LOG */
+
+/* Change friend button */
+"quick.contact.change" = "Change";
+
+/* Date label */
+"quick.contact.date" = "Date";
+
+/* Meeting quality question */
+"quick.contact.quality" = "How Was The Meeting?";
+
+/* Notes optional label */
+"quick.contact.notes.optional" = "Notes (Optional)";
+
+/* No friend found message */
+"quick.contact.no.friend" = "No Friend Found";
+
+/* Add friend instruction */
+"quick.contact.add.instruction" = "Add friends from the Friends tab first";
+
+/* Days ago format */
+"quick.contact.days.ago.format" = "%d days ago";
+
+/* Never contacted message */
+"quick.contact.never" = "Never contacted";
+
+/* NOTIFICATION CENTER */
+
+/* No notifications title */
+"notification.center.empty.title" = "No Notifications";
+
+/* No notifications message */
+"notification.center.empty.message" = "New reminders and suggestions will appear here";
+
+/* ANALYTICS CARDS - New Additions */
+
+/* Hourly distribution title */
+"analytics.hourly.distribution" = "Hourly Distribution";
+
+/* Daily distribution title */
+"analytics.daily.distribution" = "Daily Distribution";
+
+/* Weekday label */
+"analytics.weekday" = "Weekday";
+
+/* Weekend label */
+"analytics.weekend" = "Weekend";
+
+/* Congratulations title */
+"analytics.congratulations" = "Congratulations!";
+
+/* All achievements completed message */
+"analytics.achievements.all.completed" = "All recent achievements completed";
+
+/* Note taking trend title */
+"analytics.note.trend" = "Note Taking Trend:";
+
+/* Excellent note taking message */
+"analytics.note.excellent" = "✨ Amazing! You're taking notes in most of your meetings. This shows deep and meaningful communication.";
+
+/* Good note taking message */
+"analytics.note.good" = "👍 You're doing well. Taking more notes can make your meetings more meaningful.";
+
+/* Try note taking message */
+"analytics.note.try" = "💡 Try taking notes during your meetings. They could become valuable memories.";
+
+/* Start note taking message */
+"analytics.note.start" = "📝 Great time to start taking notes! Even small details matter.";
+
+/* General trend label */
+"analytics.general.trend" = "General Trend:";
+
+/* Average mood label */
+"analytics.average.mood" = "Average Mood:";
+
+/* No mood data yet */
+"analytics.mood.no.data" = "No Mood Data Yet";
+
+/* Add mood to create trend */
+"analytics.mood.add.prompt" = "Add mood to your meetings to create trend analysis";
+
+/* Streak start label */
+"analytics.streak.start" = "Start:";
+
+/* No streak yet */
+"analytics.streak.none" = "No Streak Yet";
+
+/* Add mood to create streak */
+"analytics.streak.add.prompt" = "Add mood to your meetings to create streaks";
+
+/* Which days are more positive */
+"analytics.days.positive" = "Which days are more positive?";
+
+/* No daily data yet */
+"analytics.daily.no.data" = "No Daily Data Yet";
+
+/* Excellent streak message format */
+"analytics.streak.excellent.format" = "🎉 Awesome! Your %d great meetings streak continues!";
+
+/* Good streak message format */
+"analytics.streak.good.format" = "✨ You're doing great! %d great meetings. Keep it up!";
+
+/* Nice streak message format */
+"analytics.streak.nice.format" = "👍 %d good meetings! Your relationship is going well.";
+
+/* Remaining format */
+"analytics.remaining.format" = "%d remaining";
+
+/* JOURNAL EDITOR - New Additions */
+
+/* Journal type label */
+"journal.editor.type" = "Journal Type";
+
+/* Title optional label */
+"journal.editor.title.optional" = "Title (Optional)";
+
+/* Photo optional label */
+"journal.editor.photo.optional" = "Photo (Optional)";
+
+/* Remove button */
+"journal.editor.remove" = "Remove";
+
+/* Add photo button */
+"journal.editor.photo.add" = "Add Photo";
+
+/* Select from gallery */
+"journal.editor.gallery" = "Select from gallery";
+
+/* Content label */
+"journal.editor.content" = "Content";
+
+/* Tags optional label */
+"journal.editor.tags.optional" = "Tags (Optional)";
+
+/* Add button */
+"journal.editor.add" = "Add";
+
+/* No tags yet message */
+"journal.editor.tags.empty" = "No tags added yet";
+
+/* Link to today's mood */
+"journal.editor.link.mood" = "Link to Today's Mood";
+
+/* Suggested tags */
+"journal.editor.tags.suggested" = "Suggested Tags";
+
+/* MEMORY - New Additions */
+
+/* Save button */
+"memory.save" = "Save";
+
+/* Saving state */
+"memory.saving" = "Saving...";
+
+/* Camera option */
+"memory.camera" = "Camera";
+
+/* Gallery option */
+"memory.gallery" = "Gallery";
+
+/* GOAL DETAIL - New Additions */
+
+/* Complete goal confirmation */
+"goal.complete.confirm" = "Are you sure you want to mark this goal as completed?";
+
+/* Delete goal confirmation */
+"goal.delete.confirm" = "Are you sure you want to delete this goal? This action cannot be undone.";
+
+/* Progress label */
+"goal.progress" = "Progress";
+
+/* Completed label */
+"goal.completed" = "Completed";
+
+/* Steps label */
+"goal.steps" = "Steps";
+
+/* Complete goal button */
+"goal.complete.button" = "Complete Goal";
+
+/* Delete goal button */
+"goal.delete.button" = "Delete Goal";
+
+/* FRIEND INSIGHTS - New Additions */
+
+/* Detailed analysis title */
+"insights.detailed.analysis" = "Detailed Analysis";
+
+/* Last 6 months label */
+"insights.last.six.months" = "Last 6 Months";
+
+/* Deep analysis description */
+"insights.deep.analysis.description" = "Deep analysis of your relationship";
+
+/* Mood analysis title */
+"insights.mood.analysis" = "Mood Analysis";
+
+/* Mood tracking label */
+"insights.mood.tracking" = "Mood Tracking";
+
+/* Add mood prompt */
+"insights.mood.add.prompt" = "You can create more detailed analysis by adding mood to your meetings. Mood tracking helps you understand the quality of your relationship.";
+
+/* CALL REMINDER WIDGET - New Additions */
+/* Time overdue warning message */
+"widget.time.overdue.warning" = "TIME IS UP! ⚠️";
+
+/* Call time approaching message */
+"widget.call.time.approaching" = "call time is approaching";
+
+/* Call time label */
+"widget.call.time" = "call time";
+
+/* Time overdue short message */
+"widget.time.overdue" = "Time's Up!";
+
+/* Time remaining label */
+"widget.time.remaining" = "left";
+
+/* API USAGE STATS VIEW - New Additions */
+/* Daily usage section header */
+"settings.api.daily.usage" = "Daily Usage";
+
+/* Hourly usage section header */
+"settings.api.hourly.usage" = "Hourly Usage";
+
+/* All time statistics section header */
+"settings.api.all.time.stats" = "All Time Statistics";
+
+/* Quota warning message */
+"settings.api.quota.warning" = "Daily Quota Almost Depleted";
+
+/* Actions section header */
+"settings.api.actions" = "Actions";
+
+/* MOOD ANALYTICS - New Additions */
+/* Detailed analysis section header */
+"mood.analytics.detailed.analysis" = "Detailed Analysis";
+
+/* Highlights subsection label */
+"mood.analytics.highlights" = "Highlights";
+
+/* Pattern subsection label */
+"mood.analytics.pattern" = "Pattern";
+
+/* Suggestions subsection label */
+"mood.analytics.suggestions" = "Suggestions";
+
+/* MEMORY DETAIL VIEW - New Additions */
+/* Favorite badge label */
+"memory.favorite" = "Favorite";
+
+/* Location section header */
+"memory.location" = "Location";
+
+/* Tags section header */
+"memory.tags" = "Tags";
+
+/* Notes section header */
+"memory.notes" = "Notes";
+
+/* GOALS FILTER BAR - New Additions */
+/* Category filter label */
+"goals.filter.category" = "Category";
+
+/* Priority filter label */
+"goals.filter.priority" = "Priority";
+
+/* Date range filter label */
+"goals.filter.date.range" = "Date Range";
+
+/* Clear filters button */
+"goals.filter.clear" = "Clear Filters";
+
+/* WIDGETS & GAMIFICATION - Batch Additions */
+/* Call button */
+"widget.call" = "Call";
+
+/* Message button */
+"widget.message" = "Message";
+
+/* Done button */
+"widget.done" = "Done";
+
+/* Today label */
+"widget.today" = "Today";
+
+/* All up to date message */
+"widget.all.up.to.date" = "All Up to Date";
+
+/* All friends contacted message */
+"widget.all.friends.contacted" = "All friends are up to date";
+
+/* Level abbreviation */
+"gamification.level.abbr" = "LVL";
+
+/* Next level label */
+"gamification.next.level" = "Next Level";
+
+/* Recent badges header */
+"gamification.recent.badges" = "Recently Earned Badges";
+
+/* View all button */
+"gamification.view.all" = "View All";
+
+/* Detailed stats header */
+"gamification.detailed.stats" = "Detailed Statistics";
+
+/* Locked badge label */
+"badge.locked" = "🔒 Locked";
+
+/* Not earned yet message */
+"badge.not.earned" = "Not earned yet";
+
+/* Badges header */
+"badge.header" = "Badges";
+
+/* Achievement unlocked header */
+"achievement.unlocked" = "🎉 Achievement Unlocked!";
+
+/* Awesome exclamation */
+"achievement.awesome" = "Awesome!";
+
+/* Next button */
+"achievement.next" = "Next";
+
+/* No results found */
+"journal.no.results" = "No Results Found";
+
+/* Change search criteria message */
+"journal.change.criteria" = "Change your search criteria or clear filters";
+
+/* Clear filters button */
+"journal.clear.filters" = "Clear Filters";
+
+/* Net status label */
+"balance.net.status" = "Net Status";
+
+/* Balanced label */
+"balance.balanced" = "Balanced";
+
+/* Receivable label */
+"balance.receivable" = "Receivable";
+
+/* Friends widget title */
+"widget.friends" = "My Friends";
+
+/* All okay status */
+"widget.all.okay" = "All okay ✓";
+
+/* In progress status */
+"suggestion.in.progress" = "In Progress";
+
+/* Accept button */
+"suggestion.accept" = "Accept";
+
+/* No mood records yet */
+"mood.no.records" = "No mood records yet";
+
+/* Tap to record first mood */
+"mood.tap.to.record" = "Tap + button to record your first mood";
+
+/* Notes section */
+"friend.notes" = "Notes";
+
+/* Save button */
+"friend.save" = "Save";
+
+/* Score label */
+"dashboard.score" = "SCORE";
+
+/* Contact support message */
+"error.contact.support" = "Please contact support if the problem persists";
+
+/* Retry button */
+"error.retry" = "Retry";
+
+/* AI suggestion label */
+"ai.suggestion" = "AI Suggestion";
+
+/* Relationship health */
+"friend.relationship.health" = "Relationship Health";
+
+/* Achievements section */
+"friend.achievements" = "Achievements";
+
+/* No journal on this date */
+"journal.no.entry" = "No journal on this date";
+
+/* Clear button */
+"filter.clear" = "Clear";
+
+/* Journal distribution */
+"journal.distribution" = "Journal Distribution";
+
+/* HIGH PRIORITY - AI & KNOWLEDGE */
+/* Delete all AI knowledge warning */
+"ai.knowledge.delete.warning" = "All information learned by AI will be deleted. This action cannot be undone.";
+
+/* Try AI Chat button */
+"ai.chat.try" = "Try AI Chat";
+
+/* Categories label */
+"ai.categories" = "Categories";
+
+/* Clear button */
+"ai.clear" = "Clear";
+
+/* Retention period - Off */
+"ai.retention.off" = "Off";
+
+/* Retention period - 30 days */
+"ai.retention.30days" = "30 Days";
+
+/* Retention period - 60 days */
+"ai.retention.60days" = "60 Days";
+
+/* Retention period - 90 days */
+"ai.retention.90days" = "90 Days";
+
+/* Learned information header */
+"ai.learned.info" = "Learned Information";
+
+/* Active status */
+"ai.active" = "Active";
+
+/* AI doesn't know you yet */
+"ai.doesnt.know.you" = "AI Doesn't Know You Yet";
+
+/* Chat to learn prompt */
+"ai.chat.to.learn" = "As you chat with AI, it will learn about you, your friends, and your interests";
+
+/* User category */
+"ai.user" = "User";
+
+/* Select button */
+"chat.select" = "Select";
+
+/* Chat selected (accessibility) */
+"chat.selected" = "Chat selected";
+
+/* Claude Haiku model name */
+"ai.claude.haiku" = "Claude Haiku";
+
+/* See details button */
+"ai.see.details" = "See Details";
+
+/* Preview label */
+"tag.preview" = "Preview";
+
+/* Hidden content label */
+"premium.hidden.content" = "Hidden Content";
+
+/* AI abbreviation */
+"ai.abbr" = "AI";
+
+/* Chat opened (accessibility) */
+"chat.opened" = "Chat opened";
+
+/* MEDIUM PRIORITY */
+/* Life (app name part 1) */
+"app.name.life" = "Life";
+
+/* Styles (app name part 2) */
+"app.name.styles" = "Styles";
+
+/* Smart suggestions header */
+"dashboard.smart.suggestions" = "Smart Suggestions";
+
+/* Previous records */
+"mood.previous.records" = "Previous Records";
+
+/* How are you feeling today */
+"mood.how.feeling" = "How Are You Feeling Today?";
+
+/* First mood prompt */
+"mood.first.prompt" = "Create your first mood record and start tracking your daily emotional journey";
+
+/* Live Activity iOS requirement */
+"live.activity.requirement" = "Live Activity requires iOS 16.1+";
+
+/* No notes */
+"friend.no.notes" = "No notes";
+
+/* Streak Indicator (debug/component name) */
+"debug.streak.indicator" = "Streak Indicator";
+
+/* Mood Grid Week View (debug/component name) */
+"debug.mood.grid.week" = "Mood Grid (Week View)";
+
+/* Stay duration */
+"location.stay.duration" = "Stay Duration";
+
+/* Terms and privacy disclaimer */
+"onboarding.terms.privacy" = "By continuing, you agree to our Terms and Privacy Policy";
+
+/* LOW PRIORITY */
+/* Manage subscription */
+"settings.manage.subscription" = "Manage Subscription";
+
+/* Premium label */
+"premium.label" = "Premium";
+
+/* Total distance */
+"location.total.distance" = "Total Distance";
+
+/* Quick questions loading */
+"friend.quick.questions.loading" = "Loading quick questions...";
+
+/* Not selected */
+"friend.not.selected" = "Not Selected";
+
+/* Markdown support indicator */
+"journal.markdown" = "(Markdown)";
+
+/* Close button */
+"memory.close" = "Close";
+
+/* Generate analysis button */
+"mood.generate.analysis" = "Generate Analysis";
+
+
+/* App name - Life */
+"app.name.life" = "Life";
+
+/* App name - Styles */
+"app.name.styles" = "Styles";
+
+/* Dashboard smart suggestions */
+"dashboard.smart.suggestions" = "Smart Suggestions";
+
+/* AI abbreviation */
+"ai.abbr" = "AI";
+
+/* Previous mood records */
+"mood.previous.records" = "Previous Records";
+
+/* How are you feeling */
+"mood.how.feeling" = "How Are You Feeling Today?";
+
+/* First mood prompt */
+"mood.first.prompt" = "Create your first mood record and start tracking your daily emotional journey";
+
+/* Live Activity requirement */
+"live.activity.requirement" = "Live Activity requires iOS 16.1+";
+
+/* No notes */
+"friend.no.notes" = "No notes";
+
+/* Debug - Streak Indicator */
+"debug.streak.indicator" = "Streak Indicator";
+
+/* Debug - Mood Grid Week View */
+"debug.mood.grid.week" = "Mood Grid (Week View)";
+
+/* Location stay duration */
+"location.stay.duration" = "Stay Duration";
+
+/* Onboarding terms and privacy */
+"onboarding.terms.privacy" = "By continuing, you agree to our Terms and Privacy Policy";
+
+/* Settings manage subscription */
+"settings.manage.subscription" = "Manage Subscription";
+
+/* Premium label */
+"premium.label" = "Premium";
+
+/* Total distance */
+"location.total.distance" = "Total Distance";
+
+/* Quick questions loading */
+"friend.quick.questions.loading" = "Loading quick questions...";
+
+/* Not selected */
+"friend.not.selected" = "Not Selected";
+
+/* Markdown support indicator */
+"journal.markdown" = "(Markdown)";
+
+/* Close button */
+"memory.close" = "Close";
+
+/* Generate analysis button */
+"mood.generate.analysis" = "Generate Analysis";
+
+
+/* === API USAGE STATS VIEW === */
+
+/* Today's usage label */
+"api.usage.today" = "Used Today";
+
+/* Daily limit label */
+"api.usage.daily.limit" = "Daily Limit";
+
+/* Remaining quota label */
+"api.usage.remaining.quota" = "Remaining Quota";
+
+/* This hour label */
+"api.usage.this.hour" = "This Hour";
+
+/* Total requests label */
+"api.usage.total.requests" = "Total Requests";
+
+/* Input tokens label */
+"api.usage.input.tokens" = "Input Tokens";
+
+/* Output tokens label */
+"api.usage.output.tokens" = "Output Tokens";
+
+/* Estimated cost label */
+"api.usage.estimated.cost" = "Estimated Cost";
+
+/* Claude pricing info */
+"api.usage.claude.pricing" = "Claude 3.5 Haiku pricing: $0.25/1M input, $1.25/1M output tokens";
+
+/* Reset cost stats button */
+"api.usage.reset.cost.stats" = "Reset Cost Statistics";
+
+/* Reset rate limit debug button */
+"api.usage.reset.rate.limit" = "Reset Rate Limit (Debug)";
+
+/* API usage statistics title */
+"api.usage.stats.title" = "API Usage Statistics";
+
+
+/* === TOAST MESSAGES === */
+
+/* Success toast button */
+"toast.success" = "Success Toast";
+
+/* Error toast button */
+"toast.error" = "Error Toast";
+
+/* Warning toast button */
+"toast.warning" = "Warning Toast";
+
+/* Info toast button */
+"toast.info" = "Info Toast";
+
+/* Custom toast button */
+"toast.custom" = "Custom Toast";
+
+/* Multiple toast queue button */
+"toast.multiple.queue" = "Multiple Toast (Queue)";
+
+
+/* === TAG COMPONENTS === */
+
+/* Done button */
+"tag.done" = "Done";
+
+/* Emoji optional placeholder */
+"tag.emoji.optional" = "Emoji (optional)";
+
+/* New tag title */
+"tag.new.title" = "New Tag";
+
+
+/* === AUTO SAVE INDICATOR === */
+
+/* Type something placeholder */
+"autosave.type.something" = "Type something...";
+
+/* Save success button */
+"autosave.save.success" = "Save (Success)";
+
+/* Save error button */
+"autosave.save.error" = "Save (Error)";
+
+
+/* === ERROR STATE VIEW === */
+
+/* Restart app label */
+"error.restart.app" = "Restart Application";
+
+/* Check for updates label */
+"error.check.updates" = "Check for Updates";
+
+
+/* === JOURNAL SEARCH === */
+
+/* Journal search placeholder */
+"journal.search.placeholder" = "Search journal...";
+
+
+/* === MASONRY GRID === */
+
+/* View label */
+"masonry.view" = "View";
+
+
+/* === NOTIFICATION CENTER === */
+
+/* Mark all as read label */
+"notification.mark.all.read" = "Mark All as Read";
+
+/* Clear all label */
+"notification.clear.all" = "Clear All";
+
+
+/* === FULL ACHIEVEMENTS === */
+
+/* All achievements title */
+"achievement.all.title" = "All Achievements";
+
+/* Search achievements placeholder */
+"achievement.search.placeholder" = "Search achievements...";
+
+
+/* === CONVERSATION CARD === */
+
+/* General label */
+"conversation.general" = "General";
+
+
+/* === MODERN JOURNAL EDITOR === */
+
+/* Add title placeholder */
+"journal.add.title.placeholder" = "Add title...";
+
+/* Photo description placeholder */
+"journal.photo.description.placeholder" = "Photo description...";
+
+/* New tag placeholder */
+"journal.new.tag.placeholder" = "New tag...";
+
+/* Add tag title */
+"journal.add.tag.title" = "Add Tag";
+
+
+/* === USER KNOWLEDGE TAB === */
+
+/* Search placeholder */
+"knowledge.search.placeholder" = "Search...";
+
+/* Sort label */
+"knowledge.sort" = "Sort";
+
+/* AI Brain Settings title */
+"knowledge.ai.brain.settings" = "AI Brain Settings";
+
+
+/* === DASHBOARD VIEW === */
+
+/* Dashboard summary card accessibility */
+"dashboard.summary.card.accessibility" = "Dashboard summary card";
+
+/* Add mood label */
+"dashboard.add.mood" = "Add Mood";
+
+/* Log contact label */
+"dashboard.log.contact" = "Log Contact";
+
+
+/* === MODERN INSIGHTS === */
+
+/* Add first mood label */
+"insights.add.first.mood" = "Add First Mood";
+
+
+/* === JOURNAL LIST === */
+
+/* Journal navigation title */
+"journal.navigation.title" = "Journal";
+
+
+/* === FILTER BAR === */
+
+/* Search goals habits placeholder */
+"goals.search.placeholder" = "Search goal or habit...";
+
+
+/* === FRIEND DETAIL === */
+
+/* Detail tab accessibility */
+"friend.detail.tab.accessibility" = "Detail tab";
+
+
+/* === ACHIEVEMENT COMPONENTS === */
+
+/* Achievement detail title */
+"achievement.detail.title" = "Achievement Detail";
+
+
+/* === QUICK CONTACT LOG === */
+
+/* Log contact navigation title */
+"contact.log.navigation.title" = "Log Contact";
+
+
+/* === PREMIUM ONBOARDING === */
+
+/* Premium membership icon accessibility */
+"premium.membership.icon" = "Premium membership icon";
+
+/* Settings manage subscription */
+"settings.manage.subscription" = "Manage Subscription";
+
+
+/* === NOTIFICATION SETTINGS === */
+
+/* Notification preferences title */
+"Bildirim Tercihleri" = "Notification Preferences";
+
+/* Notifications active status */
+"Bildirimler Aktif" = "Notifications Active";
+
+/* Daily motivation notification */
+"Günlük Motivasyon" = "Daily Motivation";
+
+
+/* === LOCATION SETTINGS === */
+
+/* Location tracking setting */
+"Konum Takibi" = "Location Tracking";
+
+/* Background location permission message */
+"background.location.permission.message" = "Location permission required";
+
+/* Location tracking information */
+"location.tracking.info" = "About location tracking";
+
+/* Search activities */
+"search.activities" = "Search activities...";
+
+/* Stats today */
+"stats.today" = "Today";
+
+/* Stats total */
+"stats.total" = "Total";
+
+/* Stats streak */
+"stats.streak" = "Streak";
+
+
+/* === AI INSIGHTS === */
+
+/* AI insight preview first suggestion */
+"ai.insight.preview.suggestion.1" = "Connect with your friends more often";
+
+/* AI insight preview second suggestion */
+"ai.insight.preview.suggestion.2" = "Explore new places";
+
+/* AI insight preview text */
+"ai.insight.preview.text" = "Your AI analysis is being prepared...";
+
+/* AI suggestions section title */
+"ai.insight.suggestions" = "AI Suggestions";
+
+
+/* === AUTO SAVE === */
+
+/* Auto save states */
+"auto.save.states" = "Auto-save states";
+
+/* Without message indicator */
+"without.message" = "Without message";
+
+
+/* === CONTACT CHANNELS === */
+
+/* Email contact channel */
+"contact.channel.email" = "Email";
+
+/* In person contact channel */
+"contact.channel.inPerson" = "In Person";
+
+/* Message contact channel */
+"contact.channel.message" = "Message";
+
+/* Phone contact channel */
+"contact.channel.phone" = "Phone";
+
+/* Video contact channel */
+"contact.channel.video" = "Video";
+
+
+/* === GOALS === */
+
+/* Goal details title */
+"goal.details" = "Goal Details";
+
+/* Goals tab title */
+"goals.tab.title" = "Goals";
+
+
+/* === JOURNAL COMPONENTS === */
+
+/* Compact mood cards style */
+"compact.mood.cards" = "Compact mood cards";
+
+/* Compact pills style */
+"compact.pills" = "Compact pills view";
+
+/* Journal type pills */
+"journal.type.pills" = "Journal type options";
+
+/* Mood mini stat cards */
+"mood.mini.stat.cards" = "Mini mood statistics";
+
+
+/* === NOTIFICATION GROUPS === */
+
+/* Older notifications group */
+"notification.group.older" = "Older";
+
+/* This week notifications group */
+"notification.group.this.week" = "This Week";
+
+/* Today notifications group */
+"notification.group.today" = "Today";
+
+/* Yesterday notifications group */
+"notification.group.yesterday" = "Yesterday";
+
+
+/* === ONBOARDING === */
+
+/* Location always permission hint */
+"onboarding.location.always.hint" = "Hint for always location permission";
+
+/* Location always permission instruction */
+"onboarding.location.always.instruction" = "Enable 'Always' option in Settings";
+
+
+/* === TAG CATEGORIES === */
+
+/* Activity tag category */
+"tag.category.activity" = "Activity";
+
+/* General tag category */
+"tag.category.general" = "General";
+
+/* Mood tag category */
+"tag.category.mood" = "Mood";
+
+/* Occasion tag category */
+"tag.category.occasion" = "Occasion";
+
+/* Priority tag category */
+"tag.category.priority" = "Priority";
+
+/* Topic tag category */
+"tag.category.topic" = "Topic";
+
+
+/* === TOAST & MISC === */
+
+/* Toast demo message */
+"toast.demo" = "Demo message";
+
+
+/* === COMMON BUTTONS === */
+
+/* Cancel button */
+"button.cancel" = "Cancel";
+
+/* Save button */
+"button.save" = "Save";
+
+/* Update button */
+"button.update" = "Update";
+
+/* Delete button */
+"button.delete" = "Delete";
+
+/* OK button */
+"button.ok" = "OK";
+
+/* Edit button */
+"button.edit" = "Edit";
+
+/* Details button */
+"button.details" = "Details";
+
+/* Complete button */
+"button.complete" = "Complete";
+
+/* Message button */
+"button.message" = "Message";
+
+/* Call button */
+"button.call" = "Call";
+
+/* Add button */
+"button.add" = "Add";
+
+/* Close button */
+"button.close" = "Close";
+
+/* Share button */
+"button.share" = "Share";
+
+
+/* === COMMON PLACEHOLDERS === */
+
+/* Name placeholder */
+"placeholder.name" = "Name";
+
+/* Phone placeholder */
+"placeholder.phone" = "Phone";
+
+/* Place name placeholder */
+"placeholder.place.name" = "Place name";
+
+/* Notes placeholder */
+"placeholder.notes" = "Your notes...";
+
+/* Habit example placeholder */
+"placeholder.habit.example" = "e.g., Morning meditation";
+
+
+/* === SECTION HEADERS === */
+
+/* Notes section */
+"section.notes" = "Notes";
+
+
+/* === DYNAMIC TEXTS === */
+
+/* Tags label */
+"tags.label" = "Tags";
+
+/* Selected tags count */
+"tags.selected.count" = "%lld selected";
+
+/* Records count */
+"location.records.count" = "%lld records";
+
+/* Locations count */
+"location.count" = "%lld locations";
+
+/* Badges earned count */
+"badges.earned.count" = "%lld / %lld Earned";
+
+/* Badge earned date */
+"badge.earned.date" = "Earned: %@";
+
+
+/* === WIDGET STRINGS === */
+
+/* Friends waiting widget text */
+"widget.friends.waiting" = "%lld friends waiting 📞";
+
+/* All done widget text */
+"widget.all.done" = "All done ✓";
+
+/* App name */
+"app.name" = "LifeStyles";
+
+
+/* === MEMORIES STRINGS === */
+
+/* Memory title placeholder */
+"memory.title.placeholder" = "Title...";
+
+/* Photo count format */
+"memory.photo.count" = "%lld";
+
+/* Friends count format */
+"memory.friends.count" = "%lld";
+
+/* Tag format */
+"memory.tag.format" = "#%@";
+
+/* Location latitude */
+"memory.location.latitude" = "Lat: %f";
+
+/* Location longitude */
+"memory.location.longitude" = "Lon: %f";
+
+/* Move to private */
+"memory.move.to.private" = "Move to Private";
+
+/* Remove from private */
+"memory.remove.from.private" = "Remove from Private";
+
+/* Private folder title */
+"memory.private.folder" = "🔒 Private Folder";
+
+/* Private memory count */
+"memory.private.count" = "%lld";
+
+/* Photo pagination */
+"memory.photo.pagination" = "%lld / %lld";
+
+/* Selected friends count */
+"memory.selected.friends" = "%lld";
+
+/* Memory labels */
+"memory.label.title" = "Title...";
+"memory.label.date" = "Date...";
+"memory.label.friends" = "Friends...";
+"memory.label.tags" = "Tags...";
+
+/* Memory placeholders */
+"memory.placeholder.title" = "Give your memory a title...";
+"memory.placeholder.add.tag" = "Add tag...";
+
+/* Memory navigation */
+"memory.nav.select.friend" = "Select Friend";
+"memory.nav.select.location" = "Select Location";
+"memory.nav.private.folder" = "🔒 Private Folder";
+"memory.nav.new.private" = "New Private Memory";
+"memory.nav.memories" = "📸 Memories";
+
+
+/* === DASHBOARD STRINGS === */
+
+/* Dashboard notifications title */
+"dashboard.notifications.title" = "Notifications";
+
+/* Dashboard unread notifications count */
+"dashboard.notifications.unread.count" = "%lld unread";
+
+/* Dashboard notifications loading */
+"dashboard.notifications.loading" = "Loading notifications...";
+
+/* Dashboard show all notifications button */
+"dashboard.notifications.show.all" = "Show All Notifications";
+
+/* Dashboard notification badge count */
+"dashboard.notifications.badge.count" = "%lld";
+
+/* Dashboard new goal action */
+"dashboard.action.new.goal" = "New Goal";
+
+/* Dashboard new habit action */
+"dashboard.action.new.habit" = "New Habit";
+
+/* Dashboard write journal action */
+"dashboard.action.write.journal" = "Write Journal";
+
+/* Achievement points format */
+"achievement.points.format" = "%lld points";
+
+/* Achievement unlocked multiple */
+"achievement.unlocked.multiple" = "🎉 %lld Achievements Unlocked!";
+
+/* Achievement pagination format */
+"achievement.pagination.format" = "%lld / %lld";
+
+/* Achievement progress percentage */
+"achievement.progress.percentage" = "%lld%%";
+
+/* Achievement progress fraction */
+"achievement.progress.fraction" = "%lld/%lld";
+
+/* Achievement current progress */
+"achievement.current.progress" = "%lld";
+
+/* Achievement requirement */
+"achievement.requirement" = "%lld";
+
+/* Achievement completion percentage */
+"achievement.completion.percentage" = "%%%lld";
+
+/* Dashboard contact search placeholder */
+"dashboard.contact.search.placeholder" = "Search Friend";
+
+/* Retry button */
+"button.retry" = "Retry";
+
+
+/* === MOODJOURNAL / JOURNAL STRINGS === */
+
+/* Tag format - used for displaying tags */
+"journal.tag.format" = "#%@";
+
+/* Tag format with bullet */
+"journal.tag.bullet" = "• #%@";
+
+/* Word count - just the number */
+"journal.word.count" = "%lld";
+
+/* Word count with label */
+"journal.word.count.label" = "%lld words";
+
+/* Reading time with label */
+"journal.reading.time" = "%lld min";
+
+/* Reading time with reading label */
+"journal.reading.time.label" = "%lld min read";
+
+/* Character count */
+"journal.character.count" = "%lld characters";
+
+/* Journal entry count */
+"journal.count" = "%lld journals";
+
+/* Journal entry simple count */
+"journal.entry.count" = "%lld";
+
+/* More tags indicator */
+"journal.tag.more" = "+%lld";
+
+/* Stats count */
+"journal.stats.count" = "%lld";
+
+/* Mood record count */
+"mood.record.count" = "%lld records";
+
+/* Template usage count */
+"template.usage.count" = "%lld";
+
+/* Calendar day number */
+"journal.calendar.day" = "%lld";
+
+/* Mood datetime format */
+"journal.mood.datetime" = "%@ • %@";
+
+/* Percentage format */
+"journal.percentage.format" = "%lld%%";
+
+/* Goals count */
+"goals.count" = "%lld";
+
+/* Friends count */
+"friends.count" = "%lld";
+
+/* Preview button */
+"button.preview" = "Preview";
+
+/* Analyze button */
+"button.analyze" = "Start Analysis";
+
+/* Re-analyze button */
+"button.reanalyze" = "Re-analyze";
+
+/* Remove photo button */
+"button.remove.photo" = "Remove Photo";
+
+/* Weekly analysis button */
+"button.weekly.analysis" = "Create Weekly Analysis";
+
+/* Journal detail navigation title */
+"journal.nav.detail" = "Journal Detail";
+
+/* Day detail navigation title */
+"journal.nav.day.detail" = "Day Detail";
+
+/* Pattern detail navigation title */
+"journal.nav.pattern.detail" = "Pattern Detail";
+
+/* Add sticker navigation title */
+"journal.nav.sticker.add" = "Add Sticker";
+
+/* Template select navigation title */
+"journal.nav.template.select" = "Select Template";
+
+/* Mood analytics navigation title */
+"journal.nav.mood.analytics" = "Mood Analytics";
+
+/* Journal title placeholder */
+"journal.placeholder.title" = "Title (optional)";
+
+/* Photo caption placeholder */
+"journal.placeholder.photo.caption" = "Photo caption (optional)";
+
+
+/* === COMPONENTS / GENERIC STRINGS === */
+
+/* Generic count - just number */
+"component.count" = "%lld";
+
+/* Generic value - just number */
+"component.value" = "%lld";
+
+/* Generic days count */
+"component.days" = "%lld";
+
+/* Percentage format */
+"component.percentage" = "%lld%%";
+
+/* Score format */
+"component.score" = "%lld";
+
+/* Rank format */
+"component.rank" = "%lld";
+
+/* Remaining count */
+"component.remaining" = "%lld";
+
+/* Total count */
+"component.total" = "%lld";
+
+/* Index format (1-based) */
+"component.index" = "%lld";
+
+
+/* === CURRENCY / BALANCE === */
+
+/* Positive balance with TL */
+"balance.positive" = "+ %@ TL";
+
+/* Negative balance with TL */
+"balance.negative" = "- %@ TL";
+
+/* Debt amount */
+"balance.debt" = "%@ TL";
+
+/* Credit amount */
+"balance.credit" = "%@ TL";
+
+/* Transaction amount with currency */
+"transaction.amount" = "%@ %@";
+
+
+/* === DURATION / TIME === */
+
+/* Years duration */
+"duration.years" = "%lld";
+
+/* Months duration */
+"duration.months" = "%lld";
+
+/* Days duration */
+"duration.days" = "%lld";
+
+
+/* === STREAK / PROGRESS === */
+
+/* Current streak */
+"streak.current" = "%lld";
+
+/* Streak with label */
+"streak.with.label" = "%lld day streak";
+
+/* Daily streak */
+"mood.daily.streak" = "%lld day streak";
+
+/* Streak badges count */
+"streak.badges.count" = "%lld";
+
+/* Badge days */
+"badge.days" = "%lld";
+
+/* Progress percentage */
+"progress.percentage" = "%lld%%";
+
+/* Progress fraction */
+"progress.fraction" = "%lld/%lld";
+
+/* Progress with label */
+"progress.with.label" = "Progress: %lld%%";
+
+
+/* === MOOD / INTENSITY === */
+
+/* Mood intensity */
+"mood.intensity" = "%lld/5";
+
+/* Intensity level with label */
+"mood.intensity.label" = "Intensity level: %lld / 5";
+
+/* Mood with name and intensity */
+"mood.with.intensity" = "%@, intensity level %lld";
+
+/* Mood type display */
+"mood.type.display" = "%@ mood";
+
+/* Title value pair */
+"mood.title.value" = "%@: %@";
+
+
+/* === ANALYTICS === */
+
+/* Weekday count */
+"analytics.weekday.count" = "%lld";
+
+/* Weekend count */
+"analytics.weekend.count" = "%lld";
+
+/* Milestone remaining */
+"analytics.milestone.remaining" = "%lld";
+
+/* Confidence percentage */
+"analytics.confidence" = "%lld%%";
+
+/* Message count */
+"analytics.message.count" = "%lld";
+
+
+/* === TAG / USAGE === */
+
+/* Tag usage count */
+"tag.usage.count" = "%lld× used";
+
+/* Tag frequency */
+"tag.frequency" = "%lld times";
+
+
+/* === RELATIONSHIP === */
+
+/* Relationship health score */
+"relationship.health.score" = "%lld%%";
+
+/* Anniversary days */
+"relationship.anniversary.days" = "%lld";
+
+
+/* === CALENDAR / DATE === */
+
+/* Calendar day number */
+"calendar.day.number" = "%lld";
+
+
+/* === GOAL / HABIT === */
+
+/* Days remaining */
+"goal.days.remaining" = "%lld";
+
+/* Target count */
+"habit.target.count" = "%lld";
+
+/* Active filter count */
+"filter.active.count" = "%lld";
+
+/* Completed today */
+"stats.completed.today" = "%lld";
+
+
+/* === LOCATION === */
+
+/* Record count */
+"location.record.count" = "%lld records";
+
+
+/* === NOTES / COUNT === */
+
+/* Notes count in parentheses */
+"notes.count.parentheses" = "(%lld)";
+
+
+/* === ANALYTICS MESSAGES === */
+
+/* Normal streak message */
+"analytics.streak.normal" = "🤔 Last %lld meetings were normal. Maybe you could talk more.";
+
+/* Difficult streak message */
+"analytics.streak.difficult" = "💙 Last %lld meetings were difficult. Keep talking with this person.";
+
+
+/* === NAVIGATION TITLES === */
+
+/* Daily insight navigation */
+"nav.daily.insight" = "Your Daily Insight";
+
+/* Save mood navigation */
+"nav.save.mood" = "Save Mood";
+
+/* Emoji picker navigation */
+"nav.emoji.picker" = "Choose Emoji";
+
+/* Add note navigation */
+"nav.add.note" = "Add Note";
+
+/* Tags navigation */
+"nav.tags" = "Tags";
+
+/* Frequent tags navigation */
+"nav.frequent.tags" = "Frequent Tags";
+
+
+/* === SECTION HEADERS === */
+
+/* Selected tags section */
+"section.selected.tags" = "Selected Tags";
+
+/* Tag info section */
+"section.tag.info" = "Tag Info";
+
+/* Category section */
+"section.category" = "Category";
+
+/* Color section */
+"section.color" = "Color";
+
+/* Debt/Credit section */
+"section.debt.credit" = "Debt/Credit";
+
+
+/* === BUTTON / LABEL TEXT === */
+
+/* Edit title button */
+"button.edit.title" = "Edit Title";
+
+/* View details button */
+"button.view.details" = "View Details";
+
+/* Add as goal button */
+"button.add.as.goal" = "Add as Goal";
+
+/* Remind button */
+"button.remind" = "Remind";
+
+/* Not interested button */
+"button.not.interested" = "Not Interested";
+
+/* Mark as paid button */
+"button.mark.paid" = "Mark as Paid";
+
+/* Mark as unpaid button */
+"button.mark.unpaid" = "Mark as Unpaid";
+
+/* Complete button */
+"button.complete" = "Complete";
+
+
+/* === TEXTFIELD PLACEHOLDERS === */
+
+/* Title placeholder */
+"placeholder.title" = "Title";
+
+/* Mood note placeholder */
+"placeholder.mood.note" = "What happened today?";
+
+/* Emoji search placeholder */
+"placeholder.emoji.search" = "Search emoji...";
+
+/* Tag name placeholder */
+"placeholder.tag.name" = "Name";
+
+/* Custom tag placeholder */
+"placeholder.custom.tag" = "Add custom tag";
+
+
+/* === LABELS === */
+
+/* Tags label */
+"label.tags" = "Tags";
+
+"text.intprogress.100" = "\(Int(progress * 100))%";
+
+"text.totalcount" = "\(totalCount)";
+
+"text.count" = "\(count)";
+
+"text.days" = "\(days)";
+
+"text.deneme.süresi.bitince.otomatik" = "Deneme süresi bitince otomatik olarak \(purchaseManager.monthlyPrice)/ay abonelik başlayacak.";
+
+"text.statstodaycount.sınırsız" = "\(stats.todayCount) (Sınırsız)";
+
+"label.mevcut.konum" = "Mevcut Konum";
+
+"label.kaydet" = "Kaydet";
+
+"nav.ai.onayı" = "AI Onayı";
+
+"nav.paylaşılan.veriler" = "Paylaşılan Veriler";
+
+"text.limiterrequeststoday" = "\(limiter.requestsToday)";
+
+"text.limiterremainingdailyquota" = "\(limiter.remainingDailyQuota)";
+
+"text.limiterrequeststhishour.20" = "\(limiter.requestsThisHour) / 20";
+
+"text.claudeservicetotalrequests" = "\(claudeService.totalRequests)";
+
+"text.claudeservicetotalinputtokens" = "\(claudeService.totalInputTokens)";
+
+"text.claudeservicetotaloutputtokens" = "\(claudeService.totalOutputTokens)";
+
+"text.kalan.limiterremainingdailyquota.request" = "Kalan: \(limiter.remainingDailyQuota) request";
+
+"text.intcalculatecompletionprofile.profile" = "\(Int(calculateCompletion(profile: profile)))%";
+
+"label.yeniden.oluştur" = "Yeniden Oluştur";
+
+"label.yeni.öneriler.oluştur" = "Yeni Öneriler Oluştur";
+
+"text.planprice.planperiod" = "\(plan.price) / \(plan.period)";
+
+"text.userprogresscurrentlevel" = "\(userProgress.currentLevel)";
+
+"text.level.userprogresscurrentlevel" = "Level \(userProgress.currentLevel)";
+
+"text.userprogresstotalxp.xp" = "\(userProgress.totalXP) XP";
+
+"text.userprogressxpfornextlevel.userprogressxpincurrentlevel.xp" = "\(userProgress.xpForNextLevel - userProgress.xpInCurrentLevel) XP";
+
+"text.userprogressxpincurrentlevel.userprogressxpfornextlevel.xp" = "\(userProgress.xpInCurrentLevel) / \(userProgress.xpForNextLevel) XP";
+
+"text.intuserprogresslevelprogress.100" = "\(Int(userProgress.levelProgress * 100))%";
+
+"text.userprogressxpincurrentleveluserprogressxpfornextlevel.xp" = "\(userProgress.xpInCurrentLevel)/\(userProgress.xpForNextLevel) XP";
+
+"text.intanimatedprogress.100" = "\(Int(animatedProgress * 100))%";
+
+"nav.başarılar" = "Başarılar";
+
+"text.badgetypexpreward.xp" = "+\(badgeType.xpReward) XP";
+
+"text.kazanıldı.formattedfulldatedate" = "Kazanıldı: \(formattedFullDate(date))";
+
+"text.badgescount.badgetypeallcasescount.kazanıldı" = "\(badges.count) / \(BadgeType.allCases.count) Kazanıldı";
+
+"text.intdoublebadgescount.doublebadgetypeallcasescount.100" = "\(Int(Double(badges.count) / Double(BadgeType.allCases.count) * 100))%";
+
+"text.sortedgroupscount.konum" = "\(sortedGroups.count) konum";
+
+"label.yer.ekle" = "Yer Ekle";
+
+"nav.kayıtlı.yerler" = "Kayıtlı Yerler";
+
+"text.completionpointsearned" = "\(completion.pointsEarned)";
+
+"text.konum.bilgisi.alınamıyor.lütfen" = "Konum bilgisi alınamıyor. Lütfen GPS'in açık olduğundan ve uygulamanın konum izni olduğundan emin olun.";
+
+"text.sonuç.bulunamadı" = "Sonuç Bulunamadı";
+
+"text.farklı.anahtar.kelimeler.deneyin" = "Farklı anahtar kelimeler deneyin";
+
+"label.düzenle" = "Düzenle";
+
+"text.totalrecorded" = "\(totalRecorded)";
+
+"nav.ai.chat" = "AI Chat";
+
+"section.tarih.ve.saat" = "Tarih ve Saat";
+
+"section.görüşme.nasıl.geçti" = "Görüşme Nasıl Geçti?";
+
+"section.iletişim.kanalı" = "İletişim Kanalı";
+
+"section.kişi.bilgileri" = "Kişi Bilgileri";
+
+"section.ilişki.tipi" = "İlişki Tipi";
+
+"section.ilişki.bilgileri" = "İlişki Bilgileri";
+
+"section.sevgi.dili" = "Sevgi Dili";
+
+"section.iletişim.sıklığı" = "İletişim Sıklığı";
+
+"button.ekle" = "Ekle";
+
+"button.tamam" = "Tamam";
+
+"section.notlar.opsiyonel" = "Notlar (Opsiyonel)";
+
+"label.ai.chat" = "AI Chat";
+
+"label.şimdi.ara" = "Şimdi Ara";
+
+"label.1.dakika.test" = "1 Dakika (Test)";
+
+"label.15.dakika" = "15 Dakika";
+
+"label.30.dakika" = "30 Dakika";
+
+"label.1.saat" = "1 Saat";
+
+"section.hatırlatma.süresi.dynamic.island" = "Hatırlatma Süresi (Dynamic Island)";
+
+"label.tutar" = "Tutar";
+
+"label.açıklama" = "Açıklama";
+
+"label.vade.tarihi" = "Vade Tarihi";
+
+"nav.yeni.işlem" = "Yeni İşlem";
+
+"text.bilgiler.viewmodelfilteredknowledgecount" = "Bilgiler (\(viewModel.filteredKnowledge.count))";
+
+"text.confidence" = "\(confidence)%";
+
+"text.factconfidencepercentage" = "\(fact.confidencePercentage)%";
+
+"label.ayarlar" = "Ayarlar";
+
+"text.knowledgeconfidencepercentage" = "\(knowledge.confidencePercentage)%";
+
+"nav.ai.brain" = "AI Brain";
+
+"text.sortedandfilteredconversationscount.sonuç" = "\(sortedAndFilteredConversations.count) sonuç";
+
+"text.selectedconversationscount.seçili" = "\(selectedConversations.count) Seçili";
+
+"label.tümünü.sil" = "Tümünü Sil";
+
+"label.başlıkları.yenile" = "Başlıkları Yenile";
+
+"label.başlık" = "Başlık";
+
+"label.tarih" = "Tarih";
+
+"label.arkadaşlar" = "Arkadaşlar";
+
+"label.etiketler" = "Etiketler";
+
+"nav.analizler" = "Analizler";
+
+"button.ayarlara.git" = "Ayarlara Git";
+
+"button.daha.sonra" = "Daha Sonra";
+
+"section.kişisel.bilgiler" = "KİŞİSEL BİLGİLER";
+
+"section.ilgili.bilgiler" = "İLGİLİ BİLGİLER";
+
+"section.güncel.durum" = "GÜNCEL DURUM";
+
+"section.kanitlanmiş.bilgiler" = "KANITLANMIŞ BİLGİLER";
+
+"placeholder.avatar.emoji" = "Avatar Emoji";
+
+"placeholder.örn.müzik.spor.seyahat" = "Örn: Müzik, spor, seyahat";
+
+"placeholder.örn.yemek.parası.bilet" = "Örn: Yemek parası, Bilet ücreti...";
+
+"placeholder.etiket.ekle" = "Etiket ekle";

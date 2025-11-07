@@ -97,7 +97,7 @@ extension View {
             .fill(Color.blue.gradient)
             .frame(height: 200)
             .overlay {
-                Text("Gizli İçerik")
+                Text(String(localized: "premium.hidden.content", comment: "Hidden premium content"))
                     .font(.title)
                     .foregroundStyle(.white)
             }

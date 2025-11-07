@@ -72,7 +72,7 @@ struct StepReviewView: View {
 
                             Spacer()
 
-                            Text("\(state.content.count) karakter")
+                            Text(String(localized: "journal.character.count", defaultValue: "\(state.content.count) characters", comment: "Character count"))
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
                         }
@@ -99,7 +99,7 @@ struct StepReviewView: View {
 
                             FlowLayout(spacing: 6) {
                                 ForEach(state.selectedTags, id: \.self) { tag in
-                                    Text("#\(tag)")
+                                    Text(String(localized: "journal.tag.format", defaultValue: "#\(tag)", comment: "Tag format"))
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(state.selectedType.color)
